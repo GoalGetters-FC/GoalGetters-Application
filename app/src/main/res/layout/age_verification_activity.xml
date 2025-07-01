@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="32dp">
+
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/gg_logo"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp" />
+
+    <TextView
+        android:id="@+id/ageQuestionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Are you 18 years or older?"
+        android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@id/logoImageView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp" />
+
+    <Button
+        android:id="@+id/yesButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Yes"
+        android:backgroundTint="@android:color/black"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/ageQuestionTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/noButton"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="8dp" />
+
+    <Button
+        android:id="@+id/noButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="No"
+        android:backgroundTint="#FFC107"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/ageQuestionTextView"
+        app:layout_constraintStart_toEndOf="@id/yesButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="8dp" />
+
+    <TextView
+        android:id="@+id/messageTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textColor="@android:color/holo_red_dark"
+        app:layout_constraintTop_toBottomOf="@id/yesButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout> 

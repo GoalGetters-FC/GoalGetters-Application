@@ -11,16 +11,49 @@
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
-            android:theme="@style/Theme.GoalGetters">
+            android:theme="@style/AppTheme">
+        
+        <!-- Splash Activity (Launcher) -->
         <activity
-                android:name=".MainActivity"
-                android:exported="true">
+                android:name=".ui.activities.SplashActivity"
+                android:exported="true"
+                android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Login Activity -->
+        <activity
+                android:name=".ui.activities.LoginActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
+        <!-- Register Activity -->
+        <activity
+                android:name=".ui.activities.RegisterActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
+        <!-- Age Verification Activity -->
+        <activity
+                android:name=".ui.activities.AgeVerificationActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
+        <!-- Forgot Password Activity -->
+        <activity
+                android:name=".ui.activities.ForgotPasswordActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
+        <!-- Main Activity (with bottom navigation) -->
+        <activity
+                android:name=".ui.activities.MainActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
     </application>
 
 </manifest>
