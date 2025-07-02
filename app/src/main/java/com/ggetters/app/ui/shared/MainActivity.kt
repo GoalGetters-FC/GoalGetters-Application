@@ -1,9 +1,12 @@
-package com.ggetters.app.ui.views
+package com.ggetters.app.ui.shared
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.ggetters.app.R
+import com.ggetters.app.ui.home.HomeFragment
+import com.ggetters.app.ui.profile.ProfileFragment
+import com.ggetters.app.ui.settings.SettingsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -44,4 +47,4 @@ class MainActivity : AppCompatActivity() {
         transaction.commit()
         currentFragment = fragment
     }
-} 
+}

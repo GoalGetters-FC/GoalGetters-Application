@@ -15,7 +15,7 @@
         
         <!-- Splash Activity (Launcher) -->
         <activity
-                android:name=".ui.views.SplashActivity"
+                android:name=".ui.onboarding.SplashActivity"
                 android:exported="true"
                 android:theme="@style/AppTheme">
             <intent-filter>
@@ -26,31 +26,31 @@
 
         <!-- Login Activity -->
         <activity
-                android:name=".ui.views.LoginActivity"
+                android:name=".ui.auth.LoginActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Register Activity -->
         <activity
-                android:name=".ui.views.RegisterActivity"
+                android:name=".ui.auth.RegisterActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Age Verification Activity -->
         <activity
-                android:name=".ui.views.AgeVerificationActivity"
+                android:name=".ui.auth.AgeVerificationActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Forgot Password Activity -->
         <activity
-                android:name=".ui.views.ForgotPasswordActivity"
+                android:name=".ui.auth.ForgotPasswordActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Main Activity (with bottom navigation) -->
         <activity
-                android:name=".ui.views.MainActivity"
+                android:name=".ui.shared.MainActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 

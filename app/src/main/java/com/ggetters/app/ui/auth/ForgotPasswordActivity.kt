@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.views
+package com.ggetters.app.ui.auth
 
 import android.os.Bundle
 import android.widget.Button
@@ -18,4 +18,4 @@ class ForgotPasswordActivity : AppCompatActivity() {
             showFeedbackBottomSheet("Reset Email Sent", "Check your inbox for a password reset link.")
         }
     }
-} 
+}

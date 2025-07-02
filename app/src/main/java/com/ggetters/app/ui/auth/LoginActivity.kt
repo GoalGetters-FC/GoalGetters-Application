@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.views
+package com.ggetters.app.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,6 +6,8 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.ggetters.app.R
+import com.ggetters.app.ui.shared.MainActivity
+import com.ggetters.app.ui.auth.RegisterActivity
 
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,4 +37,4 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
     }
-} 
+}

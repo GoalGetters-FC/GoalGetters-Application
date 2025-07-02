@@ -22,3 +22,4 @@ data class UserEntity(
     val updatedAt: Date,
     val stampedAt: Date? = null  // soft-delete / stash timestamp
 )
+

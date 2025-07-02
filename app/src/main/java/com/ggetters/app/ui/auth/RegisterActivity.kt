@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.views
+package com.ggetters.app.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
@@ -26,4 +26,4 @@ class RegisterActivity : AppCompatActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
         }
     }
-} 
+}

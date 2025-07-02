@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.views
+package com.ggetters.app.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,6 +6,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.ggetters.app.R
 import com.ggetters.app.core.extensions.showFeedbackBottomSheet
+import com.ggetters.app.ui.shared.MainActivity
 
 class AgeVerificationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,4 +29,4 @@ class AgeVerificationActivity : AppCompatActivity() {
             showFeedbackBottomSheet("Access Denied", "You must be 18 or older to use this app.")
         }
     }
-} 
+}

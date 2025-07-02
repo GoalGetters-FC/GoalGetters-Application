@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.views
+package com.ggetters.app.ui.onboarding
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,6 +8,7 @@ import android.view.animation.AlphaAnimation
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.ggetters.app.R
+import com.ggetters.app.ui.auth.LoginActivity
 
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,4 +26,4 @@ class SplashActivity : AppCompatActivity() {
             finish()
         }, 1800)
     }
-} 
+}
