@@ -1,9 +1,10 @@
-package com.ggetters.app.ui.activities
+package com.ggetters.app.ui.views
 
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.ggetters.app.R
+import com.ggetters.app.core.extensions.showFeedbackBottomSheet
 
 class ForgotPasswordActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

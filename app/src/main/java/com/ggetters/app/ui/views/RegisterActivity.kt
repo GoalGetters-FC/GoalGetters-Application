@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.activities
+package com.ggetters.app.ui.views
 
 import android.content.Intent
 import android.os.Bundle

@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.activities
+package com.ggetters.app.core.extensions
 
 import android.app.Activity
 import android.view.LayoutInflater

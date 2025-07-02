@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.activities
+package com.ggetters.app.ui.views
 
 import android.os.Bundle
 import android.view.LayoutInflater

@@ -1,9 +1,8 @@
-package com.ggetters.app.ui.activities
+package com.ggetters.app.ui.views
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import com.ggetters.app.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
