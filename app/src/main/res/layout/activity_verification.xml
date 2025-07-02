@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter the 4-digit code sent to your email."
+        android:textSize="18sp"
+        android:textColor="@color/primary"
+        android:layout_marginBottom="24dp" />
+
+    <EditText
+        android:id="@+id/codeEditText"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:hint="Code"
+        android:inputType="numberPassword"
+        android:textColor="@color/primary"
+        android:textColorHint="@color/accent"
+        android:backgroundTint="@color/primary"
+        android:gravity="center" />
+
+    <Button
+        android:id="@+id/submitButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        android:backgroundTint="@color/primary"
+        android:textColor="@color/text_on_primary"
+        android:layout_marginTop="32dp" />
+</LinearLayout> 

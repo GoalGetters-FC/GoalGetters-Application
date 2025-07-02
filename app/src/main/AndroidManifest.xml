@@ -54,6 +54,48 @@
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
+        <!-- Age Verification Success Activity -->
+        <activity
+                android:name=".ui.activities.AgeVerificationSuccessActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
+        <!-- Onboarding Activity -->
+        <activity
+                android:name=".ui.activities.OnboardingActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
+        <!-- Age Check Activity -->
+        <activity
+                android:name=".ui.activities.AgeCheckActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
+        <!-- Access Denied Activity -->
+        <activity
+                android:name=".ui.activities.AccessDeniedActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
+        <!-- Verification Activity -->
+        <activity
+                android:name=".ui.activities.VerificationActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
+        <!-- Welcome Activity -->
+        <activity
+                android:name=".ui.activities.WelcomeActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
+        <!-- Welcome Back Activity -->
+        <activity
+                android:name=".ui.activities.WelcomeBackActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
     </application>
 
 </manifest>

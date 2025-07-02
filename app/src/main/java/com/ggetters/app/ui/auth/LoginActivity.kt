@@ -19,11 +19,23 @@ class LoginActivity : AppCompatActivity() {
         val forgotPasswordTextView = findViewById<TextView>(R.id.forgotPasswordTextView)
 
         loginButton.setOnClickListener {
-            // TODO: Implement Firebase Auth login and analytics
+            // TODO: Backend - Authenticate user
+            // Endpoint: POST /api/auth/login
+            // Request: { email: String, password: String }
+            // Response: { token: String, user: User }
+            // Error: { message: String }
+            // Notes: Handle invalid credentials, network errors, and lockout after X attempts.
+            // TODO: Backend - Log analytics event for login attempt
+            // TODO: Backend - Integrate Google SSO (if Google login button is added)
+            // Endpoint: POST /api/auth/google
+            // Request: { idToken: String }
+            // Response: { token: String, user: User }
+            // TODO: Backend - Implement password reset trigger (if forgot password is used)
+            // Endpoint: POST /api/auth/forgot-password
+            // Request: { email: String }
+            // Response: { success: Boolean }
             // Example error handling:
             // if (loginFailed) showFeedbackBottomSheet("Login Error", "Invalid email or password.")
-            // TODO: Replace with real backend error handling
-            // showFeedbackBottomSheet("Login Error", "Invalid email or password.")
             // On success:
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

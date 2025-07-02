@@ -9,9 +9,4 @@
         <item name="android:colorPrimaryDark">@color/black</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.MaterialComponents.MediumComponent</item>
     </style>
-
-    <style name="ShapeAppearance.MaterialComponents.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">16dp</item>
-    </style>
 </resources> 

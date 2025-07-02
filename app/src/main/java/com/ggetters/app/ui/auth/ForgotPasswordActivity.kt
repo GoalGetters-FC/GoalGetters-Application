@@ -13,7 +13,13 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
         val sendResetButton = findViewById<Button>(R.id.sendResetButton)
         sendResetButton.setOnClickListener {
-            // TODO: Implement Firebase Auth password reset and analytics
+            // TODO: Backend - Send password reset email
+            // Endpoint: POST /api/auth/forgot-password
+            // Request: { email: String }
+            // Response: { success: Boolean }
+            // Error: { message: String }
+            // Notes: Handle non-existent email gracefully.
+            // TODO: Backend - Log analytics event for password reset request
             // Example confirmation:
             showFeedbackBottomSheet("Reset Email Sent", "Check your inbox for a password reset link.")
         }
