@@ -1,12 +1,12 @@
 package com.ggetters.app.data.repository
 
-import com.ggetters.app.data.local.dao.UserDao
-import com.ggetters.app.data.local.entities.UserEntity
-import com.ggetters.app.data.remote.firestore.UserFirestore
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
+import com.ggetters.app.data.local.dao.TeamDao
+import com.ggetters.app.data.local.entities.TeamEntity
+import com.ggetters.app.data.remote.firestore.TeamFirestore
 import com.ggetters.app.data.remote.mappers.toDto
 import com.ggetters.app.data.remote.mappers.toEntity
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 /**
  * com.ggetters.app.data.repository
@@ -24,20 +24,20 @@ import com.ggetters.app.data.remote.mappers.toEntity
  *  - TeamRepository
  */
 
-class UserRepository(
-    private val dao: UserDao,
-    private val remote: UserFirestore
+class TeamRepository(
+    private val dao: TeamDao,
+    private val remote: TeamFirestore
 ) {
-    fun observeAll(): Flow<List<UserEntity>> =
+    fun observeAll(): Flow<List<TeamEntity>> =
         dao.getAll()
 
     suspend fun syncAll() {
-        val dtos = remote.watchAllUsers().first()  // one-time snapshot
+        val dtos = remote.watchAllTeams().first() // one-time snapshot
         dao.upsertAll(dtos.map { it.toEntity() })
     }
 
-    suspend fun save(entity: UserEntity) {
+    suspend fun save(entity: TeamEntity) {
         dao.upsert(entity)
-        remote.saveUser(entity.toDto())
+        remote.saveTeam(entity.toDto())
     }
 }
