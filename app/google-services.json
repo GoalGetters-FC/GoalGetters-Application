@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "232716148528",
+    "project_id": "cashquest-8514f",
+    "storage_bucket": "cashquest-8514f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:232716148528:android:fe6f5855a9c7776c3e72f5",
+        "android_client_info": {
+          "package_name": "com.opsc6311.poe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyHhBfJWil3x-VnT0_b-qb_dq3yb1VHNo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
