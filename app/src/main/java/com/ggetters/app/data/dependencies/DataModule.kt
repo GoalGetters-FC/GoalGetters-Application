@@ -3,12 +3,12 @@ package com.ggetters.app.data.dependencies
 import android.content.Context
 import androidx.room.Room
 import com.ggetters.app.data.local.AppDatabase
-import com.ggetters.app.data.daos.TeamDao
-import com.ggetters.app.data.daos.UserDao
-import com.ggetters.app.data.repositories.`Online\TeamRepository`
-import com.ggetters.app.data.repositories.OnlineUserRepository
-import com.ggetters.app.data.repository.OfflineTeamRepository
-import com.ggetters.app.data.repositories.OfflineUserRepository
+import com.ggetters.app.data.local.dao.UserDao
+import com.ggetters.app.data.local.dao.TeamDao
+import com.ggetters.app.data.remote.firestore.UserFirestore
+import com.ggetters.app.data.remote.firestore.TeamFirestore
+import com.ggetters.app.data.repository.UserRepository
+import com.ggetters.app.data.repository.TeamRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
@@ -47,22 +47,22 @@ object DataModule {
     fun provideTeamDao(db: AppDatabase): TeamDao = db.teamDao()
 
     @Provides @Singleton
-    fun provideUserFirestore(firestore: FirebaseFirestore): OnlineUserRepository =
-        OnlineUserRepository(firestore)
+    fun provideUserFirestore(firestore: FirebaseFirestore): UserFirestore =
+        UserFirestore(firestore)
 
     @Provides @Singleton
-    fun provideTeamFirestore(firestore: FirebaseFirestore): `Online\TeamRepository` =
-        `Online\TeamRepository`(firestore)
+    fun provideTeamFirestore(firestore: FirebaseFirestore): TeamFirestore =
+        TeamFirestore(firestore)
 
     @Provides @Singleton
     fun provideUserRepository(
         dao: UserDao,
-        remote: OnlineUserRepository
-    ): OfflineUserRepository = OfflineUserRepository(dao, remote)
+        remote: UserFirestore
+    ): UserRepository = UserRepository(dao, remote)
 
     @Provides @Singleton
     fun provideTeamRepository(
         dao: TeamDao,
-        remote: `Online\TeamRepository`
-    ): OfflineTeamRepository = OfflineTeamRepository(dao, remote)
+        remote: TeamFirestore
+    ): TeamRepository = TeamRepository(dao, remote)
 }
