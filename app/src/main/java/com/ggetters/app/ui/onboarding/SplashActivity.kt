@@ -8,7 +8,6 @@ import android.view.animation.AlphaAnimation
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.ggetters.app.R
-import com.ggetters.app.ui.auth.LoginActivity
 
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,9 +20,9 @@ class SplashActivity : AppCompatActivity() {
         logoImageView.startAnimation(fadeIn)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            // TODO: Add analytics, check login state, and navigate accordingly
-            startActivity(Intent(this, LoginActivity::class.java))
+            // TODO: Add analytics, no persistence, and navigate to onboarding
+            startActivity(Intent(this, com.ggetters.app.ui.activities.UnifiedEntryActivity::class.java))
             finish()
-        }, 1800)
+        }, 1600)
     }
 }

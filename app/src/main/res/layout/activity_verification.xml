@@ -1,36 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
+    android:background="@color/white"
     android:padding="32dp">
 
     <TextView
+        android:id="@+id/verificationTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enter the 4-digit code sent to your email."
-        android:textSize="18sp"
-        android:textColor="@color/primary"
-        android:layout_marginBottom="24dp" />
+        android:text="Enter the 4-digit code"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="64dp" />
 
-    <EditText
-        android:id="@+id/codeEditText"
-        android:layout_width="200dp"
+    <LinearLayout
+        android:id="@+id/otpContainer"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Code"
-        android:inputType="numberPassword"
-        android:textColor="@color/primary"
-        android:textColorHint="@color/accent"
-        android:backgroundTint="@color/primary"
-        android:gravity="center" />
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/verificationTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp">
+
+        <EditText
+            android:id="@+id/otp1"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/primary"
+            android:textSize="24sp"
+            android:layout_marginEnd="8dp" />
+        <EditText
+            android:id="@+id/otp2"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/primary"
+            android:textSize="24sp"
+            android:layout_marginEnd="8dp" />
+        <EditText
+            android:id="@+id/otp3"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/primary"
+            android:textSize="24sp"
+            android:layout_marginEnd="8dp" />
+        <EditText
+            android:id="@+id/otp4"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/primary"
+            android:textSize="24sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/timerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Resend in 30s"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/otpContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
 
     <Button
         android:id="@+id/submitButton"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Submit"
         android:backgroundTint="@color/primary"
-        android:textColor="@color/text_on_primary"
-        android:layout_marginTop="32dp" />
-</LinearLayout> 
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/timerText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <Button
+        android:id="@+id/resendButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Resend Code"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/primary"
+        app:layout_constraintTop_toBottomOf="@id/submitButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/button_border" />
+
+</androidx.constraintlayout.widget.ConstraintLayout> 

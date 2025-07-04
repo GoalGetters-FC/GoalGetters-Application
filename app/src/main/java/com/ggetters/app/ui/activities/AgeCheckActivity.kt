@@ -5,7 +5,8 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.ggetters.app.R
-import com.ggetters.app.ui.auth.AgeVerificationActivity
+import com.ggetters.app.ui.activities.AgeVerificationActivity
+import com.ggetters.app.ui.dialogs.AgeNoticeBottomSheet
 
 class AgeCheckActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,13 +18,12 @@ class AgeCheckActivity : AppCompatActivity() {
 
         yesButton.setOnClickListener {
             // TODO: Backend - Log analytics event for age check (over 18)
-            startActivity(Intent(this, AgeVerificationActivity::class.java))
+            startActivity(Intent(this, VerificationActivity::class.java))
             finish()
         }
         noButton.setOnClickListener {
             // TODO: Backend - Log analytics event for age check (under 18)
-            startActivity(Intent(this, AccessDeniedActivity::class.java))
-            finish()
+            AgeNoticeBottomSheet().show(supportFragmentManager, "AgeNoticeBottomSheet")
         }
     }
 } 

@@ -81,4 +81,7 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
     implementation(libs.hilt.navigation.compose)
+
+    // Lottie
+    implementation("com.airbnb.android:lottie:6.4.0")
 }

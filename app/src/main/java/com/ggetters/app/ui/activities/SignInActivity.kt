@@ -1,22 +1,25 @@
-package com.ggetters.app.ui.auth
+package com.ggetters.app.ui.activities
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.ggetters.app.R
-import com.ggetters.app.ui.shared.MainActivity
-import com.ggetters.app.ui.auth.RegisterActivity
 
-class LoginActivity : AppCompatActivity() {
+class SignInActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.login_activity)
+        setContentView(R.layout.signin_activity)
 
+        val emailEditText = findViewById<EditText>(R.id.emailEditText)
+        val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
         val loginButton = findViewById<Button>(R.id.loginButton)
         val registerButton = findViewById<Button>(R.id.registerButton)
         val forgotPasswordTextView = findViewById<TextView>(R.id.forgotPasswordTextView)
+        // TODO: Add Google SSO button logic
+        // TODO: Add Help & FAQ bottom sheet logic
 
         loginButton.setOnClickListener {
             // TODO: Backend - Authenticate user
@@ -37,16 +40,14 @@ class LoginActivity : AppCompatActivity() {
             // Example error handling:
             // if (loginFailed) showFeedbackBottomSheet("Login Error", "Invalid email or password.")
             // On success:
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            startActivity(Intent(this, WelcomeBackActivity::class.java))
+            finishAffinity()
         }
         registerButton.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
+            startActivity(Intent(this, SignUpActivity::class.java))
         }
         forgotPasswordTextView.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
     }
-}
+} 

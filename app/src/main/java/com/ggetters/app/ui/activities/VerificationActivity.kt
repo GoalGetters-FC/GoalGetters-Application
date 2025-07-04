@@ -2,40 +2,72 @@ package com.ggetters.app.ui.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.ggetters.app.R
-import com.ggetters.app.ui.dialogs.VerificationSuccessDialog
 
 class VerificationActivity : AppCompatActivity() {
+    private lateinit var otpFields: Array<EditText>
+    private lateinit var submitButton: Button
+    private lateinit var resendButton: Button
+    private lateinit var timerText: TextView
+    private var timer: CountDownTimer? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_verification)
 
-        val submitButton = findViewById<Button>(R.id.submitButton)
-        // TODO: Get code input from EditText(s)
-        // TODO: Backend - Verify OTP code
-        // Endpoint: POST /api/auth/verify-otp
-        // Request: { userId: String, otp: String }
-        // Response: { success: Boolean }
-        // Error: { message: String }
-        // Notes: Handle expired/invalid OTP, allow resend.
-        // TODO: Backend - Resend OTP
-        // Endpoint: POST /api/auth/resend-otp
-        // Request: { userId: String }
-        // Response: { success: Boolean }
-        // TODO: Backend - Log analytics event for verification attempt
-        // TODO: Show error bottom sheet on failure
-        // On success:
-        submitButton.setOnClickListener {
-            // TODO: Check if user is new or returning
-            val dialog = VerificationSuccessDialog(this)
-            dialog.setOnDismissListener {
-                // TODO: If new user, go to WelcomeActivity; if returning, go to WelcomeBackActivity
-                startActivity(Intent(this, WelcomeActivity::class.java))
-                finish()
-            }
-            dialog.show()
+        otpFields = arrayOf(
+            findViewById(R.id.otp1),
+            findViewById(R.id.otp2),
+            findViewById(R.id.otp3),
+            findViewById(R.id.otp4)
+        )
+        submitButton = findViewById(R.id.submitButton)
+        resendButton = findViewById(R.id.resendButton)
+        timerText = findViewById(R.id.timerText)
+
+        // Autofocus and tab
+        for (i in otpFields.indices) {
+            otpFields[i].addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    if (s?.length == 1 && i < otpFields.size - 1) {
+                        otpFields[i + 1].requestFocus()
+                    }
+                }
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
         }
+
+        submitButton.setOnClickListener {
+            // TODO: Backend - Verify OTP
+            // On success:
+            startActivity(Intent(this, VerificationSuccessOverlay::class.java))
+        }
+        resendButton.setOnClickListener {
+            // TODO: Backend - Resend OTP
+            startTimer()
+        }
+        startTimer()
+    }
+
+    private fun startTimer() {
+        timer?.cancel()
+        resendButton.isEnabled = false
+        timer = object : CountDownTimer(30000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                timerText.text = "Resend in ${millisUntilFinished / 1000}s"
+            }
+            override fun onFinish() {
+                resendButton.isEnabled = true
+                timerText.text = "Resend Code"
+            }
+        }.start()
     }
 } 

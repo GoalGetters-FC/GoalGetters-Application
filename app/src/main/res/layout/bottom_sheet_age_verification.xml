@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="24dp"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/ageVerificationPrompt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Are you over 18?"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/yesButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Yes"
+        android:backgroundTint="@color/primary"
+        android:textColor="@color/black"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/noButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No"
+        android:backgroundTint="@color/primary"
+        android:textColor="@color/black"
+        android:layout_marginBottom="8dp" />
+
+</LinearLayout> 

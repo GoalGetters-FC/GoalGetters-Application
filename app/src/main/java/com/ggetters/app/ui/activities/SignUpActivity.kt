@@ -1,16 +1,23 @@
-package com.ggetters.app.ui.auth
+package com.ggetters.app.ui.activities
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import com.ggetters.app.R
+import com.ggetters.app.ui.dialogs.AgeVerificationBottomSheet
 
-class RegisterActivity : AppCompatActivity() {
+class SignUpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.register_activity)
+        setContentView(R.layout.signup_activity)
 
+        val nameEditText = findViewById<EditText>(R.id.nameEditText)
+        val surnameEditText = findViewById<EditText>(R.id.surnameEditText)
+        val emailEditText = findViewById<EditText>(R.id.emailEditText)
+        val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
+        val confirmPasswordEditText = findViewById<EditText>(R.id.confirmPasswordEditText)
         val registerButton = findViewById<Button>(R.id.registerButton)
         val loginButton = findViewById<Button>(R.id.loginButton)
 
@@ -24,13 +31,10 @@ class RegisterActivity : AppCompatActivity() {
             // TODO: Backend - Log analytics event for registration
             // TODO: Backend - Trigger age verification after registration
             // On success:
-            val intent = Intent(this, AgeVerificationActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            AgeVerificationBottomSheet().show(supportFragmentManager, "AgeVerificationBottomSheet")
         }
         loginButton.setOnClickListener {
-            startActivity(Intent(this, LoginActivity::class.java))
+            startActivity(Intent(this, SignInActivity::class.java))
         }
     }
-}
+} 
