@@ -48,12 +48,6 @@
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
-        <!-- Main Activity (with bottom navigation) -->
-        <activity
-                android:name=".ui.shared.MainActivity"
-                android:exported="false"
-                android:theme="@style/AppTheme" />
-
         <!-- Age Verification Success Activity -->
         <activity
                 android:name=".ui.activities.AgeVerificationSuccessActivity"
@@ -105,6 +99,12 @@
         <!-- Home Activity -->
         <activity
                 android:name=".ui.activities.HomeActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
+        <!-- Notifications Activity -->
+        <activity
+                android:name=".ui.activities.NotificationsActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
