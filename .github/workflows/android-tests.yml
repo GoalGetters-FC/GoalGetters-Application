@@ -52,6 +52,11 @@ jobs:
 
       - name: Ensure gradlew is executable
         run: chmod +x ./gradlew
+        
+      - name: Restore google-services.json
+        run: |
+          mkdir -p app
+          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > app/google-services.json
 
       - name: Execute tests
         run: ./gradlew test
