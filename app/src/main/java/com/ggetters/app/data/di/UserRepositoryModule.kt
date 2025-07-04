@@ -1,3 +1,4 @@
+// app/src/main/java/com/ggetters/app/data/di/UserRepositoryModule.kt
 package com.ggetters.app.data.di
 
 import com.ggetters.app.data.repository.user.CombinedUserRepository
@@ -13,32 +14,53 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 /**
- * DataModule provides all app-level singletons for data access using Dagger Hilt.
+ * Hilt module that binds UserRepository implementations.
  *
- * - Supplies a singleton Firestore instance.
- * - Builds the Room database and provides DAOs.
- * - Supplies Firestore data sources for users and teams.
- * - Provides repositories that coordinate between local and remote sources.
+ * - Binds a Room-backed OfflineUserRepository under the "offlineUser" qualifier.
+ * - Binds a Firestore-backed OnlineUserRepository under the "onlineUser" qualifier.
+ * - Provides a CombinedUserRepository that orchestrates reads from offline and writes/syncs with online.
  */
-
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class UserRepositoryModule {
 
-    @Binds @Singleton @Named("offlineUser")
+    /**
+     * Bind the offline (Room) implementation for UserRepository.
+     *
+     * @param impl the Room-based OfflineUserRepository
+     * @return the UserRepository qualified as "offlineUser"
+     */
+    @Binds
+    @Singleton
+    @Named("offlineUser")
     abstract fun bindOfflineUser(
         impl: OfflineUserRepository
     ): UserRepository
 
-    @Binds @Singleton @Named("onlineUser")
+    /**
+     * Bind the online (Firestore) implementation for UserRepository.
+     *
+     * @param impl the Firestore-based OnlineUserRepository
+     * @return the UserRepository qualified as "onlineUser"
+     */
+    @Binds
+    @Singleton
+    @Named("onlineUser")
     abstract fun bindOnlineUser(
         impl: OnlineUserRepository
     ): UserRepository
 
-    @Module
-    @InstallIn(SingletonComponent::class)
     companion object {
-        @Provides @Singleton
+        /**
+         * Provides the CombinedUserRepository that reads from offline cache,
+         * writes to both offline and online, and handles sync.
+         *
+         * @param offline the UserRepository qualified as "offlineUser"
+         * @param online  the UserRepository qualified as "onlineUser"
+         * @return the CombinedUserRepository as the primary UserRepository
+         */
+        @Provides
+        @Singleton
         fun provideUserRepository(
             @Named("offlineUser") offline: UserRepository,
             @Named("onlineUser")  online: UserRepository
