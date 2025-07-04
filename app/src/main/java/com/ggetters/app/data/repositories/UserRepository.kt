@@ -3,7 +3,6 @@ package com.ggetters.app.data.repositories
 import com.ggetters.app.data.daos.UserDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import com.ggetters.app.data.mappers.toEntity
 import com.ggetters.app.data.models.User
 
 /**
@@ -31,7 +30,7 @@ class UserRepository(
 
     suspend fun syncAll() {
         val dtos = remote.watchAllUsers().first()  // one-time snapshot
-        dao.upsertAll(dtos.map { it.toEntity() })
+        dao.upsertAll(dtos.map { it })
     }
 
     suspend fun save(entity: User) {
