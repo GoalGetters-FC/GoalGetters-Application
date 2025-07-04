@@ -1,10 +1,7 @@
-package com.ggetters.app.data.repository
+package com.ggetters.app.data.repositories
 
-import com.ggetters.app.data.local.dao.TeamDao
-import com.ggetters.app.data.local.entities.TeamEntity
-import com.ggetters.app.data.remote.firestore.TeamFirestore
-import com.ggetters.app.data.remote.mappers.toDto
-import com.ggetters.app.data.remote.mappers.toEntity
+import com.ggetters.app.data.daos.TeamDao
+import com.ggetters.app.data.models.Team
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
@@ -28,16 +25,16 @@ class TeamRepository(
     private val dao: TeamDao,
     private val remote: TeamFirestore
 ) {
-    fun observeAll(): Flow<List<TeamEntity>> =
+    fun observeAll(): Flow<List<Team>> =
         dao.getAll()
 
     suspend fun syncAll() {
         val dtos = remote.watchAllTeams().first() // one-time snapshot
-        dao.upsertAll(dtos.map { it.toEntity() })
+        dao.upsertAll(dtos.map { it })
     }
 
-    suspend fun save(entity: TeamEntity) {
+    suspend fun save(entity: Team) {
         dao.upsert(entity)
-        remote.saveTeam(entity.toDto())
+        remote.saveTeam(entity)
     }
 }

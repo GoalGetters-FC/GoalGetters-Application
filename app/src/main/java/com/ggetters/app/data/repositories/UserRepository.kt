@@ -1,12 +1,10 @@
-package com.ggetters.app.data.repository
+package com.ggetters.app.data.repositories
 
-import com.ggetters.app.data.local.dao.UserDao
-import com.ggetters.app.data.local.entities.UserEntity
-import com.ggetters.app.data.remote.firestore.UserFirestore
+import com.ggetters.app.data.daos.UserDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import com.ggetters.app.data.remote.mappers.toDto
-import com.ggetters.app.data.remote.mappers.toEntity
+import com.ggetters.app.data.mappers.toEntity
+import com.ggetters.app.data.models.User
 
 /**
  * com.ggetters.app.data.repository
@@ -28,7 +26,7 @@ class UserRepository(
     private val dao: UserDao,
     private val remote: UserFirestore
 ) {
-    fun observeAll(): Flow<List<UserEntity>> =
+    fun observeAll(): Flow<List<User>> =
         dao.getAll()
 
     suspend fun syncAll() {
@@ -36,8 +34,8 @@ class UserRepository(
         dao.upsertAll(dtos.map { it.toEntity() })
     }
 
-    suspend fun save(entity: UserEntity) {
+    suspend fun save(entity: User) {
         dao.upsert(entity)
-        remote.saveUser(entity.toDto())
+        remote.saveUser(entity)
     }
 }

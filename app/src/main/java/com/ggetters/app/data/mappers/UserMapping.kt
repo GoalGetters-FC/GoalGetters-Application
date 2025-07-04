@@ -1,4 +1,4 @@
-package com.ggetters.app.data.remote.mappers
+package com.ggetters.app.data.mappers
 
 import com.ggetters.app.data.local.entities.UserEntity
 import com.ggetters.app.data.remote.model.UserDto

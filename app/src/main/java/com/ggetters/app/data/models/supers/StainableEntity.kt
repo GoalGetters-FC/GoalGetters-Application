@@ -1,12 +1,9 @@
-package com.ggetters.app.data.local.entities.supers
+package com.ggetters.app.data.models.supers
 
 import java.time.Instant
 
 interface StainableEntity {
-
-    /**
-     * This should be a local-only field.
-     */
+    
     var stainedAt: Instant?
     
     // --- Functions

@@ -21,13 +21,10 @@ import com.ggetters.app.data.local.entities.UserEntity
 abstract class AppDatabase : RoomDatabase() {
     companion object {
         private var INSTANCE: AppDatabase? = null
-        private const val DATABASE_NAME = "goalgetters.db"
+        private const val DATABASE_NAME = "ggetters.db"
 
         /**
          * Returns a singleton instance of the [AppDatabase].
-         *
-         * @param context The application context.
-         * @return Singleton [AppDatabase] instance.
          */
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {

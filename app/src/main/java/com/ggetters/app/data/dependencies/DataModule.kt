@@ -2,13 +2,13 @@ package com.ggetters.app.data.dependencies
 
 import android.content.Context
 import androidx.room.Room
+import com.ggetters.app.data.daos.TeamDao
+import com.ggetters.app.data.daos.UserDao
 import com.ggetters.app.data.local.AppDatabase
-import com.ggetters.app.data.local.dao.UserDao
-import com.ggetters.app.data.local.dao.TeamDao
-import com.ggetters.app.data.remote.firestore.UserFirestore
-import com.ggetters.app.data.remote.firestore.TeamFirestore
-import com.ggetters.app.data.repository.UserRepository
-import com.ggetters.app.data.repository.TeamRepository
+import com.ggetters.app.data.repositories.UserFirestore
+import com.ggetters.app.data.repositories.TeamFirestore
+import com.ggetters.app.data.repositories.UserRepository
+import com.ggetters.app.data.repositories.TeamRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
