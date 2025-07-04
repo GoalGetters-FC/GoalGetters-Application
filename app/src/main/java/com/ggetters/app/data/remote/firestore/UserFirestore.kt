@@ -13,28 +13,46 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Firestore-backed data source for User.
+ * Firestore-backed data source for [User] entities.
+ *
+ * Provides real-time streams and suspend functions for CRUD operations
+ * against the "users" collection in Firestore.
  */
 @Singleton
 class UserFirestore @Inject constructor(
     private val firestore: FirebaseFirestore = Firebase.firestore
 ) {
 
+    // Reference to the "users" collection in Firestore
     private val usersCol = firestore.collection("users")
 
-    /** Stream all users from Firestore in real-time */
+    /**
+     * Observe all users in real time.
+     * Emits the full list whenever any document in the collection changes.
+     *
+     * @return a [Flow] emitting the current list of [User] objects
+     */
     fun observeAll(): Flow<List<User>> = callbackFlow {
-        val sub = usersCol.addSnapshotListener { snap, err ->
-            if (err != null) close(err)
-            else {
-                val list = snap?.toObjects(User::class.java).orEmpty()
-                trySend(list).isSuccess
+        val subscription = usersCol.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                // Close the flow if an error occurs
+                close(error)
+            } else {
+                // Convert documents to User objects and emit
+                val users = snapshot?.toObjects(User::class.java).orEmpty()
+                trySend(users).isSuccess
             }
         }
-        awaitClose { sub.remove() }
+        // Remove the listener when the flow collector is cancelled
+        awaitClose { subscription.remove() }
     }
 
-    /** One-off fetch by ID */
+    /**
+     * Fetch a single [User] by its document ID.
+     *
+     * @param id the UUID of the user document
+     * @return the [User] object, or null if not found
+     */
     suspend fun getById(id: UUID): User? =
         usersCol
             .document(id.toString())
@@ -42,7 +60,12 @@ class UserFirestore @Inject constructor(
             .await()
             .toObject(User::class.java)
 
-    /** Save or overwrite a user in Firestore */
+    /**
+     * Save or overwrite a [User] in Firestore.
+     * Creates the document if it does not exist.
+     *
+     * @param user the [User] object to save
+     */
     suspend fun save(user: User) {
         usersCol
             .document(user.id.toString())
@@ -50,7 +73,11 @@ class UserFirestore @Inject constructor(
             .await()
     }
 
-    /** Delete a user document */
+    /**
+     * Delete a user document by its UUID.
+     *
+     * @param id the UUID of the user document to delete
+     */
     suspend fun delete(id: UUID) {
         usersCol
             .document(id.toString())

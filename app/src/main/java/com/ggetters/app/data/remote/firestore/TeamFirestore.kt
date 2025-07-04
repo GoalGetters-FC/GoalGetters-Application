@@ -10,29 +10,75 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
+/**
+ * Firestore-backed data source for Team entities.
+ *
+ * Provides real-time streams and suspend functions for CRUD operations
+ * against the "teams" collection in Firestore.
+ */
 class TeamFirestore(
     private val firestore: FirebaseFirestore = Firebase.firestore
 ) {
+
+    // Reference to the "teams" collection
     private val teamsCol = firestore.collection("teams")
 
+    /**
+     * Observe all teams in real time.
+     * Emits the full list whenever any document in the collection changes.
+     *
+     * @return a Flow emitting the current list of [Team] objects
+     */
     fun observeAllTeams(): Flow<List<Team>> = callbackFlow {
-        val sub = teamsCol.addSnapshotListener { snap, err ->
-            if (err != null) close(err)
-            else {
-                trySend(snap?.toObjects(Team::class.java).orEmpty()).isSuccess
+        val subscription = teamsCol.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                // Close the flow on error
+                close(error)
+            } else {
+                // Send the list of Team objects (or empty list if null)
+                val teams = snapshot?.toObjects(Team::class.java).orEmpty()
+                trySend(teams).isSuccess
             }
         }
-        awaitClose { sub.remove() }
+        // Remove the snapshot listener when the flow is closed or cancelled
+        awaitClose { subscription.remove() }
     }
 
+    /**
+     * Fetch a single [Team] by its document ID.
+     *
+     * @param id the document ID of the team to fetch
+     * @return the [Team] object, or null if not found
+     */
     suspend fun fetchTeam(id: String): Team? =
-        teamsCol.document(id).get().await().toObject(Team::class.java)
+        teamsCol
+            .document(id)
+            .get()
+            .await()
+            .toObject(Team::class.java)
 
+    /**
+     * Save or overwrite a [Team] in Firestore.
+     * Creates the document if it does not exist.
+     *
+     * @param team the [Team] object to save
+     */
     suspend fun saveTeam(team: Team) {
-        teamsCol.document(team.id.toString()).set(team).await()
+        teamsCol
+            .document(team.id.toString())
+            .set(team)
+            .await()
     }
 
+    /**
+     * Delete a team document by its ID.
+     *
+     * @param id the document ID of the team to delete
+     */
     suspend fun deleteTeam(id: String) {
-        teamsCol.document(id).delete().await()
+        teamsCol
+            .document(id)
+            .delete()
+            .await()
     }
 }
