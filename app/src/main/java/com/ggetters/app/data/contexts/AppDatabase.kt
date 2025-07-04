@@ -9,11 +9,11 @@ import com.ggetters.app.data.converters.DateConverter
 import com.ggetters.app.data.converters.UuidConverter
 import com.ggetters.app.data.daos.TeamDao
 import com.ggetters.app.data.daos.UserDao
-import com.ggetters.app.data.local.entities.TeamEntity
-import com.ggetters.app.data.local.entities.UserEntity
+import com.ggetters.app.data.models.Team
+import com.ggetters.app.data.models.User
 
 @Database(
-    entities = [UserEntity::class, TeamEntity::class], version = 1, exportSchema = true
+    entities = [User::class, Team::class], version = 1, exportSchema = true
 )
 @TypeConverters(
     UuidConverter::class, DateConverter::class
