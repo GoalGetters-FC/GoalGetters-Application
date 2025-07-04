@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1041555858797",
+    "project_id": "goalgetters-fc",
+    "storage_bucket": "goalgetters-fc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1041555858797:android:fe5c211af6f6debf086664",
+        "android_client_info": {
+          "package_name": "com.ggetters.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtjUyv52Qb47MHtmOIU5nDcJM4vik-gmw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
