@@ -1,4 +1,4 @@
-package com.ggetters.app.data.converters
+package com.ggetters.app.data.local.converters
 
 import androidx.room.TypeConverter
 import java.time.Instant
@@ -13,7 +13,7 @@ import java.util.Date
  *
  * Registered globally via `@TypeConverters(...)` on the Room database class.
  *
- * @see androidx.room.TypeConverter
+ * @see TypeConverter
  * @see androidx.room.RoomDatabase
  */
 class DateConverter {

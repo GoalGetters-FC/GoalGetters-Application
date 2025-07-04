@@ -1,46 +1,60 @@
 package com.ggetters.app.data.remote.firestore
 
+import com.ggetters.app.data.model.User
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.firestore.ktx.firestore
-import com.ggetters.app.data.remote.model.UserDto
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
- * Firestore-backed data source for User entities.
+ * Firestore-backed data source for User.
  */
-class UserFirestore(
+@Singleton
+class UserFirestore @Inject constructor(
     private val firestore: FirebaseFirestore = Firebase.firestore
 ) {
-    private val users = firestore.collection("users")
 
-    suspend fun fetchUser(id: String): UserDto =
-        users.document(id)
-            .get()
-            .await()
-            .toObject(UserDto::class.java)
-            ?: throw NoSuchElementException("User $id not found")
+    private val usersCol = firestore.collection("users")
 
-    suspend fun saveUser(dto: UserDto) {
-        users.document(dto.id)
-            .set(dto)
-            .await()
-    }
-
-    fun watchAllUsers(): Flow<List<UserDto>> = callbackFlow {
-        val subscription = users.addSnapshotListener { snap, err ->
-            if (err != null) {
-                close(err)
-            } else {
-                val list = snap?.documents
-                    ?.mapNotNull { it.toObject(UserDto::class.java) }
-                    .orEmpty()
+    /** Stream all users from Firestore in real-time */
+    fun observeAll(): Flow<List<User>> = callbackFlow {
+        val sub = usersCol.addSnapshotListener { snap, err ->
+            if (err != null) close(err)
+            else {
+                val list = snap?.toObjects(User::class.java).orEmpty()
                 trySend(list).isSuccess
             }
         }
-        awaitClose { subscription.remove() }
+        awaitClose { sub.remove() }
+    }
+
+    /** One-off fetch by ID */
+    suspend fun getById(id: UUID): User? =
+        usersCol
+            .document(id.toString())
+            .get()
+            .await()
+            .toObject(User::class.java)
+
+    /** Save or overwrite a user in Firestore */
+    suspend fun save(user: User) {
+        usersCol
+            .document(user.id.toString())
+            .set(user)
+            .await()
+    }
+
+    /** Delete a user document */
+    suspend fun delete(id: UUID) {
+        usersCol
+            .document(id.toString())
+            .delete()
+            .await()
     }
 }

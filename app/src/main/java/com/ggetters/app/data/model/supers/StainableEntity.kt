@@ -1,4 +1,4 @@
-package com.ggetters.app.data.local.entities.supers
+package com.ggetters.app.data.model.supers
 
 import java.time.Instant
 

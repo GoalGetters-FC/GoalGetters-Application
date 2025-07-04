@@ -1,4 +1,4 @@
-package com.ggetters.app.data.converters
+package com.ggetters.app.data.local.converters
 
 import androidx.room.TypeConverter
 import java.util.UUID
@@ -11,7 +11,7 @@ import java.util.UUID
  *
  * Registered globally via `@TypeConverters(...)` on the Room database class.
  *
- * @see androidx.room.TypeConverter
+ * @see TypeConverter
  * @see androidx.room.RoomDatabase
  */
 class UuidConverter {

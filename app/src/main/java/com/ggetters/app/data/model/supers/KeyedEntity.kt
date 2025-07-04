@@ -1,4 +1,4 @@
-package com.ggetters.app.data.local.entities.supers
+package com.ggetters.app.data.model.supers
 
 import java.util.UUID
 
@@ -14,7 +14,7 @@ interface KeyedEntity {
      * Unique identifier of the entity.
      * Typically generated once and used as the primary key for database persistence.
      *
-     * @see [com.ggetters.app.data.converters.UuidConverter]
+     * @see [com.ggetters.app.data.local.converters.UuidConverter]
      */
     val id: UUID
 }
