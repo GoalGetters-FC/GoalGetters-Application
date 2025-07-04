@@ -20,7 +20,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class UserFirestore @Inject constructor(
-    private val firestore: FirebaseFirestore = Firebase.firestore
+    private val firestore: FirebaseFirestore
 ) {
 
     // Reference to the "users" collection in Firestore

@@ -1,7 +1,6 @@
-// com/ggetters/app/data/model/User.kt
-
 package com.ggetters.app.data.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
@@ -17,46 +16,89 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * A single data class for both Room and Firestore.
+ * Unified data model for both Room and Firestore.
+ * Implements common entity behaviors via supers interfaces.
  */
 @Entity(tableName = "users")
 @TypeConverters(UuidConverter::class, DateConverter::class)
 data class User(
+    /**
+     * Unique identifier for this user. Generated randomly if unset.
+     */
     @PrimaryKey
-    override val id: UUID = UUID.randomUUID(),
+    @ColumnInfo(name = "id")
+    override var id: UUID = UUID.randomUUID(),
 
-    /** Optional link to a team */
-    val teamId: UUID? = null,
+    /**
+     * Optional link to a Team by UUID.
+     */
+    @ColumnInfo(name = "team_id")
+    var teamId: UUID? = null,
 
-    val authId: String = "",
-    val code: String = "",
-    val name: String = "",
-    val surname: String = "",
-    val alias: String? = null,
-    val role: Int = 0,
-    val gender: String? = null,
+    /**
+     * Authentication ID from Firebase Auth.
+     */
+    var authId: String = "",
 
-    /** When the player was born (from gov ID) */
-    val dateOfBirth: Instant = Instant.now(),
+    /**
+     * Short join-code or shorthand identifier.
+     */
+    var code: String = "",
 
-    /** When they were “annexed” into the team */
-    val annexedAt: Instant? = null,
+    /**
+     * User's first name.
+     */
+    var name: String = "",
+
+    /**
+     * User's surname.
+     */
+    var surname: String = "",
+
+    /**
+     * Optional nickname.
+     */
+    var alias: String? = null,
+
+    /**
+     * Numeric role identifier.
+     */
+    var role: Int = 0,
+
+    /**
+     * Optional gender string.
+     */
+    var gender: String? = null,
+
+    /**
+     * When the player was born (from government ID).
+     */
+    var dateOfBirth: Instant = Instant.now(),
+
+    /**
+     * When they were added to the team.
+     */
+    var annexedAt: Instant? = null,
 
     // --- from AuditableEntity ---
-    override val createdAt: Instant = Instant.now(),
+    override var createdAt: Instant = Instant.now(),
 
+    /**
+     * Firestore: server-generated timestamp for updates.
+     */
     @ServerTimestamp
     override var updatedAt: Instant = Instant.now(),
 
     // --- from StashableEntity (soft-delete) ---
     override var stashedAt: Instant? = null,
 
-    // --- from StainableEntity (local-only “dirty” flag) ---
+    // --- from StainableEntity (local 'dirty' flag) ---
     override var stainedAt: Instant? = null,
 
-    /** UI-only, never persisted */
+    /**
+     * UI-only flag, excluded from persistence.
+     */
     @Exclude
     @Transient
     var isSelected: Boolean = false
-
 ) : KeyedEntity, AuditableEntity, StashableEntity, StainableEntity
