@@ -2,9 +2,9 @@ package com.ggetters.app.data.dependencies
 
 import android.content.Context
 import androidx.room.Room
+import com.ggetters.app.data.contexts.AppDatabase
 import com.ggetters.app.data.daos.TeamDao
 import com.ggetters.app.data.daos.UserDao
-import com.ggetters.app.data.local.AppDatabase
 import com.ggetters.app.data.repositories.UserFirestore
 import com.ggetters.app.data.repositories.TeamFirestore
 import com.ggetters.app.data.repositories.UserRepository
