@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:text="You have successfully logged in or registered."
         android:textSize="16sp"
+        android:textColor="@color/black"
         app:layout_constraintTop_toBottomOf="@id/welcomeTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -33,11 +34,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Continue"
-        android:backgroundTint="#FFC107"
-        android:textColor="@android:color/black"
+        android:backgroundTint="@color/primary"
+        android:textColor="@color/black"
+        android:background="@drawable/button_border"
         app:layout_constraintTop_toBottomOf="@id/welcomeMessage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
+        android:layout_marginTop="32dp"
+        style="@style/Widget.MaterialComponents.Button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout> 

@@ -30,6 +30,11 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
         return inflater.inflate(R.layout.bottom_sheet_add_event, container, false)
     }
     
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(STYLE_NORMAL, R.style.BottomSheetDialogFragment)
+    }
+    
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         

@@ -11,8 +11,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Enter the 4-digit code"
-        android:textSize="20sp"
+        android:textSize="24sp"
         android:textColor="@color/black"
+        android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -91,10 +92,12 @@
         android:text="Submit"
         android:backgroundTint="@color/primary"
         android:textColor="@color/black"
+        android:background="@drawable/button_border"
         app:layout_constraintTop_toBottomOf="@id/timerText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="24dp"
+        style="@style/Widget.MaterialComponents.Button" />
 
     <Button
         android:id="@+id/resendButton"
@@ -102,11 +105,12 @@
         android:layout_height="wrap_content"
         android:text="Resend Code"
         android:backgroundTint="@color/white"
-        android:textColor="@color/primary"
+        android:textColor="@color/black"
+        android:background="@drawable/button_border"
         app:layout_constraintTop_toBottomOf="@id/submitButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"
-        android:background="@drawable/button_border" />
+        style="@style/Widget.MaterialComponents.Button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout> 

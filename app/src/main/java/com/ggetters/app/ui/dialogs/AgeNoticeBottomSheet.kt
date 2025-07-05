@@ -12,6 +12,11 @@ import android.content.Intent
 import com.ggetters.app.ui.activities.VerificationActivity
 
 class AgeNoticeBottomSheet : BottomSheetDialogFragment() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(STYLE_NORMAL, R.style.BottomSheetDialogFragment)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/white"
+    android:background="@drawable/bottom_sheet_background"
     android:padding="24dp">
 
     <!-- Header -->
@@ -64,7 +64,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxStrokeColor="#E0E0E0"
+        app:hintTextColor="#757575">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/eventTitleInput"
@@ -81,7 +87,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxStrokeColor="#E0E0E0"
+        app:hintTextColor="#757575">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/eventDateInput"
@@ -100,7 +112,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxStrokeColor="#E0E0E0"
+        app:hintTextColor="#757575">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/eventTimeInput"
@@ -119,7 +137,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxStrokeColor="#E0E0E0"
+        app:hintTextColor="#757575">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/eventVenueInput"
@@ -138,7 +162,13 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:visibility="gone"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxStrokeColor="#E0E0E0"
+        app:hintTextColor="#757575">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/eventOpponentInput"
@@ -155,7 +185,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxStrokeColor="#E0E0E0"
+        app:hintTextColor="#757575">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/eventDescriptionInput"
@@ -182,9 +218,10 @@
             android:layout_height="wrap_content"
             android:text="Cancel"
             android:textColor="@color/black"
-            android:backgroundTint="#E0E0E0"
+            android:backgroundTint="@color/white"
+            android:background="@drawable/button_border"
             android:layout_marginEnd="8dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+            style="@style/Widget.MaterialComponents.Button" />
 
         <Button
             android:id="@+id/saveButton"
@@ -192,7 +229,9 @@
             android:layout_height="wrap_content"
             android:text="Save Event"
             android:textColor="@color/black"
-            android:backgroundTint="#FFD700" />
+            android:backgroundTint="@color/primary"
+            android:background="@drawable/button_border"
+            style="@style/Widget.MaterialComponents.Button" />
 
     </LinearLayout>
 

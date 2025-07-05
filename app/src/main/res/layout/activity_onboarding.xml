@@ -32,11 +32,12 @@
         android:text="Skip"
         android:backgroundTint="@color/white"
         android:textColor="@color/black"
+        android:background="@drawable/button_border"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
-        android:background="@drawable/button_border" />
+        style="@style/Widget.MaterialComponents.Button" />
 
     <Button
         android:id="@+id/nextButton"
@@ -45,9 +46,11 @@
         android:text="Next"
         android:backgroundTint="@color/primary"
         android:textColor="@color/black"
+        android:background="@drawable/button_border"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="32dp" />
+        android:layout_marginBottom="32dp"
+        style="@style/Widget.MaterialComponents.Button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout> 

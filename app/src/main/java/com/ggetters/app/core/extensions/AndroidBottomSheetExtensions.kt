@@ -12,7 +12,7 @@ import android.widget.Button
 
 
 fun Activity.showFeedbackBottomSheet(title: String, message: String) {
-    val dialog = BottomSheetDialog(this)
+    val dialog = BottomSheetDialog(this, R.style.BottomSheetDialog)
     val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_feedback, null)
     
     view.findViewById<TextView>(R.id.bottomSheetTitle).text = title
