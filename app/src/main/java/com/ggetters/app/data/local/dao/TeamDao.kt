@@ -39,7 +39,7 @@ interface TeamDao {
      * @param id the unique identifier of the team to observe
      * @return a [Flow] emitting the matching [Team] or null if not found
      */
-    @Query("SELECT * FROM teams WHERE id = :id")
+    @Query("SELECT * FROM team WHERE id = :id")
     fun getById(id: String): Flow<Team?>
 
     /**
@@ -48,7 +48,7 @@ interface TeamDao {
      *
      * @return a [Flow] emitting the current list of [Team] objects
      */
-    @Query("SELECT * FROM teams")
+    @Query("SELECT * FROM team")
     fun getAll(): Flow<List<Team>>
 
     /**
@@ -56,6 +56,6 @@ interface TeamDao {
      *
      * @param id the unique identifier of the team to remove
      */
-    @Query("DELETE FROM teams WHERE id = :id")
+    @Query("DELETE FROM team WHERE id = :id")
     suspend fun deleteById(id: String)
 }

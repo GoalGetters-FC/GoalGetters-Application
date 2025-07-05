@@ -24,7 +24,7 @@ class UserFirestore @Inject constructor(
 ) {
 
     // Reference to the "users" collection in Firestore
-    private val usersCol = firestore.collection("users")
+    private val usersCol = firestore.collection("user")
 
     /**
      * Observe all users in real time.

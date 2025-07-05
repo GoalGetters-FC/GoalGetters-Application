@@ -17,6 +17,7 @@ class AuthService(
         }
     }
 
+    
     suspend fun signInAsync(
         usermail: String, password: String
     ): FirebaseUser {
@@ -27,8 +28,10 @@ class AuthService(
         }
     }
 
+    
     // --- Extensions
 
+    
     suspend fun sendPasswordResetEmailAsync(email: String) {
         try {
             auth.sendPasswordResetEmail(email).await()
@@ -39,6 +42,7 @@ class AuthService(
         }
     }
 
+    
     suspend fun deleteCurrentUserAsync() {
         val user = auth.currentUser
         when (user) {
@@ -47,10 +51,13 @@ class AuthService(
         }
     }
 
+    
     fun isUserSignedIn(): Boolean = (auth.currentUser != null)
 
+    
     fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
+    
     fun logout() {
         auth.signOut()
     }

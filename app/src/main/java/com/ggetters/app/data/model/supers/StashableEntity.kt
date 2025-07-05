@@ -1,63 +1,147 @@
 package com.ggetters.app.data.model.supers
 
+import com.ggetters.app.core.utils.Clogger
 import java.time.Instant
 
 /**
  * Interface definition for a soft-deletable entity.
  *
- * Entities implementing this interface support soft deletion,
- * meaning they are not permanently removed but instead marked
- * as "stashed" by setting a timestamp.
+ * In the event that the entity is marked as stashed, or soft-deleted, it should
+ * be treated as if it were removed from the database. The purpose of stashing a
+ * database entity is to ensure that is can be recovered at a later stage.
+ *
+ * @property stashedAt
+ * 
+ * @see isStashed
+ * @see isVisible
+ * @see destroy
+ * @see restore
  */
 interface StashableEntity {
+    companion object {
+        private const val TAG = "StashableEntity"
+    }
+
+
+    // --- Fields
+
 
     /**
-     * The [Instant] timestamp indicating when the entity was soft-deleted.
+     * The [Instant] at which the entity was soft-deleted.
      *
-     * A `null` value indicates that the entity is active (not deleted).
-     * When set, it should represent the moment of soft deletion.
+     * This property contains the accurate audit history of when the entity was
+     * stashed to ensure a logically sortable order. The value is `null` if the
+     * entity has not been stashed.
+     *
+     * **Implementation:**
+     *
+     * ```
+     * override var stashedAt: Instant? = null
+     * ```
      */
     var stashedAt: Instant?
-    
-    
+
+
     // --- Functions
 
-    
+
     /**
-     * Checks if the entity is currently soft-deleted.
-     *
-     * @return `true` if the entity has been stashed (soft-deleted), otherwise `false`.
-     *
-     * This provides a quick check to determine if the entity should be treated as logically removed.
+     * Determines whether the entity is stashed (soft-deleted).
+     * 
+     * @see destroy
+     * @see restore
      */
     fun isStashed(): Boolean = (stashedAt != null)
 
-    
+
     /**
-     * Marks the entity as soft-deleted by setting the [stashedAt] to the current time.
-     *
-     * This is useful for logical deletion where you don't want to remove the entity from storage
-     * but still want it excluded from normal operations.
-     *
-     * This method does nothing if the entity is already stashed.
+     * Determines whether the entity is visible (not-stashed).
+     * 
+     * @see destroy
+     * @see restore
      */
-    fun softDestroy() {
-        if (!isStashed()) {
-            stashedAt = Instant.now()
+    fun isVisible(): Boolean = (stashedAt == null)
+
+
+    /**
+     * Attempts to soft-delete the entity by marking it as stashed at the
+     * current [Instant].
+     *
+     * **Usage:**
+     *
+     * The route of the exception being thrown successfully should never be
+     * reached if the entity is being handled correctly. If thrown, then a logic
+     * error has likely occurred. This assurance can be bypassed by handling the
+     * function safely to investigate later on.
+     *
+     * ```
+     * if (entity.isVisible()) entity.destroy() // safe approach
+     * ```
+     *
+     * ```
+     * // safe approach (preferred)
+     * try {
+     *     entity.destroy()
+     * } catch (e: IllegalStateException) {
+     *     Clogger.e( // send the non-fatal exception to crashlytics
+     *         TAG, "Failed to soft-destroy entity", e
+     *     )
+     * }
+     * ```
+     *
+     * @throws IllegalStateException when an attempt to soft-destroy an already
+     *         stashed object is made. This ensures that the audit log contains
+     *         accurate information without losing its integrity to overwrites.
+     */
+    fun destroy() = when (isVisible()) {
+        true -> stashedAt = Instant.now()
+        else -> {
+            Clogger.w(
+                TAG, "You cannot soft-destroy an entity that is already stashed."
+            )
+
+            throw IllegalStateException("Entity is already stashed.")
         }
     }
 
-    
+
     /**
-     * Reverses a soft deletion by clearing the [stashedAt] timestamp.
+     * Attempts to soft-restore the entity by clearing [stashedAt].
      *
-     * This effectively "restores" the entity, making it active and usable again.
+     * **Usage:**
      *
-     * This method does nothing if the entity is not stashed.
+     * The route of the exception being thrown successfully should never be
+     * reached if the entity is being handled correctly. If thrown, then a logic
+     * error has likely occurred. This assurance can be bypassed by handling the
+     * function safely to investigate later on.
+     *
+     * ```
+     * if (entity.isStashed()) entity.restore() // safe approach
+     * ```
+     *
+     * ```
+     * // safe approach (preferred)
+     * try {
+     *     entity.restore()
+     * } catch (e: IllegalStateException) {
+     *     Clogger.e( // send the non-fatal exception to crashlytics
+     *         TAG, "Failed to soft-restore entity", e
+     *     )
+     * }
+     * ```
+     *
+     * @throws IllegalStateException when an attempt to soft-destroy an already
+     *         stashed object is made. This ensures that the audit log contains
+     *         accurate information without losing its integrity to overwrites.
      */
-    fun softRestore() {
-        if (isStashed()) {
-            stashedAt = null
+    fun restore() = when (isStashed()) {
+        true -> stashedAt = null
+        else -> {
+            Clogger.w(
+                TAG, "You cannot soft-restore an entity that is already visible."
+            )
+
+            throw IllegalStateException("Entity is already visible.")
         }
     }
 }

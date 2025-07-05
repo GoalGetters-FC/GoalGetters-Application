@@ -31,7 +31,7 @@ interface UserDao {
      *
      * @return a [Flow] emitting the current list of [User] objects
      */
-    @Query("SELECT * FROM users")
+    @Query("SELECT * FROM user")
     fun getAll(): Flow<List<User>>
 
     /**
@@ -41,7 +41,7 @@ interface UserDao {
      * @param id the unique identifier of the user to fetch
      * @return the matching [User], or null if no user with the given ID exists
      */
-    @Query("SELECT * FROM users WHERE id = :id")
+    @Query("SELECT * FROM user WHERE id = :id")
     suspend fun getByIdOnce(id: UUID): User?
 
     /**
@@ -49,6 +49,6 @@ interface UserDao {
      *
      * @param id the unique identifier of the user to remove
      */
-    @Query("DELETE FROM users WHERE id = :id")
+    @Query("DELETE FROM user WHERE id = :id")
     suspend fun deleteById(id: UUID)
 }

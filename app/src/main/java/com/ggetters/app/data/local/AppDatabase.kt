@@ -1,6 +1,8 @@
 package com.ggetters.app.data.local
 
+import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.ggetters.app.data.local.converters.DateConverter
@@ -11,36 +13,48 @@ import com.ggetters.app.data.model.Team
 import com.ggetters.app.data.model.User
 
 /**
- * Room database for the GoalGetters app.
+ * Local [RoomDatabase] for the application.
  *
- * Contains the local cache tables for [User] and [Team], and provides
- * Data Access Objects (DAOs) for each entity.
- *
- * @property userDao Provides CRUD operations for [User] entities.
- * @property teamDao Provides CRUD operations for [Team] entities.
+ * @property userDao
+ * @property teamDao
  */
 @Database(
-    entities = [User::class, Team::class],
-    version = 1,
-    exportSchema = true
+    entities = [
+        User::class,
+        Team::class,
+    ], 
+    
+    // Configuration
+    
+    version = 1, 
+    exportSchema = true // TODO: Add location to silence build warnings
 )
 @TypeConverters(
-    UuidConverter::class,  // Convert UUID to String and back
-    DateConverter::class   // Convert Instant (or Date) to Long and back
+    UuidConverter::class,
+    DateConverter::class,
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    /**
-     * Get the DAO for [User] operations.
-     *
-     * @return a [UserDao] instance for inserting, querying, and deleting users.
-     */
-    abstract fun userDao(): UserDao
+    companion object {
+        private var INSTANCE: AppDatabase? = null
+        private const val DATABASE_NAME = "ggetters.db"
 
-    /**
-     * Get the DAO for [Team] operations.
-     *
-     * @return a [TeamDao] instance for inserting, querying, and deleting teams.
-     */
+        /**
+         * Singleton instance of the [AppDatabase].
+         */
+        fun getDatabase(context: Context): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext, AppDatabase::class.java, DATABASE_NAME
+                ).build()
+                INSTANCE = instance
+                instance
+            }
+        }
+    }
+    
+    // DAO Accessors
+    
+    abstract fun userDao(): UserDao
     abstract fun teamDao(): TeamDao
 }

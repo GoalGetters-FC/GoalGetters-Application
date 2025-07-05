@@ -21,7 +21,7 @@ class TeamFirestore(
 ) {
 
     // Reference to the "teams" collection
-    private val teamsCol = firestore.collection("teams")
+    private val teamsCol = firestore.collection("team")
 
     /**
      * Observe all teams in real time.

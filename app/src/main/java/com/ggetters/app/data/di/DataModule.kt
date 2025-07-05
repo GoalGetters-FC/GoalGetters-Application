@@ -2,7 +2,7 @@
 package com.ggetters.app.data.di
 
 import android.content.Context
-import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.ggetters.app.data.local.AppDatabase
 import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
@@ -23,7 +23,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DataModule {
+    
+    // --- Contexts
 
+    
     /**
      * Provides a singleton [FirebaseFirestore] instance.
      *
@@ -31,39 +34,45 @@ object DataModule {
      */
     @Provides
     @Singleton
-    fun provideFirestore(): FirebaseFirestore =
-        FirebaseFirestore.getInstance()
+    fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 
+    
     /**
-     * Provides the Room [AppDatabase], configured with entities and type converters.
+     * Provides the Room [AppDatabase] using the singleton getDatabase() method.
+     * This ensures only one instance of the database is created, and configs 
+     * stay in the [AppDatabase] class.
      *
-     * @param ctx application context for database builder.
+     * @param context application context for database builder.
      * @return the Room database instance.
      */
     @Provides
     @Singleton
-    fun provideAppDatabase(@ApplicationContext ctx: Context): AppDatabase =
-        Room.databaseBuilder(ctx, AppDatabase::class.java, "goalgetters.db")
-            .fallbackToDestructiveMigration()
-            .build()
+    fun provideDatabase(
+        @ApplicationContext context: Context
+    ): AppDatabase = AppDatabase.getDatabase(context)
+    
+    
+    // --- DAOs
+    
 
     /**
-     * Provides the [UserDao] for user-related local operations.
+     * Injects the [UserDao].
      *
-     * @param db the AppDatabase instance.
-     * @return the DAO for User entity.
+     * @param source the [RoomDatabase] instance to access.
+     * @return [UserDao]
      */
     @Provides
     @Singleton
-    fun provideUserDao(db: AppDatabase): UserDao = db.userDao()
+    fun provideUserDao(source: AppDatabase): UserDao = source.userDao()
 
+    
     /**
-     * Provides the [TeamDao] for team-related local operations.
+     * Injects the [TeamDao].
      *
-     * @param db the AppDatabase instance.
-     * @return the DAO for Team entity.
+     * @param source the [RoomDatabase] instance to access.
+     * @return [TeamDao]
      */
     @Provides
     @Singleton
-    fun provideTeamDao(db: AppDatabase): TeamDao = db.teamDao()
+    fun provideTeamDao(source: AppDatabase): TeamDao = source.teamDao()
 }

@@ -2,103 +2,123 @@ package com.ggetters.app.data.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import com.google.firebase.firestore.Exclude
-import com.google.firebase.firestore.ServerTimestamp
-import com.ggetters.app.data.local.converters.DateConverter
-import com.ggetters.app.data.local.converters.UuidConverter
+import com.ggetters.app.core.extensions.toLocalDate
 import com.ggetters.app.data.model.supers.AuditableEntity
+import com.ggetters.app.data.model.supers.CodedEntity
 import com.ggetters.app.data.model.supers.KeyedEntity
 import com.ggetters.app.data.model.supers.StainableEntity
-import com.ggetters.app.data.model.supers.StashableEntity
+import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.Exclude
 import java.time.Instant
+import java.time.LocalDate
+import java.util.Date
 import java.util.UUID
 
-/**
- * Unified data model for both Room and Firestore.
- * Implements common entity behaviors via supers interfaces.
- */
-@Entity(tableName = "users")
-@TypeConverters(UuidConverter::class, DateConverter::class)
+@Entity(
+    tableName = "user",
+    foreignKeys = [ForeignKey(
+        entity = Team::class,
+        parentColumns = ["id"],
+        childColumns = ["team_id"],
+        onDelete = ForeignKey.CASCADE, // TODO: Confirm expected behaviour
+        onUpdate = ForeignKey.CASCADE, // TODO: Confirm expected behaviour
+    )],
+    indices = [
+        Index(value = ["id"], unique = true),
+        Index(value = ["code"], unique = true),
+        Index(value = ["auth_id", "team_id"], unique = true),
+        Index(value = ["auth_id"]),
+        Index(value = ["team_id"]),
+    ]
+)
 data class User(
-    /**
-     * Unique identifier for this user. Generated randomly if unset.
-     */
+
     @PrimaryKey
+    @DocumentId
     @ColumnInfo(name = "id")
-    override var id: UUID = UUID.randomUUID(),
+    override val id: String = UUID.randomUUID().toString(),
 
-    /**
-     * Optional link to a Team by UUID.
-     */
-    @ColumnInfo(name = "team_id")
-    var teamId: UUID? = null,
 
-    /**
-     * Authentication ID from Firebase Auth.
-     */
-    var authId: String = "",
+    @ColumnInfo(name = "created_at")
+    override val createdAt: Instant = Instant.now(),
 
-    /**
-     * Short join-code or shorthand identifier.
-     */
-    var code: String = "",
 
-    /**
-     * User's first name.
-     */
-    var name: String = "",
-
-    /**
-     * User's surname.
-     */
-    var surname: String = "",
-
-    /**
-     * Optional nickname.
-     */
-    var alias: String? = null,
-
-    /**
-     * Numeric role identifier.
-     */
-    var role: Int = 0,
-
-    /**
-     * Optional gender string.
-     */
-    var gender: String? = null,
-
-    /**
-     * When the player was born (from government ID).
-     */
-    var dateOfBirth: Instant = Instant.now(),
-
-    /**
-     * When they were added to the team.
-     */
-    var annexedAt: Instant? = null,
-
-    // --- from AuditableEntity ---
-    override var createdAt: Instant = Instant.now(),
-
-    /**
-     * Firestore: server-generated timestamp for updates.
-     */
-    @ServerTimestamp
+    @ColumnInfo(name = "updated_at")
     override var updatedAt: Instant = Instant.now(),
 
-    // --- from StashableEntity (soft-delete) ---
-    override var stashedAt: Instant? = null,
 
-    // --- from StainableEntity (local 'dirty' flag) ---
+    @Exclude
+    @ColumnInfo(name = "stained_at")
     override var stainedAt: Instant? = null,
 
-    /**
-     * UI-only flag, excluded from persistence.
-     */
-    @Exclude
-    @Transient
-    var isSelected: Boolean = false
-) : KeyedEntity, AuditableEntity, StashableEntity, StainableEntity
+
+    @ColumnInfo(name = "code")
+    override var code: String? = null,
+
+
+    // --- Attributes
+
+
+    @ColumnInfo(name = "auth_id")
+    var authId: String,
+
+
+    @ColumnInfo(name = "team_id")
+    var teamId: String,
+
+
+    @ColumnInfo(name = "annexed_at")
+    var annexedAt: Instant? = null,
+
+
+    @ColumnInfo(name = "role")
+    var role: Int,
+
+
+    @ColumnInfo(name = "name")
+    var name: String,
+
+
+    @ColumnInfo(name = "surname")
+    var surname: String,
+
+
+    @ColumnInfo(name = "alias")
+    var alias: String,
+
+
+    @ColumnInfo(name = "date_of_birth")
+    var dateOfBirth: Date,
+
+    
+    ) : KeyedEntity, CodedEntity, AuditableEntity, StainableEntity {
+    companion object {
+        const val TAG = "User"
+    }
+
+
+    // --- Functions
+
+
+    fun getFullName(): String = "$name $surname"
+
+
+    fun getInitials(): String {
+        val firstInitial = name.firstOrNull()?.toString() ?: ""
+        val finalInitial = surname.firstOrNull()?.toString() ?: ""
+        return if (firstInitial.isNotEmpty() && finalInitial.isNotEmpty()) {
+            "$firstInitial$finalInitial".uppercase()
+        } else ""
+    }
+
+
+    fun isAdult(): Boolean {
+        val eighteenthBirthday = dateOfBirth.toInstant().toLocalDate()
+        val date = LocalDate.now()
+
+        return (!date.isBefore(eighteenthBirthday.plusYears(18)))
+    }
+}
