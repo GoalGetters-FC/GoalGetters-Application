@@ -10,20 +10,27 @@
         android:orientation="vertical"
         android:gravity="center">
 
-        <!-- Day number -->
-        <TextView
-            android:id="@+id/dayNumber"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="15"
-            android:textSize="16sp"
-            android:textColor="@color/black"
-            android:gravity="center"
-            android:minWidth="32dp"
-            android:minHeight="32dp"
-            android:background="?attr/selectableItemBackground"
+        <!-- Day container for interaction -->
+        <FrameLayout
+            android:id="@+id/dayContainer"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/day_background"
             android:clickable="true"
-            android:focusable="true" />
+            android:focusable="true">
+
+            <!-- Day number -->
+            <TextView
+                android:id="@+id/dayNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="15"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:gravity="center"
+                android:layout_gravity="center" />
+
+        </FrameLayout>
 
         <!-- Event dots container -->
         <LinearLayout

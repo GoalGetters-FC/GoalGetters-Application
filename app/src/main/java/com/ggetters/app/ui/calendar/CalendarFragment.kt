@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ggetters.app.R
 import com.ggetters.app.ui.adapters.CalendarAdapter
@@ -19,7 +20,9 @@ import java.util.*
 
 data class CalendarDayItem(
     val dayNumber: Int? = null,
-    val events: List<Event> = emptyList()
+    val events: List<Event> = emptyList(),
+    val isCurrentMonth: Boolean = true,
+    val isToday: Boolean = false
 )
 
 class CalendarFragment : Fragment() {
@@ -27,8 +30,13 @@ class CalendarFragment : Fragment() {
     private lateinit var calendarAdapter: CalendarAdapter
     private lateinit var monthYearText: TextView
     private lateinit var calendarRecyclerView: RecyclerView
+    private lateinit var previousButton: ImageButton
+    private lateinit var nextButton: ImageButton
+    private lateinit var addEventFab: FloatingActionButton
+    
     private var currentDate = Calendar.getInstance()
     private val events = mutableListOf<Event>()
+    private var selectedDay: Int? = null
     
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,24 +53,22 @@ class CalendarFragment : Fragment() {
         setupCalendar()
         loadSampleEvents()
         updateCalendar()
+        setupSwipeGestures()
     }
     
     private fun setupViews(view: View) {
         monthYearText = view.findViewById(R.id.monthYearText)
         calendarRecyclerView = view.findViewById(R.id.calendarRecyclerView)
-        
-        val previousButton = view.findViewById<ImageButton>(R.id.previousMonthButton)
-        val nextButton = view.findViewById<ImageButton>(R.id.nextMonthButton)
-        val addEventFab = view.findViewById<FloatingActionButton>(R.id.addEventFab)
+        previousButton = view.findViewById(R.id.previousMonthButton)
+        nextButton = view.findViewById(R.id.nextMonthButton)
+        addEventFab = view.findViewById(R.id.addEventFab)
         
         previousButton.setOnClickListener {
-            currentDate.add(Calendar.MONTH, -1)
-            updateCalendar()
+            navigateToPreviousMonth()
         }
         
         nextButton.setOnClickListener {
-            currentDate.add(Calendar.MONTH, 1)
-            updateCalendar()
+            navigateToNextMonth()
         }
         
         addEventFab.setOnClickListener {
@@ -71,13 +77,73 @@ class CalendarFragment : Fragment() {
     }
     
     private fun setupCalendar() {
-        calendarAdapter = CalendarAdapter { day ->
-            // Handle day click - show events for that day
-            showEventsForDay(day)
-        }
+        calendarAdapter = CalendarAdapter(
+            onDayClick = { day ->
+                handleDayClick(day)
+            },
+            onDayLongClick = { day ->
+                handleDayLongClick(day)
+            }
+        )
         
         calendarRecyclerView.layoutManager = GridLayoutManager(context, 7)
         calendarRecyclerView.adapter = calendarAdapter
+    }
+    
+    private fun setupSwipeGestures() {
+        // Add swipe gesture detection for month navigation
+        calendarRecyclerView.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
+            private var startX = 0f
+            private var startY = 0f
+            private val SWIPE_THRESHOLD = 100f
+            
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: android.view.MotionEvent): Boolean {
+                when (e.action) {
+                    android.view.MotionEvent.ACTION_DOWN -> {
+                        startX = e.x
+                        startY = e.y
+                    }
+                    android.view.MotionEvent.ACTION_UP -> {
+                        val deltaX = e.x - startX
+                        val deltaY = e.y - startY
+                        
+                        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > SWIPE_THRESHOLD) {
+                            if (deltaX > 0) {
+                                navigateToPreviousMonth()
+                            } else {
+                                navigateToNextMonth()
+                            }
+                            return true
+                        }
+                    }
+                }
+                return false
+            }
+            
+            override fun onTouchEvent(rv: RecyclerView, e: android.view.MotionEvent) {}
+            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
+        })
+    }
+    
+    private fun navigateToPreviousMonth() {
+        currentDate.add(Calendar.MONTH, -1)
+        updateCalendar()
+        animateMonthTransition(false)
+    }
+    
+    private fun navigateToNextMonth() {
+        currentDate.add(Calendar.MONTH, 1)
+        updateCalendar()
+        animateMonthTransition(true)
+    }
+    
+    private fun animateMonthTransition(forward: Boolean) {
+        // Simple fade animation for month transition
+        calendarRecyclerView.alpha = 0.5f
+        calendarRecyclerView.animate()
+            .alpha(1.0f)
+            .setDuration(300)
+            .start()
     }
     
     private fun updateCalendar() {
@@ -91,6 +157,7 @@ class CalendarFragment : Fragment() {
     private fun generateCalendarDays(): List<CalendarDayItem> {
         val days = mutableListOf<CalendarDayItem>()
         val calendar = currentDate.clone() as Calendar
+        val today = Calendar.getInstance()
         
         // Set to first day of month
         calendar.set(Calendar.DAY_OF_MONTH, 1)
@@ -100,7 +167,7 @@ class CalendarFragment : Fragment() {
         val startOffset = if (firstDayOfWeek == Calendar.SUNDAY) 0 else firstDayOfWeek - 1
         
         for (i in 0 until startOffset) {
-            days.add(CalendarDayItem())
+            days.add(CalendarDayItem(isCurrentMonth = false))
         }
         
         // Add days of current month
@@ -110,10 +177,23 @@ class CalendarFragment : Fragment() {
             dayCalendar.set(Calendar.DAY_OF_MONTH, day)
             
             val dayEvents = getEventsForDate(dayCalendar.time)
-            days.add(CalendarDayItem(day, dayEvents))
+            val isToday = isSameDay(dayCalendar, today)
+            
+            days.add(CalendarDayItem(
+                dayNumber = day,
+                events = dayEvents,
+                isCurrentMonth = true,
+                isToday = isToday
+            ))
         }
         
         return days
+    }
+    
+    private fun isSameDay(cal1: Calendar, cal2: Calendar): Boolean {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+               cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH) &&
+               cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH)
     }
     
     private fun getEventsForDate(date: Date): List<Event> {
@@ -171,19 +251,54 @@ class CalendarFragment : Fragment() {
             venue = "Club House",
             createdBy = "Manager"
         ))
+        
+        // Add some events for current month
+        val currentCalendar = Calendar.getInstance()
+        currentCalendar.add(Calendar.DAY_OF_MONTH, 2) // 2 days from now
+        events.add(Event(
+            id = "4",
+            title = "Training Session",
+            type = EventType.PRACTICE,
+            date = currentCalendar.time,
+            time = "16:00",
+            venue = "Training Ground",
+            createdBy = "Coach"
+        ))
+        
+        currentCalendar.add(Calendar.DAY_OF_MONTH, 5) // 7 days from now
+        events.add(Event(
+            id = "5",
+            title = "Friendly Match",
+            type = EventType.GAME,
+            date = currentCalendar.time,
+            time = "15:30",
+            venue = "Local Stadium",
+            opponent = "City Rovers",
+            createdBy = "Coach"
+        ))
     }
     
-    private fun showEventsForDay(day: Int) {
+    private fun handleDayClick(day: Int) {
+        selectedDay = day
         val calendar = currentDate.clone() as Calendar
         calendar.set(Calendar.DAY_OF_MONTH, day)
         val dayEvents = getEventsForDate(calendar.time)
         
         if (dayEvents.isNotEmpty()) {
-            // TODO: Show events dialog/bottom sheet
+            showEventsForDay(day, dayEvents)
         } else {
-            // Show add event option
             showAddEventBottomSheet(day)
         }
+    }
+    
+    private fun handleDayLongClick(day: Int) {
+        // Long press to quickly add event
+        showAddEventBottomSheet(day)
+    }
+    
+    private fun showEventsForDay(day: Int, events: List<Event>) {
+        val eventListBottomSheet = EventListBottomSheet.newInstance(day, events)
+        eventListBottomSheet.show(childFragmentManager, "EventListBottomSheet")
     }
     
     private fun showAddEventBottomSheet(selectedDay: Int? = null) {
@@ -193,6 +308,20 @@ class CalendarFragment : Fragment() {
             calendar.set(Calendar.DAY_OF_MONTH, selectedDay)
             bottomSheet.setSelectedDate(calendar.time)
         }
+        bottomSheet.setOnEventCreatedListener { event ->
+            events.add(event)
+            updateCalendar()
+        }
         bottomSheet.show(childFragmentManager, "AddEventBottomSheet")
+    }
+    
+    fun addEvent(event: Event) {
+        events.add(event)
+        updateCalendar()
+    }
+    
+    fun removeEvent(eventId: String) {
+        events.removeAll { it.id == eventId }
+        updateCalendar()
     }
 } 

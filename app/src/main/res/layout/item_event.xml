@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/eventContainer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical">
+
+    <!-- Event Type Icon -->
+    <TextView
+        android:id="@+id/eventTypeIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:text="🔵"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:background="@drawable/event_icon_background"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Event Details -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/eventTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Team Practice"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/eventTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="15:00"
+            android:textSize="14sp"
+            android:textColor="@color/text_disabled"
+            android:layout_marginBottom="2dp" />
+
+        <TextView
+            android:id="@+id/eventVenue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Main Field"
+            android:textSize="14sp"
+            android:textColor="@color/text_disabled"
+            android:layout_marginBottom="2dp" />
+
+        <TextView
+            android:id="@+id/eventOpponent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="vs Eagles FC"
+            android:textSize="14sp"
+            android:textColor="@color/primary"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <!-- Arrow Icon -->
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_arrow_right"
+        android:tint="@color/text_disabled"
+        android:layout_marginStart="8dp" />
+
+</LinearLayout> 

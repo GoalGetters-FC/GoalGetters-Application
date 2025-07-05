@@ -21,6 +21,7 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
     
     private var selectedDate: Date? = null
     private var selectedTime: String? = null
+    private var onEventCreatedListener: ((Event) -> Unit)? = null
     
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -98,7 +99,8 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
         
         saveButton.setOnClickListener {
             if (validateForm(view)) {
-                saveEvent(view)
+                val event = saveEvent(view)
+                onEventCreatedListener?.invoke(event)
                 dismiss()
             }
         }
@@ -174,7 +176,7 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
         return isValid
     }
     
-    private fun saveEvent(view: View) {
+    private fun saveEvent(view: View): Event {
         val titleInput = view.findViewById<TextInputEditText>(R.id.eventTitleInput)
         val venueInput = view.findViewById<TextInputEditText>(R.id.eventVenueInput)
         val opponentInput = view.findViewById<TextInputEditText>(R.id.eventOpponentInput)
@@ -200,12 +202,20 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
             createdBy = "Current User" // TODO: Get from auth
         )
         
-        // TODO: Save event to backend
-        // For now, just log it
-        println("Event created: $event")
+        // TODO: Backend - Save event to database
+        // Endpoint: POST /api/events
+        // Request: { title, type, date, time, venue, opponent?, description?, teamId }
+        // Response: { event: Event, success: Boolean }
+        // Error handling: { message: String, code: String }
+        
+        return event
     }
     
     fun setSelectedDate(date: Date) {
         selectedDate = date
+    }
+    
+    fun setOnEventCreatedListener(listener: (Event) -> Unit) {
+        onEventCreatedListener = listener
     }
 } 
