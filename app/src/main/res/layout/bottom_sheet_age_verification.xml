@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/white"
+    android:background="@drawable/bottom_sheet_background"
     android:padding="24dp"
     android:gravity="center">
 
@@ -23,15 +23,19 @@
         android:text="Yes"
         android:backgroundTint="@color/primary"
         android:textColor="@color/black"
-        android:layout_marginBottom="8dp" />
+        android:background="@drawable/button_border"
+        android:layout_marginBottom="8dp"
+        style="@style/Widget.MaterialComponents.Button" />
 
     <Button
         android:id="@+id/noButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="No"
-        android:backgroundTint="@color/primary"
+        android:backgroundTint="@color/white"
         android:textColor="@color/black"
-        android:layout_marginBottom="8dp" />
+        android:background="@drawable/button_border"
+        android:layout_marginBottom="8dp"
+        style="@style/Widget.MaterialComponents.Button" />
 
 </LinearLayout> 

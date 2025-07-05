@@ -45,8 +45,9 @@
             android:text="Get Started"
             android:backgroundTint="@color/primary"
             android:textColor="@color/black"
+            android:background="@drawable/button_border"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/button_border" />
+            style="@style/Widget.MaterialComponents.Button" />
 
         <Button
             android:id="@+id/loginButton"
@@ -55,7 +56,8 @@
             android:text="Login"
             android:backgroundTint="@color/white"
             android:textColor="@color/black"
-            android:background="@drawable/button_border" />
+            android:background="@drawable/button_border"
+            style="@style/Widget.MaterialComponents.Button" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout> 

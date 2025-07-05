@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/white"
+    android:background="@drawable/bottom_sheet_background"
     android:padding="24dp"
     android:gravity="center">
 
@@ -16,7 +16,8 @@
         android:backgroundTint="@color/primary"
         android:textColor="@color/black"
         android:background="@drawable/button_border"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"
+        style="@style/Widget.MaterialComponents.Button" />
 
     <Button
         android:id="@+id/joinTeamOptionButton"
@@ -26,6 +27,7 @@
         android:backgroundTint="@color/primary"
         android:textColor="@color/black"
         android:background="@drawable/button_border"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        style="@style/Widget.MaterialComponents.Button" />
 
 </LinearLayout> 

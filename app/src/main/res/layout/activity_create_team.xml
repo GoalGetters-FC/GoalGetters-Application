@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Create a Team"
-        android:textSize="20sp"
+        android:textSize="24sp"
         android:textColor="@color/black"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
@@ -22,9 +22,12 @@
     <EditText
         android:id="@+id/teamNameEditText"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:hint="Team Name"
         android:textColor="@color/black"
+        android:textColorHint="#757575"
+        android:textSize="16sp"
+        android:padding="16dp"
         android:background="@drawable/input_background"
         app:layout_constraintTop_toBottomOf="@id/createTeamTitle"
         app:layout_constraintStart_toStartOf="parent"
@@ -38,9 +41,11 @@
         android:text="Create"
         android:backgroundTint="@color/primary"
         android:textColor="@color/black"
+        android:background="@drawable/button_border"
         app:layout_constraintTop_toBottomOf="@id/teamNameEditText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="24dp"
+        style="@style/Widget.MaterialComponents.Button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout> 
