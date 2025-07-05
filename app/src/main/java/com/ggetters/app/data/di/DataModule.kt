@@ -6,6 +6,7 @@ import androidx.room.RoomDatabase
 import com.ggetters.app.data.local.AppDatabase
 import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
@@ -23,10 +24,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DataModule {
-    
+
     // --- Contexts
 
-    
+
     /**
      * Provides a singleton [FirebaseFirestore] instance.
      *
@@ -36,10 +37,38 @@ object DataModule {
     @Singleton
     fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    
+
+    /**
+     * Injects a singleton [FirebaseAuth] instance.
+     *
+     * **Note:** This dependency injection is fulfilled using the *Dagger Hilt*
+     * Dependency Injection (DI) library. See the [documentation](https://developer.android.com/training/dependency-injection/hilt-android)
+     * to learn more about usage details and implementations.
+     *
+     * **Usage:**
+     *
+     * ```
+     * // Inject into constructors (preferred)
+     * class Service @Inject constructor(
+     *     private val auth: FirebaseAuth
+     * ) { ... }
+     * ```
+     *
+     * ```
+     * // Inject into an object/class property
+     * @Inject lateinit var auth: FirebaseAuth
+     * ```
+     *
+     * @return [Singleton] instance of [FirebaseAuth].
+     */
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+
+
     /**
      * Provides the Room [AppDatabase] using the singleton getDatabase() method.
-     * This ensures only one instance of the database is created, and configs 
+     * This ensures only one instance of the database is created, and configs
      * stay in the [AppDatabase] class.
      *
      * @param context application context for database builder.
@@ -50,10 +79,10 @@ object DataModule {
     fun provideDatabase(
         @ApplicationContext context: Context
     ): AppDatabase = AppDatabase.getDatabase(context)
-    
-    
+
+
     // --- DAOs
-    
+
 
     /**
      * Injects the [UserDao].
@@ -65,7 +94,7 @@ object DataModule {
     @Singleton
     fun provideUserDao(source: AppDatabase): UserDao = source.userDao()
 
-    
+
     /**
      * Injects the [TeamDao].
      *
