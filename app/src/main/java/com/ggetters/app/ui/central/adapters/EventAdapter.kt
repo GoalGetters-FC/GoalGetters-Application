@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.databinding.ItemEventBinding
 import com.ggetters.app.ui.central.models.Event
 
 class EventAdapter(
@@ -27,8 +28,12 @@ class EventAdapter(
             TAG, "Constructing the ViewHolder"
         )
 
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_event, parent, false)
-        return EventViewHolder(view, onClick, onLongClick)
+        // Construct the binding and return the view holder
+        return EventViewHolder(
+            binding = ItemEventBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false
+            ), onClick, onLongClick
+        )
     }
 
 
@@ -51,8 +56,7 @@ class EventAdapter(
             TAG, "Updating the source collection"
         )
 
-        submitList(collection.sortedBy {
-            it.date
-        })
+        val sortedCollection = collection.sortedBy { it.date }
+        submitList(sortedCollection)
     }
 } 

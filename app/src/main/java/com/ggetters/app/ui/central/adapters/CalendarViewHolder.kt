@@ -16,6 +16,7 @@ class CalendarViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     companion object {
         private const val TAG = "CalendarViewHolder"
+        private const val DEV_VERBOSE_LOGGER = true
     }
 
 
@@ -26,13 +27,13 @@ class CalendarViewHolder(
      * Binds the data to the view.
      */
     fun bind(
-        calendarDay: CalendarDayItem
+        item: CalendarDayItem
     ) {
-        Clogger.d(
-            TAG, "<bind>: id=[${calendarDay.id}]"
+        if (DEV_VERBOSE_LOGGER) Clogger.d(
+            TAG, "<bind>: id=[${item.id}]"
         )
 
-        setupNumberedDay(calendarDay)
+        setupNumberedDay(item)
     }
 
 
