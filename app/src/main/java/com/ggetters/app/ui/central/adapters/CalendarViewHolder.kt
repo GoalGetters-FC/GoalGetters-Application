@@ -11,8 +11,8 @@ import com.ggetters.app.ui.central.models.EventType
 
 class CalendarViewHolder(
     private val binding: ItemCalendarDayBinding,
-    private val onDayClick: (Int) -> Unit,
-    private val onDayLongClick: (Int) -> Unit
+    private val onClick: (Int) -> Unit,
+    private val onLongClick: (Int) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
     companion object {
         private const val TAG = "CalendarViewHolder"
@@ -60,13 +60,13 @@ class CalendarViewHolder(
 
             binding.dayContainer.setOnClickListener {
                 if (calendarDay.isCurrentMonth) {
-                    onDayClick(calendarDay.dayNumber)
+                    onClick(calendarDay.dayNumber)
                 }
             }
 
             binding.dayContainer.setOnLongClickListener {
                 if (calendarDay.isCurrentMonth) {
-                    onDayLongClick(calendarDay.dayNumber)
+                    onLongClick(calendarDay.dayNumber)
                     true
                 } else {
                     false

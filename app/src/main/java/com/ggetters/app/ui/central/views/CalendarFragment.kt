@@ -74,10 +74,10 @@ class CalendarFragment : Fragment() {
     
     private fun setupCalendar() {
         calendarAdapter = CalendarAdapter(
-            onDayClick = { day ->
+            onClick = { day ->
                 handleDayClick(day)
             },
-            onDayLongClick = { day ->
+            onLongClick = { day ->
                 handleDayLongClick(day)
             }
         )
@@ -147,7 +147,7 @@ class CalendarFragment : Fragment() {
         monthYearText.text = dateFormat.format(currentDate.time)
         
         val calendarDays = generateCalendarDays()
-        calendarAdapter.updateCollection(calendarDays)
+        calendarAdapter.update(calendarDays)
     }
     
     private fun generateCalendarDays(): List<CalendarDayItem> {

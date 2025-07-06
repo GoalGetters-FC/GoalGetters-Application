@@ -8,7 +8,8 @@ import com.ggetters.app.databinding.ItemCalendarDayBinding
 import com.ggetters.app.ui.central.models.CalendarDayItem
 
 class CalendarAdapter(
-    private val onDayClick: (Int) -> Unit, private val onDayLongClick: (Int) -> Unit
+    private val onClick: (Int) -> Unit,
+    private val onLongClick: (Int) -> Unit
 ) : ListAdapter<CalendarDayItem, CalendarViewHolder>(CalendarDiffCallback()) {
     companion object {
         private const val TAG = "CalendarAdapter"
@@ -24,12 +25,12 @@ class CalendarAdapter(
         Clogger.d(
             TAG, "Constructing the ViewHolder"
         )
-        
+
         // Construct the binding and return the view holder
         return CalendarViewHolder(
             binding = ItemCalendarDayBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
-            ), onDayClick, onDayLongClick
+            ), onClick, onLongClick
         )
     }
 
@@ -48,7 +49,11 @@ class CalendarAdapter(
     // --- Functions (Helpers)
 
 
-    fun updateCollection(updatedCollection: List<CalendarDayItem>) {
-        submitList(updatedCollection)
+    fun update(collection: List<CalendarDayItem>) {
+        Clogger.d(
+            TAG, "Updating the source collection"
+        )
+
+        submitList(collection)
     }
 } 
