@@ -1,32 +1,22 @@
 package com.ggetters.app.ui.central.adapters
 
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.databinding.ItemCalendarDayBinding
 import com.ggetters.app.ui.central.models.CalendarDayItem
 import com.ggetters.app.ui.central.models.EventType
 
 class CalendarViewHolder(
-    itemView: View,
+    private val binding: ItemCalendarDayBinding,
     private val onDayClick: (Int) -> Unit,
     private val onDayLongClick: (Int) -> Unit
-) : RecyclerView.ViewHolder(itemView) {
+) : RecyclerView.ViewHolder(binding.root) {
     companion object {
         private const val TAG = "CalendarViewHolder"
     }
-
-
-    // --- Fields
-
-
-    private val dayNumber: TextView = itemView.findViewById(R.id.dayNumber)
-    private val dayContainer: View = itemView.findViewById(R.id.dayContainer)
-    private val eventDot1: View = itemView.findViewById(R.id.eventDot1)
-    private val eventDot2: View = itemView.findViewById(R.id.eventDot2)
-    private val eventDot3: View = itemView.findViewById(R.id.eventDot3)
 
 
     // --- Functions
@@ -53,28 +43,28 @@ class CalendarViewHolder(
         calendarDay: CalendarDayItem
     ) = when (calendarDay.dayNumber == null) {
         true -> {
-            dayNumber.text = ""
-            dayNumber.isClickable = false
-            dayContainer.isClickable = false
-            dayContainer.isFocusable = false
-            eventDot1.visibility = View.GONE
-            eventDot2.visibility = View.GONE
-            eventDot3.visibility = View.GONE
-            dayContainer.alpha = 0.3f // Dim
+            binding.dayNumber.text = ""
+            binding.dayNumber.isClickable = false
+            binding.dayContainer.isClickable = false
+            binding.dayContainer.isFocusable = false
+            binding.eventDot1.visibility = View.GONE
+            binding.eventDot2.visibility = View.GONE
+            binding.eventDot3.visibility = View.GONE
+            binding.dayContainer.alpha = 0.3f // Dim
         }
 
         else -> {
-            dayNumber.text = calendarDay.dayNumber.toString()
-            dayContainer.isClickable = true
-            dayContainer.isFocusable = true
-            
-            dayContainer.setOnClickListener {
+            binding.dayNumber.text = calendarDay.dayNumber.toString()
+            binding.dayContainer.isClickable = true
+            binding.dayContainer.isFocusable = true
+
+            binding.dayContainer.setOnClickListener {
                 if (calendarDay.isCurrentMonth) {
                     onDayClick(calendarDay.dayNumber)
                 }
             }
 
-            dayContainer.setOnLongClickListener {
+            binding.dayContainer.setOnLongClickListener {
                 if (calendarDay.isCurrentMonth) {
                     onDayLongClick(calendarDay.dayNumber)
                     true
@@ -88,11 +78,10 @@ class CalendarViewHolder(
 
             // Add ripple effect for current month days
             if (calendarDay.isCurrentMonth) {
-                dayContainer.background = AppCompatResources.getDrawable(
+                binding.dayContainer.background = AppCompatResources.getDrawable(
                     itemView.context, R.drawable.day_ripple_background
                 )
             } else {
-                // No ripple effect for non-current month days
             }
         }
     }
@@ -105,20 +94,20 @@ class CalendarViewHolder(
         calendarDay: CalendarDayItem
     ) {
         if (calendarDay.isToday) {
-            dayContainer.setBackgroundResource(R.drawable.today_background)
-            dayNumber.setTextColor(itemView.context.getColor(R.color.white))
+            binding.dayContainer.setBackgroundResource(R.drawable.today_background)
+            binding.dayNumber.setTextColor(itemView.context.getColor(R.color.white))
             return
-        } 
-        
+        }
+
         when (calendarDay.isCurrentMonth) {
             true -> {
-                dayContainer.setBackgroundResource(R.drawable.day_background)
-                dayNumber.setTextColor(itemView.context.getColor(R.color.black))
+                binding.dayContainer.setBackgroundResource(R.drawable.day_background)
+                binding.dayNumber.setTextColor(itemView.context.getColor(R.color.black))
             }
-            
+
             else -> {
-                dayContainer.setBackgroundResource(R.drawable.other_month_background)
-                dayNumber.setTextColor(itemView.context.getColor(R.color.text_disabled))
+                binding.dayContainer.setBackgroundResource(R.drawable.other_month_background)
+                binding.dayNumber.setTextColor(itemView.context.getColor(R.color.text_disabled))
             }
         }
     }
@@ -134,9 +123,9 @@ class CalendarViewHolder(
             it.type
         }.toSet()
 
-        updateEventDotVisibility(eventDot1, EventType.PRACTICE, eventTypes)
-        updateEventDotVisibility(eventDot2, EventType.MATCH, eventTypes)
-        updateEventDotVisibility(eventDot3, EventType.OTHER, eventTypes)
+        updateEventDotVisibility(binding.eventDot1, EventType.PRACTICE, eventTypes)
+        updateEventDotVisibility(binding.eventDot2, EventType.MATCH, eventTypes)
+        updateEventDotVisibility(binding.eventDot3, EventType.OTHER, eventTypes)
     }
 
 
