@@ -2,11 +2,11 @@ package com.ggetters.app.ui.central.adapters
 
 import androidx.recyclerview.widget.DiffUtil
 import com.ggetters.app.core.utils.Clogger
-import com.ggetters.app.ui.central.models.CalendarDayItem
+import com.ggetters.app.ui.central.models.Event
 
-class CalendarDiffCallback : DiffUtil.ItemCallback<CalendarDayItem>() {
+class EventDiffCallback : DiffUtil.ItemCallback<Event>() {
     companion object {
-        private const val TAG = "CalendarDiffCallback"
+        private const val TAG = "EventDiffCallback"
         private const val DEV_VERBOSE_LOGGER = true
     }
 
@@ -14,8 +14,8 @@ class CalendarDiffCallback : DiffUtil.ItemCallback<CalendarDayItem>() {
     // --- Functions
 
 
-    override fun areItemsTheSame(
-        oldItem: CalendarDayItem, newItem: CalendarDayItem
+    override fun areContentsTheSame(
+        oldItem: Event, newItem: Event
     ): Boolean {
         val result = (oldItem.id == newItem.id)
         if (DEV_VERBOSE_LOGGER) Clogger.d(
@@ -27,8 +27,8 @@ class CalendarDiffCallback : DiffUtil.ItemCallback<CalendarDayItem>() {
     }
 
 
-    override fun areContentsTheSame(
-        oldItem: CalendarDayItem, newItem: CalendarDayItem
+    override fun areItemsTheSame(
+        oldItem: Event, newItem: Event
     ): Boolean {
         val result = (oldItem == newItem)
         if (DEV_VERBOSE_LOGGER) Clogger.d(

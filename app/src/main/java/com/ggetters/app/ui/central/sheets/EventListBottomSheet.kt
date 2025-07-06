@@ -87,17 +87,17 @@ class EventListBottomSheet : BottomSheetDialogFragment() {
     private fun setupEventList(view: View) {
         val recyclerView = view.findViewById<RecyclerView>(R.id.eventsRecyclerView)
         eventAdapter = EventAdapter(
-            onEventClick = { event ->
+            onClick = { event ->
                 showEventDetails(event)
             },
-            onEventLongClick = { event ->
+            onLongClick = { event ->
                 showEventOptions(event)
             }
         )
         
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = eventAdapter
-        eventAdapter.updateEvents(events)
+        eventAdapter.update(events)
     }
     
     private fun showEventDetails(event: Event) {

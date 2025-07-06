@@ -13,6 +13,7 @@ class CalendarAdapter(
 ) : ListAdapter<CalendarDayItem, CalendarViewHolder>(CalendarDiffCallback()) {
     companion object {
         private const val TAG = "CalendarAdapter"
+        private const val DEV_VERBOSE_LOGGER = true
     }
 
 
@@ -38,7 +39,7 @@ class CalendarAdapter(
     override fun onBindViewHolder(
         holder: CalendarViewHolder, position: Int
     ) {
-        Clogger.d(
+        if (DEV_VERBOSE_LOGGER) Clogger.d(
             TAG, "<onBindViewHolder>: position=[$position]"
         )
 

@@ -1,73 +1,58 @@
 package com.ggetters.app.ui.central.adapters
 
-import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.ListAdapter
 import com.ggetters.app.R
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.ui.central.models.Event
-import com.ggetters.app.ui.central.models.EventType
 
 class EventAdapter(
-    private val onEventClick: (Event) -> Unit,
-    private val onEventLongClick: (Event) -> Unit
-) : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
-
-    private var events = listOf<Event>()
-
-    fun updateEvents(newEvents: List<Event>) {
-        events = newEvents.sortedBy { it.date }
-        notifyDataSetChanged()
+    private val onClick: (Event) -> Unit, 
+    private val onLongClick: (Event) -> Unit
+) : ListAdapter<Event, EventViewHolder>(EventDiffCallback()) {
+    companion object {
+        private const val TAG = "EventAdapter"
+        private const val DEV_VERBOSE_LOGGER = true
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_event, parent, false)
-        return EventViewHolder(view)
+
+    // --- Functions (Contract)
+
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup, viewType: Int
+    ): EventViewHolder {
+        Clogger.d(
+            TAG, "Constructing the ViewHolder"
+        )
+
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_event, parent, false)
+        return EventViewHolder(view, onClick, onLongClick)
     }
 
-    override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
-        holder.bind(events[position])
+
+    override fun onBindViewHolder(
+        holder: EventViewHolder, position: Int
+    ) {
+        if (DEV_VERBOSE_LOGGER) Clogger.d(
+            TAG, "<onBindViewHolder>: position=[$position]"
+        )
+
+        holder.bind(getItem(position))
     }
 
-    override fun getItemCount(): Int = events.size
 
-    inner class EventViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val eventTypeIcon: TextView = itemView.findViewById(R.id.eventTypeIcon)
-        private val eventTitle: TextView = itemView.findViewById(R.id.eventTitle)
-        private val eventTime: TextView = itemView.findViewById(R.id.eventTime)
-        private val eventVenue: TextView = itemView.findViewById(R.id.eventVenue)
-        private val eventOpponent: TextView = itemView.findViewById(R.id.eventOpponent)
-        private val eventContainer: View = itemView.findViewById(R.id.eventContainer)
+    // --- Functions (Helpers)
 
-        fun bind(event: Event) {
-            eventTitle.text = event.title
-            eventTime.text = event.time
-            eventVenue.text = event.venue
-            
-            // Set event type icon and color
-            eventTypeIcon.text = event.type.icon
-            eventTypeIcon.setTextColor(Color.parseColor(event.type.color))
-            
-            // Show opponent for games
-            if (event.type == EventType.MATCH && !event.opponent.isNullOrBlank()) {
-                eventOpponent.visibility = View.VISIBLE
-                eventOpponent.text = "vs ${event.opponent}"
-            } else {
-                eventOpponent.visibility = View.GONE
-            }
-            
-            // Set click listeners
-            eventContainer.setOnClickListener {
-                onEventClick(event)
-            }
-            
-            eventContainer.setOnLongClickListener {
-                onEventLongClick(event)
-                true
-            }
-        }
+
+    fun update(collection: List<Event>) {
+        Clogger.d(
+            TAG, "Updating the source collection"
+        )
+
+        submitList(collection.sortedBy {
+            it.date
+        })
     }
 } 

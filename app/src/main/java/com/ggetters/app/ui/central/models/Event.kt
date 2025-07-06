@@ -3,9 +3,10 @@ package com.ggetters.app.ui.central.models
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 data class Event(
-    val id: String,
+    val id: String = UUID.randomUUID().toString(),
     val title: String,
     val type: EventType,
     val date: Date,
