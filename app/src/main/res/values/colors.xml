@@ -17,6 +17,7 @@
     <color name="background">#FFFFFF</color>
     <color name="container">#FFFFFF</color>
     <color name="input_background">#FFFFFF</color>
+    <color name="surface">#FFFFFF</color>
 
     <!-- Secondary Border/Divider Color: Mid Grey -->
     <color name="divider">#D3D3D3</color>
@@ -30,6 +31,7 @@
     <!-- Status/Warning Colors -->
     <color name="error">#FF3B30</color>
     <color name="success">#34C759</color>
+    <color name="success_green">#34C759</color>
     <color name="info">#007AFF</color>
 
     <!-- Notification/Calendar Colors -->
@@ -41,6 +43,7 @@
     <color name="button_pressed">#E6BC00</color>
     <color name="button_disabled">#F0F0F0</color>
     <color name="text_disabled">#BDBDBD</color>
+    <color name="text_secondary">#666666</color>
     <color name="input_error">#FF3B30</color>
     <color name="input_focused">#FFD400</color>
 
