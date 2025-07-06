@@ -13,19 +13,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.adapters.CalendarAdapter
+import com.ggetters.app.ui.central.models.CalendarDayItem
 import com.ggetters.app.ui.central.sheets.AddEventBottomSheet
 import com.ggetters.app.ui.central.sheets.EventListBottomSheet
 import com.ggetters.app.ui.central.models.Event
 import com.ggetters.app.ui.central.models.EventType
 import java.text.SimpleDateFormat
 import java.util.*
-
-data class CalendarDayItem(
-    val dayNumber: Int? = null,
-    val events: List<Event> = emptyList(),
-    val isCurrentMonth: Boolean = true,
-    val isToday: Boolean = false
-)
 
 class CalendarFragment : Fragment() {
     
@@ -153,7 +147,7 @@ class CalendarFragment : Fragment() {
         monthYearText.text = dateFormat.format(currentDate.time)
         
         val calendarDays = generateCalendarDays()
-        calendarAdapter.updateDays(calendarDays)
+        calendarAdapter.updateCollection(calendarDays)
     }
     
     private fun generateCalendarDays(): List<CalendarDayItem> {
@@ -233,8 +227,8 @@ class CalendarFragment : Fragment() {
         calendar.set(2024, 11, 22) // December 22, 2024
         events.add(Event(
             id = "2",
-            title = "Match vs Eagles",
-            type = EventType.GAME,
+            title = "MATCH vs Eagles",
+            type = EventType.MATCH,
             date = calendar.time,
             time = "14:00",
             venue = "Stadium",
@@ -270,8 +264,8 @@ class CalendarFragment : Fragment() {
         currentCalendar.add(Calendar.DAY_OF_MONTH, 5) // 7 days from now
         events.add(Event(
             id = "5",
-            title = "Friendly Match",
-            type = EventType.GAME,
+            title = "Friendly MATCH",
+            type = EventType.MATCH,
             date = currentCalendar.time,
             time = "15:30",
             venue = "Local Stadium",

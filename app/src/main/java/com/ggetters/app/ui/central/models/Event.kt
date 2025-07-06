@@ -36,6 +36,6 @@ data class Event(
 
 enum class EventType(val color: String, val displayName: String, val icon: String) {
     PRACTICE("#2196F3", "Practice", "🔵"), // Blue
-    GAME("#F44336", "Game", "🔴"), // Red
+    MATCH("#F44336", "Game", "🔴"), // Red
     OTHER("#4CAF50", "General", "🟢") // Green
 } 

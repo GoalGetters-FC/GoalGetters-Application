@@ -185,7 +185,7 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
         
         val eventType = when (eventTypeRadioGroup.checkedRadioButtonId) {
             R.id.practiceRadio -> EventType.PRACTICE
-            R.id.gameRadio -> EventType.GAME
+            R.id.gameRadio -> EventType.MATCH
             R.id.otherRadio -> EventType.OTHER
             else -> EventType.PRACTICE
         }
@@ -197,7 +197,7 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
             date = selectedDate ?: Date(),
             time = selectedTime ?: "",
             venue = venueInput.text.toString(),
-            opponent = if (eventType == EventType.GAME) opponentInput.text.toString() else null,
+            opponent = if (eventType == EventType.MATCH) opponentInput.text.toString() else null,
             description = descriptionInput.text.toString().takeIf { it.isNotBlank() },
             createdBy = "Current User" // TODO: Get from auth
         )

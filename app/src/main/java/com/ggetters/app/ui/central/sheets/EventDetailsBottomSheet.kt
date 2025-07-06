@@ -74,7 +74,7 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
         eventCreatedBy.text = "Created by ${event.createdBy}"
         
         // Show opponent for games
-        if (event.type == EventType.GAME && !event.opponent.isNullOrBlank()) {
+        if (event.type == EventType.MATCH && !event.opponent.isNullOrBlank()) {
             eventOpponent.visibility = View.VISIBLE
             eventOpponent.text = "vs ${event.opponent}"
         } else {
