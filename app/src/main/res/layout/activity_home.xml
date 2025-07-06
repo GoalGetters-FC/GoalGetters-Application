@@ -28,7 +28,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
 
-    <com.ggetters.app.ui.views.BadgeBottomNavigationView
+    <com.ggetters.app.ui.central.views.BadgeBottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

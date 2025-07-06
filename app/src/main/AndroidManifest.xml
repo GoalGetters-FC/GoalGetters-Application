@@ -15,7 +15,7 @@
         
         <!-- Splash Activity (Launcher) -->
         <activity
-                android:name=".ui.onboarding.SplashActivity"
+                android:name=".ui.startup.views.SplashActivity"
                 android:exported="true"
                 android:theme="@style/AppTheme">
             <intent-filter>
@@ -26,103 +26,103 @@
 
         <!-- Sign In Activity -->
         <activity
-                android:name=".ui.activities.SignInActivity"
+                android:name=".ui.startup.views.SignInActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Sign Up Activity -->
         <activity
-                android:name=".ui.activities.SignUpActivity"
+                android:name=".ui.startup.views.SignUpActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Age Verification Activity -->
         <activity
-                android:name=".ui.activities.AgeVerificationActivity"
+                android:name=".ui.startup.views.AgeVerificationActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Forgot Password Activity -->
         <activity
-                android:name=".ui.activities.ForgotPasswordActivity"
+                android:name=".ui.startup.views.ForgotPasswordActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Age Verification Success Activity -->
         <activity
-                android:name=".ui.activities.AgeVerificationSuccessActivity"
+                android:name=".ui.startup.views.AgeVerificationSuccessActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Onboarding Activity -->
         <activity
-                android:name=".ui.activities.OnboardingActivity"
+                android:name=".ui.startup.views.OnboardingActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Age Check Activity -->
         <activity
-                android:name=".ui.activities.AgeCheckActivity"
+                android:name=".ui.startup.views.AgeCheckActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Access Denied Activity -->
         <activity
-                android:name=".ui.activities.AccessDeniedActivity"
+                android:name=".ui.startup.views.AccessDeniedActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Verification Activity -->
         <activity
-                android:name=".ui.activities.VerificationActivity"
+                android:name=".ui.startup.views.VerificationActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Welcome Activity -->
         <activity
-                android:name=".ui.activities.WelcomeActivity"
+                android:name=".ui.startup.views.WelcomeActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Welcome Back Activity -->
         <activity
-                android:name=".ui.activities.WelcomeBackActivity"
+                android:name=".ui.startup.views.WelcomeBackActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Unified Entry Activity (after onboarding) -->
         <activity
-                android:name=".ui.activities.UnifiedEntryActivity"
+                android:name=".ui.startup.views.UnifiedEntryActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Home Activity -->
         <activity
-                android:name=".ui.activities.HomeActivity"
+                android:name=".ui.central.views.HomeActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Notifications Activity -->
         <activity
-                android:name=".ui.activities.NotificationsActivity"
+                android:name=".ui.central.views.NotificationsActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Verification Success Overlay Activity -->
         <activity
-                android:name=".ui.activities.VerificationSuccessOverlay"
+                android:name=".ui.startup.views.VerificationSuccessOverlay"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Join Team Activity -->
         <activity
-                android:name=".ui.activities.JoinTeamActivity"
+                android:name=".ui.startup.views.JoinTeamActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
         <!-- Create Team Activity -->
         <activity
-                android:name=".ui.activities.CreateTeamActivity"
+                android:name=".ui.startup.views.CreateTeamActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
