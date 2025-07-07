@@ -7,11 +7,18 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.ggetters.app.data.local.converters.DateConverter
 import com.ggetters.app.data.local.converters.UuidConverter
+import com.ggetters.app.data.model.Configuration
 
 /**
  * Local [RoomDatabase] for the application configuration.
  */
 @Database(
+    entities = [
+        Configuration::class,
+    ], 
+    
+    // Configuration
+    
     version = 1,
     exportSchema = true // TODO: Add location to silence build warnings
 )
