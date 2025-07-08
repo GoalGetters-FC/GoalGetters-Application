@@ -2,38 +2,89 @@ package com.ggetters.app.ui.startup.views
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
+import android.view.View
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.ggetters.app.R
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.databinding.SignUpActivityBinding
+import com.ggetters.app.ui.shared.models.Clickable
 import com.ggetters.app.ui.startup.dialogs.AgeVerificationBottomSheet
 
-class SignUpActivity : AppCompatActivity() {
+class SignUpActivity : AppCompatActivity(), Clickable {
+    companion object {
+        private const val TAG = "SignUpActivity"
+    }
+
+
+    private lateinit var binds: SignUpActivityBinding
+
+
+    // --- Lifecycle
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.sign_up_activity)
-        
-        val emailEditText = findViewById<EditText>(R.id.et_identity)
-        val passwordEditText = findViewById<EditText>(R.id.et_password_default)
-        val confirmPasswordEditText = findViewById<EditText>(R.id.et_password_confirm)
-        val registerButton = findViewById<Button>(R.id.bt_sign_up)
-        val loginButton = findViewById<TextView>(R.id.tv_sign_in)
+        Clogger.d(
+            TAG, "Created a new instance of the activity"
+        )
 
-        registerButton.setOnClickListener {
-            // TODO: Backend - Register new user
-            // Endpoint: POST /api/auth/register
-            // Request: { name: String, surname: String, email: String, password: String }
-            // Response: { user: User, requiresVerification: Boolean }
-            // Error: { message: String }
-            // Notes: Validate email uniqueness, password complexity, and send verification email/OTP.
-            // TODO: Backend - Log analytics event for registration
-            // TODO: Backend - Trigger age verification after registration
-            // On success:
-            AgeVerificationBottomSheet().show(supportFragmentManager, "AgeVerificationBottomSheet")
+        setupBindings()
+        setupLayoutUi()
+        setupTouchListeners()
+    }
+
+
+    // --- Internals
+
+
+    private fun tryAuthenticateCredentials() {
+        // TODO: ...
+    }
+
+
+    // --- Event Handlers
+
+
+    override fun setupTouchListeners() {
+        binds.tvSignIn.setOnClickListener(this)
+        binds.btSignUp.setOnClickListener(this)
+    }
+
+
+    override fun onClick(view: View?) = when (view?.id) {
+        binds.tvSignIn.id -> startActivity(Intent(this, SignInActivity::class.java))
+        binds.btSignUp.id -> {
+            tryAuthenticateCredentials()
+            AgeVerificationBottomSheet().show(
+                supportFragmentManager, "AgeVerificationBottomSheet"
+            )
         }
-        loginButton.setOnClickListener {
-            startActivity(Intent(this, SignInActivity::class.java))
+
+        else -> {
+            Clogger.w(
+                TAG, "Unhandled on-click for: ${view?.id}"
+            )
+        }
+    }
+
+
+    // --- UI
+
+
+    private fun setupBindings() {
+        binds = SignUpActivityBinding.inflate(layoutInflater)
+    }
+
+
+    private fun setupLayoutUi() {
+        setContentView(binds.root)
+        enableEdgeToEdge()
+        ViewCompat.setOnApplyWindowInsetsListener(binds.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
         }
     }
 } 
