@@ -19,7 +19,7 @@
             android:gravity="center_vertical">
 
             <ImageButton
-                android:id="@+id/previousMonthButton"
+                android:id="@+id/bt_decrement_calendar"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@drawable/ic_arrow_left"
@@ -38,7 +38,7 @@
                 android:gravity="center" />
 
             <ImageButton
-                android:id="@+id/nextMonthButton"
+                android:id="@+id/bt_increment_calendar"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@drawable/ic_arrow_right"
@@ -129,7 +129,7 @@
 
         <!-- Calendar grid -->
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/calendarRecyclerView"
+            android:id="@+id/rv_calendar"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -140,7 +140,7 @@
 
     <!-- Floating Action Button for adding events -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addEventFab"
+        android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
