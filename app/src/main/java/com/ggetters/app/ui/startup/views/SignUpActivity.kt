@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.ggetters.app.R
 import com.ggetters.app.ui.startup.dialogs.AgeVerificationBottomSheet
@@ -11,15 +12,13 @@ import com.ggetters.app.ui.startup.dialogs.AgeVerificationBottomSheet
 class SignUpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.signup_activity)
-
-        val nameEditText = findViewById<EditText>(R.id.nameEditText)
-        val surnameEditText = findViewById<EditText>(R.id.surnameEditText)
-        val emailEditText = findViewById<EditText>(R.id.emailEditText)
-        val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
-        val confirmPasswordEditText = findViewById<EditText>(R.id.confirmPasswordEditText)
-        val registerButton = findViewById<Button>(R.id.registerButton)
-        val loginButton = findViewById<Button>(R.id.loginButton)
+        setContentView(R.layout.sign_up_activity)
+        
+        val emailEditText = findViewById<EditText>(R.id.et_email)
+        val passwordEditText = findViewById<EditText>(R.id.et_password_default)
+        val confirmPasswordEditText = findViewById<EditText>(R.id.et_password_confirm)
+        val registerButton = findViewById<Button>(R.id.bt_sign_up)
+        val loginButton = findViewById<TextView>(R.id.tv_sign_in)
 
         registerButton.setOnClickListener {
             // TODO: Backend - Register new user

@@ -39,7 +39,7 @@
             android:layout_marginBottom="32dp" />
 
         <Button
-            android:id="@+id/registerButton"
+            android:id="@+id/bt_sign_up"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Get Started"
@@ -50,7 +50,7 @@
             style="@style/Widget.MaterialComponents.Button" />
 
         <Button
-            android:id="@+id/loginButton"
+            android:id="@+id/bt_sign_in"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Login"

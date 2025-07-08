@@ -11,8 +11,8 @@ class UnifiedEntryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_unified_entry)
 
-        val registerButton = findViewById<Button>(R.id.registerButton)
-        val loginButton = findViewById<Button>(R.id.loginButton)
+        val registerButton = findViewById<Button>(R.id.bt_sign_up)
+        val loginButton = findViewById<Button>(R.id.bt_sign_in)
 
         registerButton.setOnClickListener {
             startActivity(Intent(this, SignUpActivity::class.java))

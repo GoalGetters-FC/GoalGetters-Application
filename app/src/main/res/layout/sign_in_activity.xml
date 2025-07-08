@@ -7,7 +7,7 @@
     android:background="@color/white">
 
     <ImageView
-        android:id="@+id/logoImageView"
+        android:id="@+id/iv_logo"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:src="@drawable/gg_logo"
@@ -17,7 +17,7 @@
         android:layout_marginTop="32dp" />
 
     <EditText
-        android:id="@+id/emailEditText"
+        android:id="@+id/et_email"
         android:layout_width="0dp"
         android:layout_height="56dp"
         android:hint="Email"
@@ -26,13 +26,13 @@
         android:background="@drawable/input_background"
         android:textSize="16sp"
         android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@id/logoImageView"
+        app:layout_constraintTop_toBottomOf="@id/iv_logo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="32dp" />
 
     <EditText
-        android:id="@+id/passwordEditText"
+        android:id="@+id/et_password_default"
         android:layout_width="0dp"
         android:layout_height="56dp"
         android:hint="Password"
@@ -41,20 +41,20 @@
         android:background="@drawable/input_background"
         android:textSize="16sp"
         android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@id/emailEditText"
+        app:layout_constraintTop_toBottomOf="@id/et_email"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
 
     <Button
-        android:id="@+id/loginButton"
+        android:id="@+id/bt_sign_in"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Login"
         android:backgroundTint="@color/primary"
         android:textColor="@color/black"
         android:background="@drawable/button_border"
-        app:layout_constraintTop_toBottomOf="@id/passwordEditText"
+        app:layout_constraintTop_toBottomOf="@id/et_password_default"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="24dp" />
@@ -66,7 +66,7 @@
         android:src="@drawable/ic_google"
         android:background="@drawable/button_border"
         android:contentDescription="Sign in with Google"
-        app:layout_constraintTop_toBottomOf="@id/loginButton"
+        app:layout_constraintTop_toBottomOf="@id/bt_sign_in"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp" />
@@ -82,7 +82,7 @@
         android:layout_marginTop="8dp" />
 
     <Button
-        android:id="@+id/registerButton"
+        android:id="@+id/bt_sign_up"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Create an account"
@@ -101,7 +101,7 @@
         android:text="Help &amp; FAQ"
         android:textColor="@color/info"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/registerButton"
+        app:layout_constraintTop_toBottomOf="@id/bt_sign_up"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp" />
 

@@ -56,4 +56,14 @@
     <color name="text_on_primary">#000000</color>
     <color name="accent">#FFD400</color>
     <color name="text_on_accent">#000000</color>
+    
+    <!-- Variables (Matt) -->
+
+    <color name="surface_background">#FFFFFF</color>
+    <color name="surface_elevated">#F2F2F2</color>
+    <color name="surface_bold">#E6E6E6</color>
+    <color name="surface_tint_light">#FFF2D5</color>
+    <color name="surface_tint_night">#FFE8C8</color>
+    <color name="scheme_primary">#F8B200</color>
+    <color name="scheme_bold">#121416</color>
 </resources>

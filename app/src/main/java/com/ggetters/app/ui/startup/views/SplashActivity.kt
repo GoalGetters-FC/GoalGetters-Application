@@ -14,7 +14,7 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.splash_activity)
 
-        val logoImageView = findViewById<ImageView>(R.id.logoImageView)
+        val logoImageView = findViewById<ImageView>(R.id.iv_logo)
         val fadeIn = AlphaAnimation(0f, 1f)
         fadeIn.duration = 1200
         logoImageView.startAnimation(fadeIn)

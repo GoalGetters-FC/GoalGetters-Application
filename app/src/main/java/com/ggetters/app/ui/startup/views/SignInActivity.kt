@@ -11,12 +11,12 @@ import com.ggetters.app.R
 class SignInActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.signin_activity)
+        setContentView(R.layout.sign_in_activity)
 
-        val emailEditText = findViewById<EditText>(R.id.emailEditText)
-        val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
-        val loginButton = findViewById<Button>(R.id.loginButton)
-        val registerButton = findViewById<Button>(R.id.registerButton)
+        val emailEditText = findViewById<EditText>(R.id.et_email)
+        val passwordEditText = findViewById<EditText>(R.id.et_password_default)
+        val loginButton = findViewById<Button>(R.id.bt_sign_in)
+        val registerButton = findViewById<Button>(R.id.bt_sign_up)
         val forgotPasswordTextView = findViewById<TextView>(R.id.forgotPasswordTextView)
         // TODO: Add Google SSO button logic
         // TODO: Add Help & FAQ bottom sheet logic
