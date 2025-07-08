@@ -13,11 +13,9 @@ class SignInActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.sign_in_activity)
 
-        val emailEditText = findViewById<EditText>(R.id.et_email)
-        val passwordEditText = findViewById<EditText>(R.id.et_password_default)
+        val emailEditText = findViewById<EditText>(R.id.et_identity)
         val loginButton = findViewById<Button>(R.id.bt_sign_in)
-        val registerButton = findViewById<Button>(R.id.bt_sign_up)
-        val forgotPasswordTextView = findViewById<TextView>(R.id.forgotPasswordTextView)
+        val forgotPasswordTextView = findViewById<TextView>(R.id.tv_forgot_password)
         // TODO: Add Google SSO button logic
         // TODO: Add Help & FAQ bottom sheet logic
 
@@ -43,9 +41,7 @@ class SignInActivity : AppCompatActivity() {
             startActivity(Intent(this, WelcomeBackActivity::class.java))
             finishAffinity()
         }
-        registerButton.setOnClickListener {
-            startActivity(Intent(this, SignUpActivity::class.java))
-        }
+
         forgotPasswordTextView.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }

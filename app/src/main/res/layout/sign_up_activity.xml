@@ -38,11 +38,11 @@
                 android:layout_width="match_parent">
 
             <EditText
-                    android:id="@+id/et_email"
+                    android:id="@+id/et_identity"
                     android:layout_height="52dp"
                     android:layout_width="match_parent"
                     android:autofillHints="emailAddress"
-                    android:hint="@string/sign_up_input_email_hint"
+                    android:hint="@string/sign_up_input_identity_hint"
                     android:inputType="textEmailAddress"
                     android:textColor="@color/black"
                     android:background="@drawable/input_background"

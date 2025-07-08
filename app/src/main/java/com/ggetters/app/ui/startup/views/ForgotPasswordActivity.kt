@@ -11,7 +11,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.forgot_password_activity)
 
-        val emailEditText = findViewById<EditText>(R.id.et_email)
+        val emailEditText = findViewById<EditText>(R.id.et_identity)
         val sendResetButton = findViewById<Button>(R.id.sendResetButton)
         sendResetButton.setOnClickListener {
             // TODO: Backend - Send password reset email
