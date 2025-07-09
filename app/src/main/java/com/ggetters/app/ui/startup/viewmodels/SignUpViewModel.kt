@@ -11,11 +11,12 @@ import com.ggetters.app.ui.shared.models.UiState
 import com.ggetters.app.ui.shared.models.UiState.Failure
 import com.ggetters.app.ui.shared.models.UiState.Loading
 import com.ggetters.app.ui.shared.models.UiState.Success
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
 class SignUpViewModel(
-    private val authService: AuthService
+    private val authService: AuthService = AuthService(FirebaseAuth.getInstance())
 ) : ViewModel() {
     companion object {
         private const val TAG = "SignUpViewModel"
