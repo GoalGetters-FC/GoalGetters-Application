@@ -7,53 +7,49 @@ import androidx.lifecycle.viewModelScope
 import com.ggetters.app.core.services.AuthService
 import com.ggetters.app.core.utils.AuthValidator
 import com.ggetters.app.core.utils.Clogger
-import com.ggetters.app.ui.startup.models.SignUpUiState
-import com.ggetters.app.ui.startup.models.SignUpUiState.Loading
-import com.ggetters.app.ui.startup.models.SignUpUiState.Success
-import com.ggetters.app.ui.startup.models.SignUpUiState.Failure
+import com.ggetters.app.ui.startup.models.SignInUiState
+import com.ggetters.app.ui.startup.models.SignInUiState.Failure
+import com.ggetters.app.ui.startup.models.SignInUiState.Loading
+import com.ggetters.app.ui.startup.models.SignInUiState.Success
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
-class SignUpViewModel(
+class SignInViewModel(
     private val authService: AuthService
 ) : ViewModel() {
     companion object {
-        private const val TAG = "SignUpViewModel"
+        private const val TAG = "SignInViewModel"
     }
 
 
     // --- Fields
 
 
-    private val _uiState = MutableLiveData<SignUpUiState>()
-    val uiState: LiveData<SignUpUiState> = _uiState
+    private val _uiState = MutableLiveData<SignInUiState>()
+    val uiState: LiveData<SignInUiState> = _uiState
 
 
     // --- Contract
 
 
-    fun signUp(
-        email: String, defaultPassword: String, confirmPassword: String
+    fun signIn(
+        email: String, password: String
     ) = viewModelScope.launch {
         try { // Validate input
             require(AuthValidator.isValidEAddress(email))
-            require(AuthValidator.isValidPassword(defaultPassword))
-            require(AuthValidator.isValidPassword(confirmPassword))
-            require( // Confirm that passwords match
-                (defaultPassword == confirmPassword)
-            )
+            require(AuthValidator.isValidPassword(password))
         } catch (e: IllegalArgumentException) {
             Clogger.d(
                 TAG, "Caught validation errors"
             )
-            
+
             _uiState.value = Failure(e.message.toString())
             return@launch
         }
 
         _uiState.value = Loading
         Clogger.i(
-            TAG, "Signing-up user with email: $email"
+            TAG, "Signing-in user with email: $email"
         )
 
         // Authenticate
@@ -68,19 +64,19 @@ class SignUpViewModel(
                 Clogger.d(
                     TAG, "Attempt to authenticate was a success!"
                 )
-                
+
                 // TODO: ...
-                
+
                 _uiState.value = Success
             }
-            
+
             onFailure { exception ->
                 Clogger.d(
                     TAG, "Attempt to authenticate was a failure!"
                 )
-                
+
                 // TODO: ...
-                
+
                 _uiState.value = Failure(exception.message.toString())
             }
         }

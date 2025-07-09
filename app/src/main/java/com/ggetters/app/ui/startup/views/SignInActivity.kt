@@ -7,9 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.SignInActivityBinding
 import com.ggetters.app.ui.shared.models.Clickable
+import com.ggetters.app.ui.startup.models.SignInUiState.Failure
+import com.ggetters.app.ui.startup.models.SignInUiState.Loading
+import com.ggetters.app.ui.startup.models.SignInUiState.Success
+import com.ggetters.app.ui.startup.viewmodels.SignInViewModel
 
 class SignInActivity : AppCompatActivity(), Clickable {
     companion object {
@@ -18,6 +23,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
 
 
     private lateinit var binds: SignInActivityBinding
+    private lateinit var model: SignInViewModel
 
 
     // --- Lifecycle
@@ -32,6 +38,51 @@ class SignInActivity : AppCompatActivity(), Clickable {
         setupBindings()
         setupLayoutUi()
         setupTouchListeners()
+
+        model = ViewModelProvider(this)[SignInViewModel::class.java]
+
+        observe()
+    }
+
+
+    // --- ViewModel
+
+
+    private fun observe() = model.uiState.observe(this) { state ->
+        when (state) {
+            is Loading -> {
+                load()
+                Clogger.d(
+                    TAG, "Loading..."
+                )
+
+                // TODO: ...
+            }
+
+            is Success -> {
+                cast()
+                Clogger.d(
+                    TAG, "Success..."
+                )
+
+                // TODO: ...
+            }
+
+            is Failure -> {
+                cast()
+                Clogger.d(
+                    TAG, "Failure..."
+                )
+
+                // TODO: ...
+            }
+
+            else -> {
+                Clogger.w(
+                    TAG, "Unhandled state: ${state.javaClass::class.java.simpleName}"
+                )
+            }
+        }
     }
 
 
@@ -39,12 +90,26 @@ class SignInActivity : AppCompatActivity(), Clickable {
 
 
     private fun tryAuthenticateCredentials() {
-        // TODO: ...
+        val email = binds.etIdentity.text.toString().trim()
+        val password = binds.etPassword.text.toString().trim()
+        model.signIn(
+            email, password
+        )
     }
 
 
     private fun tryAuthenticateGoogleLogin() {
         // TODO: ...
+    }
+
+
+    private fun load() {
+        // TODO: Display loading UI
+    }
+
+
+    private fun cast() {
+        // TODO: Hide loading UI
     }
 
 
