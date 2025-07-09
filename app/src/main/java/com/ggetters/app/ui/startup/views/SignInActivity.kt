@@ -11,9 +11,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.SignInActivityBinding
 import com.ggetters.app.ui.shared.models.Clickable
-import com.ggetters.app.ui.startup.models.SignInUiState.Failure
-import com.ggetters.app.ui.startup.models.SignInUiState.Loading
-import com.ggetters.app.ui.startup.models.SignInUiState.Success
+import com.ggetters.app.ui.shared.models.UiState.Failure
+import com.ggetters.app.ui.shared.models.UiState.Loading
+import com.ggetters.app.ui.shared.models.UiState.Success
 import com.ggetters.app.ui.startup.viewmodels.SignInViewModel
 
 class SignInActivity : AppCompatActivity(), Clickable {

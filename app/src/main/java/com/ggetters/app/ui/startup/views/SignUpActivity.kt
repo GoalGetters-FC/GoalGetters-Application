@@ -11,10 +11,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.SignUpActivityBinding
 import com.ggetters.app.ui.shared.models.Clickable
+import com.ggetters.app.ui.shared.models.UiState.Failure
+import com.ggetters.app.ui.shared.models.UiState.Loading
+import com.ggetters.app.ui.shared.models.UiState.Success
 import com.ggetters.app.ui.startup.dialogs.AgeVerificationBottomSheet
-import com.ggetters.app.ui.startup.models.SignUpUiState.Failure
-import com.ggetters.app.ui.startup.models.SignUpUiState.Loading
-import com.ggetters.app.ui.startup.models.SignUpUiState.Success
 import com.ggetters.app.ui.startup.viewmodels.SignUpViewModel
 
 class SignUpActivity : AppCompatActivity(), Clickable {
@@ -65,7 +65,7 @@ class SignUpActivity : AppCompatActivity(), Clickable {
                 Clogger.d(
                     TAG, "Success..."
                 )
-                
+
                 // TODO: ...
             }
 
@@ -74,7 +74,7 @@ class SignUpActivity : AppCompatActivity(), Clickable {
                 Clogger.d(
                     TAG, "Failure..."
                 )
-                
+
                 // TODO: ...
             }
 
@@ -98,13 +98,13 @@ class SignUpActivity : AppCompatActivity(), Clickable {
             email, defaultPassword, confirmPassword
         )
     }
-    
-    
+
+
     private fun load() {
         // TODO: Display loading UI
     }
-    
-    
+
+
     private fun cast() {
         // TODO: Hide loading UI
     }
