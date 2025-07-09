@@ -58,15 +58,13 @@ class SignInViewModel(
         runCatching {
             val milliseconds = 3_000L
             withTimeout(milliseconds) {
-                // TODO: Connect to Firebase Authentication
+                authService.signInAsync(email, password)
             }
         }.apply {
             onSuccess { user ->
                 Clogger.d(
                     TAG, "Attempt to authenticate was a success!"
                 )
-
-                // TODO: ...
 
                 _uiState.value = Success
             }
@@ -76,9 +74,9 @@ class SignInViewModel(
                     TAG, "Attempt to authenticate was a failure!"
                 )
 
-                // TODO: ...
-
-                _uiState.value = Failure(exception.message.toString())
+                _uiState.value = Failure(
+                    exception.message.toString()
+                )
             }
         }
     }
