@@ -34,9 +34,16 @@
         Sign-in with Google
     </string>
     <string name="sign_in_button_sign_in">
-        Login
+        Continue
     </string>
     <string name="sign_in_text_view_forgot_password">
         Forgot password?
     </string>
+    <string name="sign_in_divider_text">
+        OR
+    </string>
+    <string name="sign_in_header_text">Sign In</string>
+    <string name="join_the_field">Join the Field</string>
+    <string name="account">Account</string>
+    <string name="security">Security</string>
 </resources>
