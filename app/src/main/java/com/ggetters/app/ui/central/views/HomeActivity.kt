@@ -1,13 +1,10 @@
 package com.ggetters.app.ui.central.views
 
-import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.ggetters.app.R
@@ -41,7 +38,7 @@ class HomeActivity : AppCompatActivity() {
         bottomNavigationView.setOnItemSelectedListener { menuItem ->
             val newFragment = when (menuItem.itemId) {
                 R.id.nav_calendar -> CalendarFragment()
-                R.id.nav_players -> PlayersFragment()
+                R.id.nav_team_players -> PlayersFragment()
                 R.id.nav_team_profile -> TeamProfileFragment()
                 R.id.nav_profile -> ProfileFragment()
                 else -> null
