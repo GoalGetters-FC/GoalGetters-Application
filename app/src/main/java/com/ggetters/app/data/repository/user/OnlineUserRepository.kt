@@ -1,7 +1,9 @@
 // app/src/main/java/com/ggetters/app/data/repository/user/OnlineUserRepository.kt
 package com.ggetters.app.data.repository.user
 
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.User
+import com.ggetters.app.data.model.User.Companion.TAG
 import com.ggetters.app.data.remote.firestore.UserFirestore
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
@@ -60,5 +62,30 @@ class OnlineUserRepository @Inject constructor(
      */
     override suspend fun sync(): Unit {
         // Intentionally left blank.
+    }
+
+    override suspend fun getLocalByAuthId(authId: String): User? {
+        return try {
+            // Since this is online repository, we'll fetch from Firestore
+            firestore.getByAuthId(authId)
+        } catch (e: Exception) {
+            Clogger.e(TAG, "Failed to get user by auth ID remotely", e)
+            null
+        }
+    }
+
+    override suspend fun insertLocal(user: User) {
+        // No-op for online repository
+        Clogger.d(TAG, "Skipping local insert in online repository")
+    }
+
+    override suspend fun insertRemote(user: User) {
+        try {
+            firestore.save(user)
+            Clogger.d(TAG, "Successfully inserted user remotely: ${user.name}")
+        } catch (e: Exception) {
+            Clogger.e(TAG, "Failed to insert user remotely", e)
+            throw e
+        }
     }
 }

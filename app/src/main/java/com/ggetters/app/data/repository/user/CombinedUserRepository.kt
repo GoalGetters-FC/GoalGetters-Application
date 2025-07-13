@@ -3,6 +3,7 @@ package com.ggetters.app.data.repository.user
 
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.User
+import com.ggetters.app.data.model.User.Companion.TAG
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import java.util.UUID
@@ -93,6 +94,35 @@ class CombinedUserRepository @Inject constructor(
             remoteList.forEach { offline.save(it) }
         } catch (e: Exception) {
             Clogger.e("CombinedUserRepository", "Failed to sync users", e)
+        }
+    }
+
+    override suspend fun getLocalByAuthId(authId: String): User? {
+        return try {
+            offline.getLocalByAuthId(authId)
+        } catch (e: Exception) {
+            Clogger.e(TAG, "Failed to get user by auth ID locally", e)
+            null
+        }
+    }
+
+    override suspend fun insertLocal(user: User) {
+        try {
+            offline.insertLocal(user)
+            Clogger.d(TAG, "Successfully inserted user locally: ${user.name}")
+        } catch (e: Exception) {
+            Clogger.e(TAG, "Failed to insert user locally", e)
+            throw e
+        }
+    }
+
+    override suspend fun insertRemote(user: User) {
+        try {
+            online.insertRemote(user)
+            Clogger.d(TAG, "Successfully inserted user remotely: ${user.name}")
+        } catch (e: Exception) {
+            Clogger.e(TAG, "Failed to insert user remotely", e)
+            throw e
         }
     }
 }

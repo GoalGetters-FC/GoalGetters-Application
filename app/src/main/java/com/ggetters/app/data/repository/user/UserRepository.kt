@@ -36,7 +36,14 @@ interface UserRepository {
      *
      * @param user the [User] object to save.
      */
+
+    suspend fun getLocalByAuthId(authId: String): User?
+
+    suspend fun insertLocal(user: User)
+
     suspend fun save(user: User)
+
+    suspend fun insertRemote(user: User)
 
     /**
      * Delete a [User] by its UUID.

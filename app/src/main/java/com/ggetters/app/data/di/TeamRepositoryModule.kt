@@ -24,12 +24,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 abstract class TeamRepositoryModule {
 
-    /**
-     * Bind the offline (Room) implementation for TeamRepository.
-     *
-     * @param impl the Room-based OfflineTeamRepository
-     * @return the TeamRepository qualified as "offlineTeam"
-     */
+    /** Bind the Room-backed implementation as a Singleton under @Named("offlineTeam") */
     @Binds
     @Singleton
     @Named("offlineTeam")
@@ -37,12 +32,7 @@ abstract class TeamRepositoryModule {
         impl: OfflineTeamRepository
     ): TeamRepository
 
-    /**
-     * Bind the online (Firestore) implementation for TeamRepository.
-     *
-     * @param impl the Firestore-based OnlineTeamRepository
-     * @return the TeamRepository qualified as "onlineTeam"
-     */
+    /** Bind the Firestore-backed implementation as a Singleton under @Named("onlineTeam") */
     @Binds
     @Singleton
     @Named("onlineTeam")
@@ -51,17 +41,10 @@ abstract class TeamRepositoryModule {
     ): TeamRepository
 
     companion object {
-        /**
-         * Provides the CombinedTeamRepository that reads from offline cache,
-         * writes to both offline and online, and handles sync.
-         *
-         * @param offline the TeamRepository qualified as "offlineTeam"
-         * @param online  the TeamRepository qualified as "onlineTeam"
-         * @return the CombinedTeamRepository as the primary TeamRepository
-         */
+        /** Provide the CombinedTeamRepository as the primary TeamRepository */
         @Provides
         @Singleton
-        fun provideTeamRepository(
+        fun provideCombinedTeamRepository(
             @Named("offlineTeam") offline: TeamRepository,
             @Named("onlineTeam")  online: TeamRepository
         ): TeamRepository = CombinedTeamRepository(offline, online)

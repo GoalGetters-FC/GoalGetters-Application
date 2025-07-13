@@ -27,15 +27,15 @@ object DataModule {
 
     // --- Contexts
 
-
-    /**
-     * Provides a singleton [FirebaseFirestore] instance.
-     *
-     * @return the Firestore client for remote CRUD operations.
-     */
-    @Provides
-    @Singleton
-    fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+//
+//    /**
+//     * Provides a singleton [FirebaseFirestore] instance.
+//     *
+//     * @return the Firestore client for remote CRUD operations.
+//     */
+//    @Provides
+//    @Singleton
+//    fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 
 
     /**

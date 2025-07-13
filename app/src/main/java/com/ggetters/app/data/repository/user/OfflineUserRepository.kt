@@ -1,8 +1,10 @@
 // app/src/main/java/com/ggetters/app/data/repository/user/OfflineUserRepository.kt
 package com.ggetters.app.data.repository.user
 
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.local.dao.UserDao
 import com.ggetters.app.data.model.User
+import com.ggetters.app.data.model.User.Companion.TAG
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 import javax.inject.Inject
@@ -60,5 +62,29 @@ class OfflineUserRepository @Inject constructor(
      */
     override suspend fun sync(): Unit {
         // Intentionally left blank: sync handled by CombinedUserRepository
+    }
+
+    override suspend fun getLocalByAuthId(authId: String): User? {
+        return try {
+            dao.getByAuthId(authId)
+        } catch (e: Exception) {
+            Clogger.e(TAG, "Failed to get user by auth ID", e)
+            null
+        }
+    }
+
+    override suspend fun insertLocal(user: User) {
+        try {
+            dao.upsert(user)
+            Clogger.d(TAG, "Successfully inserted user locally: ${user.name}")
+        } catch (e: Exception) {
+            Clogger.e(TAG, "Failed to insert user locally", e)
+            throw e
+        }
+    }
+
+    override suspend fun insertRemote(user: User) {
+        // No-op: OfflineRepository doesn't handle remote operations
+        Clogger.d(TAG, "Skipping remote insert in offline repository")
     }
 }

@@ -51,4 +51,14 @@ interface UserDao {
      */
     @Query("DELETE FROM user WHERE id = :id")
     suspend fun deleteById(id: UUID)
+
+    /**
+     * Fetch a single [User] by its auth ID.
+     * Returns null if no user is found with the given auth ID.
+     *
+     * @param authId the authentication ID of the user to fetch
+     * @return the matching [User], or null if not found
+     */
+    @Query("SELECT * FROM user WHERE auth_id = :authId LIMIT 1")
+    suspend fun getByAuthId(authId: String): User?
 }

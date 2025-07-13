@@ -11,6 +11,7 @@ import kotlinx.coroutines.tasks.await
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.text.get
 
 /**
  * Firestore-backed data source for [User] entities.
@@ -84,4 +85,20 @@ class UserFirestore @Inject constructor(
             .delete()
             .await()
     }
+
+    /**
+     * Fetch a single [User] by their authentication ID.
+     *
+     * @param authId the authentication ID to search for
+     * @return the [User] object, or null if not found
+     */
+    suspend fun getByAuthId(authId: String): User? =
+        usersCol
+            .whereEqualTo("authId", authId)
+            .limit(1)  // We only need one result
+            .get()
+            .await()
+            .documents
+            .firstOrNull()
+            ?.toObject(User::class.java)
 }

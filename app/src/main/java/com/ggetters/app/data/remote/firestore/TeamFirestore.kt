@@ -9,6 +9,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import javax.inject.Singleton
 
 /**
  * Firestore-backed data source for Team entities.
@@ -16,6 +17,7 @@ import kotlinx.coroutines.tasks.await
  * Provides real-time streams and suspend functions for CRUD operations
  * against the "teams" collection in Firestore.
  */
+@Singleton
 class TeamFirestore(
     private val firestore: FirebaseFirestore = Firebase.firestore
 ) {
