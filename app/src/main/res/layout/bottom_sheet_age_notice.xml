@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bottom_sheet_background"
+    android:padding="24dp"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/ageNoticeTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Parental Consent Required"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/ageNoticeMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Because you're under 18, we need permission from your parent or guardian."
+        android:textSize="16sp"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/consentButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="I have their consent"
+        android:backgroundTint="@color/primary"
+        android:textColor="@color/black"
+        android:background="@drawable/button_border"
+        android:layout_marginBottom="8dp"
+        style="@style/Widget.MaterialComponents.Button" />
+
+    <Button
+        android:id="@+id/exitButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Exit"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/black"
+        android:background="@drawable/button_border"
+        android:layout_marginBottom="8dp"
+        style="@style/Widget.MaterialComponents.Button" />
+
+    <TextView
+        android:id="@+id/learnMoreText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Learn More"
+        android:textColor="@color/md_theme_light_primary"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp" />
+</LinearLayout> 

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Action Color: Yellow (for buttons, not background) -->
+    <color name="yellow">#FFD400</color>
+    <color name="primary">#FFD400</color>
+    <color name="primary_pressed">#E6BC00</color>
+    <color name="primary_disabled">#FFF7CC</color>
+
+    <!-- Text & Icon Color: Black (default) -->
+    <color name="black">#000000</color>
+    <color name="text_primary">#000000</color>
+    <color name="icon_primary">#000000</color>
+    <color name="border_primary">#000000</color>
+
+    <!-- Backgrounds & Containers: White (default) -->
+    <color name="white">#FFFFFF</color>
+    <color name="background">#FFFFFF</color>
+    <color name="container">#FFFFFF</color>
+    <color name="input_background">#FFFFFF</color>
+    <color name="surface">#FFFFFF</color>
+
+    <!-- Secondary Border/Divider Color: Mid Grey -->
+    <color name="divider">#D3D3D3</color>
+    <color name="divider_alt">#CCCCCC</color>
+    <color name="input_border">#D3D3D3</color>
+    <color name="input_border_focused">#FFD400</color>
+
+    <!-- Modal/Overlay Backdrop: Semi-Transparent Grey -->
+    <color name="overlay">#66000000</color>
+
+    <!-- Status/Warning Colors -->
+    <color name="error">#FF3B30</color>
+    <color name="success">#34C759</color>
+    <color name="success_green">#34C759</color>
+    <color name="info">#007AFF</color>
+
+    <!-- Notification/Calendar Colors -->
+    <color name="calendar_practice">#007AFF</color>
+    <color name="calendar_match">#FF3B30</color>
+    <color name="calendar_event">#34C759</color>
+
+    <!-- Feedback States -->
+    <color name="button_pressed">#E6BC00</color>
+    <color name="button_disabled">#F0F0F0</color>
+    <color name="text_disabled">#BDBDBD</color>
+    <color name="text_secondary">#666666</color>
+    <color name="input_error">#FF3B30</color>
+    <color name="input_focused">#FFD400</color>
+
+    <!-- Material You (Material 3) color tokens for compatibility -->
+    <color name="md_theme_light_primary">#FFD400</color>
+    <color name="md_theme_light_onPrimary">#000000</color>
+    <color name="md_theme_light_secondary">#D3D3D3</color>
+    <color name="md_theme_light_onSecondary">#000000</color>
+
+    <color name="text_on_primary">#000000</color>
+    <color name="accent">#FFD400</color>
+    <color name="text_on_accent">#000000</color>
+    
+    <!-- Variables (Matt) -->
+
+    <color name="surface_background">#FFFFFF</color>
+    <color name="surface_elevated">#F2F2F2</color>
+    <color name="surface_bold">#E6E6E6</color>
+    <color name="surface_tint_light">#FFF2D5</color>
+    <color name="surface_tint_night">#FFE8C8</color>
+    <color name="scheme_primary">#F8B200</color>
+    <color name="scheme_bold">#121416</color>
+</resources>
