@@ -19,46 +19,46 @@ class DevClass @Inject constructor(
 ) {
     private var isInitialized = false
 
-    fun init() {
-        if (isInitialized) return
-        isInitialized = true
-
-        CoroutineScope(Dispatchers.IO).launch {
-            // 1) Generate a single random UUID string for dev-team:
-            val teamId = UUID.randomUUID().toString()
-
-            // 2) Upsert the dummy team with that ID
-            val existing = teamRepo.getById(UUID.fromString(teamId))
-            if (existing == null) {
-                val now = Instant.now()
-                val dummyTeam = Team(
-                    id        = teamId,
-                    createdAt = now,
-                    updatedAt = now,
-                    code      = "DEV002",
-                    name      = "Dev Team"
-                )
-                teamRepo.save(dummyTeam)
-                Clogger.i("DevClass", "Seeded dummy team: $teamId")
-            }
-
-            // 3) Now seed the user using the same teamId
-            val user = User(
-                authId      = "test-${UUID.randomUUID()}",
-                teamId      = teamId,
-                role        = 2,
-                name        = "Test2",
-                surname     = "User2",
-                alias       = "tester2",
-                dateOfBirth = Date.from(Instant.now().minusSeconds(60L*60*24*365*20))
-            )
-
-            try {
-                userRepo.save(user)
-                Clogger.i("DevClass", "Seeded test user locally and remotely via save()")
-            } catch (e: Exception) {
-                Clogger.e("DevClass", "Failed to insert test user locally", e)
-            }
-        }
-    }
+//    fun init() {
+//        if (isInitialized) return
+//        isInitialized = true
+//
+//        CoroutineScope(Dispatchers.IO).launch {
+//            // 1) Generate a single random UUID string for dev-team:
+//            val teamId = UUID.randomUUID().toString()
+//
+//            // 2) Upsert the dummy team with that ID
+//            val existing = teamRepo.getById(UUID.fromString(teamId))
+//            if (existing == null) {
+//                val now = Instant.now()
+//                val dummyTeam = Team(
+//                    id        = teamId,
+//                    createdAt = now,
+//                    updatedAt = now,
+//                    code      = "DEV002",
+//                    name      = "Dev Team"
+//                )
+//                teamRepo.save(dummyTeam)
+//                Clogger.i("DevClass", "Seeded dummy team: $teamId")
+//            }
+//
+//            // 3) Now seed the user using the same teamId
+//            val user = User(
+//                authId      = "test-${UUID.randomUUID()}",
+//                teamId      = teamId,
+//                role        = 2,
+//                name        = "Test2",
+//                surname     = "User2",
+//                alias       = "tester2",
+//                dateOfBirth = Date.from(Instant.now().minusSeconds(60L*60*24*365*20))
+//            )
+//
+//            try {
+//                userRepo.save(user)
+//                Clogger.i("DevClass", "Seeded test user locally and remotely via save()")
+//            } catch (e: Exception) {
+//                Clogger.e("DevClass", "Failed to insert test user locally", e)
+//            }
+//        }
+//    }
 }
