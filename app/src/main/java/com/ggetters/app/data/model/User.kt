@@ -17,13 +17,15 @@ import java.util.UUID
 
 @Entity(
     tableName = "user",
-    foreignKeys = [ForeignKey(
-        entity = Team::class,
-        parentColumns = ["id"],
-        childColumns = ["team_id"],
-        onDelete = ForeignKey.CASCADE, // TODO: Confirm expected behaviour
-        onUpdate = ForeignKey.CASCADE, // TODO: Confirm expected behaviour
-    )],
+    foreignKeys = [
+        ForeignKey(
+            entity = Team::class,
+            parentColumns = ["id"],
+            childColumns = ["team_id"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
+        )
+    ],
     indices = [
         Index(value = ["id"], unique = true),
         Index(value = ["code"], unique = true),
@@ -73,7 +75,7 @@ data class User(
 
 
     @ColumnInfo(name = "role")
-    var role: Int,
+    var role: UserRole,
 
 
     @ColumnInfo(name = "name")
@@ -92,6 +94,30 @@ data class User(
     var dateOfBirth: LocalDate,
 
 
+    @ColumnInfo(name = "email")
+    var email: String? = null,
+
+
+    @ColumnInfo(name = "position")
+    var position: UserPosition? = null,
+
+
+    @ColumnInfo(name = "number")
+    var number: Int? = null,
+
+
+    @ColumnInfo(name = "status")
+    var status: UserStatus? = UserStatus.ACTIVE,
+
+
+    @ColumnInfo(name = "health_weight")
+    var healthWeight: Double? = null,
+
+
+    @ColumnInfo(name = "health_height")
+    var healthHeight: Double? = null,
+
+
     ) : KeyedEntity, CodedEntity, AuditableEntity, StainableEntity {
     companion object {
         const val TAG = "User"
@@ -99,6 +125,11 @@ data class User(
 
 
     // --- Functions
+    
+    
+    fun NotifyJoinedTeam() {
+        annexedAt = Instant.now()
+    }
 
 
     fun getFullName(): String = "$name $surname"

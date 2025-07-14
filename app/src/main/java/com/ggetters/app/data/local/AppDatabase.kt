@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.ggetters.app.data.local.converters.DateConverter
+import com.ggetters.app.data.local.converters.EnumConverter
 import com.ggetters.app.data.local.converters.UuidConverter
 import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
@@ -32,6 +33,7 @@ import com.ggetters.app.data.model.User
 @TypeConverters(
     UuidConverter::class,
     DateConverter::class,
+    EnumConverter::class,
 )
 abstract class AppDatabase : RoomDatabase() {
 
