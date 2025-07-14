@@ -2,6 +2,8 @@ package com.ggetters.app.data.local.converters
 
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
+import com.ggetters.app.data.model.TeamComposition
+import com.ggetters.app.data.model.TeamDenomination
 import com.ggetters.app.data.model.UserPosition
 import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
@@ -70,4 +72,32 @@ class EnumConverter {
      */
     @TypeConverter
     fun toUserStatus(value: String?): UserStatus? = toEnum<UserStatus>(value)
+
+
+    /**
+     * Convert from [TeamComposition] to [String].
+     */
+    @TypeConverter
+    fun fromTeamComposition(value: TeamComposition?): String? = fromEnum(value)
+
+
+    /**
+     * Convert from [String] to [TeamComposition].
+     */
+    @TypeConverter
+    fun toTeamComposition(value: String?): TeamComposition? = toEnum<TeamComposition>(value)
+
+
+    /**
+     * Convert from [TeamDenomination] to [String].
+     */
+    @TypeConverter
+    fun fromTeamDenomination(value: TeamDenomination?): String? = fromEnum(value)
+
+
+    /**
+     * Convert from [String] to [TeamDenomination].
+     */
+    @TypeConverter
+    fun toTeamDenomination(value: String?): TeamDenomination? = toEnum<TeamDenomination>(value)
 }
