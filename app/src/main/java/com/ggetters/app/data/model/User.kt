@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.ggetters.app.core.extensions.toLocalDate
 import com.ggetters.app.data.model.supers.AuditableEntity
 import com.ggetters.app.data.model.supers.CodedEntity
 import com.ggetters.app.data.model.supers.KeyedEntity
@@ -14,7 +13,6 @@ import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.Exclude
 import java.time.Instant
 import java.time.LocalDate
-import java.util.Date
 import java.util.UUID
 
 @Entity(
@@ -91,9 +89,9 @@ data class User(
 
 
     @ColumnInfo(name = "date_of_birth")
-    var dateOfBirth: Date,
+    var dateOfBirth: LocalDate,
 
-    
+
     ) : KeyedEntity, CodedEntity, AuditableEntity, StainableEntity {
     companion object {
         const val TAG = "User"
@@ -115,10 +113,5 @@ data class User(
     }
 
 
-    fun isAdult(): Boolean {
-        val eighteenthBirthday = dateOfBirth.toInstant().toLocalDate()
-        val date = LocalDate.now()
-
-        return (!date.isBefore(eighteenthBirthday.plusYears(18)))
-    }
+    fun isAdult(): Boolean = !LocalDate.now().isBefore(dateOfBirth.plusYears(18))
 }
