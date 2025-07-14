@@ -17,10 +17,10 @@ class YourApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        if (isDebuggable) {
-            CoroutineScope(Dispatchers.IO).launch { devClass.init() }
-            Clogger.i("YourApplication", "Seeded dev data (DEBUG only)")
-        }
+//        val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+//        if (isDebuggable) {
+//            CoroutineScope(Dispatchers.IO).launch { devClass.init() }
+//            Clogger.i("YourApplication", "Seeded dev data (DEBUG only)")
+//        }
     }
 }
