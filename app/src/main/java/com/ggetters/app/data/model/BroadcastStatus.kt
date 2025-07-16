@@ -2,6 +2,7 @@ package com.ggetters.app.data.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.ggetters.app.data.model.supers.AuditableEntity
@@ -19,10 +20,10 @@ import java.time.Instant
  */
 @Entity(
     tableName = "broadcast_status",
+    primaryKeys = ["broadcast_id", "recipient_id"],
     indices = [
-        Index(value = ["broadcast_id"]),
-        Index(value = ["recipient_id"]),
-        Index(value = ["broadcast_id", "recipient_id"], unique = true),
+        Index("broadcast_id"),
+        Index("recipient_id")
     ]
 )
 data class BroadcastStatus(
@@ -30,36 +31,26 @@ data class BroadcastStatus(
     @ColumnInfo(name = "created_at")
     override val createdAt: Instant = Instant.now(),
 
-
     @ColumnInfo(name = "updated_at")
     override var updatedAt: Instant = Instant.now(),
-
 
     @Exclude
     @ColumnInfo(name = "stained_at")
     override var stainedAt: Instant? = null,
 
-
     @ColumnInfo(name = "stashed_at")
     override var stashedAt: Instant? = null,
 
-
     // --- Attributes
-    // TODO: Figure out how to manage composite keys in Firestore
-    
-    
-    @PrimaryKey // TODO: <-- CKey
+
     @ColumnInfo(name = "broadcast_id")
     val broadcastId: String,
 
-    
-    @PrimaryKey // TODO: <-- CKey
-    @ColumnInfo(name = "broadcast_id")
+    @ColumnInfo(name = "recipient_id")
     val recipientId: String,
-    
-    
+
     @ColumnInfo(name = "noticed_at")
-    var noticedAt: Instant? = null,
+    var noticedAt: Instant? = null
     
     
 ) : AuditableEntity, StainableEntity, StashableEntity {
@@ -71,18 +62,42 @@ data class BroadcastStatus(
     // --- Functions
 
 
-    /**
-     * Stamps [noticedAt] field.
-     */
+    /** mark as “noticed” */
     fun notice() {
-        // TODO: Implement similarly to [StainableEntity] + [StashableEntity]
+        noticedAt = Instant.now()
+        updatedAt = Instant.now()
     }
-    
-    
-    /**
-     * Clears [noticedAt] field.
-     */
+
+    /** clear the “noticed” flag */
     fun review() {
-        // TODO: Implement similarly to [StainableEntity] + [StashableEntity]
+        noticedAt = null
+        updatedAt = Instant.now()
+    }
+
+    /** mark this status as “read” locally */
+    // override was the suggested fix, not sure why it was needed
+    // remove and replace with `override` if needed
+
+    override fun stain() {
+        stainedAt = Instant.now()
+        updatedAt = Instant.now()
+    }
+
+    /** clear the “read” flag */
+    fun unstain() {
+        stainedAt = null
+        updatedAt = Instant.now()
+    }
+
+    /** archive this status locally */
+    fun stash() {
+        stashedAt = Instant.now()
+        updatedAt = Instant.now()
+    }
+
+    /** un-archive this status */
+    fun unstash() {
+        stashedAt = null
+        updatedAt = Instant.now()
     }
 }
