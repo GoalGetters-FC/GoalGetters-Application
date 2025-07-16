@@ -2,16 +2,12 @@ package com.ggetters.app.data.remote.firestore
 
 import com.ggetters.app.data.model.User
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.firestore.ktx.firestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
-import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.text.get
 
 /**
  * Firestore-backed data source for [User] entities.
@@ -54,7 +50,7 @@ class UserFirestore @Inject constructor(
      * @param id the UUID of the user document
      * @return the [User] object, or null if not found
      */
-    suspend fun getById(id: UUID): User? =
+    suspend fun getById(id: String): User? =
         usersCol
             .document(id.toString())
             .get()
@@ -79,7 +75,7 @@ class UserFirestore @Inject constructor(
      *
      * @param id the UUID of the user document to delete
      */
-    suspend fun delete(id: UUID) {
+    suspend fun delete(id: String) {
         usersCol
             .document(id.toString())
             .delete()

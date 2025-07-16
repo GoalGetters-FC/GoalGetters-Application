@@ -1,128 +1,44 @@
-// app/src/main/java/com/ggetters/app/data/repository/user/CombinedUserRepository.kt
 package com.ggetters.app.data.repository.user
 
-import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.User
-import com.ggetters.app.data.model.User.Companion.TAG
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import java.util.UUID
 import javax.inject.Inject
-import javax.inject.Singleton
 
-/**
- * Orchestrates between offline (Room-based) and online (Firestore-based) implementations of [UserRepository].
- *
- * - Reads always from the local cache for instant/offline access.
- * - Writes to local first, then attempts remote writes.
- * - Provides a [sync] method to pull remote data into local storage.
- */
-@Singleton
 class CombinedUserRepository @Inject constructor(
-    private val offline: UserRepository,
-    private val online: UserRepository
+    private val offline: OfflineUserRepository,
+    private val online: OnlineUserRepository
 ) : UserRepository {
 
-    /**
-     * Observe all users from the local cache.
-     *
-     * @return a [Flow] that emits the current list of [User] objects whenever the database changes.
-     */
-    override fun observeAll(): Flow<List<User>> =
-        offline.observeAll()
+    override fun all() = offline.all()
 
-    /**
-     * Fetch a single [User] by its UUID from the local cache.
-     *
-     * @param id the UUID of the user to retrieve.
-     * @return the matching [User] or `null` if not found.
-     */
-    override suspend fun getById(id: UUID): User? =
-        offline.getById(id)
-
-    /**
-     * Save or update a [User].
-     *
-     * This writes to the local cache immediately, then attempts to write remotely.
-     * Any remote failures are caught and logged but do not interrupt the local write.
-     *
-     * @param user the [User] object to save.
-     */
-    override suspend fun save(user: User) {
-        // Local write always succeeds
-        offline.save(user)
-
-        // Attempt remote write, log on failure
-        try {
-            online.save(user)
-        } catch (e: Exception) {
-            Clogger.e("CombinedUserRepository", "Failed to save user remotely", e)
-        }
+    // ← now takes a String, not UUID
+    override suspend fun getById(id: String): User? {
+        // prefer local, fall back to remote
+        return offline.getById(id) ?: online.getById(id)
     }
 
-    /**
-     * Delete a [User] by its UUID.
-     *
-     * This deletes from the local cache first, then attempts to delete remotely.
-     * Any remote failures are caught and logged.
-     *
-     * @param id the UUID of the user to delete.
-     */
-    override suspend fun delete(id: UUID) {
-        // Local delete
-        offline.delete(id)
-
-        // Attempt remote delete, log on failure
-        try {
-            online.delete(id)
-        } catch (e: Exception) {
-            Clogger.e("CombinedUserRepository", "Failed to delete user remotely", e)
-        }
+    override suspend fun upsert(entity: User) {
+        offline.upsert(entity)
+        online.upsert(entity)
     }
 
-    /**
-     * Synchronize local cache with remote data.
-     *
-     * Fetches all users from the remote source once and upserts them into the local cache.
-     * Any errors during fetch or upsert are caught and logged.
-     */
+    override suspend fun delete(entity: User) {
+        offline.delete(entity)
+        online.delete(entity)
+    }
+
+    override suspend fun getLocalByAuthId(authId: String): User? =
+        offline.getLocalByAuthId(authId)
+
+    override suspend fun insertLocal(user: User) =
+        offline.insertLocal(user)
+
+    override suspend fun insertRemote(user: User) =
+        online.insertRemote(user)
+
     override suspend fun sync() {
-        try {
-            // Fetch remote snapshot
-            val remoteList = online.observeAll().first()
-            // Upsert each remote item into local cache
-            remoteList.forEach { offline.save(it) }
-        } catch (e: Exception) {
-            Clogger.e("CombinedUserRepository", "Failed to sync users", e)
-        }
-    }
-
-    override suspend fun getLocalByAuthId(authId: String): User? {
-        return try {
-            offline.getLocalByAuthId(authId)
-        } catch (e: Exception) {
-            Clogger.e(TAG, "Failed to get user by auth ID locally", e)
-            null
-        }
-    }
-
-    override suspend fun insertLocal(user: User) {
-        try {
-            offline.insertLocal(user)
-            Clogger.d(TAG, "Successfully inserted user locally: ${user.name}")
-        } catch (e: Exception) {
-            Clogger.e(TAG, "Failed to insert user locally", e)
-            throw e
-        }
-    }
-
-    override suspend fun insertRemote(user: User) {
-        try {
-            online.insertRemote(user)
-            Clogger.d(TAG, "Successfully inserted user remotely: ${user.name}")
-        } catch (e: Exception) {
-            Clogger.e(TAG, "Failed to insert user remotely", e)
-            throw e
-        }
+        // pull from remote and write into local
+        val remoteList = online.all().first()
+        remoteList.forEach { offline.upsert(it) }
     }
 }

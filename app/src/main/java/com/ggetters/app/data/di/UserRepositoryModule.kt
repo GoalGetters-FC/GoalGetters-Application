@@ -1,45 +1,33 @@
-// app/src/main/java/com/ggetters/app/data/di/UserRepositoryModule.kt
 package com.ggetters.app.data.di
 
+import com.ggetters.app.data.local.dao.UserDao
+import com.ggetters.app.data.remote.firestore.UserFirestore
 import com.ggetters.app.data.repository.user.CombinedUserRepository
 import com.ggetters.app.data.repository.user.OfflineUserRepository
 import com.ggetters.app.data.repository.user.OnlineUserRepository
 import com.ggetters.app.data.repository.user.UserRepository
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class UserRepositoryModule {
+object UserRepositoryModule {
 
-    // 1) Bind the Room-backed implementation as a Singleton
-    @Binds
-    @Singleton
-    @Named("offlineUser")
-    abstract fun bindOfflineUser(
-        impl: OfflineUserRepository
-    ): UserRepository
+    @Provides @Singleton
+    fun provideOfflineUserRepo(dao: UserDao): OfflineUserRepository =
+        OfflineUserRepository(dao)
 
-    // 2) Bind the Firestore-backed implementation as a Singleton
-    @Binds
-    @Singleton
-    @Named("onlineUser")
-    abstract fun bindOnlineUser(
-        impl: OnlineUserRepository
-    ): UserRepository
+    @Provides @Singleton
+    fun provideOnlineUserRepo(fs: UserFirestore): OnlineUserRepository =
+        OnlineUserRepository(fs)
 
-    companion object {
-        // 3) Provide the CombinedUserRepository as the “primary” UserRepository
-        @Provides
-        @Singleton
-        fun provideCombinedUserRepository(
-            @Named("offlineUser") offline: UserRepository,
-            @Named("onlineUser")  online: UserRepository
-        ): UserRepository = CombinedUserRepository(offline, online)
-    }
+    @Provides @Singleton
+    fun provideUserRepository(
+        offline: OfflineUserRepository,
+        online: OnlineUserRepository
+    ): UserRepository =
+        CombinedUserRepository(offline, online)
 }

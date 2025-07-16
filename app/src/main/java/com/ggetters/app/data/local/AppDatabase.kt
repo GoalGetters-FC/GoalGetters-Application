@@ -8,10 +8,14 @@ import androidx.room.TypeConverters
 import com.ggetters.app.data.local.converters.DateConverter
 import com.ggetters.app.data.local.converters.EnumConverter
 import com.ggetters.app.data.local.converters.UuidConverter
+import com.ggetters.app.data.local.dao.BroadcastDao
+import com.ggetters.app.data.local.dao.BroadcastStatusDao
 import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.data.model.User
+import com.ggetters.app.data.model.Broadcast
+import com.ggetters.app.data.model.BroadcastStatus
 
 /**
  * Local [RoomDatabase] for the application.
@@ -23,7 +27,9 @@ import com.ggetters.app.data.model.User
     entities = [
         User::class,
         Team::class,
-    ], 
+        Broadcast::class,
+        BroadcastStatus::class
+    ],
     
     // Configuration
     
@@ -59,4 +65,6 @@ abstract class AppDatabase : RoomDatabase() {
     
     abstract fun userDao(): UserDao
     abstract fun teamDao(): TeamDao
+    abstract fun broadcastDao(): BroadcastDao
+    abstract fun broadcastStatusDao(): BroadcastStatusDao
 }
