@@ -2,9 +2,7 @@ package com.ggetters.app.data.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.Index
-import androidx.room.PrimaryKey
 import com.ggetters.app.data.model.supers.AuditableEntity
 import com.ggetters.app.data.model.supers.StainableEntity
 import com.ggetters.app.data.model.supers.StashableEntity
@@ -13,7 +11,7 @@ import java.time.Instant
 
 /**
  * Composite union to track a users preferences towards a received broadcast.
- * 
+ *
  * @see Broadcast
  * @see notice
  * @see review
@@ -22,8 +20,9 @@ import java.time.Instant
     tableName = "broadcast_status",
     primaryKeys = ["broadcast_id", "recipient_id"],
     indices = [
-        Index("broadcast_id"),
-        Index("recipient_id")
+        Index(value = ["broadcast_id", "recipient_id"], unique = true),
+        Index(value = ["broadcast_id"]),
+        Index(value = ["recipient_id"]),
     ]
 )
 data class BroadcastStatus(
@@ -51,14 +50,14 @@ data class BroadcastStatus(
 
     @ColumnInfo(name = "noticed_at")
     var noticedAt: Instant? = null
-    
-    
+
+
 ) : AuditableEntity, StainableEntity, StashableEntity {
     companion object {
         const val TAG = "BroadcastStatus"
     }
-    
-    
+
+
     // --- Functions
 
 
