@@ -11,12 +11,14 @@ import com.ggetters.app.ui.shared.models.UiState
 import com.ggetters.app.ui.shared.models.UiState.Failure
 import com.ggetters.app.ui.shared.models.UiState.Loading
 import com.ggetters.app.ui.shared.models.UiState.Success
-import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import javax.inject.Inject
 
-class SignInViewModel(
-    private val authService: AuthService = AuthService(FirebaseAuth.getInstance())
+@HiltViewModel
+class SignInViewModel @Inject constructor(
+    private val authService: AuthService
 ) : ViewModel() {
     companion object {
         private const val TAG = "SignInViewModel"
