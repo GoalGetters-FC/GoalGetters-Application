@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
@@ -16,7 +17,9 @@ import com.ggetters.app.ui.shared.models.Clickable
 import com.ggetters.app.ui.startup.models.StartUiState.Authenticated
 import com.ggetters.app.ui.startup.models.StartUiState.SignedOut
 import com.ggetters.app.ui.startup.viewmodels.StartViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class StartActivity : AppCompatActivity(), Clickable {
     companion object {
         private const val TAG = "StartActivity"
@@ -24,7 +27,7 @@ class StartActivity : AppCompatActivity(), Clickable {
 
 
     private lateinit var binds: ActivityStartBinding
-    private lateinit var model: StartViewModel
+    private val model: StartViewModel by viewModels()
 
 
     private var authenticating: Boolean = true
@@ -42,9 +45,6 @@ class StartActivity : AppCompatActivity(), Clickable {
         setupBindings()
         setupLayoutUi()
         setupTouchListeners()
-
-        model = ViewModelProvider(this)[StartViewModel::class.java]
-
         observe()
 
         model.authenticate()

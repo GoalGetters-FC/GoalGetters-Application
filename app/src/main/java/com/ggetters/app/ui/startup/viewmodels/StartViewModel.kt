@@ -7,10 +7,12 @@ import com.ggetters.app.core.services.AuthService
 import com.ggetters.app.ui.startup.models.StartUiState
 import com.ggetters.app.ui.startup.models.StartUiState.Authenticated
 import com.ggetters.app.ui.startup.models.StartUiState.SignedOut
-import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class StartViewModel(
-    private val authService: AuthService = AuthService(FirebaseAuth.getInstance())
+@HiltViewModel
+class StartViewModel @Inject constructor(
+    private val authService: AuthService
 ) : ViewModel() {
     companion object {
         private const val TAG = "StartViewModel"
