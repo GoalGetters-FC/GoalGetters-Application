@@ -3,6 +3,7 @@ package com.ggetters.app.data.di
 
 import android.content.Context
 import androidx.room.RoomDatabase
+import com.ggetters.app.core.services.AuthService
 import com.ggetters.app.data.local.AppDatabase
 import com.ggetters.app.data.local.dao.BroadcastDao
 import com.ggetters.app.data.local.dao.BroadcastStatusDao
@@ -28,16 +29,6 @@ import javax.inject.Singleton
 object DataModule {
 
     // --- Contexts
-
-//
-//    /**
-//     * Provides a singleton [FirebaseFirestore] instance.
-//     *
-//     * @return the Firestore client for remote CRUD operations.
-//     */
-//    @Provides
-//    @Singleton
-//    fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 
 
     /**
@@ -66,6 +57,11 @@ object DataModule {
     @Provides
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+
+    
+    @Provides
+    @Singleton
+    fun provideAuthService(firebaseAuth: FirebaseAuth): AuthService = AuthService(firebaseAuth)
 
 
     /**
