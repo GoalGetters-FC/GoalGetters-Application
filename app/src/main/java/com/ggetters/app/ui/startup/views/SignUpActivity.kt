@@ -3,13 +3,15 @@ package com.ggetters.app.ui.startup.views
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import com.ggetters.app.core.utils.Clogger
-import com.ggetters.app.databinding.SignUpActivityBinding
+import com.ggetters.app.databinding.ActivitySignUpBinding
+import com.ggetters.app.ui.central.views.HomeActivity
 import com.ggetters.app.ui.shared.models.Clickable
 import com.ggetters.app.ui.shared.models.UiState.Failure
 import com.ggetters.app.ui.shared.models.UiState.Loading
@@ -23,11 +25,11 @@ class SignUpActivity : AppCompatActivity(), Clickable {
     }
 
 
-    private lateinit var binds: SignUpActivityBinding
+    private lateinit var binds: ActivitySignUpBinding
     private lateinit var model: SignUpViewModel
 
 
-    // --- Lifecycle
+// --- Lifecycle
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +48,7 @@ class SignUpActivity : AppCompatActivity(), Clickable {
     }
 
 
-    // --- ViewModel
+// --- ViewModel
 
 
     private fun observe() = model.uiState.observe(this) { state ->
@@ -56,8 +58,6 @@ class SignUpActivity : AppCompatActivity(), Clickable {
                 Clogger.d(
                     TAG, "Loading..."
                 )
-
-                // TODO: ...
             }
 
             is Success -> {
@@ -66,7 +66,8 @@ class SignUpActivity : AppCompatActivity(), Clickable {
                     TAG, "Success..."
                 )
 
-                // TODO: ...
+                startActivity(Intent(this, WelcomeBackActivity::class.java))
+                finishAffinity()
             }
 
             is Failure -> {
@@ -75,7 +76,9 @@ class SignUpActivity : AppCompatActivity(), Clickable {
                     TAG, "Failure..."
                 )
 
-                // TODO: ...
+                Toast.makeText(
+                    this, state.message, Toast.LENGTH_SHORT
+                ).show()
             }
 
             else -> {
@@ -87,7 +90,7 @@ class SignUpActivity : AppCompatActivity(), Clickable {
     }
 
 
-    // --- Internals
+// --- Internals
 
 
     private fun tryAuthenticateCredentials() {
@@ -110,7 +113,7 @@ class SignUpActivity : AppCompatActivity(), Clickable {
     }
 
 
-    // --- Event Handlers
+// --- Event Handlers
 
 
     override fun setupTouchListeners() {
@@ -125,6 +128,8 @@ class SignUpActivity : AppCompatActivity(), Clickable {
             AgeVerificationBottomSheet().show(
                 supportFragmentManager, "AgeVerificationBottomSheet"
             )
+            
+            tryAuthenticateCredentials()
         }
 
         else -> {
@@ -135,11 +140,11 @@ class SignUpActivity : AppCompatActivity(), Clickable {
     }
 
 
-    // --- UI
+// --- UI
 
 
     private fun setupBindings() {
-        binds = SignUpActivityBinding.inflate(layoutInflater)
+        binds = ActivitySignUpBinding.inflate(layoutInflater)
     }
 
 
