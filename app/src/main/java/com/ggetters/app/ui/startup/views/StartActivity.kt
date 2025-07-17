@@ -5,11 +5,17 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivityStartBinding
+import com.ggetters.app.ui.central.views.HomeActivity
 import com.ggetters.app.ui.shared.models.Clickable
+import com.ggetters.app.ui.startup.models.StartUiState.Authenticated
+import com.ggetters.app.ui.startup.models.StartUiState.SignedOut
+import com.ggetters.app.ui.startup.viewmodels.StartViewModel
 
 class StartActivity : AppCompatActivity(), Clickable {
     companion object {
@@ -18,6 +24,10 @@ class StartActivity : AppCompatActivity(), Clickable {
 
 
     private lateinit var binds: ActivityStartBinding
+    private lateinit var model: StartViewModel
+
+
+    private var authenticating: Boolean = true
 
 
 // --- Lifecycle
@@ -29,10 +39,50 @@ class StartActivity : AppCompatActivity(), Clickable {
             TAG, "Created a new instance of the activity"
         )
 
-
         setupBindings()
         setupLayoutUi()
         setupTouchListeners()
+
+        model = ViewModelProvider(this)[StartViewModel::class.java]
+
+        observe()
+
+        model.authenticate()
+    }
+
+
+// --- ViewModel
+
+
+    private fun observe() = model.uiState.observe(this) { state ->
+        when (state) {
+            is Authenticated -> {
+                authenticating = false
+                startActivity(Intent(this, HomeActivity::class.java))
+                finishAffinity()
+            }
+
+            is SignedOut -> {
+                authenticating = false
+            }
+
+            else -> {
+                Clogger.w(
+                    TAG, "Unhandled state: ${state.javaClass::class.java.simpleName}"
+                )
+            }
+        }
+    }
+
+
+// --- Internals
+
+
+    private fun persistSplashScreenUntilAuthChecksComplete() {
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition {
+            authenticating
+        }
     }
 
 
