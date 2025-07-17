@@ -17,7 +17,7 @@ class AgeCheckActivity : AppCompatActivity() {
 
         yesButton.setOnClickListener {
             // TODO: Backend - Log analytics event for age check (over 18)
-            startActivity(Intent(this, VerificationActivity::class.java))
+            startActivity(Intent(this, WelcomeBackActivity::class.java))
             finish()
         }
         noButton.setOnClickListener {
