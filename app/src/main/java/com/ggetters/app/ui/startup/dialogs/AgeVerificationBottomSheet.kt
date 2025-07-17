@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ggetters.app.R
-import com.ggetters.app.ui.startup.views.VerificationActivity
 
 class AgeVerificationBottomSheet : BottomSheetDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {

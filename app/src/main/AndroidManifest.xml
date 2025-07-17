@@ -66,11 +66,6 @@
                 android:theme="@style/AppTheme" />
 
         <activity
-                android:name=".ui.startup.views.VerificationActivity"
-                android:exported="false"
-                android:theme="@style/AppTheme" />
-
-        <activity
                 android:name=".ui.startup.views.WelcomeActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
