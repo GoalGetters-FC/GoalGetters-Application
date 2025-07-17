@@ -16,7 +16,7 @@
         <!-- Activities -->
 
         <activity
-                android:name=".ui.startup.views.UnifiedEntryActivity"
+                android:name=".ui.startup.views.StartActivity"
                 android:exported="true"
                 android:theme="@style/AppTheme">
             <intent-filter>

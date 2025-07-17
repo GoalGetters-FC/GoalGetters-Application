@@ -3,8 +3,6 @@ package com.ggetters.app.ui.startup.views
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -42,14 +40,14 @@ class OnboardingActivity : AppCompatActivity() {
 
         skipButton.setOnClickListener {
             // TODO: Backend - Log onboarding skip event
-            startActivity(Intent(this, UnifiedEntryActivity::class.java))
+            startActivity(Intent(this, StartActivity::class.java))
             finish()
         }
         nextButton.setOnClickListener {
             if (viewPager.currentItem < onboardingAdapter.itemCount - 1) {
                 viewPager.currentItem = viewPager.currentItem + 1
             } else {
-                startActivity(Intent(this, UnifiedEntryActivity::class.java))
+                startActivity(Intent(this, StartActivity::class.java))
                 finish()
             }
         }
