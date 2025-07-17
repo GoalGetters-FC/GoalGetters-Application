@@ -4,6 +4,8 @@ package com.ggetters.app.data.di
 import android.content.Context
 import androidx.room.RoomDatabase
 import com.ggetters.app.data.local.AppDatabase
+import com.ggetters.app.data.local.dao.BroadcastDao
+import com.ggetters.app.data.local.dao.BroadcastStatusDao
 import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
 import com.google.firebase.auth.FirebaseAuth
@@ -104,4 +106,12 @@ object DataModule {
     @Provides
     @Singleton
     fun provideTeamDao(source: AppDatabase): TeamDao = source.teamDao()
+
+    @Provides
+    fun provideBroadcastDao(db: AppDatabase): BroadcastDao =
+        db.broadcastDao()
+
+    @Provides
+    fun provideBroadcastStatusDao(db: AppDatabase): BroadcastStatusDao =
+        db.broadcastStatusDao()
 }

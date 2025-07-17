@@ -1,4 +1,3 @@
-// app/src/main/java/com/ggetters/app/data/remote/firestore/TeamFirestore.kt
 package com.ggetters.app.data.remote.firestore
 
 import com.ggetters.app.data.model.Team
@@ -31,18 +30,15 @@ class TeamFirestore(
      *
      * @return a Flow emitting the current list of [Team] objects
      */
-    fun observeAllTeams(): Flow<List<Team>> = callbackFlow {
+    fun observeAll(): Flow<List<Team>> = callbackFlow {
         val subscription = teamsCol.addSnapshotListener { snapshot, error ->
             if (error != null) {
-                // Close the flow on error
                 close(error)
             } else {
-                // Send the list of Team objects (or empty list if null)
                 val teams = snapshot?.toObjects(Team::class.java).orEmpty()
                 trySend(teams).isSuccess
             }
         }
-        // Remove the snapshot listener when the flow is closed or cancelled
         awaitClose { subscription.remove() }
     }
 
@@ -52,7 +48,7 @@ class TeamFirestore(
      * @param id the document ID of the team to fetch
      * @return the [Team] object, or null if not found
      */
-    suspend fun fetchTeam(id: String): Team? =
+    suspend fun getById(id: String): Team? =
         teamsCol
             .document(id)
             .get()
@@ -65,9 +61,9 @@ class TeamFirestore(
      *
      * @param team the [Team] object to save
      */
-    suspend fun saveTeam(team: Team) {
+    suspend fun save(team: Team) {
         teamsCol
-            .document(team.id.toString())
+            .document(team.id)
             .set(team)
             .await()
     }
@@ -77,7 +73,7 @@ class TeamFirestore(
      *
      * @param id the document ID of the team to delete
      */
-    suspend fun deleteTeam(id: String) {
+    suspend fun delete(id: String) {
         teamsCol
             .document(id)
             .delete()
