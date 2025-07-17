@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -18,7 +19,9 @@ import com.ggetters.app.ui.shared.models.UiState.Loading
 import com.ggetters.app.ui.shared.models.UiState.Success
 import com.ggetters.app.ui.startup.dialogs.AgeVerificationBottomSheet
 import com.ggetters.app.ui.startup.viewmodels.SignUpViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SignUpActivity : AppCompatActivity(), Clickable {
     companion object {
         private const val TAG = "SignUpActivity"
@@ -26,7 +29,7 @@ class SignUpActivity : AppCompatActivity(), Clickable {
 
 
     private lateinit var binds: ActivitySignUpBinding
-    private lateinit var model: SignUpViewModel
+    private val model: SignUpViewModel by viewModels()
 
 
 // --- Lifecycle
@@ -41,9 +44,6 @@ class SignUpActivity : AppCompatActivity(), Clickable {
         setupBindings()
         setupLayoutUi()
         setupTouchListeners()
-
-        model = ViewModelProvider(this)[SignUpViewModel::class.java]
-
         observe()
     }
 
