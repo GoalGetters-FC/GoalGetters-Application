@@ -9,10 +9,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.ViewModelProvider
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivitySignUpBinding
-import com.ggetters.app.ui.central.views.HomeActivity
 import com.ggetters.app.ui.shared.models.Clickable
 import com.ggetters.app.ui.shared.models.UiState.Failure
 import com.ggetters.app.ui.shared.models.UiState.Loading
@@ -123,12 +121,16 @@ class SignUpActivity : AppCompatActivity(), Clickable {
 
 
     override fun onClick(view: View?) = when (view?.id) {
-        binds.tvSignIn.id -> startActivity(Intent(this, SignInActivity::class.java))
+        binds.tvSignIn.id -> {
+            startActivity(Intent(this, SignInActivity::class.java))
+            finish()
+        }
+
         binds.btSignUp.id -> {
             AgeVerificationBottomSheet().show(
                 supportFragmentManager, "AgeVerificationBottomSheet"
             )
-            
+
             tryAuthenticateCredentials()
         }
 
