@@ -9,6 +9,7 @@ import com.ggetters.app.data.local.dao.BroadcastDao
 import com.ggetters.app.data.local.dao.BroadcastStatusDao
 import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
+import com.ggetters.app.data.local.dao.EventDao
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -110,4 +111,13 @@ object DataModule {
     @Provides
     fun provideBroadcastStatusDao(db: AppDatabase): BroadcastStatusDao =
         db.broadcastStatusDao()
+
+    @Provides
+    @Singleton
+    fun provideEventDao(db: AppDatabase): EventDao = 
+        db.eventDao()
+        
+    // TODO: Backend - Add AttendanceDao provider
+    // TODO: Backend - Add LineupDao provider
+    // TODO: Backend - Add PerformanceLogDao provider
 }

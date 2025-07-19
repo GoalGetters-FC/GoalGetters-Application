@@ -7,15 +7,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.FragmentCalendarBinding
 import com.ggetters.app.ui.central.adapters.CalendarAdapter
+import com.ggetters.app.ui.central.adapters.EventAdapter
 import com.ggetters.app.ui.central.models.CalendarDayItem
 import com.ggetters.app.ui.central.models.Event
 import com.ggetters.app.ui.central.models.EventType
 import com.ggetters.app.ui.central.sheets.AddEventBottomSheet
 import com.ggetters.app.ui.central.sheets.EventListBottomSheet
+import com.ggetters.app.ui.central.sheets.EventDetailsBottomSheet
 import com.ggetters.app.ui.shared.models.Clickable
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -27,10 +30,12 @@ class CalendarFragment : Fragment(), Clickable {
 
     private lateinit var binds: FragmentCalendarBinding
     private lateinit var adapter: CalendarAdapter
+    private lateinit var eventsAdapter: EventAdapter
 
     private var currentDate = Calendar.getInstance()
     private val events = mutableListOf<Event>()
     private var selectedDay: Int? = null
+    private var selectedDayEvents: List<Event> = emptyList()
 
 
     // --- Lifecycle
@@ -44,12 +49,36 @@ class CalendarFragment : Fragment(), Clickable {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        setupCalendar()
-        setupTouchListeners()
-
-        adapter = binds.rvCalendar.adapter as CalendarAdapter
+        // Ensure calendar starts at current month
+        currentDate = Calendar.getInstance()
         
+        setupTouchListeners()
+        setupCalendar()
         seed()
+        updateCalendarView()
+        updateMonthYearDisplay()
+        
+        // Initialize event details section to default state
+        hideSelectedDayEvents() // Sets up the default "Select a date" state
+        
+        // Auto-select today if it has events
+        autoSelectTodayIfHasEvents()
+    }
+
+    private fun autoSelectTodayIfHasEvents() {
+        val today = Calendar.getInstance()
+        val todayEvents = getEventsForDate(today.time)
+        
+        // If today has events and we're viewing the current month, select it
+        if (todayEvents.isNotEmpty() && 
+            currentDate.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
+            currentDate.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
+            
+            val todayDayOfMonth = today.get(Calendar.DAY_OF_MONTH)
+            selectedDay = todayDayOfMonth
+            updateCalendarView() // Refresh to show selection
+            showSelectedDayEvents(todayDayOfMonth, todayEvents)
+        }
     }
 
 
@@ -74,6 +103,9 @@ class CalendarFragment : Fragment(), Clickable {
             Calendar.MONTH, months
         )
 
+        // Clear selection when changing months and reset display
+        selectedDay = null
+        hideSelectedDayEvents() // This now resets to default state instead of hiding
         updateCalendarView()
         animateCalendarTransition()
     }
@@ -103,18 +135,27 @@ class CalendarFragment : Fragment(), Clickable {
     }
 
 
+    /**
+     * Updates the calendar grid view.
+     */
     private fun updateCalendarView() {
-        val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-        binds.monthYearText.text = dateFormat.format(currentDate.time)
         val calendarDays = generateCalendarDays()
+        adapter = CalendarAdapter(onClick = { day ->
+            onDayClickedCallback(day)
+        }, onLongClick = { day ->
+            onDayLongClickedCallback(day)
+        })
+
+        binds.rvCalendar.adapter = adapter
         adapter.update(calendarDays)
+        updateMonthYearDisplay() // Update month/year text when calendar changes
     }
 
 
     private fun generateCalendarDays(): List<CalendarDayItem> {
         val days = mutableListOf<CalendarDayItem>()
         val calendar = currentDate.clone() as Calendar
-        val today = Calendar.getInstance()
+        val today = Calendar.getInstance() // Get actual current date/time
 
         // Set to first day of month
         calendar.set(Calendar.DAY_OF_MONTH, 1)
@@ -134,11 +175,25 @@ class CalendarFragment : Fragment(), Clickable {
             dayCalendar.set(Calendar.DAY_OF_MONTH, day)
 
             val dayEvents = getEventsForDate(dayCalendar.time)
+            
+            // Enhanced today check - ensure we're comparing the right month/year
             val isToday = isSameDay(dayCalendar, today)
+            val isSelected = selectedDay == day
+
+            // Debug: Log today calculation
+            if (day == today.get(Calendar.DAY_OF_MONTH) && 
+                currentDate.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
+                currentDate.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
+                Clogger.d("Calendar", "Today should be day $day, isToday=$isToday")
+            }
 
             days.add(
                 CalendarDayItem(
-                    dayNumber = day, events = dayEvents, isCurrentMonth = true, isToday = isToday
+                    dayNumber = day, 
+                    events = dayEvents, 
+                    isCurrentMonth = true, 
+                    isToday = isToday,
+                    isSelected = isSelected
                 )
             )
         }
@@ -169,24 +224,44 @@ class CalendarFragment : Fragment(), Clickable {
         return events.filter { event ->
             val eventCalendar = Calendar.getInstance()
             eventCalendar.time = event.date
-            eventCalendar.get(Calendar.DAY_OF_MONTH) == targetDay && eventCalendar.get(Calendar.MONTH) == targetMonth && eventCalendar.get(
-                Calendar.YEAR
-            ) == targetYear
+            eventCalendar.get(Calendar.DAY_OF_MONTH) == targetDay && 
+            eventCalendar.get(Calendar.MONTH) == targetMonth && 
+            eventCalendar.get(Calendar.YEAR) == targetYear
+        }.sortedBy { event ->
+            // Sort by time - convert "HH:mm" to minutes for comparison
+            parseTimeToMinutes(event.time)
+        }
+    }
+
+    /**
+     * Converts time string in "HH:mm" format to minutes since midnight for sorting
+     */
+    private fun parseTimeToMinutes(timeString: String): Int {
+        return try {
+            val parts = timeString.split(":")
+            if (parts.size == 2) {
+                val hours = parts[0].toInt()
+                val minutes = parts[1].toInt()
+                hours * 60 + minutes
+            } else {
+                Int.MAX_VALUE // Invalid time goes to end
+            }
+        } catch (e: Exception) {
+            Int.MAX_VALUE // Invalid time goes to end
         }
     }
 
 
     private fun onDayClickedCallback(dayOfMonth: Int) {
         selectedDay = dayOfMonth
+        updateCalendarView() // Refresh calendar to show selection
+        
         val calendar = currentDate.clone() as Calendar
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        val dayEvents = getEventsForDate(calendar.time)
+        selectedDayEvents = getEventsForDate(calendar.time)
 
-        if (dayEvents.isNotEmpty()) {
-            showEventsForDay(dayOfMonth, dayEvents)
-        } else {
-            showAddEventBottomSheet(dayOfMonth)
-        }
+        // Always show the event details section when a day is selected
+        showSelectedDayEvents(dayOfMonth, selectedDayEvents)
     }
 
 
@@ -194,6 +269,57 @@ class CalendarFragment : Fragment(), Clickable {
         showAddEventBottomSheet(dayOfMonth)
     }
 
+
+    private fun showSelectedDayEvents(dayOfMonth: Int, events: List<Event>) {
+        // Update the selected date text
+        val calendar = currentDate.clone() as Calendar
+        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+        val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+        binds.selectedDateText.text = dateFormat.format(calendar.time)
+        
+        // Update event count and visibility
+        val eventCount = events.size
+        if (eventCount > 0) {
+            binds.eventCountText.text = when (eventCount) {
+                1 -> "1 event"
+                else -> "$eventCount events"
+            }
+            binds.eventCountText.visibility = View.VISIBLE
+        } else {
+            binds.eventCountText.visibility = View.GONE
+        }
+        
+        // Show/hide appropriate content with improved layout
+        if (events.isEmpty()) {
+            binds.rvSelectedDayEvents.visibility = View.GONE
+            binds.noEventsLayout.visibility = View.VISIBLE
+        } else {
+            binds.rvSelectedDayEvents.visibility = View.VISIBLE
+            binds.noEventsLayout.visibility = View.GONE
+            eventsAdapter.update(events)
+        }
+        
+        // Always ensure the section is visible (no animation needed since it's always shown)
+        binds.selectedDayEventsSection.visibility = View.VISIBLE
+    }
+
+    private fun hideSelectedDayEvents() {
+        // Reset to default state instead of hiding
+        binds.selectedDateText.text = "Select a date"
+        binds.eventCountText.visibility = View.GONE
+        binds.rvSelectedDayEvents.visibility = View.GONE
+        binds.noEventsLayout.visibility = View.GONE
+    }
+
+    private fun showEventDetails(event: Event) {
+        val eventDetailsSheet = EventDetailsBottomSheet.newInstance(event)
+        eventDetailsSheet.show(childFragmentManager, "EventDetailsBottomSheet")
+    }
+
+    private fun editEvent(event: Event) {
+        // TODO: Implement event editing functionality
+        showEventDetails(event)
+    }
 
     private fun showEventsForDay(day: Int, events: List<Event>) {
         val eventListBottomSheet = EventListBottomSheet.Companion.newInstance(day, events)
@@ -249,6 +375,16 @@ class CalendarFragment : Fragment(), Clickable {
             }, onLongClick = { day ->
                 onDayLongClickedCallback(day)
             })
+        }
+
+        // Setup events RecyclerView
+        eventsAdapter = EventAdapter(
+            onClick = { event -> showEventDetails(event) },
+            onLongClick = { event -> editEvent(event) }
+        )
+        binds.rvSelectedDayEvents.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = eventsAdapter
         }
 
         setupSwipeGestures()
@@ -350,6 +486,43 @@ class CalendarFragment : Fragment(), Clickable {
             )
         )
 
+        // Add MULTIPLE EVENTS on December 15th to test sorting
+        events.add(
+            Event(
+                id = "1b",
+                title = "Warm-up Session",
+                type = EventType.PRACTICE,
+                date = calendar.time, // Same day as above
+                time = "09:00", // Earlier time - should appear first
+                venue = "Training Ground",
+                createdBy = "Assistant Coach"
+            )
+        )
+
+        events.add(
+            Event(
+                id = "1c",
+                title = "Team Meeting",
+                type = EventType.OTHER,
+                date = calendar.time, // Same day as above
+                time = "18:30", // Later time - should appear last
+                venue = "Club House",
+                createdBy = "Manager"
+            )
+        )
+
+        events.add(
+            Event(
+                id = "1d",
+                title = "Tactical Review",
+                type = EventType.OTHER,
+                date = calendar.time, // Same day as above
+                time = "11:30", // Middle time - should appear second
+                venue = "Conference Room",
+                createdBy = "Coach"
+            )
+        )
+
         // Sample game event
         calendar.set(2024, 11, 22) // December 22, 2024
         events.add(
@@ -361,6 +534,31 @@ class CalendarFragment : Fragment(), Clickable {
                 time = "14:00",
                 venue = "Stadium",
                 opponent = "Eagles FC",
+                createdBy = "Coach"
+            )
+        )
+
+        // Add MULTIPLE EVENTS on December 22nd (match day)
+        events.add(
+            Event(
+                id = "2b",
+                title = "Pre-Match Warm-up",
+                type = EventType.PRACTICE,
+                date = calendar.time, // Same day as match
+                time = "12:00", // Before match
+                venue = "Stadium Warm-up Area",
+                createdBy = "Coach"
+            )
+        )
+
+        events.add(
+            Event(
+                id = "2c",
+                title = "Post-Match Analysis",
+                type = EventType.OTHER,
+                date = calendar.time, // Same day as match
+                time = "16:30", // After match
+                venue = "Club House",
                 createdBy = "Coach"
             )
         )
@@ -394,6 +592,31 @@ class CalendarFragment : Fragment(), Clickable {
             )
         )
 
+        // Add MULTIPLE EVENTS 2 days from now
+        events.add(
+            Event(
+                id = "4b",
+                title = "Fitness Test",
+                type = EventType.OTHER,
+                date = currentCalendar.time, // Same day
+                time = "08:00", // Early morning - should appear first
+                venue = "Gym",
+                createdBy = "Fitness Coach"
+            )
+        )
+
+        events.add(
+            Event(
+                id = "4c",
+                title = "Recovery Session",
+                type = EventType.PRACTICE,
+                date = currentCalendar.time, // Same day
+                time = "19:00", // Evening - should appear last
+                venue = "Recovery Center",
+                createdBy = "Physio"
+            )
+        )
+
         currentCalendar.add(Calendar.DAY_OF_MONTH, 5) // 7 days from now
         events.add(
             Event(
@@ -410,5 +633,10 @@ class CalendarFragment : Fragment(), Clickable {
 
         // Apply changes
         updateCalendarView()
+    }
+
+    private fun updateMonthYearDisplay() {
+        val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+        binds.monthYearText.text = dateFormat.format(currentDate.time)
     }
 } 

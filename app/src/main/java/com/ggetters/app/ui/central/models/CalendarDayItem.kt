@@ -14,7 +14,8 @@ data class CalendarDayItem(
     val dayNumber: Int? = null,
     val events: List<Event> = emptyList(),
     val isCurrentMonth: Boolean = true,
-    val isToday: Boolean = false, 
+    val isToday: Boolean = false,
+    val isSelected: Boolean = false
     
     
 ) : KeyedEntity

@@ -12,10 +12,15 @@ import com.ggetters.app.data.local.dao.BroadcastDao
 import com.ggetters.app.data.local.dao.BroadcastStatusDao
 import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
+import com.ggetters.app.data.local.dao.EventDao
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.model.Broadcast
 import com.ggetters.app.data.model.BroadcastStatus
+import com.ggetters.app.data.model.Event
+import com.ggetters.app.data.model.Attendance
+import com.ggetters.app.data.model.Lineup
+import com.ggetters.app.data.model.PerformanceLog
 
 /**
  * Local [RoomDatabase] for the application.
@@ -28,12 +33,16 @@ import com.ggetters.app.data.model.BroadcastStatus
         User::class,
         Team::class,
         Broadcast::class,
-        BroadcastStatus::class
+        BroadcastStatus::class,
+        Event::class,
+        Attendance::class,
+        Lineup::class,
+        PerformanceLog::class
     ],
     
     // Configuration
     
-    version = 1, 
+    version = 2,  // TODO: Backend - Implement migration from v1 to v2
     exportSchema = true // TODO: Add location to silence build warnings
 )
 @TypeConverters(
@@ -67,4 +76,10 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun teamDao(): TeamDao
     abstract fun broadcastDao(): BroadcastDao
     abstract fun broadcastStatusDao(): BroadcastStatusDao
+    
+    // TODO: Backend - Add Event-related DAOs
+    abstract fun eventDao(): EventDao
+    // TODO: Backend - Create and add AttendanceDao
+    // TODO: Backend - Create and add LineupDao  
+    // TODO: Backend - Create and add PerformanceLogDao
 }
