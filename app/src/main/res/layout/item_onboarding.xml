@@ -12,7 +12,7 @@
         android:layout_height="120dp"
         android:layout_gravity="center"
         android:layout_marginTop="48dp"
-        android:src="@drawable/ic_home" />
+        android:src="@drawable/ic_unicons_home_24" />
 
     <TextView
         android:id="@+id/onboardingText"

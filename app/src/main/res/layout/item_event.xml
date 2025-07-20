@@ -100,7 +100,7 @@
                 android:visibility="gone"
                 android:drawablePadding="6dp"
                 android:gravity="center_vertical"
-                app:drawableStartCompat="@drawable/ic_sports_soccer"
+                app:drawableStartCompat="@drawable/ic_unicons_soccer_24"
                 app:drawableTint="#FFD400" />
 
         </LinearLayout>

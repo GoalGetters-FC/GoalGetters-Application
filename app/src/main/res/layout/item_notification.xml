@@ -33,7 +33,7 @@
             android:id="@+id/markSeenButton"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/ic_check_circle"
+            android:src="@drawable/ic_unicons_clipboard_notes_24"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Mark as seen"
             android:layout_marginEnd="8dp" />
@@ -42,7 +42,7 @@
             android:id="@+id/deleteButton"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/ic_error"
+            android:src="@drawable/ic_unicons_archive_alt"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Delete notification" />
 
