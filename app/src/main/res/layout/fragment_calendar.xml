@@ -64,100 +64,100 @@
             android:orientation="vertical"
             android:background="@color/white">
 
-            <!-- Day headers -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
+        <!-- Day headers -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="12dp"
                 android:background="@color/surface_elevated">
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                     android:text="SUN"
                     android:textSize="12sp"
                     android:textColor="@color/text_secondary"
-                    android:gravity="center"
+                android:gravity="center"
                     android:textStyle="bold"
                     android:fontFamily="@font/variable_inter" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                     android:text="MON"
                     android:textSize="12sp"
                     android:textColor="@color/text_secondary"
-                    android:gravity="center"
+                android:gravity="center"
                     android:textStyle="bold"
                     android:fontFamily="@font/variable_inter" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                     android:text="TUE"
                     android:textSize="12sp"
                     android:textColor="@color/text_secondary"
-                    android:gravity="center"
+                android:gravity="center"
                     android:textStyle="bold"
                     android:fontFamily="@font/variable_inter" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                     android:text="WED"
                     android:textSize="12sp"
                     android:textColor="@color/text_secondary"
-                    android:gravity="center"
+                android:gravity="center"
                     android:textStyle="bold"
                     android:fontFamily="@font/variable_inter" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                     android:text="THU"
                     android:textSize="12sp"
                     android:textColor="@color/text_secondary"
-                    android:gravity="center"
+                android:gravity="center"
                     android:textStyle="bold"
                     android:fontFamily="@font/variable_inter" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                     android:text="FRI"
                     android:textSize="12sp"
                     android:textColor="@color/text_secondary"
-                    android:gravity="center"
+                android:gravity="center"
                     android:textStyle="bold"
                     android:fontFamily="@font/variable_inter" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                     android:text="SAT"
                     android:textSize="12sp"
                     android:textColor="@color/text_secondary"
-                    android:gravity="center"
+                android:gravity="center"
                     android:textStyle="bold"
                     android:fontFamily="@font/variable_inter" />
 
-            </LinearLayout>
+        </LinearLayout>
 
             <!-- Calendar grid with fixed height to prevent overflow -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_calendar"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_calendar"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
                 android:paddingHorizontal="12dp"
                 android:clipToPadding="false"
                 android:overScrollMode="never" />
@@ -229,24 +229,24 @@
                 android:paddingBottom="16dp">
 
                 <!-- Events RecyclerView -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_selected_day_events"
-                    android:layout_width="match_parent"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_selected_day_events"
+                android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:clipToPadding="false"
-                    android:scrollbars="vertical"
-                    android:fadingEdge="vertical"
+                android:clipToPadding="false"
+                android:scrollbars="vertical"
+                android:fadingEdge="vertical"
                     android:fadingEdgeLength="24dp"
                     android:overScrollMode="ifContentScrolls"
                     android:visibility="gone" />
 
-                <!-- No events message with improved styling -->
-                <LinearLayout
-                    android:id="@+id/noEventsLayout"
-                    android:layout_width="match_parent"
+            <!-- No events message with improved styling -->
+            <LinearLayout
+                android:id="@+id/noEventsLayout"
+                android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
+                android:orientation="vertical"
+                android:gravity="center"
                     android:visibility="visible">
 
                     <ImageView
@@ -257,28 +257,28 @@
                         android:alpha="0.6"
                         app:tint="@color/text_tertiary" />
 
-                    <TextView
-                        android:id="@+id/noEventsText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="No events scheduled"
-                        android:textSize="16sp"
-                        android:textColor="@color/text_secondary"
-                        android:gravity="center"
+                <TextView
+                    android:id="@+id/noEventsText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No events scheduled"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_secondary"
+                    android:gravity="center"
                         android:textStyle="bold"
                         android:fontFamily="@font/variable_inter"
                         android:layout_marginBottom="4dp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Tap the + button to add an event"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_tertiary"
-                        android:gravity="center"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tap the + button to add an event"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_tertiary"
+                    android:gravity="center"
                         android:fontFamily="@font/variable_inter" />
 
-                </LinearLayout>
+            </LinearLayout>
 
             </FrameLayout>
 

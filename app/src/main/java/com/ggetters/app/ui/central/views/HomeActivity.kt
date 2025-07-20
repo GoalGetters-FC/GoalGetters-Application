@@ -5,7 +5,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.WindowManager
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import com.ggetters.app.R
 
@@ -14,6 +19,8 @@ import com.ggetters.app.R
 
 class HomeActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView: BadgeBottomNavigationView
+    private lateinit var notificationsIcon: ImageView
+    private lateinit var notificationBadge: View
     private var currentFragment: Fragment? = null
     private var longPressStartTime: Long = 0
     private val LONG_PRESS_DURATION = 500L // 500ms
@@ -22,12 +29,39 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+        setupStatusBar()
+        setupViews()
         setupBottomNavigation()
         checkUnreadNotifications()
         
         // Set default fragment
         if (savedInstanceState == null) {
             switchFragment(CalendarFragment())
+        }
+    }
+
+    private fun setupStatusBar() {
+        // Enable edge-to-edge display but keep status bar visible
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        
+        // Set up window insets controller for light status bar
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = true // Light status bar icons
+        
+        // Ensure status bar is visible and properly colored
+        window.statusBarColor = getColor(R.color.white)
+    }
+
+    private fun setupViews() {
+        notificationsIcon = findViewById(R.id.notificationsIcon)
+        notificationBadge = findViewById(R.id.notificationBadge)
+        
+        // Set up notifications icon click
+        notificationsIcon.setOnClickListener {
+            // TODO: Open notifications activity/fragment
+            Log.d("HomeActivity", "Notifications icon clicked")
+            // For now, just toggle the badge visibility
+            toggleNotificationBadge()
         }
     }
 
@@ -139,7 +173,17 @@ class HomeActivity : AppCompatActivity() {
         
         // For now, using sample data
         val hasUnreadNotifications = true // This should come from backend
+        showNotificationBadge(hasUnreadNotifications)
         bottomNavigationView.showNotificationBadge(hasUnreadNotifications)
+    }
+
+    private fun showNotificationBadge(show: Boolean) {
+        notificationBadge.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private fun toggleNotificationBadge() {
+        val isVisible = notificationBadge.visibility == View.VISIBLE
+        showNotificationBadge(!isVisible)
     }
 
     private fun isTouchInView(event: MotionEvent, view: View): Boolean {
