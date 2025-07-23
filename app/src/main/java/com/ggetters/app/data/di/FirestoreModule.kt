@@ -6,9 +6,9 @@ import com.ggetters.app.data.remote.firestore.BroadcastStatusFirestore
 import com.ggetters.app.data.remote.firestore.TeamFirestore
 import com.ggetters.app.data.remote.firestore.UserFirestore
 import com.ggetters.app.data.remote.firestore.EventFirestore
+import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.firestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
