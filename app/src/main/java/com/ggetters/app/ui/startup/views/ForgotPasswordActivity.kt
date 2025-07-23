@@ -3,13 +3,17 @@ package com.ggetters.app.ui.startup.views
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ForgotPasswordActivityBinding
 import com.ggetters.app.ui.shared.models.Clickable
+import com.ggetters.app.ui.startup.viewmodels.ForgotPasswordViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ForgotPasswordActivity : AppCompatActivity(), Clickable {
     companion object {
         private const val TAG = "ForgotPasswordActivity"
@@ -17,6 +21,7 @@ class ForgotPasswordActivity : AppCompatActivity(), Clickable {
 
 
     private lateinit var binds: ForgotPasswordActivityBinding
+    private val model: ForgotPasswordViewModel by viewModels()
 
 
 // --- Lifecycle
