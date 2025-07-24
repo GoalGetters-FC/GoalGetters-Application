@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.views.UserAccount
+import com.ggetters.app.ui.central.models.UserAccount
 
 class AccountSwitcherBottomSheet : BottomSheetDialogFragment() {
     

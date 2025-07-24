@@ -5,14 +5,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.view.WindowManager
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import com.ggetters.app.R
+import com.ggetters.app.ui.central.components.BadgeBottomNavigationView
 
 // TODO: Backend - Fetch data for each tab (Notifications, Calendar, Players, Team Profile)
 // TODO: Backend - Log analytics for tab navigation
@@ -36,7 +34,7 @@ class HomeActivity : AppCompatActivity() {
         
         // Set default fragment
         if (savedInstanceState == null) {
-            switchFragment(CalendarFragment())
+            switchFragment(HomeCalendarFragment())
         }
     }
 
@@ -71,8 +69,8 @@ class HomeActivity : AppCompatActivity() {
         // Set up item selection listener
         bottomNavigationView.setOnItemSelectedListener { menuItem ->
             val newFragment = when (menuItem.itemId) {
-                R.id.nav_calendar -> CalendarFragment()
-                R.id.nav_team_players -> PlayersFragment()
+                R.id.nav_calendar -> HomeCalendarFragment()
+                R.id.nav_team_players -> HomePlayersFragment()
                 R.id.nav_team_profile -> TeamProfileFragment()
                 R.id.nav_profile -> ProfileFragment()
                 else -> null

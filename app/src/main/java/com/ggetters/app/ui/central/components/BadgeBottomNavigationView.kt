@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.central.views
+package com.ggetters.app.ui.central.components
 
 import android.content.Context
 import android.util.AttributeSet

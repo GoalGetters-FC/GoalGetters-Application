@@ -26,7 +26,7 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.abs
 
-class CalendarFragment : Fragment(), Clickable {
+class HomeCalendarFragment : Fragment(), Clickable {
 
     private lateinit var binds: FragmentCalendarBinding
     private lateinit var adapter: CalendarAdapter

@@ -13,7 +13,7 @@ import com.ggetters.app.ui.central.adapters.PlayerAdapter
 import com.ggetters.app.ui.central.models.Player
 import com.ggetters.app.ui.central.models.PlayerStats
 
-class PlayersFragment : Fragment() {
+class HomePlayersFragment : Fragment() {
     
     private lateinit var playerAdapter: PlayerAdapter
     private lateinit var recyclerView: RecyclerView
