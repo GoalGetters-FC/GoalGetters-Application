@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 /**
  * Service to handle authentication operations in the [FirebaseAuth] server.
- * 
+ *
  * **Note:** All operations conducted by functions within this service require a
  * stable connection to the internet. Checks should be conducted beforehand, and
  * such edge-cases should be accounted for in failure conditions.
@@ -18,7 +18,7 @@ import javax.inject.Inject
  * @see FirebaseAuth
  * @see AuthService.signUpAsync
  * @see AuthService.signInAsync
- * @see AuthService.sendPasswordResetEmailAsync
+ * @see AuthService.sendCredentialChangeEmailAsync
  * @see AuthService.deleteCurrentUserAsync
  * @see AuthService.isUserSignedIn
  * @see AuthService.getCurrentUser
@@ -170,7 +170,7 @@ class AuthService @Inject constructor(
      *         This may commonly occur if a user is not authenticated or when
      *         Firebase requires re-authentication to verify its validity.
      */
-    suspend fun sendPasswordResetEmailAsync(email: String) {
+    suspend fun sendCredentialChangeEmailAsync(email: String) {
         try {
             Clogger.d(
                 TAG, "Sending a password reset request to the server."
@@ -187,11 +187,11 @@ class AuthService @Inject constructor(
 
     /**
      * Attempts to delete the currently authenticated [FirebaseUser] account.
-     * 
+     *
      * **Note:** This function uses the [FirebaseAuth.getCurrentUser] to get the
      * user account instance inline. Should this retrieval operation except, the
      * function will throw an exception that may be difficult to debug.
-     * 
+     *
      * @see FirebaseUser.delete
      * @see await
      *
