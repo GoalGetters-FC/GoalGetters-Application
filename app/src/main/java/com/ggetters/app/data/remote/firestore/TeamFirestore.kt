@@ -1,9 +1,9 @@
 package com.ggetters.app.data.remote.firestore
 
 import com.ggetters.app.data.model.Team
+import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
