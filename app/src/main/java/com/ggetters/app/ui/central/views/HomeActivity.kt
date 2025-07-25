@@ -6,16 +6,25 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.components.BadgeBottomNavigationView
+import com.ggetters.app.ui.central.viewmodels.HomeViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
 // TODO: Backend - Fetch data for each tab (Notifications, Calendar, Players, Team Profile)
 // TODO: Backend - Log analytics for tab navigation
 
+@AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
+
+
+    private val model: HomeViewModel by viewModels()
+
+
     private lateinit var bottomNavigationView: BadgeBottomNavigationView
     private lateinit var notificationsIcon: ImageView
     private lateinit var notificationBadge: View
@@ -31,7 +40,7 @@ class HomeActivity : AppCompatActivity() {
         setupViews()
         setupBottomNavigation()
         checkUnreadNotifications()
-        
+
         // Set default fragment
         if (savedInstanceState == null) {
             switchFragment(HomeCalendarFragment())
@@ -41,11 +50,11 @@ class HomeActivity : AppCompatActivity() {
     private fun setupStatusBar() {
         // Enable edge-to-edge display but keep status bar visible
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        
+
         // Set up window insets controller for light status bar
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.isAppearanceLightStatusBars = true // Light status bar icons
-        
+
         // Ensure status bar is visible and properly colored
         window.statusBarColor = getColor(R.color.white)
     }
@@ -53,7 +62,7 @@ class HomeActivity : AppCompatActivity() {
     private fun setupViews() {
         notificationsIcon = findViewById(R.id.notificationsIcon)
         notificationBadge = findViewById(R.id.notificationBadge)
-        
+
         // Set up notifications icon click
         notificationsIcon.setOnClickListener {
             // TODO: Open notifications activity/fragment
@@ -65,7 +74,7 @@ class HomeActivity : AppCompatActivity() {
 
     private fun setupBottomNavigation() {
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
-        
+
         // Set up item selection listener
         bottomNavigationView.setOnItemSelectedListener { menuItem ->
             val newFragment = when (menuItem.itemId) {
@@ -75,13 +84,13 @@ class HomeActivity : AppCompatActivity() {
                 R.id.nav_profile -> ProfileFragment()
                 else -> null
             }
-            
+
             if (newFragment != null) {
                 switchFragment(newFragment)
             }
             true
         }
-        
+
         // Set up long press detection for profile tab
         bottomNavigationView.setOnTouchListener { _, event ->
             when (event.action) {
@@ -89,6 +98,7 @@ class HomeActivity : AppCompatActivity() {
                     longPressStartTime = System.currentTimeMillis()
                     false
                 }
+
                 MotionEvent.ACTION_UP -> {
                     val pressDuration = System.currentTimeMillis() - longPressStartTime
                     if (pressDuration >= LONG_PRESS_DURATION) {
@@ -102,6 +112,7 @@ class HomeActivity : AppCompatActivity() {
                     }
                     false
                 }
+
                 MotionEvent.ACTION_MOVE -> {
                     val pressDuration = System.currentTimeMillis() - longPressStartTime
                     if (pressDuration >= LONG_PRESS_DURATION) {
@@ -116,7 +127,7 @@ class HomeActivity : AppCompatActivity() {
             }
             false
         }
-        
+
         // Alternative approach: Add long click listener after view is laid out
         bottomNavigationView.post {
             val profileTab = bottomNavigationView.findViewById<View>(R.id.nav_profile)
@@ -131,7 +142,7 @@ class HomeActivity : AppCompatActivity() {
 
     private fun switchFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
-        
+
         // Add smooth transitions
         transaction.setCustomAnimations(
             R.anim.slide_in_right,
@@ -139,20 +150,20 @@ class HomeActivity : AppCompatActivity() {
             R.anim.slide_in_left,
             R.anim.slide_out_right
         )
-        
+
         if (currentFragment == null) {
             transaction.replace(R.id.fragmentContainer, fragment)
         } else {
             transaction.replace(R.id.fragmentContainer, fragment)
         }
-        
+
         transaction.commit()
         currentFragment = fragment
     }
 
     private fun showAccountSwitcher() {
         Log.d("HomeActivity", "Showing account switcher from HomeActivity")
-        
+
         // Get the current ProfileFragment to show the account switcher
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         if (currentFragment is ProfileFragment) {
@@ -168,7 +179,7 @@ class HomeActivity : AppCompatActivity() {
         // Request: { userId: String }
         // Response: { count: number }
         // Error handling: { message: String, code: String }
-        
+
         // For now, using sample data
         val hasUnreadNotifications = true // This should come from backend
         showNotificationBadge(hasUnreadNotifications)
