@@ -6,6 +6,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,16 +19,25 @@ import com.ggetters.app.ui.central.models.CalendarDayItem
 import com.ggetters.app.ui.central.models.Event
 import com.ggetters.app.ui.central.models.EventType
 import com.ggetters.app.ui.central.sheets.AddEventBottomSheet
-import com.ggetters.app.ui.central.sheets.EventListBottomSheet
 import com.ggetters.app.ui.central.sheets.EventDetailsBottomSheet
+import com.ggetters.app.ui.central.sheets.EventListBottomSheet
+import com.ggetters.app.ui.central.viewmodels.HomeCalendarViewModel
+import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.shared.models.Clickable
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlin.math.abs
 
+@AndroidEntryPoint
 class HomeCalendarFragment : Fragment(), Clickable {
+
+
+    private val activeModel: HomeCalendarViewModel by viewModels()
+    private val sharedModel: HomeViewModel by activityViewModels()
+
 
     private lateinit var binds: FragmentCalendarBinding
     private lateinit var adapter: CalendarAdapter
@@ -48,19 +59,19 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+
         // Ensure calendar starts at current month
         currentDate = Calendar.getInstance()
-        
+
         setupTouchListeners()
         setupCalendar()
         seed()
         updateCalendarView()
         updateMonthYearDisplay()
-        
+
         // Initialize event details section to default state
         hideSelectedDayEvents() // Sets up the default "Select a date" state
-        
+
         // Auto-select today if it has events
         autoSelectTodayIfHasEvents()
     }
@@ -68,12 +79,13 @@ class HomeCalendarFragment : Fragment(), Clickable {
     private fun autoSelectTodayIfHasEvents() {
         val today = Calendar.getInstance()
         val todayEvents = getEventsForDate(today.time)
-        
+
         // If today has events and we're viewing the current month, select it
-        if (todayEvents.isNotEmpty() && 
+        if (todayEvents.isNotEmpty() &&
             currentDate.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
-            currentDate.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
-            
+            currentDate.get(Calendar.YEAR) == today.get(Calendar.YEAR)
+        ) {
+
             val todayDayOfMonth = today.get(Calendar.DAY_OF_MONTH)
             selectedDay = todayDayOfMonth
             updateCalendarView() // Refresh to show selection
@@ -175,23 +187,24 @@ class HomeCalendarFragment : Fragment(), Clickable {
             dayCalendar.set(Calendar.DAY_OF_MONTH, day)
 
             val dayEvents = getEventsForDate(dayCalendar.time)
-            
+
             // Enhanced today check - ensure we're comparing the right month/year
             val isToday = isSameDay(dayCalendar, today)
             val isSelected = selectedDay == day
 
             // Debug: Log today calculation
-            if (day == today.get(Calendar.DAY_OF_MONTH) && 
+            if (day == today.get(Calendar.DAY_OF_MONTH) &&
                 currentDate.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
-                currentDate.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
+                currentDate.get(Calendar.YEAR) == today.get(Calendar.YEAR)
+            ) {
                 Clogger.d("Calendar", "Today should be day $day, isToday=$isToday")
             }
 
             days.add(
                 CalendarDayItem(
-                    dayNumber = day, 
-                    events = dayEvents, 
-                    isCurrentMonth = true, 
+                    dayNumber = day,
+                    events = dayEvents,
+                    isCurrentMonth = true,
                     isToday = isToday,
                     isSelected = isSelected
                 )
@@ -224,9 +237,9 @@ class HomeCalendarFragment : Fragment(), Clickable {
         return events.filter { event ->
             val eventCalendar = Calendar.getInstance()
             eventCalendar.time = event.date
-            eventCalendar.get(Calendar.DAY_OF_MONTH) == targetDay && 
-            eventCalendar.get(Calendar.MONTH) == targetMonth && 
-            eventCalendar.get(Calendar.YEAR) == targetYear
+            eventCalendar.get(Calendar.DAY_OF_MONTH) == targetDay &&
+                    eventCalendar.get(Calendar.MONTH) == targetMonth &&
+                    eventCalendar.get(Calendar.YEAR) == targetYear
         }.sortedBy { event ->
             // Sort by time - convert "HH:mm" to minutes for comparison
             parseTimeToMinutes(event.time)
@@ -255,7 +268,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
     private fun onDayClickedCallback(dayOfMonth: Int) {
         selectedDay = dayOfMonth
         updateCalendarView() // Refresh calendar to show selection
-        
+
         val calendar = currentDate.clone() as Calendar
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
         selectedDayEvents = getEventsForDate(calendar.time)
@@ -276,7 +289,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
         val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
         binds.selectedDateText.text = dateFormat.format(calendar.time)
-        
+
         // Update event count and visibility
         val eventCount = events.size
         if (eventCount > 0) {
@@ -288,7 +301,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
         } else {
             binds.eventCountText.visibility = View.GONE
         }
-        
+
         // Show/hide appropriate content with improved layout
         if (events.isEmpty()) {
             binds.rvSelectedDayEvents.visibility = View.GONE
@@ -298,7 +311,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             binds.noEventsLayout.visibility = View.GONE
             eventsAdapter.update(events)
         }
-        
+
         // Always ensure the section is visible (no animation needed since it's always shown)
         binds.selectedDayEventsSection.visibility = View.VISIBLE
     }
@@ -441,7 +454,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
     /**
      * Construct the view binding for this fragment.
-     * 
+     *
      * @return the root [View] of this fragment within the same context as every
      *         other invocation of the binding instance. This is crucial because
      *         otherwise they would exist in different contexts.
