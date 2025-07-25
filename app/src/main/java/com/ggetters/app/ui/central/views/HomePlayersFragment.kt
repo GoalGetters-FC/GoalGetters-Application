@@ -1,32 +1,42 @@
 package com.ggetters.app.ui.central.views
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.adapters.PlayerAdapter
 import com.ggetters.app.ui.central.models.Player
 import com.ggetters.app.ui.central.models.PlayerStats
+import com.ggetters.app.ui.central.viewmodels.HomePlayersViewModel
+import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import android.widget.ImageView
-import com.google.android.material.button.MaterialButton
-import android.app.AlertDialog
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class HomePlayersFragment : Fragment() {
+
+
+    private val activeModel: HomePlayersViewModel by viewModels()
+    private val sharedModel: HomeViewModel by activityViewModels()
+
+
     private lateinit var playerAdapter: PlayerAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyStateText: TextView
     private lateinit var summaryChipGroup: ChipGroup
+
     // Simulate user role for demo ("coach", "assistant", "player", "guardian")
     private val userRole = "coach"
     private var allPlayers: List<Player> = emptyList()
@@ -61,6 +71,7 @@ class HomePlayersFragment : Fragment() {
                 showFilterDialog()
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -175,7 +186,8 @@ class HomePlayersFragment : Fragment() {
         val assistantsCount = allPlayers.count { it.position == "Assistant" }
         val coachCount = allPlayers.count { it.position == "Coach" }
         summaryChipGroup.findViewById<Chip>(R.id.chipPlayersCount).text = "Players: $playersCount"
-        summaryChipGroup.findViewById<Chip>(R.id.chipAssistantsCount).text = "Assistants: $assistantsCount"
+        summaryChipGroup.findViewById<Chip>(R.id.chipAssistantsCount).text =
+            "Assistants: $assistantsCount"
         summaryChipGroup.findViewById<Chip>(R.id.chipCoachCount).text = "Coach: $coachCount"
     }
 
