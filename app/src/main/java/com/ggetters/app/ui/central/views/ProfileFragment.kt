@@ -1,8 +1,6 @@
 package com.ggetters.app.ui.central.views
 
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -12,55 +10,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
+import com.ggetters.app.ui.central.models.UserAccount
+import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
 import java.time.Instant
 import java.time.LocalDate
-
-/**
- * Simple Parcelable model for account switching.
- * Will be replaced with your real user-account model later.
- */
-data class UserAccount(
-    val id: String,
-    val name: String,
-    val email: String,
-    val avatar: String?,
-    val teamName: String,
-    val role: String,
-    val isActive: Boolean
-) : Parcelable {
-    private constructor(parcel: Parcel) : this(
-        parcel.readString().orEmpty(),
-        parcel.readString().orEmpty(),
-        parcel.readString().orEmpty(),
-        parcel.readString(),
-        parcel.readString().orEmpty(),
-        parcel.readString().orEmpty(),
-        parcel.readByte() != 0.toByte()
-    )
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(id)
-        parcel.writeString(name)
-        parcel.writeString(email)
-        parcel.writeString(avatar)
-        parcel.writeString(teamName)
-        parcel.writeString(role)
-        parcel.writeByte(if (isActive) 1 else 0)
-    }
-
-    override fun describeContents(): Int = 0
-
-    companion object CREATOR : Parcelable.Creator<UserAccount> {
-        override fun createFromParcel(parcel: Parcel): UserAccount =
-            UserAccount(parcel)
-        override fun newArray(size: Int): Array<UserAccount?> =
-            arrayOfNulls(size)
-    }
-}
 
 class ProfileFragment : Fragment() {
 
@@ -144,7 +100,15 @@ class ProfileFragment : Fragment() {
 
         // TODO: fetch available accounts from backend/local
         val availableAccounts = listOf(
-            UserAccount("1", "John Doe",  "john.doe@example.com",  null, "Goal Getters FC", "Player", true),
+            UserAccount(
+                "1",
+                "John Doe",
+                "john.doe@example.com",
+                null,
+                "Goal Getters FC",
+                "Player",
+                true
+            ),
             UserAccount("2", "Jane Smith","jane.smith@example.com",null, "City FC",           "Coach",  false)
         )
 

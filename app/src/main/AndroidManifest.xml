@@ -36,37 +36,7 @@
                 android:theme="@style/AppTheme" />
 
         <activity
-                android:name=".ui.startup.views.AgeVerificationActivity"
-                android:exported="false"
-                android:theme="@style/AppTheme" />
-
-        <activity
                 android:name=".ui.startup.views.ForgotPasswordActivity"
-                android:exported="false"
-                android:theme="@style/AppTheme" />
-
-        <activity
-                android:name=".ui.startup.views.AgeVerificationSuccessActivity"
-                android:exported="false"
-                android:theme="@style/AppTheme" />
-
-        <activity
-                android:name=".ui.startup.views.OnboardingActivity"
-                android:exported="false"
-                android:theme="@style/AppTheme" />
-
-        <activity
-                android:name=".ui.startup.views.AgeCheckActivity"
-                android:exported="false"
-                android:theme="@style/AppTheme" />
-
-        <activity
-                android:name=".ui.startup.views.AccessDeniedActivity"
-                android:exported="false"
-                android:theme="@style/AppTheme" />
-
-        <activity
-                android:name=".ui.startup.views.WelcomeActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
@@ -82,21 +52,6 @@
 
         <activity
                 android:name=".ui.central.views.NotificationsActivity"
-                android:exported="false"
-                android:theme="@style/AppTheme" />
-
-        <activity
-                android:name=".ui.startup.views.VerificationSuccessOverlay"
-                android:exported="false"
-                android:theme="@style/AppTheme" />
-
-        <activity
-                android:name=".ui.startup.views.JoinTeamActivity"
-                android:exported="false"
-                android:theme="@style/AppTheme" />
-
-        <activity
-                android:name=".ui.startup.views.CreateTeamActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
 
