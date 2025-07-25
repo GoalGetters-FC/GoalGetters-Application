@@ -16,6 +16,10 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import android.widget.ImageView
 import com.google.android.material.button.MaterialButton
+import android.app.AlertDialog
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 
 
 class HomePlayersFragment : Fragment() {
@@ -23,11 +27,11 @@ class HomePlayersFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyStateText: TextView
     private lateinit var summaryChipGroup: ChipGroup
-    private lateinit var filterChipGroup: ChipGroup
     // Simulate user role for demo ("coach", "assistant", "player", "guardian")
     private val userRole = "coach"
     private var allPlayers: List<Player> = emptyList()
     private var filteredPlayers: List<Player> = emptyList()
+    private var selectedFilter: String = "All"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,16 +44,61 @@ class HomePlayersFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupViews(view)
+        setHasOptionsMenu(true)
         setupRecyclerView()
         loadPlayers()
-        setupFilterChips()
+        // Remove setupFilterChips and all chipFilterXXX references
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_players_toolbar, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_filter -> {
+                showFilterDialog()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun setupViews(view: View) {
         recyclerView = view.findViewById(R.id.playersRecyclerView)
         emptyStateText = view.findViewById(R.id.emptyStateText)
         summaryChipGroup = view.findViewById(R.id.summaryChipGroup)
-        filterChipGroup = view.findViewById(R.id.filterChipGroup)
+    }
+
+    private fun showFilterDialog() {
+        val filters = arrayOf("All", "Players", "Coaches", "Goalkeepers", "New members")
+        val checkedItem = filters.indexOf(selectedFilter).coerceAtLeast(0)
+        AlertDialog.Builder(requireContext())
+            .setTitle("Filter Players")
+            .setSingleChoiceItems(filters, checkedItem) { dialog, which ->
+                selectedFilter = filters[which]
+            }
+            .setPositiveButton("Apply") { dialog, _ ->
+                applyFilter()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun applyFilter() {
+        // TODO: Use backend filtering if available
+        filteredPlayers = when (selectedFilter) {
+            "All" -> allPlayers
+            "Players" -> allPlayers.filter { it.position != "Coach" && it.position != "Assistant" }
+            "Coaches" -> allPlayers.filter { it.position == "Coach" }
+            "Goalkeepers" -> allPlayers.filter { it.position.equals("Goalkeeper", true) }
+            "New members" -> allPlayers.filter { it.position.equals("New", true) }
+            else -> allPlayers
+        }
+        playerAdapter.updatePlayers(filteredPlayers)
+        updateEmptyState(filteredPlayers.isEmpty())
     }
 
     private fun setupRecyclerView() {
@@ -130,22 +179,7 @@ class HomePlayersFragment : Fragment() {
         summaryChipGroup.findViewById<Chip>(R.id.chipCoachCount).text = "Coach: $coachCount"
     }
 
-    private fun setupFilterChips() {
-        filterChipGroup.setOnCheckedChangeListener { group, checkedId ->
-            filteredPlayers = when (checkedId) {
-                R.id.chipFilterAll -> allPlayers
-                R.id.chipFilterPlayers -> allPlayers.filter { it.position != "Coach" && it.position != "Assistant" }
-                R.id.chipFilterCoaches -> allPlayers.filter { it.position == "Coach" }
-                R.id.chipFilterGoalkeepers -> allPlayers.filter { it.position.equals("Goalkeeper", true) }
-                R.id.chipFilterNew -> allPlayers.filter { it.position.equals("New", true) }
-                else -> allPlayers
-            }
-            playerAdapter.updatePlayers(filteredPlayers)
-            updateEmptyState(filteredPlayers.isEmpty())
-        }
-        // Default selection
-        filterChipGroup.check(R.id.chipFilterAll)
-    }
+    // Remove setupFilterChips and all chipFilterXXX references
 
     private fun updateEmptyState(isEmpty: Boolean) {
         if (isEmpty) {

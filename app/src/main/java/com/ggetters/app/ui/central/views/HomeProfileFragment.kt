@@ -38,8 +38,6 @@ class TeamProfileFragment : Fragment() {
     private lateinit var seasonText: TextView
     private lateinit var contactText: TextView
     private lateinit var roleChips: ChipGroup
-    private lateinit var adminActions: View
-    private lateinit var sharedActions: View
     private lateinit var btnViewPlayers: MaterialButton
     private lateinit var btnViewSchedule: MaterialButton
     private lateinit var btnLeaveTeam: MaterialButton
@@ -76,8 +74,6 @@ class TeamProfileFragment : Fragment() {
         seasonText = view.findViewById(R.id.seasonText)
         contactText = view.findViewById(R.id.contactText)
         roleChips = view.findViewById(R.id.roleChips)
-        adminActions = view.findViewById(R.id.adminActions)
-        sharedActions = view.findViewById(R.id.sharedActions)
         btnViewPlayers = view.findViewById(R.id.btnViewPlayers)
         btnViewSchedule = view.findViewById(R.id.btnViewSchedule)
         btnLeaveTeam = view.findViewById(R.id.btnLeaveTeam)
@@ -112,9 +108,17 @@ class TeamProfileFragment : Fragment() {
     private fun setupRoleVisibility() {
         // Only show admin actions for coach/assistant
         if (userRole == "coach" || userRole == "assistant") {
-            adminActions.visibility = View.VISIBLE
+            // Hide buttons that are only for coach/assistant
+            btnInvite.visibility = View.VISIBLE
+            btnEditTeam.visibility = View.VISIBLE
+            btnManageRoles.visibility = View.VISIBLE
+            btnDeleteTeam.visibility = View.VISIBLE
         } else {
-            adminActions.visibility = View.GONE
+            // Hide buttons that are only for coach/assistant
+            btnInvite.visibility = View.GONE
+            btnEditTeam.visibility = View.GONE
+            btnManageRoles.visibility = View.GONE
+            btnDeleteTeam.visibility = View.GONE
         }
         // Only show leave team for player/guardian
         btnLeaveTeam.visibility = if (userRole == "player" || userRole == "guardian") View.VISIBLE else View.GONE
