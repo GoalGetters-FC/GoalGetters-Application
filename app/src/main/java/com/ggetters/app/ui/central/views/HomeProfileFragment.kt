@@ -4,15 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.TeamStats
-import android.widget.ImageView
+import com.ggetters.app.ui.central.viewmodels.HomeProfileViewModel
+import com.ggetters.app.ui.central.viewmodels.HomeViewModel
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import com.google.android.material.button.MaterialButton
-import com.ggetters.app.ui.central.views.HomePlayersFragment
 
 /**
  * Lightweight model just for this demo screen.
@@ -27,6 +29,11 @@ private data class ViewTeam(
 )
 
 class TeamProfileFragment : Fragment() {
+
+
+    private val activeModel: HomeProfileViewModel by viewModels()
+    private val sharedModel: HomeViewModel by activityViewModels()
+
 
     private lateinit var teamBannerImage: ImageView
     private lateinit var teamLogo: ImageView
@@ -121,7 +128,8 @@ class TeamProfileFragment : Fragment() {
             btnDeleteTeam.visibility = View.GONE
         }
         // Only show leave team for player/guardian
-        btnLeaveTeam.visibility = if (userRole == "player" || userRole == "guardian") View.VISIBLE else View.GONE
+        btnLeaveTeam.visibility =
+            if (userRole == "player" || userRole == "guardian") View.VISIBLE else View.GONE
     }
 
     private fun setupActions() {
