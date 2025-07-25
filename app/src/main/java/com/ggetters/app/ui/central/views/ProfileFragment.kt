@@ -9,16 +9,28 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import com.ggetters.app.R
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.ui.central.models.UserAccount
 import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
+import com.ggetters.app.ui.central.viewmodels.HomePlayersViewModel
+import com.ggetters.app.ui.central.viewmodels.HomeViewModel
+import com.ggetters.app.ui.central.viewmodels.ProfileViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
 import java.time.LocalDate
+import kotlin.getValue
 
+@AndroidEntryPoint
 class ProfileFragment : Fragment() {
+
+
+    private val model: ProfileViewModel by viewModels()
+    
 
     private lateinit var profileAvatar: ImageView
     private lateinit var userNameText: TextView
