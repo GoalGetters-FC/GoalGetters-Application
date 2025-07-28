@@ -58,4 +58,11 @@ interface TeamDao {
      */
     @Query("DELETE FROM team WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    /**
+     * Delete all teams from the database.
+     * This operation is irreversible and will remove all records.
+     */
+    @Query("DELETE FROM team")
+    suspend fun deleteAll()
 }

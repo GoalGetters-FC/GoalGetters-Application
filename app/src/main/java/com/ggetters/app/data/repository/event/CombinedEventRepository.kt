@@ -1,5 +1,6 @@
 package com.ggetters.app.data.repository.event
 
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Event
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -50,6 +51,7 @@ class CombinedEventRepository @Inject constructor(
         try {
             online.upsert(entity)
         } catch (e: Exception) {
+            Clogger.e("DevClass", "Failed to upsert event online: ${e.message}")
             // TODO: Backend - Queue for retry
             // TODO: Backend - Log error for monitoring
         }
@@ -65,6 +67,7 @@ class CombinedEventRepository @Inject constructor(
         try {
             online.delete(entity)
         } catch (e: Exception) {
+            Clogger.e("DevClass", "Failed to delete event online: ${e.message}")
             // TODO: Backend - Queue for retry
             // TODO: Backend - Log error for monitoring
         }

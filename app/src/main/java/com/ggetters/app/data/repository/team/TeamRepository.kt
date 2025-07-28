@@ -8,4 +8,7 @@ import com.ggetters.app.data.repository.CrudRepository
 interface TeamRepository : CrudRepository<Team> {
     /** Pull all Teams from Firestore and upsert into Room */
     suspend fun sync()
+
+    suspend fun deleteAll()
+
 }

@@ -51,6 +51,10 @@ interface EventDao {
     @Delete
     suspend fun delete(event: Event)
 
+    //delete all
+    @Query("DELETE FROM event")
+    suspend fun deleteAll()
+
     @Query("DELETE FROM event WHERE id = :id")
     suspend fun deleteById(id: String)
 

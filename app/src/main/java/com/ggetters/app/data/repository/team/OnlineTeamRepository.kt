@@ -23,6 +23,9 @@ class OnlineTeamRepository @Inject constructor(
         fs.delete(entity.id)                        // entity.id is String
     }
 
+    override suspend fun deleteAll() {
+        // Online-only: no-op
+    }
     override suspend fun sync() {
         // no-op
     }

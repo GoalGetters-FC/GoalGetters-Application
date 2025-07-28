@@ -18,4 +18,7 @@ interface BroadcastDao {
 
     @Delete
     suspend fun delete(broadcast: Broadcast)
+
+    @Query("DELETE FROM broadcast")
+    suspend fun deleteAll()
 }

@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
 import com.ggetters.app.data.local.converters.DateConverter
 import com.ggetters.app.data.local.converters.EnumConverter
 import com.ggetters.app.data.local.converters.UuidConverter
+import com.ggetters.app.data.local.dao.AttendanceDao
 import com.ggetters.app.data.local.dao.BroadcastDao
 import com.ggetters.app.data.local.dao.BroadcastStatusDao
 import com.ggetters.app.data.local.dao.TeamDao
@@ -63,7 +64,9 @@ abstract class AppDatabase : RoomDatabase() {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext, AppDatabase::class.java, DATABASE_NAME
-                ).build()
+                )
+                    .fallbackToDestructiveMigration(true) // Dev Class temp test
+                    .build()
                 INSTANCE = instance
                 instance
             }
@@ -79,6 +82,9 @@ abstract class AppDatabase : RoomDatabase() {
     
     // TODO: Backend - Add Event-related DAOs
     abstract fun eventDao(): EventDao
+
+    abstract fun attendanceDao(): AttendanceDao
+
     // TODO: Backend - Create and add AttendanceDao
     // TODO: Backend - Create and add LineupDao  
     // TODO: Backend - Create and add PerformanceLogDao

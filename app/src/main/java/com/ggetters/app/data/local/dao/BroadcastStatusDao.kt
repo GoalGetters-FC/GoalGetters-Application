@@ -7,6 +7,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface BroadcastStatusDao {
 
+    @Query("SELECT * FROM broadcast_status")
+    fun getAll(): Flow<List<BroadcastStatus>>
+
     @Query("SELECT * FROM broadcast_status WHERE broadcast_id = :broadcastId")
     fun getAllForBroadcast(broadcastId: String): Flow<List<BroadcastStatus>>
 
@@ -22,4 +25,7 @@ interface BroadcastStatusDao {
 
     @Delete
     suspend fun delete(status: BroadcastStatus)
+
+    @Query("DELETE FROM broadcast_status")
+    suspend fun deleteAll()
 }

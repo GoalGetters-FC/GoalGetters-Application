@@ -1,5 +1,6 @@
 package com.ggetters.app.data.repository.user
 
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.User
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
@@ -19,12 +20,20 @@ class CombinedUserRepository @Inject constructor(
 
     override suspend fun upsert(entity: User) {
         offline.upsert(entity)
-        online.upsert(entity)
+        try {
+            online.upsert(entity)
+        } catch (e: Exception) {
+            Clogger.e("DevClass", "Failed to upsert user online: ${e.message}")
+        }
     }
 
     override suspend fun delete(entity: User) {
         offline.delete(entity)
-        online.delete(entity)
+        try {
+            online.delete(entity)
+        } catch (e: Exception) {
+            Clogger.e("DevClass", "Failed to delete user online: ${e.message}")
+        }
     }
 
     override suspend fun getLocalByAuthId(authId: String): User? =

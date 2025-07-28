@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.room.RoomDatabase
 import com.ggetters.app.core.services.AuthService
 import com.ggetters.app.data.local.AppDatabase
+import com.ggetters.app.data.local.dao.AttendanceDao
 import com.ggetters.app.data.local.dao.BroadcastDao
 import com.ggetters.app.data.local.dao.BroadcastStatusDao
 import com.ggetters.app.data.local.dao.TeamDao
@@ -116,7 +117,11 @@ object DataModule {
     @Singleton
     fun provideEventDao(db: AppDatabase): EventDao = 
         db.eventDao()
-        
+
+    @Provides
+    @Singleton
+    fun provideAttendanceDao(db: AppDatabase): AttendanceDao = db.attendanceDao()
+
     // TODO: Backend - Add AttendanceDao provider
     // TODO: Backend - Add LineupDao provider
     // TODO: Backend - Add PerformanceLogDao provider

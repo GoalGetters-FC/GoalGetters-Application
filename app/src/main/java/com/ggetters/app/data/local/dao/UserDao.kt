@@ -61,4 +61,11 @@ interface UserDao {
      */
     @Query("SELECT * FROM user WHERE auth_id = :authId LIMIT 1")
     suspend fun getByAuthId(authId: String): User?
+
+    /**
+     * Delete all users from the database.
+     * This is a bulk operation that removes all user records.
+     */
+    @Query("DELETE FROM user")
+    suspend fun deleteAll()
 }

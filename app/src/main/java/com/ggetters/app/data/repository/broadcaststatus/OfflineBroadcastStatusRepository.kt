@@ -9,6 +9,7 @@ class OfflineBroadcastStatusRepository @Inject constructor(
     private val dao: BroadcastStatusDao
 ) : BroadcastStatusRepository {
 
+    override fun all(): Flow<List<BroadcastStatus>> = dao.getAll()
     override fun allForBroadcast(broadcastId: String): Flow<List<BroadcastStatus>> =
         dao.getAllForBroadcast(broadcastId)
 
