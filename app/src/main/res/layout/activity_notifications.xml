@@ -6,14 +6,59 @@
     android:orientation="vertical"
     android:background="@color/white">
 
+    <!-- Toolbar with Mark All as Read button -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/white"
         android:elevation="4dp"
-        app:titleTextColor="@color/black" />
+        app:titleTextColor="@color/black"
+        app:title="Notifications"
+        app:menu="@menu/menu_notifications_toolbar" />
 
+    <!-- Filter Tabs -->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/filterChipGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        app:singleSelection="true"
+        app:selectionRequired="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="All"
+            android:checked="true"
+            style="@style/Widget.GoalGetters.Chip.Filter" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipGames"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Games"
+            style="@style/Widget.GoalGetters.Chip.Filter" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipPractices"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Practices"
+            style="@style/Widget.GoalGetters.Chip.Filter" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipAnnouncements"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Announcements"
+            style="@style/Widget.GoalGetters.Chip.Filter" />
+
+    </com.google.android.material.chip.ChipGroup>
+
+    <!-- Notifications List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/notificationsRecyclerView"
         android:layout_width="match_parent"

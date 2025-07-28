@@ -1,5 +1,6 @@
 package com.ggetters.app.ui.central.views
 
+import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.MotionEvent
@@ -84,13 +85,14 @@ class HomeActivity : AppCompatActivity() {
 
 
     private fun setupViews() {
-        // TODO: Launch notifications activity
         binds.notificationsIcon.setOnClickListener {
             Clogger.d(
                 TAG, "Notifications icon clicked"
             )
-
-            toggleNotificationBadge()
+            
+            // Launch NotificationsActivity
+            val intent = Intent(this, NotificationsActivity::class.java)
+            startActivity(intent)
         }
     }
 

@@ -356,7 +356,11 @@
 ## 7. Notifications
 
 ### Current Implementation Status
-- ✅ Basic notifications UI implemented
+- ✅ Enhanced notifications UI implemented
+- ✅ Notification filtering with chips
+- ✅ Mark all as read functionality
+- ✅ Notification details dialog
+- ✅ Proper notification icons and styling
 - ❌ Backend integration missing
 - ❌ Push notifications not implemented
 - ❌ Notification preferences missing
@@ -366,15 +370,23 @@
 #### Notifications Activity (`NotificationsActivity`)
 ```kotlin
 // TODO: Backend - Implement backend integration for notifications
-// TODO: Backend - Add push notification support
+// TODO: Backend - Add push notification support (Firebase Cloud Messaging)
 // TODO: Backend - Implement notification preferences
-// TODO: Backend - Add notification filtering
-// TODO: Backend - Implement notification actions
-// TODO: Backend - Add notification history
-// TODO: Backend - Implement notification badges
+// TODO: Backend - Add real-time notification updates
+// TODO: Backend - Implement notification actions (RSVP, Join, etc.)
+// TODO: Backend - Add notification history and pagination
+// TODO: Backend - Implement notification badges with unread count
 // TODO: Backend - Add notification sound settings
 // TODO: Backend - Implement notification scheduling
+// TODO: Backend - Add notification templates for different types
 ```
+
+#### Notification Components
+- `PushNotificationManager` - Firebase Cloud Messaging integration
+- `NotificationPreferencesFragment` - Notification settings
+- `NotificationHistoryFragment` - Notification history
+- `NotificationBadgeManager` - Badge management with unread count
+- `NotificationTemplateManager` - Template-based notifications
 
 #### Notification Components
 - `NotificationPreferencesFragment` - Notification settings

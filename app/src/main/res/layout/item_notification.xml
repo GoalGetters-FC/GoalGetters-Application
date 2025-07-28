@@ -5,21 +5,76 @@
     android:layout_height="wrap_content"
     android:background="@color/white"
     android:padding="16dp"
-    android:layout_marginBottom="8dp">
+    android:layout_marginBottom="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
 
-    <TextView
-        android:id="@+id/notificationMessage"
+    <!-- Notification Icon -->
+    <ImageView
+        android:id="@+id/notificationIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_unicons_bell_24"
+        android:background="@drawable/notification_icon_background"
+        android:padding="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Notification Content -->
+    <LinearLayout
+        android:id="@+id/notificationContent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Notification message"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
+        android:orientation="vertical"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintStart_toEndOf="@id/notificationIcon"
         app:layout_constraintEnd_toStartOf="@id/actionButtons"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginEnd="16dp" />
+        app:layout_constraintBottom_toBottomOf="parent">
 
+        <!-- Title -->
+        <TextView
+            android:id="@+id/notificationTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Notification Title"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/variable_inter"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <!-- Subtitle -->
+        <TextView
+            android:id="@+id/notificationSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Notification subtitle"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:fontFamily="@font/variable_inter"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:layout_marginTop="2dp" />
+
+        <!-- Timestamp -->
+        <TextView
+            android:id="@+id/notificationTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2h ago"
+            android:textColor="@color/text_tertiary"
+            android:textSize="12sp"
+            android:fontFamily="@font/variable_inter"
+            android:layout_marginTop="4dp" />
+
+    </LinearLayout>
+
+    <!-- Action Buttons -->
     <LinearLayout
         android:id="@+id/actionButtons"
         android:layout_width="wrap_content"
@@ -31,18 +86,18 @@
 
         <ImageButton
             android:id="@+id/markSeenButton"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_unicons_clipboard_notes_24"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_unicons_eye_24"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Mark as seen"
             android:layout_marginEnd="8dp" />
 
         <ImageButton
             android:id="@+id/deleteButton"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_unicons_archive_alt"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_unicons_trash_24"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Delete notification" />
 
