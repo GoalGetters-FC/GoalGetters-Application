@@ -22,6 +22,10 @@ class OfflineTeamRepository @Inject constructor(
     override suspend fun delete(entity: Team) =
         dao.deleteById(entity.id)
 
+    override suspend fun deleteAll(){
+        dao.deleteAll()                                  // delete all teams
+    }
+
     override suspend fun sync() {
         // no-op
     }

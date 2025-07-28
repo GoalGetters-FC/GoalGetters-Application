@@ -3,11 +3,14 @@ package com.ggetters.app.data.repository.broadcaststatus
 import com.ggetters.app.data.model.BroadcastStatus
 import com.ggetters.app.data.remote.firestore.BroadcastStatusFirestore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import javax.inject.Inject
 
 class OnlineBroadcastStatusRepository @Inject constructor(
     private val fs: BroadcastStatusFirestore
 ) : BroadcastStatusRepository {
+
+    override fun all(): Flow<List<BroadcastStatus>> = emptyFlow()
 
     override fun allForBroadcast(broadcastId: String): Flow<List<BroadcastStatus>> =
         fs.observeAll(broadcastId)

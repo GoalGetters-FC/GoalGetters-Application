@@ -6,7 +6,11 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Repository for BroadcastStatus, keyed by (broadcastId, recipientId).
  */
+
 interface BroadcastStatusRepository {
+    /** Stream every status in the table */
+    fun all(): Flow<List<BroadcastStatus>>
+
     /** Stream all statuses for a given broadcast */
     fun allForBroadcast(broadcastId: String): Flow<List<BroadcastStatus>>
 

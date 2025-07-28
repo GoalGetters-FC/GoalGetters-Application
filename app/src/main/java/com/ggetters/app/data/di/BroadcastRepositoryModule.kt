@@ -14,16 +14,17 @@ import javax.inject.Singleton
 object BroadcastRepositoryModule {
 
     @Provides @Singleton
-    fun provideOfflineBroadcastRepo(dao: BroadcastDao) =
+    fun provideOfflineBroadcastRepo(dao: BroadcastDao): OfflineBroadcastRepository =
         OfflineBroadcastRepository(dao)
 
     @Provides @Singleton
-    fun provideOnlineBroadcastRepo(fs: BroadcastFirestore) =
+    fun provideOnlineBroadcastRepo(fs: BroadcastFirestore): OnlineBroadcastRepository =
         OnlineBroadcastRepository(fs)
 
     @Provides @Singleton
-    fun provideBroadcastRepo(
+    fun provideBroadcastRepository(
         offline: OfflineBroadcastRepository,
         online: OnlineBroadcastRepository
-    ) = CombinedBroadcastRepository(offline, online)
+    ): BroadcastRepository =
+        CombinedBroadcastRepository(offline, online)
 }
