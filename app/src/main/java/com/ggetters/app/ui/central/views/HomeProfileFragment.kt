@@ -1,5 +1,6 @@
 package com.ggetters.app.ui.central.views
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,7 @@ import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.snackbar.Snackbar
 
 /**
  * Lightweight model just for this demo screen.
@@ -30,10 +32,8 @@ private data class ViewTeam(
 
 class TeamProfileFragment : Fragment() {
 
-
     private val activeModel: HomeProfileViewModel by viewModels()
     private val sharedModel: HomeViewModel by activityViewModels()
-
 
     private lateinit var teamBannerImage: ImageView
     private lateinit var teamLogo: ImageView
@@ -53,6 +53,7 @@ class TeamProfileFragment : Fragment() {
     private lateinit var btnManageRoles: MaterialButton
     private lateinit var btnDeleteTeam: MaterialButton
 
+    // TODO: Backend - Get user role from backend/UserRepository
     // Simulate user role for demo ("coach", "assistant", "player", "guardian")
     private val userRole = "coach"
 
@@ -91,7 +92,7 @@ class TeamProfileFragment : Fragment() {
     }
 
     private fun loadTeamProfile() {
-        // TODO: Fetch team data from backend (replace sample data)
+        // TODO: Backend - Fetch team data from backend (replace sample data)
         // val team = teamRepo.getById(currentTeamId)
         // val stats = teamStatsRepo.getStatsFor(team.id)
         teamBannerImage.setImageResource(R.drawable.team_banner_default)
@@ -103,7 +104,8 @@ class TeamProfileFragment : Fragment() {
         locationText.text = "Location: Main Stadium" // TODO: team.location
         seasonText.text = "Season: 2025/2026" // TODO: team.season
         contactText.text = "Contact: coach@email.com" // TODO: team.contact
-        // TODO: Set role chips counts from backend
+        
+        // TODO: Backend - Set role chips counts from backend
         val chipCoach = roleChips.findViewById<Chip>(R.id.chipCoach)
         chipCoach.text = "Coach: 1" // TODO: team.coachCount
         val chipAssistants = roleChips.findViewById<Chip>(R.id.chipAssistants)
@@ -113,46 +115,178 @@ class TeamProfileFragment : Fragment() {
     }
 
     private fun setupRoleVisibility() {
-        // Only show admin actions for coach/assistant
-        if (userRole == "coach" || userRole == "assistant") {
-            // Hide buttons that are only for coach/assistant
+        // Role-based visibility according to specifications
+        when (userRole) {
+            "coach" -> {
+                // Coach: Full edit, invite, delete, assign roles
             btnInvite.visibility = View.VISIBLE
             btnEditTeam.visibility = View.VISIBLE
             btnManageRoles.visibility = View.VISIBLE
             btnDeleteTeam.visibility = View.VISIBLE
-        } else {
-            // Hide buttons that are only for coach/assistant
+                btnLeaveTeam.visibility = View.GONE
+            }
+            "assistant" -> {
+                // Assistant: Limited edit, manage schedule, assist lineup
+                btnInvite.visibility = View.VISIBLE
+                btnEditTeam.visibility = View.VISIBLE
+                btnManageRoles.visibility = View.VISIBLE
+                btnDeleteTeam.visibility = View.GONE
+                btnLeaveTeam.visibility = View.GONE
+            }
+            "player" -> {
+                // Player: View only; RSVP to events
+                btnInvite.visibility = View.GONE
+                btnEditTeam.visibility = View.GONE
+                btnManageRoles.visibility = View.GONE
+                btnDeleteTeam.visibility = View.GONE
+                btnLeaveTeam.visibility = View.VISIBLE
+            }
+            "guardian" -> {
+                // Guardian: View child's team, calendar, stats
+                btnInvite.visibility = View.GONE
+                btnEditTeam.visibility = View.GONE
+                btnManageRoles.visibility = View.GONE
+                btnDeleteTeam.visibility = View.GONE
+                btnLeaveTeam.visibility = View.VISIBLE
+            }
+            else -> {
+                // Default: Hide all admin actions
             btnInvite.visibility = View.GONE
             btnEditTeam.visibility = View.GONE
             btnManageRoles.visibility = View.GONE
             btnDeleteTeam.visibility = View.GONE
+                btnLeaveTeam.visibility = View.GONE
+            }
         }
-        // Only show leave team for player/guardian
-        btnLeaveTeam.visibility =
-            if (userRole == "player" || userRole == "guardian") View.VISIBLE else View.GONE
     }
 
     private fun setupActions() {
         btnViewPlayers.setOnClickListener {
-            // TODO: Navigate to Players screen
+            // Navigate to Players screen
+            navigateToPlayersScreen()
         }
+        
         btnViewSchedule.setOnClickListener {
-            // TODO: Navigate to Schedule/Calendar screen
+            // Navigate to Schedule/Calendar screen
+            navigateToCalendarScreen()
         }
+        
         btnLeaveTeam.setOnClickListener {
-            // TODO: Show leave team confirmation and call backend to leave team
+            showLeaveTeamConfirmation()
         }
+        
         btnInvite.setOnClickListener {
-            // TODO: Show invite code/QR/share dialog (fetch invite code from backend)
+            showInviteDialog()
         }
+        
         btnEditTeam.setOnClickListener {
-            // TODO: Show edit team info dialog/screen (update backend)
+            showEditTeamDialog()
         }
+        
         btnManageRoles.setOnClickListener {
-            // TODO: Show manage roles dialog/screen (update backend)
+            showManageRolesDialog()
         }
+        
         btnDeleteTeam.setOnClickListener {
-            // TODO: Show delete team confirmation and call backend to delete team
+            showDeleteTeamConfirmation()
         }
+    }
+
+    private fun navigateToPlayersScreen() {
+        // TODO: Backend - Log navigation analytics
+        val playersFragment = HomePlayersFragment()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, playersFragment)
+            .addToBackStack("team_profile_to_players")
+            .commit()
+    }
+
+    private fun navigateToCalendarScreen() {
+        // TODO: Backend - Log navigation analytics
+        val calendarFragment = HomeCalendarFragment()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, calendarFragment)
+            .addToBackStack("team_profile_to_calendar")
+            .commit()
+    }
+
+    private fun showLeaveTeamConfirmation() {
+        val dialog = AlertDialog.Builder(requireContext(), R.style.Theme_GoalGetters_Dialog)
+            .setTitle("Leave Team")
+            .setMessage("Are you sure you want to leave this team? You can rejoin later with an invite code.")
+            .setPositiveButton("Leave Team") { _, _ ->
+                // TODO: Backend - Call backend to leave team
+                // teamRepo.leaveTeam(currentTeamId, currentUserId)
+                Snackbar.make(requireView(), "Left team successfully", Snackbar.LENGTH_SHORT).show()
+                // TODO: Navigate to team selection or onboarding
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+        
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(resources.getColor(R.color.error, null))
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(resources.getColor(R.color.text_secondary, null))
+        }
+        
+        dialog.show()
+    }
+
+    private fun showInviteDialog() {
+        // TODO: Backend - Fetch invite code from backend
+        val inviteCode = "U16-LIONS-2025" // TODO: team.inviteCode
+        
+        val dialog = AlertDialog.Builder(requireContext(), R.style.Theme_GoalGetters_Dialog)
+            .setTitle("Invite New Members")
+            .setMessage("Share this invite code with new members:\n\n$inviteCode")
+            .setPositiveButton("Copy Code") { _, _ ->
+                // TODO: Copy to clipboard
+                Snackbar.make(requireView(), "Invite code copied to clipboard", Snackbar.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Share") { _, _ ->
+                // TODO: Share via intent (WhatsApp, Email, etc.)
+                Snackbar.make(requireView(), "Share functionality coming soon", Snackbar.LENGTH_SHORT).show()
+            }
+            .setNeutralButton("Close", null)
+            .create()
+        
+        dialog.setOnShowListener {
+            // Apply custom colors to buttons
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(resources.getColor(R.color.primary, null))
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(resources.getColor(R.color.text_secondary, null))
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.setTextColor(resources.getColor(R.color.text_secondary, null))
+        }
+        
+        dialog.show()
+    }
+
+    private fun showEditTeamDialog() {
+        // TODO: Backend - Show edit team info dialog/screen
+        Snackbar.make(requireView(), "Edit team functionality coming soon", Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun showManageRolesDialog() {
+        // TODO: Backend - Show manage roles dialog/screen
+        Snackbar.make(requireView(), "Role management functionality coming soon", Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun showDeleteTeamConfirmation() {
+        val dialog = AlertDialog.Builder(requireContext(), R.style.Theme_GoalGetters_Dialog)
+            .setTitle("Delete Team")
+            .setMessage("Are you sure you want to delete this team? This action cannot be undone and will remove all team data.")
+            .setPositiveButton("Delete Team") { _, _ ->
+                // TODO: Backend - Call backend to delete team
+                // teamRepo.deleteTeam(currentTeamId)
+                Snackbar.make(requireView(), "Team deleted successfully", Snackbar.LENGTH_SHORT).show()
+                // TODO: Navigate to team selection or onboarding
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+        
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(resources.getColor(R.color.error, null))
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(resources.getColor(R.color.text_secondary, null))
+        }
+        
+        dialog.show()
     }
 }

@@ -22,21 +22,21 @@ import com.ggetters.app.ui.central.viewmodels.HomePlayersViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class HomePlayersFragment : Fragment() {
 
-
     private val activeModel: HomePlayersViewModel by viewModels()
     private val sharedModel: HomeViewModel by activityViewModels()
-
 
     private lateinit var playerAdapter: PlayerAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyStateText: TextView
     private lateinit var summaryChipGroup: ChipGroup
 
+    // TODO: Backend - Get user role from backend/UserRepository
     // Simulate user role for demo ("coach", "assistant", "player", "guardian")
     private val userRole = "coach"
     private var allPlayers: List<Player> = emptyList()
@@ -57,7 +57,6 @@ class HomePlayersFragment : Fragment() {
         setHasOptionsMenu(true)
         setupRecyclerView()
         loadPlayers()
-        // Remove setupFilterChips and all chipFilterXXX references
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -71,7 +70,6 @@ class HomePlayersFragment : Fragment() {
                 showFilterDialog()
                 true
             }
-
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -99,7 +97,7 @@ class HomePlayersFragment : Fragment() {
     }
 
     private fun applyFilter() {
-        // TODO: Use backend filtering if available
+        // TODO: Backend - Use backend filtering if available
         filteredPlayers = when (selectedFilter) {
             "All" -> allPlayers
             "Players" -> allPlayers.filter { it.position != "Coach" && it.position != "Assistant" }
@@ -115,18 +113,120 @@ class HomePlayersFragment : Fragment() {
     private fun setupRecyclerView() {
         playerAdapter = PlayerAdapter(
             onPlayerClick = { player ->
-                // TODO: Navigate to player profile/details screen
+                // Navigate to player profile/details screen
+                navigateToPlayerProfile(player)
             },
             onPlayerLongClick = { player ->
-                // TODO: Show player actions bottom sheet/modal (admin actions: edit role, remove, message, etc. - call backend as needed)
+                // Show player actions bottom sheet/modal (admin actions: edit role, remove, message, etc.)
+                if (userRole == "coach" || userRole == "assistant") {
+                    showPlayerActionsDialog(player)
+                } else if (userRole == "guardian") {
+                    showGuardianActionsDialog(player)
+                }
             }
         )
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = playerAdapter
     }
 
+    private fun navigateToPlayerProfile(player: Player) {
+        // TODO: Backend - Log navigation analytics
+        val playerProfileFragment = PlayerProfileFragment.newInstance(player.id)
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, playerProfileFragment)
+            .addToBackStack("players_to_player_profile")
+            .commit()
+    }
+
+    private fun showPlayerActionsDialog(player: Player) {
+        val actions = arrayOf("View Profile", "Edit Role", "Remove from Team", "Send Message")
+        AlertDialog.Builder(requireContext())
+            .setTitle(player.name)
+            .setItems(actions) { _, which ->
+                when (which) {
+                    0 -> {
+                        // View Profile
+                        navigateToPlayerProfile(player)
+                    }
+                    1 -> {
+                        // Edit Role
+                        showEditRoleDialog(player)
+                    }
+                    2 -> {
+                        // Remove from Team
+                        showRemovePlayerConfirmation(player)
+                    }
+                    3 -> {
+                        // Send Message
+                        showSendMessageDialog(player)
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showGuardianActionsDialog(player: Player) {
+        val actions = arrayOf("Approve Attendance")
+        AlertDialog.Builder(requireContext())
+            .setTitle(player.name)
+            .setItems(actions) { _, which ->
+                when (which) {
+                    0 -> {
+                        // Approve Attendance
+                        approveAttendance(player)
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showEditRoleDialog(player: Player) {
+        val roles = arrayOf("Player", "Assistant", "Coach")
+        val currentRoleIndex = roles.indexOf(player.position).coerceAtLeast(0)
+        
+        AlertDialog.Builder(requireContext())
+            .setTitle("Edit Role for ${player.name}")
+            .setSingleChoiceItems(roles, currentRoleIndex) { dialog, which ->
+                val newRole = roles[which]
+                // TODO: Backend - Call backend to update player role
+                // playerRepo.updatePlayerRole(player.id, newRole)
+                Snackbar.make(requireView(), "Role updated to $newRole", Snackbar.LENGTH_SHORT).show()
+                loadPlayers() // Refresh the list
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showRemovePlayerConfirmation(player: Player) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Remove Player")
+            .setMessage("Are you sure you want to remove ${player.name} from the team?")
+            .setPositiveButton("Remove") { _, _ ->
+                // TODO: Backend - Call backend to remove player from team
+                // playerRepo.removeFromTeam(player.id, currentTeamId)
+                Snackbar.make(requireView(), "${player.name} removed from team", Snackbar.LENGTH_SHORT).show()
+                loadPlayers() // Refresh the list
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showSendMessageDialog(player: Player) {
+        // TODO: Backend - Implement messaging functionality
+        Snackbar.make(requireView(), "Messaging functionality coming soon", Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun approveAttendance(player: Player) {
+        // TODO: Backend - Call backend to approve attendance
+        // attendanceRepo.approveAttendance(player.id, currentEventId)
+        Snackbar.make(requireView(), "Attendance approved for ${player.name}", Snackbar.LENGTH_SHORT).show()
+    }
+
     private fun loadPlayers() {
-        // TODO: Fetch players from backend (replace sample data)
+        // TODO: Backend - Fetch players from backend (replace sample data)
         // val players = playerRepo.getPlayersForTeam(teamId)
         allPlayers = listOf(
             Player(
@@ -175,7 +275,15 @@ class HomePlayersFragment : Fragment() {
                 stats = PlayerStats(goals = 0, assists = 1, matches = 20)
             )
         )
-        filteredPlayers = allPlayers
+        
+        // Guardian logic: only show their child
+        if (userRole == "guardian") {
+            // TODO: Backend - Fetch guardian's child from backend
+            filteredPlayers = allPlayers.filter { it.name == "John Doe" } // Replace with real child check
+        } else {
+            filteredPlayers = allPlayers
+        }
+        
         updateSummaryChips()
         playerAdapter.updatePlayers(filteredPlayers)
         updateEmptyState(filteredPlayers.isEmpty())
@@ -185,21 +293,14 @@ class HomePlayersFragment : Fragment() {
         val playersCount = allPlayers.count { it.position != "Coach" && it.position != "Assistant" }
         val assistantsCount = allPlayers.count { it.position == "Assistant" }
         val coachCount = allPlayers.count { it.position == "Coach" }
+        
         summaryChipGroup.findViewById<Chip>(R.id.chipPlayersCount).text = "Players: $playersCount"
-        summaryChipGroup.findViewById<Chip>(R.id.chipAssistantsCount).text =
-            "Assistants: $assistantsCount"
+        summaryChipGroup.findViewById<Chip>(R.id.chipAssistantsCount).text = "Assistants: $assistantsCount"
         summaryChipGroup.findViewById<Chip>(R.id.chipCoachCount).text = "Coach: $coachCount"
     }
 
-    // Remove setupFilterChips and all chipFilterXXX references
-
     private fun updateEmptyState(isEmpty: Boolean) {
-        if (isEmpty) {
-            recyclerView.visibility = View.GONE
-            emptyStateText.visibility = View.VISIBLE
-        } else {
-            recyclerView.visibility = View.VISIBLE
-            emptyStateText.visibility = View.GONE
-        }
+        emptyStateText.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        recyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 } 

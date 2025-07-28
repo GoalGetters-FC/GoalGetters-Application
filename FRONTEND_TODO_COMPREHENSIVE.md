@@ -30,47 +30,47 @@
 
 #### Sign In Screen (`SignInActivity`)
 ```kotlin
-// TODO: Implement comprehensive form validation
-// TODO: Add loading states during authentication
-// TODO: Implement proper error handling with user-friendly messages
-// TODO: Add "Remember Me" functionality
-// TODO: Implement biometric authentication
-// TODO: Add Google SSO integration
-// TODO: Add password visibility toggle
-// TODO: Implement proper keyboard handling
-// TODO: Add analytics tracking for login attempts
+// TODO: Backend - Implement comprehensive form validation
+// TODO: Backend - Add loading states during authentication
+// TODO: Backend - Implement proper error handling with user-friendly messages
+// TODO: Backend - Add "Remember Me" functionality
+// TODO: Backend - Implement biometric authentication
+// TODO: Backend - Add Google SSO integration
+// TODO: Backend - Add password visibility toggle
+// TODO: Backend - Implement proper keyboard handling
+// TODO: Backend - Add analytics tracking for login attempts
 ```
 
 #### Sign Up Screen (`SignUpActivity`)
 ```kotlin
-// TODO: Implement comprehensive form validation
-// TODO: Add password strength indicator
-// TODO: Implement email verification flow
-// TODO: Add terms and conditions acceptance
-// TODO: Implement proper error handling
-// TODO: Add loading states
-// TODO: Implement email confirmation
-// TODO: Add analytics tracking
+// TODO: Backend - Implement comprehensive form validation
+// TODO: Backend - Add password strength indicator
+// TODO: Backend - Implement email verification flow
+// TODO: Backend - Add terms and conditions acceptance
+// TODO: Backend - Implement proper error handling
+// TODO: Backend - Add loading states
+// TODO: Backend - Implement email confirmation
+// TODO: Backend - Add analytics tracking
 ```
 
 #### Age Verification Flow
 ```kotlin
-// TODO: Implement proper age validation
-// TODO: Add parental consent flow for underage users
-// TODO: Implement document verification UI
-// TODO: Add age verification status tracking
-// TODO: Implement proper error handling
-// TODO: Add analytics tracking
+// TODO: Backend - Implement proper age validation
+// TODO: Backend - Add parental consent flow for underage users
+// TODO: Backend - Implement document verification UI
+// TODO: Backend - Add age verification status tracking
+// TODO: Backend - Implement proper error handling
+// TODO: Backend - Add analytics tracking
 ```
 
 #### Onboarding Flow
 ```kotlin
-// TODO: Create comprehensive onboarding screens
-// TODO: Implement progress tracking
-// TODO: Add skip functionality
-// TODO: Implement data collection for team setup
-// TODO: Add tutorial overlays
-// TODO: Implement onboarding completion tracking
+// TODO: Backend - Create comprehensive onboarding screens
+// TODO: Backend - Implement progress tracking
+// TODO: Backend - Add skip functionality
+// TODO: Backend - Implement data collection for team setup
+// TODO: Backend - Add tutorial overlays
+// TODO: Backend - Implement onboarding completion tracking
 ```
 
 ### New Components Needed
@@ -95,22 +95,22 @@
 
 #### Bottom Navigation (`BadgeBottomNavigationView`)
 ```kotlin
-// TODO: Implement proper badge system for notifications
-// TODO: Add smooth fragment transitions
-// TODO: Implement navigation state persistence
-// TODO: Add haptic feedback
-// TODO: Implement proper accessibility
-// TODO: Add navigation analytics tracking
-// TODO: Implement deep linking support
+// TODO: Backend - Implement proper badge system for notifications
+// TODO: Backend - Add smooth fragment transitions
+// TODO: Backend - Implement navigation state persistence
+// TODO: Backend - Add haptic feedback
+// TODO: Backend - Implement proper accessibility
+// TODO: Backend - Add navigation analytics tracking
+// TODO: Backend - Implement deep linking support
 ```
 
 #### Fragment Transitions
 ```kotlin
-// TODO: Create custom transition animations
-// TODO: Implement shared element transitions
-// TODO: Add gesture-based navigation
-// TODO: Implement proper back stack management
-// TODO: Add navigation state restoration
+// TODO: Backend - Create custom transition animations
+// TODO: Backend - Implement shared element transitions
+// TODO: Backend - Add gesture-based navigation
+// TODO: Backend - Implement proper back stack management
+// TODO: Backend - Add navigation state restoration
 ```
 
 #### Navigation Components
@@ -133,26 +133,26 @@
 
 #### Calendar Fragment (`CalendarFragment`)
 ```kotlin
-// TODO: Implement backend integration for events
-// TODO: Add event creation functionality
-// TODO: Implement event editing and deletion
-// TODO: Add RSVP functionality
-// TODO: Implement event filtering and search
-// TODO: Add recurring event support
-// TODO: Implement event templates
-// TODO: Add calendar export functionality
-// TODO: Implement event reminders
-// TODO: Add event conflict detection
+// TODO: Backend - Implement backend integration for events
+// TODO: Backend - Add event creation functionality
+// TODO: Backend - Implement event editing and deletion
+// TODO: Backend - Add RSVP functionality
+// TODO: Backend - Implement event filtering and search
+// TODO: Backend - Add recurring event support
+// TODO: Backend - Implement event templates
+// TODO: Backend - Add calendar export functionality
+// TODO: Backend - Implement event reminders
+// TODO: Backend - Add event conflict detection
 ```
 
 #### Event Management
 ```kotlin
-// TODO: Create EventCreationBottomSheet
-// TODO: Create EventDetailsBottomSheet
-// TODO: Create EventEditBottomSheet
-// TODO: Implement event RSVP system
-// TODO: Add event participant management
-// TODO: Implement event notifications
+// TODO: Backend - Create EventCreationBottomSheet
+// TODO: Backend - Create EventDetailsBottomSheet
+// TODO: Backend - Create EventEditBottomSheet
+// TODO: Backend - Implement event RSVP system
+// TODO: Backend - Add event participant management
+// TODO: Backend - Implement event notifications
 ```
 
 #### Calendar Features
@@ -168,23 +168,38 @@
 
 ### Current Implementation Status
 - ✅ Basic player list UI implemented
+- ✅ Player profile screen implemented
+- ✅ Role-based functionality implemented
+- ✅ Player actions (edit role, remove, message) implemented
 - ❌ Backend integration missing
 - ❌ Player details incomplete
 - ❌ Statistics display missing
 
 ### Required Enhancements
 
-#### Players Fragment (`PlayersFragment`)
+#### Players Fragment (`HomePlayersFragment`)
 ```kotlin
-// TODO: Implement backend integration for players
-// TODO: Add player search and filtering
-// TODO: Implement player details screen
-// TODO: Add player statistics display
-// TODO: Implement player profile editing
-// TODO: Add player photo management
-// TODO: Implement player performance tracking
-// TODO: Add player comparison features
-// TODO: Implement player availability tracking
+// TODO: Backend - Implement backend integration for players
+// TODO: Backend - Add player search and filtering
+// TODO: Backend - Implement player details screen
+// TODO: Backend - Add player statistics display
+// TODO: Backend - Implement player profile editing
+// TODO: Backend - Add player photo management
+// TODO: Backend - Implement player performance tracking
+// TODO: Backend - Add player comparison features
+// TODO: Backend - Implement player availability tracking
+```
+
+#### Player Profile Fragment (`PlayerProfileFragment`)
+```kotlin
+// TODO: Backend - Fetch player data from backend using playerId
+// TODO: Backend - Implement player statistics display
+// TODO: Backend - Add player photo upload and management
+// TODO: Backend - Implement player performance history
+// TODO: Backend - Add player achievements display
+// TODO: Backend - Implement player messaging system
+// TODO: Backend - Add player availability tracking
+// TODO: Backend - Implement player comparison features
 ```
 
 #### Player Components
@@ -194,12 +209,47 @@
 - `PlayerPhotoManager` - Player photo management
 - `PlayerSearchFragment` - Player search functionality
 
+### Backend Integration Requirements
+
+#### Player Data Models
+```kotlin
+// TODO: Backend - Implement Player entity with all required fields
+// TODO: Backend - Implement PlayerStats entity for statistics
+// TODO: Backend - Implement PlayerRole enum for role management
+// TODO: Backend - Implement PlayerStatus enum for availability
+```
+
+#### Player API Endpoints
+```kotlin
+// TODO: Backend - GET /api/teams/{teamId}/players - Get team players
+// TODO: Backend - GET /api/players/{playerId} - Get player details
+// TODO: Backend - PUT /api/players/{playerId} - Update player info
+// TODO: Backend - POST /api/players/{playerId}/stats - Add player stats
+// TODO: Backend - GET /api/players/{playerId}/stats - Get player statistics
+// TODO: Backend - GET /api/players/{playerId}/stats/season/{seasonId} - Get season stats
+// TODO: Backend - PUT /api/players/{playerId}/role - Update player role
+// TODO: Backend - DELETE /api/teams/{teamId}/players/{playerId} - Remove player from team
+```
+
+#### Player Business Logic
+```kotlin
+// TODO: Backend - Implement role-based access control for player management
+// TODO: Backend - Implement player statistics calculation and aggregation
+// TODO: Backend - Implement player availability tracking system
+// TODO: Backend - Implement player performance analytics
+// TODO: Backend - Implement player messaging and notification system
+// TODO: Backend - Implement player photo upload and management
+```
+
 ---
 
 ## 5. Team Profile
 
 ### Current Implementation Status
 - ✅ Basic team profile UI implemented
+- ✅ Role-based visibility implemented
+- ✅ Team actions (invite, edit, manage roles, delete) implemented
+- ✅ Navigation to Players and Calendar screens implemented
 - ❌ Backend integration missing
 - ❌ Statistics display incomplete
 - ❌ Team management features missing
@@ -208,15 +258,15 @@
 
 #### Team Profile Fragment (`TeamProfileFragment`)
 ```kotlin
-// TODO: Implement backend integration for team data
-// TODO: Add comprehensive team statistics
-// TODO: Implement team management features
-// TODO: Add team member management
-// TODO: Implement team settings
-// TODO: Add team performance analytics
-// TODO: Implement team photo gallery
-// TODO: Add team achievements display
-// TODO: Implement team news/announcements
+// TODO: Backend - Implement backend integration for team data
+// TODO: Backend - Add comprehensive team statistics
+// TODO: Backend - Implement team management features
+// TODO: Backend - Add team member management
+// TODO: Backend - Implement team settings
+// TODO: Backend - Add team performance analytics
+// TODO: Backend - Implement team photo gallery
+// TODO: Backend - Add team achievements display
+// TODO: Backend - Implement team news/announcements
 ```
 
 #### Team Management
@@ -225,6 +275,39 @@
 - `TeamAnalyticsFragment` - Team performance analytics
 - `TeamGalleryFragment` - Team photo gallery
 - `TeamNewsFragment` - Team announcements
+
+### Backend Integration Requirements
+
+#### Team Data Models
+```kotlin
+// TODO: Backend - Implement Team entity with all required fields
+// TODO: Backend - Implement TeamStats entity for team statistics
+// TODO: Backend - Implement TeamRole enum for role management
+// TODO: Backend - Implement TeamInvite entity for invitation system
+```
+
+#### Team API Endpoints
+```kotlin
+// TODO: Backend - GET /api/teams/{teamId} - Get team details
+// TODO: Backend - PUT /api/teams/{teamId} - Update team info
+// TODO: Backend - DELETE /api/teams/{teamId} - Delete team
+// TODO: Backend - POST /api/teams/{teamId}/invites - Create team invite
+// TODO: Backend - GET /api/teams/{teamId}/invites - Get team invites
+// TODO: Backend - POST /api/teams/{teamId}/members - Add team member
+// TODO: Backend - PUT /api/teams/{teamId}/members/{memberId}/role - Update member role
+// TODO: Backend - DELETE /api/teams/{teamId}/members/{memberId} - Remove team member
+// TODO: Backend - POST /api/teams/{teamId}/leave - Leave team
+```
+
+#### Team Business Logic
+```kotlin
+// TODO: Backend - Implement role-based access control for team management
+// TODO: Backend - Implement team invitation system with QR codes
+// TODO: Backend - Implement team statistics calculation and aggregation
+// TODO: Backend - Implement team member role management
+// TODO: Backend - Implement team photo upload and management
+// TODO: Backend - Implement team analytics and performance tracking
+```
 
 ---
 
@@ -240,25 +323,25 @@
 
 #### Profile Fragment (`ProfileFragment`)
 ```kotlin
-// TODO: Implement backend integration for profile data
-// TODO: Add profile editing functionality
-// TODO: Implement avatar upload and management
-// TODO: Add account settings
-// TODO: Implement privacy settings
-// TODO: Add notification preferences
-// TODO: Implement data export functionality
-// TODO: Add account deletion
-// TODO: Implement profile verification
+// TODO: Backend - Implement backend integration for profile data
+// TODO: Backend - Add profile editing functionality
+// TODO: Backend - Implement avatar upload and management
+// TODO: Backend - Add account settings
+// TODO: Backend - Implement privacy settings
+// TODO: Backend - Add notification preferences
+// TODO: Backend - Implement data export functionality
+// TODO: Backend - Add account deletion
+// TODO: Backend - Implement profile verification
 ```
 
 #### Account Management
 ```kotlin
-// TODO: Enhance AccountSwitcherBottomSheet
-// TODO: Create ProfileEditActivity
-// TODO: Create AccountSettingsActivity
-// TODO: Create PrivacySettingsFragment
-// TODO: Implement avatar management
-// TODO: Add account security features
+// TODO: Backend - Enhance AccountSwitcherBottomSheet
+// TODO: Backend - Create ProfileEditActivity
+// TODO: Backend - Create AccountSettingsActivity
+// TODO: Backend - Create PrivacySettingsFragment
+// TODO: Backend - Implement avatar management
+// TODO: Backend - Add account security features
 ```
 
 #### Profile Components
@@ -282,15 +365,15 @@
 
 #### Notifications Activity (`NotificationsActivity`)
 ```kotlin
-// TODO: Implement backend integration for notifications
-// TODO: Add push notification support
-// TODO: Implement notification preferences
-// TODO: Add notification filtering
-// TODO: Implement notification actions
-// TODO: Add notification history
-// TODO: Implement notification badges
-// TODO: Add notification sound settings
-// TODO: Implement notification scheduling
+// TODO: Backend - Implement backend integration for notifications
+// TODO: Backend - Add push notification support
+// TODO: Backend - Implement notification preferences
+// TODO: Backend - Add notification filtering
+// TODO: Backend - Implement notification actions
+// TODO: Backend - Add notification history
+// TODO: Backend - Implement notification badges
+// TODO: Backend - Add notification sound settings
+// TODO: Backend - Implement notification scheduling
 ```
 
 #### Notification Components
@@ -313,16 +396,16 @@
 
 #### Settings Fragment (`SettingsFragment`)
 ```kotlin
-// TODO: Implement comprehensive settings screen
-// TODO: Add notification preferences
-// TODO: Implement privacy settings
-// TODO: Add theme preferences
-// TODO: Implement language settings
-// TODO: Add data usage settings
-// TODO: Implement account security settings
-// TODO: Add app information
-// TODO: Implement feedback and support
-// TODO: Add about section
+// TODO: Backend - Implement comprehensive settings screen
+// TODO: Backend - Add notification preferences
+// TODO: Backend - Implement privacy settings
+// TODO: Backend - Add theme preferences
+// TODO: Backend - Implement language settings
+// TODO: Backend - Add data usage settings
+// TODO: Backend - Implement account security settings
+// TODO: Backend - Add app information
+// TODO: Backend - Implement feedback and support
+// TODO: Backend - Add about section
 ```
 
 #### Settings Components
@@ -348,23 +431,23 @@
 
 #### Error Handling
 ```kotlin
-// TODO: Implement centralized error handling
-// TODO: Create user-friendly error messages
-// TODO: Add retry mechanisms
-// TODO: Implement offline error handling
-// TODO: Add error reporting
-// TODO: Implement graceful degradation
-// TODO: Add error analytics tracking
+// TODO: Backend - Implement centralized error handling
+// TODO: Backend - Create user-friendly error messages
+// TODO: Backend - Add retry mechanisms
+// TODO: Backend - Implement offline error handling
+// TODO: Backend - Add error reporting
+// TODO: Backend - Implement graceful degradation
+// TODO: Backend - Add error analytics tracking
 ```
 
 #### Loading States
 ```kotlin
-// TODO: Implement comprehensive loading states
-// TODO: Add skeleton loading screens
-// TODO: Implement progress indicators
-// TODO: Add pull-to-refresh functionality
-// TODO: Implement infinite scrolling
-// TODO: Add loading animations
+// TODO: Backend - Implement comprehensive loading states
+// TODO: Backend - Add skeleton loading screens
+// TODO: Backend - Implement progress indicators
+// TODO: Backend - Add pull-to-refresh functionality
+// TODO: Backend - Implement infinite scrolling
+// TODO: Backend - Add loading animations
 ```
 
 #### Error Components
@@ -387,13 +470,13 @@
 
 #### Offline Functionality
 ```kotlin
-// TODO: Implement data caching strategy
-// TODO: Add offline-first architecture
-// TODO: Implement data synchronization
-// TODO: Add conflict resolution
-// TODO: Implement offline queue
-// TODO: Add offline indicators
-// TODO: Implement background sync
+// TODO: Backend - Implement data caching strategy
+// TODO: Backend - Add offline-first architecture
+// TODO: Backend - Implement data synchronization
+// TODO: Backend - Add conflict resolution
+// TODO: Backend - Implement offline queue
+// TODO: Backend - Add offline indicators
+// TODO: Backend - Implement background sync
 ```
 
 #### Offline Components
@@ -416,13 +499,13 @@
 
 #### Performance Optimization
 ```kotlin
-// TODO: Implement image loading optimization
-// TODO: Add lazy loading for lists
-// TODO: Implement view recycling
-// TODO: Add memory management
-// TODO: Implement background processing
-// TODO: Add performance monitoring
-// TODO: Implement app size optimization
+// TODO: Backend - Implement image loading optimization
+// TODO: Backend - Add lazy loading for lists
+// TODO: Backend - Implement view recycling
+// TODO: Backend - Add memory management
+// TODO: Backend - Implement background processing
+// TODO: Backend - Add performance monitoring
+// TODO: Backend - Implement app size optimization
 ```
 
 #### Performance Components
@@ -445,12 +528,12 @@
 
 #### Testing Strategy
 ```kotlin
-// TODO: Implement unit tests for all components
-// TODO: Add integration tests
-// TODO: Implement UI tests
-// TODO: Add performance tests
-// TODO: Implement accessibility tests
-// TODO: Add security tests
+// TODO: Backend - Implement unit tests for all components
+// TODO: Backend - Add integration tests
+// TODO: Backend - Implement UI tests
+// TODO: Backend - Add performance tests
+// TODO: Backend - Implement accessibility tests
+// TODO: Backend - Add security tests
 ```
 
 #### Testing Components
@@ -473,13 +556,13 @@
 
 #### Accessibility Features
 ```kotlin
-// TODO: Implement comprehensive accessibility
-// TODO: Add screen reader support
-// TODO: Implement keyboard navigation
-// TODO: Add high contrast mode
-// TODO: Implement font scaling
-// TODO: Add voice commands
-// TODO: Implement accessibility shortcuts
+// TODO: Backend - Implement comprehensive accessibility
+// TODO: Backend - Add screen reader support
+// TODO: Backend - Implement keyboard navigation
+// TODO: Backend - Add high contrast mode
+// TODO: Backend - Implement font scaling
+// TODO: Backend - Add voice commands
+// TODO: Backend - Implement accessibility shortcuts
 ```
 
 #### Accessibility Components
@@ -501,11 +584,11 @@
 
 #### Internationalization
 ```kotlin
-// TODO: Implement string externalization
-// TODO: Add multiple language support
-// TODO: Implement RTL language support
-// TODO: Add locale-specific formatting
-// TODO: Implement dynamic language switching
+// TODO: Backend - Implement string externalization
+// TODO: Backend - Add multiple language support
+// TODO: Backend - Implement RTL language support
+// TODO: Backend - Add locale-specific formatting
+// TODO: Backend - Implement dynamic language switching
 ```
 
 #### i18n Components
