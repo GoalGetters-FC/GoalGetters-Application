@@ -70,3 +70,30 @@ data class Lineup(
 ) : KeyedEntity, AuditableEntity, StainableEntity {
     companion object { const val TAG = "Lineup" }
 }
+
+
+// TODO: finish data-layer for missing models
+//
+// 1) Configuration
+//    • Room: ConfigurationDao (CRUD + deleteAll())
+//    • Firestore: ConfigurationFirestore (observeAll, fetchOnce, save, delete)
+//    • Repos: Offline/Online/CombinedConfigurationRepository + ConfigurationRepositoryModule
+//
+// 2) Lineup
+//    • Room: LineupDao (CRUD + deleteAll())
+//    • Firestore: LineupFirestore (observeAll, fetchOnce, save, delete)
+//    • Repos: Offline/Online/CombinedLineupRepository + LineupRepositoryModule
+//
+// 3) PerformanceLog
+//    • Room: PerformanceLogDao (CRUD + deleteAll())
+//    • Firestore: PerformanceLogFirestore (observeAll, fetchOnce, save, delete)
+//    • Repos: Offline/Online/CombinedPerformanceLogRepository + PerformanceLogRepositoryModule
+//
+// Suggested next-wave pipelines (as your feature set grows):
+//  • PlayerStats (aggregate minutes, goals, cards…)
+//  • ParentConsent (guardianship & consent records)
+//  • CoachProfile (extra coach settings & prefs)
+//  • NotificationSubscription (topic-based FCM & in-app feeds)
+//  • AppSettings (global/team-level config synced from Firestore)
+//
+// Once these are in place you’ll have true end-to-end support for every core entity.
