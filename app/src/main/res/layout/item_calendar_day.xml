@@ -1,80 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="2dp">
+        xmlns:tools="http://schemas.android.com/tools"
+        android:padding="2dp"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:minHeight="52dp">
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            tools:ignore="UselessParent">
 
         <!-- Day container for interaction -->
         <FrameLayout
-            android:id="@+id/dayContainer"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/day_background"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_marginBottom="4dp">
+                android:id="@+id/dayContainer"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/day_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_marginBottom="2dp"
+                tools:ignore="TouchTargetSizeCheck">
 
             <!-- Day number -->
             <TextView
-                android:id="@+id/dayNumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="15"
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:gravity="center"
-                android:layout_gravity="center"
-                android:fontFamily="@font/variable_inter"
-                android:textStyle="bold" />
+                    android:id="@+id/dayNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="15"
+                    android:textSize="14sp"
+                    android:textColor="@color/black"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/variable_inter"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
 
         </FrameLayout>
 
         <!-- Event dots container with improved layout -->
         <LinearLayout
-            android:id="@+id/eventDotsContainer"
-            android:layout_width="wrap_content"
-            android:layout_height="8dp"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_gravity="center">
+                android:id="@+id/eventDotsContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="6dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_gravity="center">
 
             <!-- Practice event dot -->
             <View
-                android:id="@+id/eventDot1"
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:background="@drawable/event_dot_practice"
-                android:visibility="gone"
-                android:layout_marginHorizontal="1dp" />
+                    android:id="@+id/eventDot1"
+                    android:layout_width="4dp"
+                    android:layout_height="4dp"
+                    android:background="@drawable/event_dot_practice"
+                    android:visibility="gone"
+                    android:layout_marginHorizontal="1dp" />
 
             <!-- Match/Game event dot -->
             <View
-                android:id="@+id/eventDot2"
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:background="@drawable/event_dot_game"
-                android:visibility="gone"
-                android:layout_marginHorizontal="1dp" />
+                    android:id="@+id/eventDot2"
+                    android:layout_width="4dp"
+                    android:layout_height="4dp"
+                    android:background="@drawable/event_dot_game"
+                    android:visibility="gone"
+                    android:layout_marginHorizontal="1dp" />
 
             <!-- Other event dot -->
             <View
-                android:id="@+id/eventDot3"
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:background="@drawable/event_dot_other"
-                android:visibility="gone"
-                android:layout_marginHorizontal="1dp" />
+                    android:id="@+id/eventDot3"
+                    android:layout_width="4dp"
+                    android:layout_height="4dp"
+                    android:background="@drawable/event_dot_other"
+                    android:visibility="gone"
+                    android:layout_marginHorizontal="1dp" />
 
         </LinearLayout>
-
     </LinearLayout>
-
 </FrameLayout> 
