@@ -24,8 +24,8 @@
 
             <ImageButton
                     android:id="@+id/bt_decrement_calendar"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:src="@drawable/ic_arrow_left"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Previous month"
@@ -38,7 +38,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="December 2024"
-                    android:textSize="22sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="@color/black"
                     android:gravity="center"
@@ -46,8 +46,8 @@
 
             <ImageButton
                     android:id="@+id/bt_increment_calendar"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:src="@drawable/ic_arrow_right"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Next month"
@@ -59,8 +59,7 @@
         <!-- Calendar section (60% of available height) -->
         <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.6"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@color/white">
 
@@ -156,8 +155,7 @@
             <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_calendar"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
                     android:paddingHorizontal="12dp"
                     android:clipToPadding="false"
                     android:overScrollMode="never" />
@@ -182,51 +180,34 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="20dp"
-                    android:paddingVertical="16dp"
+                    android:paddingVertical="12dp"
                     android:background="@color/surface_elevated">
+
+                <ImageView
+                        android:src="@drawable/xic_x18_uic_line_calendar"
+                        android:importantForAccessibility="no"
+                        android:gravity="center_vertical"
+                        android:layout_marginEnd="12dp"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content" />
 
                 <TextView
                         android:id="@+id/selectedDateText"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Select a date"
-                        android:textSize="18sp"
+                        android:text="Date"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/black"
                         android:fontFamily="@font/variable_inter" />
 
-                <TextView
-                        android:id="@+id/eventCountText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=""
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
-                        android:background="@drawable/status_badge_background"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="6dp"
-                        android:visibility="gone"
-                        android:fontFamily="@font/variable_inter"
-                        android:textStyle="bold" />
-
             </LinearLayout>
-
-            <!-- Divider -->
-            <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/divider"
-                    android:layout_marginHorizontal="20dp" />
 
             <!-- Events list container with proper scrolling -->
             <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:paddingHorizontal="20dp"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="16dp">
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent">
 
                 <!-- Events RecyclerView -->
                 <androidx.recyclerview.widget.RecyclerView
@@ -279,11 +260,8 @@
                             android:fontFamily="@font/variable_inter" />
 
                 </LinearLayout>
-
             </FrameLayout>
-
         </LinearLayout>
-
     </LinearLayout>
 
     <!-- Floating Action Button for adding events -->
@@ -293,7 +271,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="20dp"
-            android:src="@drawable/ic_add"
+            android:src="@drawable/xic_x24_uic_line_plus"
             app:backgroundTint="#FFD400"
             app:tint="@color/black"
             app:elevation="8dp"
