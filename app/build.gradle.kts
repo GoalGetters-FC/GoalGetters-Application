@@ -2,10 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt.android)
-    kotlin("kapt")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
-    //id("kotlin-kapt")
+    kotlin("kapt")
 }
 
 android {
@@ -16,8 +15,8 @@ android {
         applicationId = "com.ggetters.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 3
-        versionName = "post-2025w29a"
+        versionCode = 4
+        versionName = "2025m08a"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
