@@ -3,9 +3,14 @@ package com.ggetters.app.data.di
 
 import android.content.Context
 import androidx.room.RoomDatabase
+import com.ggetters.app.core.services.AuthService
 import com.ggetters.app.data.local.AppDatabase
+import com.ggetters.app.data.local.dao.AttendanceDao
+import com.ggetters.app.data.local.dao.BroadcastDao
+import com.ggetters.app.data.local.dao.BroadcastStatusDao
 import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
+import com.ggetters.app.data.local.dao.EventDao
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -26,16 +31,6 @@ import javax.inject.Singleton
 object DataModule {
 
     // --- Contexts
-
-//
-//    /**
-//     * Provides a singleton [FirebaseFirestore] instance.
-//     *
-//     * @return the Firestore client for remote CRUD operations.
-//     */
-//    @Provides
-//    @Singleton
-//    fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 
 
     /**
@@ -64,6 +59,11 @@ object DataModule {
     @Provides
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+
+    
+    @Provides
+    @Singleton
+    fun provideAuthService(firebaseAuth: FirebaseAuth): AuthService = AuthService(firebaseAuth)
 
 
     /**
@@ -104,4 +104,25 @@ object DataModule {
     @Provides
     @Singleton
     fun provideTeamDao(source: AppDatabase): TeamDao = source.teamDao()
+
+    @Provides
+    fun provideBroadcastDao(db: AppDatabase): BroadcastDao =
+        db.broadcastDao()
+
+    @Provides
+    fun provideBroadcastStatusDao(db: AppDatabase): BroadcastStatusDao =
+        db.broadcastStatusDao()
+
+    @Provides
+    @Singleton
+    fun provideEventDao(db: AppDatabase): EventDao = 
+        db.eventDao()
+
+    @Provides
+    @Singleton
+    fun provideAttendanceDao(db: AppDatabase): AttendanceDao = db.attendanceDao()
+
+    // TODO: Backend - Add AttendanceDao provider
+    // TODO: Backend - Add LineupDao provider
+    // TODO: Backend - Add PerformanceLogDao provider
 }

@@ -4,85 +4,166 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="4dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/playerAvatar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/circle_background"
-            android:src="@drawable/ic_person"
+        <!-- Avatar with border -->
+        <FrameLayout
+            android:id="@+id/avatarFrame"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <View
-            android:id="@+id/statusIndicator"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:background="@drawable/circle_background"
-            app:layout_constraintEnd_toEndOf="@id/playerAvatar"
-            app:layout_constraintTop_toTopOf="@id/playerAvatar" />
+            <ImageView
+                android:id="@+id/avatarBorder"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:src="@drawable/avatar_ring_active"
+                android:visibility="gone" />
 
+            <ImageView
+                android:id="@+id/playerAvatar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:background="@drawable/circle_background"
+                android:src="@drawable/ic_unicons_user_24"
+                android:scaleType="centerCrop" />
+        </FrameLayout>
+
+        <!-- Name and status badges -->
         <TextView
             android:id="@+id/playerName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:layout_marginEnd="8dp"
-            android:text="Player Name"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
+            android:text="Samuel Mokoena"
+            android:textColor="@color/black"
+            android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@id/jerseyNumber"
-            app:layout_constraintStart_toEndOf="@id/playerAvatar"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:fontFamily="sans-serif-medium"
+            app:layout_constraintStart_toEndOf="@id/avatarFrame"
+            app:layout_constraintTop_toTopOf="@id/avatarFrame"
+            app:layout_constraintEnd_toStartOf="@id/chevronIcon"
+            app:layout_constraintHorizontal_bias="0.0" />
 
-        <TextView
-            android:id="@+id/playerPosition"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="8dp"
-            android:text="Position"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp"
-            app:layout_constraintEnd_toStartOf="@id/jerseyNumber"
-            app:layout_constraintStart_toEndOf="@id/playerAvatar"
-            app:layout_constraintTop_toBottomOf="@id/playerName" />
-
-        <TextView
-            android:id="@+id/jerseyNumber"
+        <!-- Status/Role Chips Row -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/jersey_number_background"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
-            android:text="#10"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="2dp"
+            app:singleLine="true"
+            app:layout_constraintStart_toEndOf="@id/avatarFrame"
+            app:layout_constraintTop_toBottomOf="@id/playerName">
 
-        <TextView
-            android:id="@+id/playerStats"
-            android:layout_width="0dp"
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCaptain"
+                style="@style/Widget.MaterialComponents.Chip.Entry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Captain"
+                app:chipIcon="@drawable/ic_unicons_hat_24"
+                app:chipIconTint="@color/yellow"
+                app:chipBackgroundColor="@color/yellow"
+                android:textColor="@color/black"
+                android:fontFamily="sans-serif-medium"
+                android:minHeight="28dp"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipNew"
+                style="@style/Widget.MaterialComponents.Chip.Entry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New"
+                app:chipIcon="@drawable/ic_unicons_user_plus_16"
+                app:chipIconTint="@color/info"
+                app:chipBackgroundColor="@color/info_light"
+                android:textColor="@color/black"
+                android:fontFamily="sans-serif-medium"
+                android:minHeight="28dp"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipInjured"
+                style="@style/Widget.MaterialComponents.Chip.Entry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Injured"
+                app:chipIcon="@drawable/ic_unicons_archive_alt"
+                app:chipIconTint="@color/error"
+                app:chipBackgroundColor="@color/error_light"
+                android:textColor="@color/error_dark"
+                android:fontFamily="sans-serif-medium"
+                android:minHeight="28dp"
+                android:textSize="13sp"
+                android:visibility="gone" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- Position Tag Chip -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipPosition"
+            style="@style/Widget.MaterialComponents.Chip.Entry"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:layout_marginTop="4dp"
-            android:text="Stats"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp"
+            android:layout_marginTop="2dp"
+            android:text="GK"
+            app:chipBackgroundColor="@color/primary_disabled"
+            android:textColor="@color/text_primary"
+            android:fontFamily="sans-serif-medium"
+            android:minHeight="28dp"
+            android:textSize="13sp"
+            app:layout_constraintStart_toEndOf="@id/avatarFrame"
+            app:layout_constraintTop_toBottomOf="@id/chipGroupStatus" />
+
+        <!-- Stats Preview -->
+        <TextView
+            android:id="@+id/playerStats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:text="Sessions: 14/18"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium"
+            app:layout_constraintStart_toEndOf="@id/avatarFrame"
+            app:layout_constraintTop_toBottomOf="@id/chipPosition" />
+
+        <!-- Role Icon -->
+        <ImageView
+            android:id="@+id/roleIcon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_unicons_user_24"
+            app:layout_constraintEnd_toStartOf="@id/chevronIcon"
+            app:layout_constraintTop_toTopOf="@id/avatarFrame" />
+
+        <!-- Chevron Icon -->
+        <ImageView
+            android:id="@+id/chevronIcon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_unicons_arrow_right_24"
+            android:tint="@color/text_tertiary"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/playerAvatar"
-            app:layout_constraintTop_toBottomOf="@id/playerPosition" />
+            app:layout_constraintTop_toTopOf="@id/avatarFrame"
+            app:layout_constraintBottom_toBottomOf="@id/avatarFrame" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

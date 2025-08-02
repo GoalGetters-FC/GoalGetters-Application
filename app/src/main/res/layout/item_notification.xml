@@ -1,51 +1,228 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:padding="16dp"
-    android:layout_marginBottom="8dp">
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/white"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
 
-    <TextView
-        android:id="@+id/notificationMessage"
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Notification message"
+        android:padding="16dp">
+
+        <!-- Unread Indicator (Left accent bar) -->
+        <View
+            android:id="@+id/unreadIndicator"
+            android:layout_width="4dp"
+            android:layout_height="0dp"
+            android:background="@color/primary"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Pin Icon (for pinned notifications) -->
+        <ImageView
+            android:id="@+id/pinIcon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_unicons_pin_16"
+            android:visibility="gone"
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toEndOf="@id/unreadIndicator"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Notification Icon -->
+        <ImageView
+            android:id="@+id/notificationIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_unicons_bell_24"
+            android:background="@drawable/notification_icon_background"
+            android:padding="8dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toEndOf="@id/pinIcon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Notification Content -->
+        <LinearLayout
+            android:id="@+id/notificationContent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            app:layout_constraintStart_toEndOf="@id/notificationIcon"
+            app:layout_constraintEnd_toStartOf="@id/actionButtons"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/notificationTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Notification Title"
         android:textColor="@color/black"
         android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/actionButtons"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginEnd="16dp" />
+                android:textStyle="bold"
+                android:fontFamily="@font/variable_inter"
+                android:maxLines="2"
+                android:ellipsize="end" />
 
+            <!-- Subtitle -->
+            <TextView
+                android:id="@+id/notificationSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Notification subtitle"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:fontFamily="@font/variable_inter"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="2dp" />
+
+            <!-- Event Details (for RSVP and Reminder notifications) -->
+            <LinearLayout
+                android:id="@+id/eventDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp"
+                android:visibility="gone">
+
+                <!-- Date & Time -->
+                <TextView
+                    android:id="@+id/eventDateTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Sat 15 Jun • 15:00"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/variable_inter"
+                    android:drawableStart="@drawable/ic_unicons_calender_24"
+                    android:drawablePadding="6dp"
+                    android:gravity="center_vertical" />
+
+                <!-- Venue/Opponent -->
+                <TextView
+                    android:id="@+id/eventVenue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Main Stadium"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginTop="2dp"
+                    android:drawableStart="@drawable/ic_unicons_location_24"
+                    android:drawablePadding="6dp"
+                    android:gravity="center_vertical" />
+
+                <!-- Countdown (for reminder notifications) -->
+                <TextView
+                    android:id="@+id/countdownText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Starts in 2 hours"
+                    android:textColor="@color/primary"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginTop="4dp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+            <!-- RSVP Buttons -->
+            <LinearLayout
+                android:id="@+id/rsvpButtons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:visibility="gone">
+
+                <!-- Available Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAvailable"
+                    style="@style/Widget.GoalGetters.Button.RSVP.Available"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:text="Available"
+                    android:layout_marginEnd="4dp" />
+
+                <!-- Maybe Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMaybe"
+                    style="@style/Widget.GoalGetters.Button.RSVP.Maybe"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:text="Maybe"
+                    android:layout_marginHorizontal="2dp" />
+
+                <!-- Unavailable Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnUnavailable"
+                    style="@style/Widget.GoalGetters.Button.RSVP.Unavailable"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:text="Unavailable"
+                    android:layout_marginStart="4dp" />
+
+            </LinearLayout>
+
+            <!-- Timestamp -->
+            <TextView
+                android:id="@+id/notificationTimestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2h ago"
+                android:textColor="@color/text_tertiary"
+                android:textSize="12sp"
+                android:fontFamily="@font/variable_inter"
+                android:layout_marginTop="8dp" />
+
+        </LinearLayout>
+
+        <!-- Action Buttons -->
     <LinearLayout
         android:id="@+id/actionButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
             android:id="@+id/markSeenButton"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_check_circle"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_unicons_eye_24"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Mark as seen"
             android:layout_marginEnd="8dp" />
 
         <ImageButton
             android:id="@+id/deleteButton"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_error"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_unicons_trash_24"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Delete notification" />
 
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout> 
+
+</com.google.android.material.card.MaterialCardView> 

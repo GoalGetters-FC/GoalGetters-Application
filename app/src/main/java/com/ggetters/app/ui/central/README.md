@@ -1,11 +1,21 @@
 # com.ggetters.app.ui.central
 
+## TOC
+
+<!-- TOC -->
+* [com.ggetters.app.ui.central](#comggettersappuicentral)
+  * [TOC](#toc)
+  * [Directories](#directories)
+    * [/models](#models)
+<!-- TOC -->
+
 ## Directories
 
 ```text
 ui
 └── central
     ├── adapters
+    ├── components
     ├── dialogs
     ├── models
     ├── sheets

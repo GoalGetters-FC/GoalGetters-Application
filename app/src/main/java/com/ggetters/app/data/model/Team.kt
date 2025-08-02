@@ -57,6 +57,38 @@ data class Team(
     
     @ColumnInfo(name = "name")
     var name: String,
+    
+    
+    @ColumnInfo(name = "alias")
+    var alias: String? = null,
+    
+    
+    @ColumnInfo(name = "description")
+    var description: String? = null,
+    
+    
+    @ColumnInfo(name = "composition")
+    var composition: TeamComposition,
+    
+    
+    @ColumnInfo(name = "denomination")
+    var denomination: TeamDenomination,
+    
+    
+    @ColumnInfo(name = "year_formed")
+    var yearFormed: String? = null,
+    
+    
+    @ColumnInfo(name = "contact_cell")
+    var contactCell: String? = null,
+    
+    
+    @ColumnInfo(name = "contact_mail")
+    var contactMail: String? = null,
+    
+    
+    @ColumnInfo(name = "club_address")
+    var clubAddress: String? = null,
 
     
     ) : KeyedEntity, CodedEntity, AuditableEntity, StainableEntity {

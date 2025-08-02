@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.ggetters.app.core.extensions.toLocalDate
 import com.ggetters.app.data.model.supers.AuditableEntity
 import com.ggetters.app.data.model.supers.CodedEntity
 import com.ggetters.app.data.model.supers.KeyedEntity
@@ -14,18 +13,19 @@ import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.Exclude
 import java.time.Instant
 import java.time.LocalDate
-import java.util.Date
 import java.util.UUID
 
 @Entity(
     tableName = "user",
-    foreignKeys = [ForeignKey(
-        entity = Team::class,
-        parentColumns = ["id"],
-        childColumns = ["team_id"],
-        onDelete = ForeignKey.CASCADE, // TODO: Confirm expected behaviour
-        onUpdate = ForeignKey.CASCADE, // TODO: Confirm expected behaviour
-    )],
+    foreignKeys = [
+        ForeignKey(
+            entity = Team::class,
+            parentColumns = ["id"],
+            childColumns = ["team_id"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
+        )
+    ],
     indices = [
         Index(value = ["id"], unique = true),
         Index(value = ["code"], unique = true),
@@ -75,7 +75,7 @@ data class User(
 
 
     @ColumnInfo(name = "role")
-    var role: Int,
+    var role: UserRole,
 
 
     @ColumnInfo(name = "name")
@@ -91,9 +91,33 @@ data class User(
 
 
     @ColumnInfo(name = "date_of_birth")
-    var dateOfBirth: Date,
+    var dateOfBirth: LocalDate,
 
-    
+
+    @ColumnInfo(name = "email")
+    var email: String? = null,
+
+
+    @ColumnInfo(name = "position")
+    var position: UserPosition? = null,
+
+
+    @ColumnInfo(name = "number")
+    var number: Int? = null,
+
+
+    @ColumnInfo(name = "status")
+    var status: UserStatus? = UserStatus.ACTIVE,
+
+
+    @ColumnInfo(name = "health_weight")
+    var healthWeight: Double? = null,
+
+
+    @ColumnInfo(name = "health_height")
+    var healthHeight: Double? = null,
+
+
     ) : KeyedEntity, CodedEntity, AuditableEntity, StainableEntity {
     companion object {
         const val TAG = "User"
@@ -101,6 +125,11 @@ data class User(
 
 
     // --- Functions
+    
+    
+    fun NotifyJoinedTeam() {
+        annexedAt = Instant.now()
+    }
 
 
     fun getFullName(): String = "$name $surname"
@@ -115,10 +144,5 @@ data class User(
     }
 
 
-    fun isAdult(): Boolean {
-        val eighteenthBirthday = dateOfBirth.toInstant().toLocalDate()
-        val date = LocalDate.now()
-
-        return (!date.isBefore(eighteenthBirthday.plusYears(18)))
-    }
+    fun isAdult(): Boolean = !LocalDate.now().isBefore(dateOfBirth.plusYears(18))
 }

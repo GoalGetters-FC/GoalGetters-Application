@@ -21,29 +21,23 @@ import java.util.UUID
             entity = User::class,
             parentColumns = ["id"],
             childColumns = ["user_id"],
-            onDelete = ForeignKey.CASCADE, // TODO: Confirm expected behaviour
-            onUpdate = ForeignKey.CASCADE, // TODO: Confirm expected behaviour
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = Team::class,
             parentColumns = ["id"],
             childColumns = ["team_id"],
-            onDelete = ForeignKey.CASCADE, // TODO: Confirm expected behaviour
-            onUpdate = ForeignKey.CASCADE, // TODO: Confirm expected behaviour
-        ),
-//        ForeignKey( // TODO: Link the foreign class when implemented
-//            entity = Conference::class,
-//            parentColumns = ["id"],
-//            childColumns = ["conference_id"],
-//            onDelete = ForeignKey.CASCADE, // TODO: Confirm expected behaviour
-//            onUpdate = ForeignKey.CASCADE, // TODO: Confirm expected behaviour
-//        ),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )
+        // add Conference FK here
     ],
     indices = [
         Index(value = ["id"], unique = true),
-        Index(value = ["user_id"]),
-        Index(value = ["team_id"]),
-        Index(value = ["conference_id"]),
+        Index("user_id"),
+        Index("team_id"),
+        Index("conference_id")
     ]
 )
 data class Broadcast(
@@ -97,5 +91,29 @@ data class Broadcast(
     ) : KeyedEntity, AuditableEntity, StainableEntity, StashableEntity {
     companion object {
         const val TAG = "Broadcast"
+    }
+
+    /** mark this broadcast as “read” locally */
+    override fun stain() {
+        stainedAt = Instant.now()
+        updatedAt = Instant.now()
+    }
+
+    /** clear the “read” flag */
+    fun unstain() {
+        stainedAt = null
+        updatedAt = Instant.now()
+    }
+
+    /** archive locally */
+    fun stash() {
+        stashedAt = Instant.now()
+        updatedAt = Instant.now()
+    }
+
+    /** un-archive locally */
+    fun unstash() {
+        stashedAt = null
+        updatedAt = Instant.now()
     }
 }

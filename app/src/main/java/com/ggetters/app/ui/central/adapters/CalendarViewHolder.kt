@@ -94,21 +94,28 @@ class CalendarViewHolder(
     private fun renderEventBackground(
         calendarDay: CalendarDayItem
     ) {
-        if (calendarDay.isToday) {
-            binding.dayContainer.setBackgroundResource(R.drawable.today_background)
-            binding.dayNumber.setTextColor(itemView.context.getColor(R.color.white))
-            return
-        }
-
-        when (calendarDay.isCurrentMonth) {
-            true -> {
+        // Priority order: Selected > Today > Current Month > Other Month
+        when {
+            calendarDay.isSelected -> {
+                binding.dayContainer.setBackgroundResource(R.drawable.selected_day_background)
+                binding.dayNumber.setTextColor(itemView.context.getColor(R.color.black))
+                // Add subtle elevation for selected state
+                binding.dayContainer.elevation = 4f
+            }
+            calendarDay.isToday -> {
+                binding.dayContainer.setBackgroundResource(R.drawable.today_background)
+                binding.dayNumber.setTextColor(itemView.context.getColor(R.color.black))
+                binding.dayContainer.elevation = 2f
+            }
+            calendarDay.isCurrentMonth -> {
                 binding.dayContainer.setBackgroundResource(R.drawable.day_background)
                 binding.dayNumber.setTextColor(itemView.context.getColor(R.color.black))
+                binding.dayContainer.elevation = 0f
             }
-
             else -> {
                 binding.dayContainer.setBackgroundResource(R.drawable.other_month_background)
                 binding.dayNumber.setTextColor(itemView.context.getColor(R.color.text_disabled))
+                binding.dayContainer.elevation = 0f
             }
         }
     }

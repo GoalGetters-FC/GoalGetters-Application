@@ -6,21 +6,28 @@
     <color name="primary_pressed">#E6BC00</color>
     <color name="primary_disabled">#FFF7CC</color>
 
-    <!-- Text & Icon Color: Black (default) -->
+    <!-- Text Colors -->
     <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
     <color name="text_primary">#000000</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_tertiary">#999999</color>
+    <color name="text_disabled">#CCCCCC</color>
     <color name="icon_primary">#000000</color>
     <color name="border_primary">#000000</color>
 
+    <!-- Surface Colors -->
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_elevated">#F8F9FA</color>
+    <color name="surface_variant">#F5F5F5</color>
+    <color name="divider">#E0E0E0</color>
+
     <!-- Backgrounds & Containers: White (default) -->
-    <color name="white">#FFFFFF</color>
     <color name="background">#FFFFFF</color>
     <color name="container">#FFFFFF</color>
     <color name="input_background">#FFFFFF</color>
-    <color name="surface">#FFFFFF</color>
 
     <!-- Secondary Border/Divider Color: Mid Grey -->
-    <color name="divider">#D3D3D3</color>
     <color name="divider_alt">#CCCCCC</color>
     <color name="input_border">#D3D3D3</color>
     <color name="input_border_focused">#FFD400</color>
@@ -28,42 +35,65 @@
     <!-- Modal/Overlay Backdrop: Semi-Transparent Grey -->
     <color name="overlay">#66000000</color>
 
-    <!-- Status/Warning Colors -->
-    <color name="error">#FF3B30</color>
-    <color name="success">#34C759</color>
-    <color name="success_green">#34C759</color>
-    <color name="info">#007AFF</color>
+    <!-- Error/Alert Colors: Red -->
+    <color name="error">#F44336</color>
+    <color name="error_light">#FFEBEE</color>
+    <color name="error_dark">#C62828</color>
 
-    <!-- Notification/Calendar Colors -->
-    <color name="calendar_practice">#007AFF</color>
-    <color name="calendar_match">#FF3B30</color>
-    <color name="calendar_event">#34C759</color>
+    <!-- Success Colors: Green -->
+    <color name="success">#4CAF50</color>
+    <color name="success_green">#4CAF50</color>
+    <color name="success_light">#E8F5E8</color>
+    <color name="success_dark">#2E7D32</color>
 
-    <!-- Feedback States -->
-    <color name="button_pressed">#E6BC00</color>
-    <color name="button_disabled">#F0F0F0</color>
-    <color name="text_disabled">#BDBDBD</color>
-    <color name="text_secondary">#666666</color>
-    <color name="input_error">#FF3B30</color>
-    <color name="input_focused">#FFD400</color>
+    <!-- Warning Colors: Orange -->
+    <color name="warning">#FF9800</color>
+    <color name="warning_light">#FFF3E0</color>
+    <color name="warning_dark">#F57C00</color>
 
-    <!-- Material You (Material 3) color tokens for compatibility -->
+    <!-- Information Colors: Blue -->
+    <color name="info">#2196F3</color>
+    <color name="info_light">#E3F2FD</color>
+    <color name="info_dark">#1976D2</color>
+
+    <!-- Purple -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+
+    <!-- Teal -->
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+
+    <!-- Material Design System Colors -->
+    <color name="material_dynamic_primary10">#000000</color>
+    <color name="material_dynamic_primary20">#FFD400</color>
+    <color name="material_dynamic_primary30">#FFD400</color>
+    <color name="material_dynamic_primary40">#FFD400</color>
+    <color name="material_dynamic_primary80">#FFD400</color>
+    <color name="material_dynamic_primary90">#FFF7CC</color>
+    <color name="material_dynamic_primary95">#FFFAEE</color>
+    <color name="material_dynamic_primary99">#FFFDF8</color>
+
+    <!-- Additional Material Colors -->
+    <color name="material_dynamic_secondary10">#000000</color>
+    <color name="material_dynamic_secondary20">#333333</color>
+    <color name="material_dynamic_secondary30">#666666</color>
+    <color name="material_dynamic_secondary40">#999999</color>
+    <color name="material_dynamic_secondary80">#CCCCCC</color>
+    <color name="material_dynamic_secondary90">#E6E6E6</color>
+    <color name="material_dynamic_secondary95">#F3F3F3</color>
+    <color name="material_dynamic_secondary99">#FAFAFA</color>
+
+    <!-- Legacy colors used in existing layout files -->
+    <color name="accent">#FFD400</color>
+    <color name="scheme_bold">#000000</color>
+    <color name="surface_bold">#E6E6E6</color>
+    <color name="surface_tint_night">#FFE8C8</color>
+    <color name="surface_tint_light">#FFF2D5</color>
+    
+    <!-- Additional missing colors -->
+    <color name="text_on_accent">#000000</color>
     <color name="md_theme_light_primary">#FFD400</color>
     <color name="md_theme_light_onPrimary">#000000</color>
-    <color name="md_theme_light_secondary">#D3D3D3</color>
-    <color name="md_theme_light_onSecondary">#000000</color>
-
-    <color name="text_on_primary">#000000</color>
-    <color name="accent">#FFD400</color>
-    <color name="text_on_accent">#000000</color>
-    
-    <!-- Variables (Matt) -->
-
-    <color name="surface_background">#FFFFFF</color>
-    <color name="surface_elevated">#F2F2F2</color>
-    <color name="surface_bold">#E6E6E6</color>
-    <color name="surface_tint_light">#FFF2D5</color>
-    <color name="surface_tint_night">#FFE8C8</color>
-    <color name="scheme_primary">#F8B200</color>
-    <color name="scheme_bold">#121416</color>
 </resources>

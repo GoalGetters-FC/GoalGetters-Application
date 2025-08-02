@@ -11,6 +11,8 @@ import com.ggetters.app.data.model.supers.StainableEntity
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.Exclude
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.UUID
 
 @Entity(
@@ -73,10 +75,10 @@ data class Event(
     val style: Int,      // e.g. 0=Standard, 1=Friendly, 2=Tournament
 
     @ColumnInfo(name = "start_at")
-    val startAt: Instant,
+    val startAt: LocalDateTime,
 
     @ColumnInfo(name = "end_at")
-    val endAt: Instant? = null,
+    val endAt: LocalDateTime? = null,
 
     @ColumnInfo(name = "location")
     val location: String? = null

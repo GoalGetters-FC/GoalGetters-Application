@@ -17,7 +17,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@drawable/circle_background"
-            android:src="@drawable/ic_person"
+            android:src="@drawable/ic_unicons_user_24"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -74,13 +74,9 @@
             android:id="@+id/accountRole"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/role_badge_background"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
             android:text="Player"
-            android:textColor="@color/white"
-            android:textSize="10sp"
-            android:textStyle="bold"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

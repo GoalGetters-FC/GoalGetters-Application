@@ -3,30 +3,33 @@ package com.ggetters.app.ui.startup.views
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.ViewModelProvider
 import com.ggetters.app.core.utils.Clogger
-import com.ggetters.app.databinding.SignInActivityBinding
+import com.ggetters.app.databinding.ActivitySignInBinding
 import com.ggetters.app.ui.shared.models.Clickable
 import com.ggetters.app.ui.shared.models.UiState.Failure
 import com.ggetters.app.ui.shared.models.UiState.Loading
 import com.ggetters.app.ui.shared.models.UiState.Success
 import com.ggetters.app.ui.startup.viewmodels.SignInViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SignInActivity : AppCompatActivity(), Clickable {
     companion object {
         private const val TAG = "SignInActivity"
     }
 
 
-    private lateinit var binds: SignInActivityBinding
-    private lateinit var model: SignInViewModel
+    private lateinit var binds: ActivitySignInBinding
+    private val model: SignInViewModel by viewModels()
 
 
-    // --- Lifecycle
+// --- Lifecycle
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,14 +41,11 @@ class SignInActivity : AppCompatActivity(), Clickable {
         setupBindings()
         setupLayoutUi()
         setupTouchListeners()
-
-        model = ViewModelProvider(this)[SignInViewModel::class.java]
-
         observe()
     }
 
 
-    // --- ViewModel
+// --- ViewModel
 
 
     private fun observe() = model.uiState.observe(this) { state ->
@@ -55,8 +55,6 @@ class SignInActivity : AppCompatActivity(), Clickable {
                 Clogger.d(
                     TAG, "Loading..."
                 )
-
-                // TODO: ...
             }
 
             is Success -> {
@@ -65,7 +63,8 @@ class SignInActivity : AppCompatActivity(), Clickable {
                     TAG, "Success..."
                 )
 
-                // TODO: ...
+                startActivity(Intent(this, WelcomeBackActivity::class.java))
+                finishAffinity()
             }
 
             is Failure -> {
@@ -74,7 +73,9 @@ class SignInActivity : AppCompatActivity(), Clickable {
                     TAG, "Failure..."
                 )
 
-                // TODO: ...
+                Toast.makeText(
+                    this, state.message, Toast.LENGTH_SHORT
+                ).show()
             }
 
             else -> {
@@ -86,7 +87,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
     }
 
 
-    // --- Internals
+// --- Internals
 
 
     private fun tryAuthenticateCredentials() {
@@ -113,7 +114,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
     }
 
 
-    // --- Event Handlers
+// --- Event Handlers
 
 
     override fun setupTouchListeners() {
@@ -124,8 +125,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
 
     override fun onClick(view: View?) = when (view?.id) {
         binds.btSignIn.id -> {
-            startActivity(Intent(this, WelcomeBackActivity::class.java))
-            finishAffinity()
+            tryAuthenticateCredentials()
         }
 
         binds.btGoogle.id -> {
@@ -145,11 +145,11 @@ class SignInActivity : AppCompatActivity(), Clickable {
     }
 
 
-    // --- UI
+// --- UI
 
 
     private fun setupBindings() {
-        binds = SignInActivityBinding.inflate(layoutInflater)
+        binds = ActivitySignInBinding.inflate(layoutInflater)
     }
 
 

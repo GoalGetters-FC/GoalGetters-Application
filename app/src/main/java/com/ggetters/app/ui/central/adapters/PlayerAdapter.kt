@@ -8,6 +8,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.Player
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 
 class PlayerAdapter(
     private val onPlayerClick: (Player) -> Unit,
@@ -35,12 +37,15 @@ class PlayerAdapter(
     
     inner class PlayerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val avatarImage: ImageView = itemView.findViewById(R.id.playerAvatar)
+        private val avatarBorder: ImageView = itemView.findViewById(R.id.avatarBorder)
         private val nameText: TextView = itemView.findViewById(R.id.playerName)
-        private val positionText: TextView = itemView.findViewById(R.id.playerPosition)
-        private val jerseyNumberText: TextView = itemView.findViewById(R.id.jerseyNumber)
+        private val chipPosition: Chip = itemView.findViewById(R.id.chipPosition)
         private val statsText: TextView = itemView.findViewById(R.id.playerStats)
-        private val statusIndicator: View = itemView.findViewById(R.id.statusIndicator)
-        
+        private val chipCaptain: Chip = itemView.findViewById(R.id.chipCaptain)
+        private val chipNew: Chip = itemView.findViewById(R.id.chipNew)
+        private val chipInjured: Chip = itemView.findViewById(R.id.chipInjured)
+        private val roleIcon: ImageView = itemView.findViewById(R.id.roleIcon)
+        private val chevronIcon: ImageView = itemView.findViewById(R.id.chevronIcon)
         init {
             itemView.setOnClickListener {
                 val position = adapterPosition
@@ -48,7 +53,6 @@ class PlayerAdapter(
                     onPlayerClick(players[position])
                 }
             }
-            
             itemView.setOnLongClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -57,29 +61,26 @@ class PlayerAdapter(
                 true
             }
         }
-        
         fun bind(player: Player) {
             nameText.text = player.name
-            positionText.text = player.position
-            jerseyNumberText.text = "#${player.jerseyNumber}"
-            
-            // Display stats
-            statsText.text = "${player.stats.goals}G ${player.stats.assists}A (${player.stats.matches}M)"
-            
-            // Set status indicator
-            statusIndicator.setBackgroundResource(
-                if (player.isActive) R.color.success_green else R.color.text_disabled
-            )
-            
+            chipPosition.text = player.position
+            statsText.text = "Sessions: ${player.stats.matches}"
+            // Show/hide status chips
+            chipCaptain.visibility = if (player.position.equals("Captain", true)) View.VISIBLE else View.GONE
+            chipNew.visibility = if (player.position.equals("New", true)) View.VISIBLE else View.GONE
+            chipInjured.visibility = if (player.position.equals("Injured", true)) View.VISIBLE else View.GONE
+            // Show blue border if active
+            avatarBorder.visibility = if (player.isActive) View.VISIBLE else View.GONE
+            // Set role icon
+            when (player.position.lowercase()) {
+                "coach" -> roleIcon.setImageResource(R.drawable.ic_unicons_hat_24)
+                "assistant" -> roleIcon.setImageResource(R.drawable.ic_unicons_handshake_24)
+                "goalkeeper", "gk" -> roleIcon.setImageResource(R.drawable.ic_unicons_shield_24)
+                "guardian" -> roleIcon.setImageResource(R.drawable.ic_unicons_user_plus_16)
+                else -> roleIcon.setImageResource(R.drawable.ic_unicons_user_24)
+            }
+            chevronIcon.setImageResource(R.drawable.ic_unicons_arrow_right_24)
             // TODO: Load player avatar using Glide or similar
-            // if (player.avatar != null) {
-            //     Glide.with(itemView.context)
-            //         .load(player.avatar)
-            //         .placeholder(R.drawable.default_avatar)
-            //         .into(avatarImage)
-            // } else {
-            //     avatarImage.setImageResource(R.drawable.default_avatar)
-            // }
         }
     }
 } 

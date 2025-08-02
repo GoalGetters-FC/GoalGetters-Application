@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
+    <!-- Main calendar container with proper proportions -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,8 +16,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="16dp"
-            android:gravity="center_vertical">
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="16dp"
+            android:gravity="center_vertical"
+            android:elevation="2dp"
+            android:background="@color/white">
 
             <ImageButton
                 android:id="@+id/bt_decrement_calendar"
@@ -24,7 +28,9 @@
                 android:layout_height="48dp"
                 android:src="@drawable/ic_arrow_left"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Previous month" />
+                android:contentDescription="Previous month"
+                android:layout_marginEnd="8dp"
+                android:tint="@color/text_secondary" />
 
             <TextView
                 android:id="@+id/monthYearText"
@@ -32,10 +38,11 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="December 2024"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"
-                android:gravity="center" />
+                android:gravity="center"
+                android:fontFamily="@font/variable_inter" />
 
             <ImageButton
                 android:id="@+id/bt_increment_calendar"
@@ -43,98 +50,239 @@
                 android:layout_height="48dp"
                 android:src="@drawable/ic_arrow_right"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Next month" />
+                android:contentDescription="Next month"
+                android:layout_marginStart="8dp"
+                android:tint="@color/text_secondary" />
 
         </LinearLayout>
+
+        <!-- Calendar section (60% of available height) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.6"
+            android:orientation="vertical"
+            android:background="@color/white">
 
         <!-- Day headers -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingHorizontal="8dp"
-            android:paddingBottom="8dp">
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="12dp"
+                android:background="@color/surface_elevated">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="S"
-                android:textSize="14sp"
-                android:textColor="@color/black"
+                    android:text="SUN"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
                 android:gravity="center"
-                android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/variable_inter" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="M"
-                android:textSize="14sp"
-                android:textColor="@color/black"
+                    android:text="MON"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
                 android:gravity="center"
-                android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/variable_inter" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="T"
-                android:textSize="14sp"
-                android:textColor="@color/black"
+                    android:text="TUE"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
                 android:gravity="center"
-                android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/variable_inter" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="W"
-                android:textSize="14sp"
-                android:textColor="@color/black"
+                    android:text="WED"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
                 android:gravity="center"
-                android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/variable_inter" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="T"
-                android:textSize="14sp"
-                android:textColor="@color/black"
+                    android:text="THU"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
                 android:gravity="center"
-                android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/variable_inter" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="F"
-                android:textSize="14sp"
-                android:textColor="@color/black"
+                    android:text="FRI"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
                 android:gravity="center"
-                android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/variable_inter" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="S"
-                android:textSize="14sp"
-                android:textColor="@color/black"
+                    android:text="SAT"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
                 android:gravity="center"
-                android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/variable_inter" />
 
         </LinearLayout>
 
-        <!-- Calendar grid -->
+            <!-- Calendar grid with fixed height to prevent overflow -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_calendar"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:paddingHorizontal="8dp"
-            android:clipToPadding="false" />
+                android:paddingHorizontal="12dp"
+                android:clipToPadding="false"
+                android:overScrollMode="never" />
+
+        </LinearLayout>
+
+        <!-- Event details section (40% of available height) -->
+        <LinearLayout
+            android:id="@+id/selectedDayEventsSection"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.4"
+            android:orientation="vertical"
+            android:background="@color/surface_elevated"
+            android:elevation="4dp"
+            android:clipToPadding="false">
+
+            <!-- Header with selected date and event count -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="16dp"
+                android:background="@color/surface_elevated">
+
+                <TextView
+                    android:id="@+id/selectedDateText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Select a date"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/variable_inter" />
+
+                <TextView
+                    android:id="@+id/eventCountText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:background="@drawable/status_badge_background"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="6dp"
+                    android:visibility="gone"
+                    android:fontFamily="@font/variable_inter"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"
+                android:layout_marginHorizontal="20dp" />
+
+            <!-- Events list container with proper scrolling -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="16dp">
+
+                <!-- Events RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_selected_day_events"
+                android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:scrollbars="vertical"
+                android:fadingEdge="vertical"
+                    android:fadingEdgeLength="24dp"
+                    android:overScrollMode="ifContentScrolls"
+                    android:visibility="gone" />
+
+            <!-- No events message with improved styling -->
+            <LinearLayout
+                android:id="@+id/noEventsLayout"
+                android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                    android:visibility="visible">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_calendar_line"
+                        android:layout_marginBottom="12dp"
+                        android:alpha="0.6"
+                        app:tint="@color/text_tertiary" />
+
+                <TextView
+                    android:id="@+id/noEventsText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No events scheduled"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_secondary"
+                    android:gravity="center"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/variable_inter"
+                        android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tap the + button to add an event"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_tertiary"
+                    android:gravity="center"
+                        android:fontFamily="@font/variable_inter" />
+
+            </LinearLayout>
+
+            </FrameLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -144,9 +292,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+        android:layout_margin="20dp"
         android:src="@drawable/ic_add"
-        app:backgroundTint="#FFD700"
-        app:tint="@color/black" />
+        app:backgroundTint="#FFD400"
+        app:tint="@color/black"
+        app:elevation="8dp"
+        app:pressedTranslationZ="12dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout> 
