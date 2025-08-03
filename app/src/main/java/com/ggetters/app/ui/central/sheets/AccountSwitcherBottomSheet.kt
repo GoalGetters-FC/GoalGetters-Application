@@ -1,5 +1,6 @@
 package com.ggetters.app.ui.central.sheets
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.UserAccount
+import com.ggetters.app.ui.management.views.TeamViewerActivity
 
 class AccountSwitcherBottomSheet : BottomSheetDialogFragment() {
     
@@ -47,6 +49,12 @@ class AccountSwitcherBottomSheet : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         
         setupViews(view)
+
+        val button = view.findViewById<TextView>(R.id.tvManageTeams)       
+        button.setOnClickListener { 
+            startActivity(Intent(requireContext(), TeamViewerActivity::class.java))
+        }
+        
         loadAccounts()
     }
     
