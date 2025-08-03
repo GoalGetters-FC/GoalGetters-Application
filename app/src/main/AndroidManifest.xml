@@ -12,48 +12,44 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-
+        <activity
+                android:name=".ui.management.views.TeamViewerActivity"
+                android:exported="false" />
         <!-- Activities -->
-
         <activity
                 android:name=".ui.startup.views.StartActivity"
                 android:exported="true"
                 android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
                 android:name=".ui.startup.views.SignInActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
-
         <activity
                 android:name=".ui.startup.views.SignUpActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
-
         <activity
                 android:name=".ui.startup.views.ForgotPasswordActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
-
         <activity
                 android:name=".ui.startup.views.WelcomeBackActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
-
         <activity
                 android:name=".ui.central.views.HomeActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
-
         <activity
                 android:name=".ui.central.views.NotificationsActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
-
     </application>
+
 </manifest>

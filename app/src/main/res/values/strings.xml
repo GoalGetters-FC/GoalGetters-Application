@@ -21,7 +21,7 @@
     <string name="sign_up_text_faq">
         <![CDATA[Help & FAQ]]>
     </string>
-    
+
     <!-- SignInActivity -->
 
     <string name="sign_in_input_identity_hint">
