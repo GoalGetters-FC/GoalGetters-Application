@@ -80,3 +80,33 @@ class TeamFirestore(
             .await()
     }
 }
+
+
+/**
+ * 🔄 Proposed Firestore Restructure Plan
+ *
+ * Current Firestore structure is flat (e.g., /users, /events, /lineup),
+ * which will become unscalable and harder to secure as data grows.
+ *
+ * ✅ New structure nests all core data under each team:
+ *
+ * teams/{teamId}/
+ * ├── users/{userId}
+ * ├── events/{eventId}
+ * │   └── lineups/{lineupId}
+ * ├── attendance/{attendanceId}
+ * ├── broadcasts/{broadcastId}
+ * ├── broadcastStatuses/{statusId}
+ * └── metadata/summary (optional)
+ *
+ * Benefits:
+ * - Scoped reads/writes per team
+ * - Easier security rules
+ * - More efficient syncing and offline support
+ * - Prepares for future multi-team support
+ *
+ * TODO: Refactor all Firestore classes (XFirestore.kt) to use nested paths under /teams/{teamId}
+ *       - Update Online repositories to pass teamId
+ *       - DevClass should create team first, then seed subcollections
+ *       - Optional: Create FirestorePathProvider for safe path construction
+ */
