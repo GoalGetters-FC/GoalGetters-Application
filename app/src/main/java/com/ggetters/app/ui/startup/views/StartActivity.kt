@@ -40,6 +40,8 @@ class StartActivity : AppCompatActivity(), Clickable {
         Clogger.d(
             TAG, "Created a new instance of the activity"
         )
+        
+        persistSplashScreenUntilAuthChecksComplete()
 
         setupBindings()
         setupLayoutUi()
