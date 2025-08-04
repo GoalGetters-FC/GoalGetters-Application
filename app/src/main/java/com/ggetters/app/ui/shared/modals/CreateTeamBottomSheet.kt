@@ -13,7 +13,7 @@ class CreateTeamBottomSheet(
     private val onSubmit: (String) -> Unit
 ) : BottomSheetDialogFragment(), Clickable {
     companion object {
-        private const val TAG = "CreateTeamBottomSheet"
+        const val TAG = "CreateTeamBottomSheet"
     }
 
 
@@ -44,12 +44,17 @@ class CreateTeamBottomSheet(
     }
 
 
+    /**
+     * TODO: Abstract logic to a function with input validation
+     */
     override fun onClick(view: View?) = when (view?.id) {
         binds.btContinue.id -> {
             val teamName = binds.etTeamName.text.toString().trim()
             onSubmit(
                 teamName
             )
+            
+            dismiss()
         }
 
         else -> {

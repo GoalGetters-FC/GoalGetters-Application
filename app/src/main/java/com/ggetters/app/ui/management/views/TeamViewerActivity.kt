@@ -17,6 +17,8 @@ import com.ggetters.app.data.model.TeamDenomination
 import com.ggetters.app.databinding.ActivityTeamViewerBinding
 import com.ggetters.app.ui.management.adapters.TeamViewerAccountAdapter
 import com.ggetters.app.ui.management.viewmodels.TeamViewerViewModel
+import com.ggetters.app.ui.shared.modals.CreateTeamBottomSheet
+import com.ggetters.app.ui.shared.modals.JoinTeamBottomSheet
 import com.ggetters.app.ui.shared.models.Clickable
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -75,6 +77,18 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
             this, "Delete: ${entity.name}", Toast.LENGTH_SHORT
         ).show()
     }
+    
+
+    private fun onCreateTeamSheetSubmitted(teamName: String) {
+        // TODO
+    }
+
+
+    private fun onJoinTeamSheetSubmitted(
+        teamCode: String, userCode: String
+    ) {
+        // TODO
+    }
 
 
 // --- Event Handlers
@@ -93,7 +107,11 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
                 }
 
                 R.id.nav_item_team_viewer_code -> {
-                    // TODO: Show team code bottom sheet
+                    JoinTeamBottomSheet(
+                        this::onJoinTeamSheetSubmitted
+                    ).show(
+                        supportFragmentManager, JoinTeamBottomSheet.TAG
+                    )
                 }
 
                 else -> {
@@ -112,7 +130,11 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
 
     override fun onClick(view: View?) = when (view?.id) {
         binds.fab.id -> {
-            // TODO: Show create team bottom sheet
+            CreateTeamBottomSheet(
+                this::onCreateTeamSheetSubmitted
+            ).show(
+                supportFragmentManager, CreateTeamBottomSheet.TAG
+            )
         }
 
         else -> {
@@ -150,8 +172,8 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
             onDeleteClicked = this::onItemOptionDeleteClicked
         )
 
-        binds.rvAccounts.adapter = adapter
         binds.rvAccounts.layoutManager = LinearLayoutManager(this)
+        binds.rvAccounts.adapter = adapter
     }
 
 
