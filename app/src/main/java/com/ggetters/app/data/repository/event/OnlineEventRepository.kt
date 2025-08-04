@@ -1,8 +1,10 @@
 package com.ggetters.app.data.repository.event
 
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Event
 import com.ggetters.app.data.remote.firestore.EventFirestore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 /**
@@ -38,7 +40,11 @@ class OnlineEventRepository @Inject constructor(
 
     override fun getByTeamId(teamId: String): Flow<List<Event>> = fs.observeByTeamId(teamId)
 
-    override suspend fun getEventsByDateRange(teamId: String, startDate: String, endDate: String): List<Event> {
+    override suspend fun getEventsByDateRange(
+        teamId: String,
+        startDate: String,
+        endDate: String
+    ): List<Event> {
         // TODO: Backend - Implement remote date range queries
         throw NotImplementedError("Remote date range queries not yet implemented")
     }
@@ -53,10 +59,22 @@ class OnlineEventRepository @Inject constructor(
         throw NotImplementedError("Remote creator filtering not yet implemented")
     }
 
+    override suspend fun deleteAll() {
+        Clogger.i("DevClass", "NEED-TO-DO-Deleting all events from remote Firestore")
+
+//        runBlocking {
+//            val allEvents = fs.getAll()
+//            allEvents.forEach { event ->
+//                fs.delete(event.id)
+//            }
+//        }
+    }
+}
+
+
     // TODO: Backend - Implement remote RSVP management
     // TODO: Backend - Add remote event validation
     // TODO: Backend - Implement remote event search
     // TODO: Backend - Add remote event analytics
     // TODO: Backend - Implement remote conflict detection
     // TODO: Backend - Add real-time event updates
-} 

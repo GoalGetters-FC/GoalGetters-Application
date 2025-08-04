@@ -7,5 +7,7 @@ interface UserRepository : CrudRepository<User> {
     suspend fun getLocalByAuthId(authId: String): User?
     suspend fun insertLocal(user: User)
     suspend fun insertRemote(user: User)
+
+    suspend fun deleteAll()
     suspend fun sync()
 }

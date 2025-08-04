@@ -82,6 +82,20 @@ class UserFirestore @Inject constructor(
             .await()
     }
 
+    /*
+    Delete all users in the collection.
+     */
+    suspend fun deleteAll() {
+        usersCol
+            .get()
+            .await()
+            .documents
+            .forEach { document ->
+                document.reference.delete().await()
+            }
+    }
+
+
     /**
      * Fetch a single [User] by their authentication ID.
      *

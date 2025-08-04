@@ -45,6 +45,15 @@ class CombinedUserRepository @Inject constructor(
     override suspend fun insertRemote(user: User) =
         online.insertRemote(user)
 
+    override suspend fun deleteAll() {
+        offline.deleteAll()
+        try {
+            online.deleteAll()
+        } catch (e: Exception) {
+            Clogger.e("DevClass", "Failed to delete all users online: ${e.message}")
+        }
+    }
+
     override suspend fun sync() {
         // pull from remote and write into local
         val remoteList = online.all().first()

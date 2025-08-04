@@ -49,7 +49,6 @@ class HomeCalendarFragment : Fragment(), Clickable {
     private lateinit var adapter: CalendarAdapter
     private lateinit var eventsAdapter: EventAdapter
 
-
     private var currentDate = Calendar.getInstance()
     private val events = mutableListOf<Event>()
     private var selectedDay: Int? = null

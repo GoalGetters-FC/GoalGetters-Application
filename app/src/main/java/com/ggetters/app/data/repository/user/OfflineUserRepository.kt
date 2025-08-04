@@ -39,6 +39,10 @@ class OfflineUserRepository @Inject constructor(
         // no-op
     }
 
+    override suspend fun deleteAll() {
+        dao.deleteAll()
+    }
+
     override suspend fun sync() {
         // no-op
     }

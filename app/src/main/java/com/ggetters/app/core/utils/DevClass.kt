@@ -8,8 +8,10 @@ import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.broadcast.BroadcastRepository
 import com.ggetters.app.data.repository.broadcaststatus.BroadcastStatusRepository
 import com.ggetters.app.data.repository.event.EventRepository
+import com.ggetters.app.data.repository.lineup.LineupRepository
 import com.ggetters.app.data.repository.team.TeamRepository
 import com.ggetters.app.data.repository.user.UserRepository
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -33,7 +35,8 @@ class DevClass @Inject constructor(
     private val eventRepo: EventRepository,
     private val attendanceRepo: AttendanceRepository,
     private val broadcastRepo: BroadcastRepository,
-    private val broadcastStatusRepo: BroadcastStatusRepository
+    private val broadcastStatusRepo: BroadcastStatusRepository,
+    private val lineupRepo: LineupRepository
 ) {
 
     private var isInitialized = false
@@ -70,6 +73,8 @@ class DevClass @Inject constructor(
             seedAttendance()
             seedBroadcast()
             seedBroadcastStatus()
+            seedLineup()
+            seedLineupWithSpots()
         } catch (e: Exception) {
             Clogger.e("DevClass", "Failed to seed dev data", e)
         }
@@ -81,6 +86,7 @@ class DevClass @Inject constructor(
         val attendanceCount = attendanceRepo.getAll().first().size
         val broadcastCount  = broadcastRepo.all().first().size
         val statusCount     = broadcastStatusRepo.all().first().size
+
 
         Clogger.i("DevClass", "📊 After seeding → teams=$teamCount, users=$userCount, " +
                 "events=$eventCount, attendance=$attendanceCount, " +
@@ -94,6 +100,13 @@ class DevClass @Inject constructor(
         runCatching {
 
             teamRepo.deleteAll()
+            userRepo.deleteAll()
+            eventRepo.deleteAll()
+            attendanceRepo.deleteAll()
+            broadcastRepo.deleteAll()
+            broadcastStatusRepo.deleteAll()
+            lineupRepo.deleteAll()
+            Clogger.i("DevClass", "🧹 Database cleared 3")
 
             // child tables first
 //            broadcastStatusRepo.all().first().forEach { broadcastStatusRepo.delete(it) }
@@ -201,6 +214,66 @@ class DevClass @Inject constructor(
             Clogger.e("DevClass", "❌ Event seeding failed", it)
         }
     }
+
+    /**
+     * Creates and persists a Lineup linked to the seeded Event.
+     */
+    private suspend fun seedLineup() {
+        runCatching {
+            val lineupId = UUID.randomUUID().toString()
+            val lineup = Lineup(
+                id = lineupId,
+                eventId = eventId,               // Make sure `eventId` is already seeded
+                createdBy = userId,              // Use the same dev user ID
+                formation = "4-3-3",
+                spotsJson = "[]"                 // Placeholder; can populate later
+            )
+            lineupRepo.upsert(lineup)
+        }.onSuccess {
+            Clogger.i("DevClass", "✅ Lineup seeded for event: $eventId")
+        }.onFailure {
+            Clogger.e("DevClass", "❌ Lineup seeding failed", it)
+        }
+    }
+
+    private suspend fun seedLineupWithSpots() {
+        runCatching {
+            val lineupId = UUID.randomUUID().toString()
+
+            // Fake list of lineup spots
+            val spots = listOf(
+                LineupSpot(userId = "p01", number = 1, position = "GK", role = SpotRole.STARTER),
+                LineupSpot(userId = "p02", number = 4, position = "CB", role = SpotRole.STARTER),
+                LineupSpot(userId = "p03", number = 5, position = "CB", role = SpotRole.STARTER),
+                LineupSpot(userId = "p04", number = 7, position = "CM", role = SpotRole.STARTER),
+                LineupSpot(userId = "p05", number = 10, position = "ST", role = SpotRole.STARTER),
+
+                LineupSpot(userId = "p06", number = 12, position = "", role = SpotRole.BENCH),
+                LineupSpot(userId = "p07", number = 14, position = "", role = SpotRole.BENCH),
+
+                LineupSpot(userId = "p08", number = 15, position = "", role = SpotRole.RESERVE),
+                LineupSpot(userId = "p09", number = 16, position = "", role = SpotRole.RESERVE)
+            )
+
+            val spotsJson = Gson().toJson(spots)
+
+            val lineup = Lineup(
+                id = lineupId,
+                eventId = eventId,       // make sure `eventId` is seeded
+                createdBy = userId,      // your dev/test user
+                formation = "4-3-3",
+                spotsJson = spotsJson
+            )
+
+            lineupRepo.upsert(lineup)
+        }.onSuccess {
+            Clogger.i("DevClass", "✅ Lineup with spots seeded for event: $eventId")
+        }.onFailure {
+            Clogger.e("DevClass", "❌ Failed to seed lineup with spots", it)
+        }
+    }
+
+
 
     /**
      * Creates and persists an Attendance record for the Event and User.

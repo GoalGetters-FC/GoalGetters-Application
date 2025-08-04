@@ -46,6 +46,11 @@ class OfflineEventRepository @Inject constructor(
     override fun getEventsByCreator(creatorId: String): Flow<List<Event>> =
         dao.getEventsByCreator(creatorId)
 
+    override suspend fun deleteAll() {
+        dao.deleteAll()
+    }
+
+
     // TODO: Backend - Implement local RSVP management
     // TODO: Backend - Add local event validation
     // TODO: Backend - Implement local event search

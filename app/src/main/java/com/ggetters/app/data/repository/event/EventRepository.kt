@@ -65,4 +65,10 @@ interface EventRepository : CrudRepository<Event> {
     // TODO: Backend - Add event conflict detection methods
     // TODO: Backend - Add event notification methods
     // TODO: Backend - Add event analytics methods
+
+    /**
+     * Delete all events from the repository.
+    */
+    suspend fun deleteAll()
+
 } 

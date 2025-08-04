@@ -103,6 +103,14 @@ class CombinedEventRepository @Inject constructor(
     override fun getEventsByCreator(creatorId: String): Flow<List<Event>> =
         offline.getEventsByCreator(creatorId)
 
+    override suspend fun deleteAll() {
+        try {
+            offline.deleteAll()
+            online.deleteAll()
+        } catch (e: Exception) {
+            Clogger.e("DevClass", "Failed to delete all events: ${e.message}")
+        }
+    }
     // TODO: Backend - Implement combined RSVP management
     // TODO: Backend - Add combined event analytics
     // TODO: Backend - Implement combined conflict detection

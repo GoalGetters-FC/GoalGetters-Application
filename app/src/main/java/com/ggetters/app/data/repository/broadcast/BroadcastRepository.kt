@@ -6,8 +6,6 @@ import com.ggetters.app.data.repository.CrudRepository
 
 interface BroadcastRepository : CrudRepository<Broadcast>
 {
-
-
     /**
      * Delete all broadcasts.
      */

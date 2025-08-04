@@ -131,6 +131,14 @@ class EventFirestore @Inject constructor(
             .await()
     }
 
+    /**
+     * Delete multiple events in a batch operation.
+     */
+
+    suspend fun deleteAll(events: List<Event>) {
+
+    }
+
     // TODO: Backend - Implement date range queries for calendar
     // TODO: Backend - Add event search functionality
     // TODO: Backend - Implement recurring event management

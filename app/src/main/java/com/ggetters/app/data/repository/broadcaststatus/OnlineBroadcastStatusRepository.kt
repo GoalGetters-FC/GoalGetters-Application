@@ -1,5 +1,6 @@
 package com.ggetters.app.data.repository.broadcaststatus
 
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.BroadcastStatus
 import com.ggetters.app.data.remote.firestore.BroadcastStatusFirestore
 import kotlinx.coroutines.flow.Flow
@@ -23,4 +24,8 @@ class OnlineBroadcastStatusRepository @Inject constructor(
 
     override suspend fun delete(entity: BroadcastStatus) =
         fs.delete(entity.broadcastId, entity.recipientId)
+
+    override suspend fun deleteAll() {
+        Clogger.i("DevClass", "deleteAll called")
+    }
 }

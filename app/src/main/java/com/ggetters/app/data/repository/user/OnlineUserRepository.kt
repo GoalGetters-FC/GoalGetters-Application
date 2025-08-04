@@ -39,6 +39,10 @@ class OnlineUserRepository @Inject constructor(
     override suspend fun insertRemote(user: User) =
         fs.save(user)
 
+    override suspend fun deleteAll() {
+        fs.deleteAll()
+    }
+
     override suspend fun sync() {
         // no-op
     }
