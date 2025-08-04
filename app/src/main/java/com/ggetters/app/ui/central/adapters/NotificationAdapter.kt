@@ -12,6 +12,7 @@ import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.NotificationItem
 import com.ggetters.app.ui.central.models.NotificationType
 import com.ggetters.app.ui.central.models.RSVPStatus
+import com.google.android.material.button.MaterialButton
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -20,7 +21,8 @@ class NotificationAdapter(
     private val onActionClick: (NotificationItem, String) -> Unit,
     private val onItemClick: (NotificationItem) -> Unit,
     private val onRSVPClick: (NotificationItem, RSVPStatus) -> Unit,
-    private val onSwipeAction: (NotificationItem, String) -> Unit
+    private val onSwipeAction: (NotificationItem, String) -> Unit,
+    private val onLongPress: (NotificationItem) -> Unit
 ) : RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>() {
 
     fun updateNotifications(newNotifications: List<NotificationItem>) {
@@ -53,6 +55,11 @@ class NotificationAdapter(
         private val scheduledEvent: LinearLayout = itemView.findViewById(R.id.scheduledEvent)
         private val eventIcon: ImageView = itemView.findViewById(R.id.eventIcon)
         private val eventDateTime: TextView = itemView.findViewById(R.id.eventDateTime)
+        private val attendanceSummary: TextView = itemView.findViewById(R.id.attendanceSummary)
+        private val rsvpButtons: LinearLayout = itemView.findViewById(R.id.rsvpButtons)
+        private val btnAvailable: MaterialButton = itemView.findViewById(R.id.btnAvailable)
+        private val btnMaybe: MaterialButton = itemView.findViewById(R.id.btnMaybe)
+        private val btnUnavailable: MaterialButton = itemView.findViewById(R.id.btnUnavailable)
         private val actionMenuButton: ImageButton = itemView.findViewById(R.id.actionMenuButton)
 
         fun bind(notification: NotificationItem) {
@@ -71,8 +78,17 @@ class NotificationAdapter(
             // Set up specific notification types
             setupNotificationType(notification)
             
+            // Set up RSVP buttons if needed
+            setupRSVPButtons(notification)
+            
+            // Set up attendance summary
+            setupAttendanceSummary(notification)
+            
             // Set up click listeners
             setupClickListeners(notification)
+            
+            // Set up long press
+            setupLongPress(notification)
         }
 
         private fun setNotificationIcon(type: NotificationType) {
@@ -83,6 +99,7 @@ class NotificationAdapter(
                 NotificationType.PLAYER_UPDATE -> R.drawable.ic_unicons_user_24
                 NotificationType.ADMIN_MESSAGE -> R.drawable.ic_unicons_message_24
                 NotificationType.SCHEDULE_CHANGE -> R.drawable.ic_unicons_settings_24
+                NotificationType.POST_MATCH_SUMMARY -> R.drawable.ic_unicons_calender_24
                 NotificationType.SYSTEM -> R.drawable.ic_unicons_bell_24
             }
             notificationIcon.setImageResource(iconRes)
@@ -99,6 +116,12 @@ class NotificationAdapter(
             } else {
                 notificationText.setTextColor(itemView.context.getColor(R.color.black))
                 notificationText.setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+            
+            // Set accent color for unread notifications
+            if (!notification.isSeen) {
+                // TODO: Backend - Use team color from notification.teamColor
+                unreadIndicator.setBackgroundColor(itemView.context.getColor(R.color.primary))
             }
         }
 
@@ -121,6 +144,11 @@ class NotificationAdapter(
                     notification.eventDate?.let { date ->
                         eventDateTime.text = formatEventDateTime(date)
                     }
+                }
+                NotificationType.POST_MATCH_SUMMARY -> {
+                    // Show results summary for match results
+                    resultsSummary.visibility = View.VISIBLE
+                    setupResultsSummary(notification)
                 }
                 NotificationType.ANNOUNCEMENT -> {
                     // Check if it's a results announcement
@@ -157,8 +185,67 @@ class NotificationAdapter(
             }
         }
 
+        private fun setupRSVPButtons(notification: NotificationItem) {
+            if (notification.hasRSVPButtons()) {
+                rsvpButtons.visibility = View.VISIBLE
+                
+                // Set current RSVP status
+                updateRSVPButtonStates(notification)
+                
+                // Set click listeners for RSVP buttons
+                btnAvailable.setOnClickListener {
+                    onRSVPClick(notification, RSVPStatus.AVAILABLE)
+                }
+                
+                btnMaybe.setOnClickListener {
+                    onRSVPClick(notification, RSVPStatus.MAYBE)
+                }
+                
+                btnUnavailable.setOnClickListener {
+                    onRSVPClick(notification, RSVPStatus.UNAVAILABLE)
+                }
+            } else {
+                rsvpButtons.visibility = View.GONE
+            }
+        }
+
+        private fun updateRSVPButtonStates(notification: NotificationItem) {
+            // Reset all buttons to default state
+            btnAvailable.setBackgroundTintList(null)
+            btnMaybe.setBackgroundTintList(null)
+            btnUnavailable.setBackgroundTintList(null)
+            
+            // Highlight the selected RSVP status
+            when (notification.rsvpStatus) {
+                RSVPStatus.AVAILABLE -> {
+                    btnAvailable.setBackgroundTintList(itemView.context.getColorStateList(R.color.success))
+                    btnAvailable.setTextColor(itemView.context.getColor(R.color.white))
+                }
+                RSVPStatus.MAYBE -> {
+                    btnMaybe.setBackgroundTintList(itemView.context.getColorStateList(R.color.warning))
+                    btnMaybe.setTextColor(itemView.context.getColor(R.color.white))
+                }
+                RSVPStatus.UNAVAILABLE -> {
+                    btnUnavailable.setBackgroundTintList(itemView.context.getColorStateList(R.color.error))
+                    btnUnavailable.setTextColor(itemView.context.getColor(R.color.white))
+                }
+                else -> {
+                    // No RSVP selected yet
+                }
+            }
+        }
+
+        private fun setupAttendanceSummary(notification: NotificationItem) {
+            if (notification.hasRSVPButtons() && notification.attendanceCounts != null) {
+                attendanceSummary.visibility = View.VISIBLE
+                attendanceSummary.text = notification.attendanceCounts.getFormattedSummary()
+            } else {
+                attendanceSummary.visibility = View.GONE
+            }
+        }
+
         private fun setupClickListeners(notification: NotificationItem) {
-            // Main item click
+            // Main item click - opens linked event
             itemView.setOnClickListener {
                 onItemClick(notification)
             }
@@ -166,6 +253,13 @@ class NotificationAdapter(
             // Action menu button
             actionMenuButton.setOnClickListener {
                 showActionMenu(notification)
+            }
+        }
+
+        private fun setupLongPress(notification: NotificationItem) {
+            itemView.setOnLongClickListener {
+                onLongPress(notification)
+                true
             }
         }
 
@@ -183,6 +277,14 @@ class NotificationAdapter(
                     }
                     R.id.action_delete -> {
                         onActionClick(notification, "delete")
+                        true
+                    }
+                    R.id.action_pin -> {
+                        onActionClick(notification, "pin")
+                        true
+                    }
+                    R.id.action_view_event -> {
+                        onActionClick(notification, "view_event")
                         true
                     }
                     else -> false

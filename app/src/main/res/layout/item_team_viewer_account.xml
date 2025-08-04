@@ -31,7 +31,7 @@
                             android:layout_width="80dp">
 
                         <ImageView
-                                android:src="@drawable/xic_x48_uic_line_football"
+                                android:src="@drawable/ic_unicons_soccer_24"
                                 android:importantForAccessibility="no"
                                 android:layout_gravity="center"
                                 android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
                             android:id="@+id/tv_team_role"
                             android:text="Full-time Coach"
                             android:textSize="14sp"
-                            app:drawableStartCompat="@drawable/xic_x16_uic_line_suitcase"
+                            app:drawableStartCompat="@drawable/ic_unicons_briefcase_24"
                             android:drawablePadding="8dp"
                             android:layout_marginTop="8dp"
                             android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
                             android:id="@+id/tv_team_count"
                             android:text="15 players"
                             android:textSize="14sp"
-                            app:drawableStartCompat="@drawable/xic_x16_uic_line_user_arrows"
+                            app:drawableStartCompat="@drawable/ic_unicons_users_24"
                             android:drawablePadding="8dp"
                             android:layout_marginTop="8dp"
                             android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
 
             <ImageView
                     android:id="@+id/iv_options"
-                    android:src="@drawable/xic_x24_uic_line_ellipsis_v"
+                    android:src="@drawable/ic_unicons_ellipsis_v"
                     android:background="?attr/selectableItemBackground"
                     android:importantForAccessibility="no"
                     android:layout_gravity="center_vertical|end"

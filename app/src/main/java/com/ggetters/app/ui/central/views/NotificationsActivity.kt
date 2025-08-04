@@ -1,11 +1,13 @@
 package com.ggetters.app.ui.central.views
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
@@ -13,9 +15,9 @@ import com.ggetters.app.ui.central.adapters.NotificationAdapter
 import com.ggetters.app.ui.central.models.NotificationItem
 import com.ggetters.app.ui.central.models.NotificationType
 import com.ggetters.app.ui.central.models.RSVPStatus
+import com.ggetters.app.ui.central.models.AttendanceCounts
+import com.ggetters.app.ui.central.models.LinkedEventType
 import com.ggetters.app.ui.central.viewmodels.NotificationsViewModel
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -26,7 +28,6 @@ class NotificationsActivity : AppCompatActivity() {
 
     private val model: NotificationsViewModel by viewModels()
     private lateinit var notificationAdapter: NotificationAdapter
-    private lateinit var filterChipGroup: ChipGroup
     private var allNotifications: List<NotificationItem> = emptyList()
     private var filteredNotifications: List<NotificationItem> = emptyList()
 
@@ -36,6 +37,7 @@ class NotificationsActivity : AppCompatActivity() {
 
         setupHeader()
         setupNotifications()
+        setupSwipeActions()
     }
 
     private fun setupHeader() {
@@ -48,7 +50,7 @@ class NotificationsActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.notificationsRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Sample notifications data with enhanced structure
+        // TODO: Backend - Fetch notifications from backend with proper data structure
         val notifications = listOf(
             // General Text Notification (matches image)
             NotificationItem(
@@ -59,7 +61,9 @@ class NotificationsActivity : AppCompatActivity() {
                 isSeen = false,
                 type = NotificationType.ADMIN_MESSAGE,
                 timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
-                sender = "Coach"
+                sender = "Coach",
+                linkedEventType = LinkedEventType.ANNOUNCEMENT,
+                linkedEventId = "announcement_001"
             ),
             
             // Results Summary Notification (matches image)
@@ -69,9 +73,11 @@ class NotificationsActivity : AppCompatActivity() {
                 subtitle = "Summary of results",
                 message = "Summary of results.",
                 isSeen = false,
-                type = NotificationType.ANNOUNCEMENT,
+                type = NotificationType.POST_MATCH_SUMMARY,
                 timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
                 sender = "System",
+                linkedEventType = LinkedEventType.MATCH_RESULTS,
+                linkedEventId = "match_001",
                 data = mapOf(
                     "homeScore" to "15",
                     "awayScore" to "2",
@@ -90,7 +96,10 @@ class NotificationsActivity : AppCompatActivity() {
                 type = NotificationType.PRACTICE_RSVP,
                 timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
                 sender = "Coach",
-                eventDate = System.currentTimeMillis() + 86400000 // Tomorrow
+                linkedEventType = LinkedEventType.PRACTICE,
+                linkedEventId = "practice_001",
+                eventDate = System.currentTimeMillis() + 86400000, // Tomorrow
+                attendanceCounts = AttendanceCounts(8, 3, 2, 13)
             ),
             
             // Long Text Notification (matches image)
@@ -102,10 +111,12 @@ class NotificationsActivity : AppCompatActivity() {
                 isSeen = true,
                 type = NotificationType.ANNOUNCEMENT,
                 timestamp = System.currentTimeMillis() + 86400000, // Future date
-                sender = "Coach"
+                sender = "Coach",
+                linkedEventType = LinkedEventType.ANNOUNCEMENT,
+                linkedEventId = "announcement_002"
             ),
             
-            // Game RSVP Notification
+            // Game RSVP Notification with attendance counts
             NotificationItem(
                 id = 5,
                 title = "Match vs Tigers FC",
@@ -115,11 +126,13 @@ class NotificationsActivity : AppCompatActivity() {
                 type = NotificationType.GAME_RSVP,
                 timestamp = System.currentTimeMillis() - 7200000, // 2 hours ago
                 sender = "Coach",
-                eventId = "game_001",
+                linkedEventType = LinkedEventType.GAME,
+                linkedEventId = "game_001",
                 venue = "Main Stadium",
                 eventDate = System.currentTimeMillis() + 86400000, // Tomorrow
                 opponent = "Tigers FC",
-                rsvpStatus = RSVPStatus.NOT_RESPONDED
+                rsvpStatus = RSVPStatus.NOT_RESPONDED,
+                attendanceCounts = AttendanceCounts(12, 2, 1, 15)
             ),
             
             // Game Reminder Notification
@@ -132,7 +145,8 @@ class NotificationsActivity : AppCompatActivity() {
                 type = NotificationType.GAME_REMINDER,
                 timestamp = System.currentTimeMillis() - 3600000, // 1 hour ago
                 sender = "System",
-                eventId = "game_002",
+                linkedEventType = LinkedEventType.GAME,
+                linkedEventId = "game_002",
                 venue = "Home Ground",
                 eventDate = System.currentTimeMillis() + 7200000, // 2 hours from now
                 opponent = "Greenfield United",
@@ -149,31 +163,17 @@ class NotificationsActivity : AppCompatActivity() {
                 type = NotificationType.PRACTICE_RSVP,
                 timestamp = System.currentTimeMillis() - 86400000, // 1 day ago
                 sender = "Coach",
-                eventId = "practice_001",
+                linkedEventType = LinkedEventType.PRACTICE,
+                linkedEventId = "practice_002",
                 venue = "Field 2",
                 eventDate = System.currentTimeMillis() + 86400000, // Tomorrow
-                rsvpStatus = RSVPStatus.AVAILABLE
+                rsvpStatus = RSVPStatus.AVAILABLE,
+                attendanceCounts = AttendanceCounts(10, 3, 2, 15)
             ),
             
-            // Practice Reminder Notification
+            // Pinned Announcement
             NotificationItem(
                 id = 8,
-                title = "Practice Reminder",
-                subtitle = "Training at 3 PM - Field 2",
-                message = "Don't forget to bring your training gear and water bottle.",
-                isSeen = true,
-                type = NotificationType.PRACTICE_REMINDER,
-                timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
-                sender = "Coach",
-                eventId = "practice_002",
-                venue = "Field 2",
-                eventDate = System.currentTimeMillis() + 3600000, // 1 hour from now
-                countdownTime = System.currentTimeMillis() + 3600000
-            ),
-            
-            // Announcement Notification
-            NotificationItem(
-                id = 9,
                 title = "Team Announcement",
                 subtitle = "Important team meeting",
                 message = "Team meeting this Friday at 6 PM to discuss upcoming tournament strategy.",
@@ -181,48 +181,14 @@ class NotificationsActivity : AppCompatActivity() {
                 type = NotificationType.ANNOUNCEMENT,
                 timestamp = System.currentTimeMillis() - 3600000, // 1 hour ago
                 sender = "Coach",
-                isPinned = true
-            ),
-            
-            // Player Update Notification
-            NotificationItem(
-                id = 10,
-                title = "New Player Joined",
-                subtitle = "John Doe added to roster",
-                message = "John Doe has joined your team and will be available for the next match.",
-                isSeen = true,
-                type = NotificationType.PLAYER_UPDATE,
-                timestamp = System.currentTimeMillis() - 259200000, // 3 days ago
-                sender = "System"
-            ),
-            
-            // Schedule Change Notification
-            NotificationItem(
-                id = 11,
-                title = "Schedule Change",
-                subtitle = "Practice time updated",
-                message = "Tomorrow's practice has been moved from 3 PM to 4 PM due to field maintenance.",
-                isSeen = false,
-                type = NotificationType.SCHEDULE_CHANGE,
-                timestamp = System.currentTimeMillis() - 1800000, // 30 minutes ago
-                sender = "Coach"
-            ),
-            
-            // Admin Message Notification
-            NotificationItem(
-                id = 12,
-                title = "Message from Coach",
-                subtitle = "Don't forget shin guards",
-                message = "Don't forget to bring your shin guards for tomorrow's game. They're mandatory for safety.",
-                isSeen = true,
-                type = NotificationType.ADMIN_MESSAGE,
-                timestamp = System.currentTimeMillis() - 43200000, // 12 hours ago
-                sender = "Coach John"
+                isPinned = true,
+                linkedEventType = LinkedEventType.ANNOUNCEMENT,
+                linkedEventId = "announcement_003"
             )
         )
 
-        allNotifications = notifications
-        filteredNotifications = notifications
+        allNotifications = notifications.sortedByDescending { it.timestamp } // Newest first
+        filteredNotifications = allNotifications
         
         notificationAdapter = NotificationAdapter(
             filteredNotifications.toMutableList(),
@@ -234,10 +200,16 @@ class NotificationsActivity : AppCompatActivity() {
                     "mark_seen" -> {
                         handleMarkAsSeen(notification)
                     }
+                    "pin" -> {
+                        handlePinNotification(notification)
+                    }
+                    "view_event" -> {
+                        handleViewLinkedEvent(notification)
+                    }
                 }
             },
             onItemClick = { notification ->
-                // Handle notification item click
+                // Handle notification item click - opens linked event
                 handleNotificationClick(notification)
             },
             onRSVPClick = { notification, status ->
@@ -248,10 +220,145 @@ class NotificationsActivity : AppCompatActivity() {
                     "delete" -> showDeleteConfirmation(notification)
                     "mark_seen" -> handleMarkAsSeen(notification)
                 }
+            },
+            onLongPress = { notification ->
+                showLongPressOptions(notification)
             }
         )
         
         recyclerView.adapter = notificationAdapter
+    }
+
+    private fun setupSwipeActions() {
+        val recyclerView = findViewById<RecyclerView>(R.id.notificationsRecyclerView)
+        
+        // TODO: Backend - Implement swipe actions for mark read/unread and delete
+        val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val notification = filteredNotifications[position]
+                
+                when (direction) {
+                    ItemTouchHelper.LEFT -> {
+                        // Swipe left - Mark as read/unread
+                        handleMarkAsSeen(notification)
+                    }
+                    ItemTouchHelper.RIGHT -> {
+                        // Swipe right - Delete
+                        showDeleteConfirmation(notification)
+                    }
+                }
+            }
+        }
+        
+        ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerView)
+    }
+
+    private fun handleNotificationClick(notification: NotificationItem) {
+        // TODO: Backend - Navigate to linked event based on notification.linkedEventType and notification.linkedEventId
+        when (notification.linkedEventType) {
+            LinkedEventType.GAME -> {
+                // Navigate to game details
+                Snackbar.make(findViewById(android.R.id.content), "Opening game details...", Snackbar.LENGTH_SHORT).show()
+            }
+            LinkedEventType.PRACTICE -> {
+                // Navigate to practice details
+                Snackbar.make(findViewById(android.R.id.content), "Opening practice details...", Snackbar.LENGTH_SHORT).show()
+            }
+            LinkedEventType.ANNOUNCEMENT -> {
+                // Navigate to announcement details
+                Snackbar.make(findViewById(android.R.id.content), "Opening announcement details...", Snackbar.LENGTH_SHORT).show()
+            }
+            LinkedEventType.MATCH_RESULTS -> {
+                // Navigate to match results
+                Snackbar.make(findViewById(android.R.id.content), "Opening match results...", Snackbar.LENGTH_SHORT).show()
+            }
+            else -> {
+                // Default behavior
+                if (!notification.isSeen) {
+                    handleMarkAsSeen(notification)
+                }
+            }
+        }
+    }
+
+    private fun handleRSVPResponse(notification: NotificationItem, status: RSVPStatus) {
+        // TODO: Backend - Send RSVP response to backend and update attendance counts
+        notification.rsvpStatus = status
+        notificationAdapter.notifyDataSetChanged()
+        
+        val statusText = when (status) {
+            RSVPStatus.AVAILABLE -> "Available"
+            RSVPStatus.MAYBE -> "Maybe"
+            RSVPStatus.UNAVAILABLE -> "Unavailable"
+            else -> "Unknown"
+        }
+        
+        Snackbar.make(
+            findViewById(android.R.id.content), 
+            "RSVP status set to: $statusText", 
+            Snackbar.LENGTH_SHORT
+        ).show()
+        
+        // TODO: Backend - Update calendar event status and attendance counts
+        // TODO: Backend - Notify coaches of RSVP changes for lineup adjustments
+    }
+
+    private fun handleMarkAsSeen(notification: NotificationItem) {
+        // TODO: Backend - Mark notification as seen/unseen in backend
+        notification.isSeen = !notification.isSeen
+        notificationAdapter.notifyDataSetChanged()
+        
+        val action = if (notification.isSeen) "marked as read" else "marked as unread"
+        Snackbar.make(
+            findViewById(android.R.id.content), 
+            "Notification $action", 
+            Snackbar.LENGTH_SHORT
+        ).show()
+    }
+
+    private fun handlePinNotification(notification: NotificationItem) {
+        // TODO: Backend - Pin/unpin notification in backend
+        notification.isPinned = !notification.isPinned
+        notificationAdapter.notifyDataSetChanged()
+        
+        val action = if (notification.isPinned) "pinned" else "unpinned"
+        Snackbar.make(
+            findViewById(android.R.id.content), 
+            "Notification $action", 
+            Snackbar.LENGTH_SHORT
+        ).show()
+    }
+
+    private fun handleViewLinkedEvent(notification: NotificationItem) {
+        // TODO: Backend - Navigate to linked event
+        handleNotificationClick(notification)
+    }
+
+    private fun showLongPressOptions(notification: NotificationItem) {
+        // TODO: Backend - Show bottom sheet with long press options
+        val options = arrayOf(
+            if (notification.isSeen) "Mark as Unread" else "Mark as Read",
+            if (notification.isPinned) "Unpin" else "Pin",
+            "View Linked Event",
+            "Delete"
+        )
+        
+        AlertDialog.Builder(this)
+            .setTitle("Notification Options")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> handleMarkAsSeen(notification)
+                    1 -> handlePinNotification(notification)
+                    2 -> handleViewLinkedEvent(notification)
+                    3 -> showDeleteConfirmation(notification)
+                }
+            }
+            .show()
     }
 
     private fun showDeleteConfirmation(notification: NotificationItem) {
@@ -269,44 +376,5 @@ class NotificationsActivity : AppCompatActivity() {
             .create()
         
         dialog.show()
-    }
-
-    private fun handleNotificationClick(notification: NotificationItem) {
-        // Simple click handling - could show details or mark as read
-        if (!notification.isSeen) {
-            handleMarkAsSeen(notification)
-        }
-    }
-
-    private fun handleRSVPResponse(notification: NotificationItem, status: RSVPStatus) {
-        // TODO: Backend - Send RSVP response to backend
-        notification.rsvpStatus = status
-        notificationAdapter.notifyDataSetChanged()
-        
-        val statusText = when (status) {
-            RSVPStatus.AVAILABLE -> "Available"
-            RSVPStatus.MAYBE -> "Maybe"
-            RSVPStatus.UNAVAILABLE -> "Unavailable"
-            else -> "Unknown"
-        }
-        
-        Snackbar.make(
-            findViewById(android.R.id.content), 
-            "RSVP status set to: $statusText", 
-            Snackbar.LENGTH_SHORT
-        ).show()
-    }
-
-    private fun handleMarkAsSeen(notification: NotificationItem) {
-        // TODO: Backend - Mark notification as seen/unseen
-        notification.isSeen = !notification.isSeen
-        notificationAdapter.notifyDataSetChanged()
-        
-        val action = if (notification.isSeen) "marked as read" else "marked as unread"
-        Snackbar.make(
-            findViewById(android.R.id.content), 
-            "Notification $action", 
-            Snackbar.LENGTH_SHORT
-        ).show()
     }
 } 

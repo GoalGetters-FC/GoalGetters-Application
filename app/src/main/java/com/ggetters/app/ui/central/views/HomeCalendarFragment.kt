@@ -1,5 +1,6 @@
 package com.ggetters.app.ui.central.views
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -38,6 +39,7 @@ import kotlin.math.abs
 class HomeCalendarFragment : Fragment(), Clickable {
     companion object {
         private const val TAG = "HomeCalendarFragment"
+        private const val REQUEST_ADD_EVENT = 1001
     }
 
 
@@ -334,17 +336,15 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
 
     private fun showAddEventBottomSheet(selectedDay: Int? = null) {
-        val bottomSheet = AddEventBottomSheet()
+        val intent = Intent(requireContext(), AddEventActivity::class.java)
         if (selectedDay != null) {
             val calendar = currentDate.clone() as Calendar
             calendar.set(Calendar.DAY_OF_MONTH, selectedDay)
-            bottomSheet.setSelectedDate(calendar.time)
+            intent.putExtra("selected_date", calendar.timeInMillis)
         }
-        bottomSheet.setOnEventCreatedListener { event ->
-            events.add(event)
-            updateCalendarView()
-        }
-        bottomSheet.show(childFragmentManager, "AddEventBottomSheet")
+        
+        // Start activity for result
+        startActivityForResult(intent, REQUEST_ADD_EVENT)
     }
 
 
