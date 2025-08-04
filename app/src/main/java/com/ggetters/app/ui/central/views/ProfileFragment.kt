@@ -1,5 +1,6 @@
 package com.ggetters.app.ui.central.views
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,6 +21,7 @@ import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
 import com.ggetters.app.ui.central.viewmodels.HomePlayersViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.central.viewmodels.ProfileViewModel
+import com.ggetters.app.ui.startup.views.StartActivity
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
 import java.time.LocalDate
@@ -32,6 +34,7 @@ class ProfileFragment : Fragment() {
     private val model: ProfileViewModel by viewModels()
     
 
+    private lateinit var tvLogout: TextView
     private lateinit var profileAvatar: ImageView
     private lateinit var userNameText: TextView
     private lateinit var userEmailText: TextView
@@ -55,6 +58,7 @@ class ProfileFragment : Fragment() {
         userNameText  = view.findViewById(R.id.userNameText)
         userEmailText = view.findViewById(R.id.userEmailText)
         teamNameText  = view.findViewById(R.id.teamNameText)
+        tvLogout = view.findViewById(R.id.tv_logout)
     }
 
     private fun setupClickListeners() {
@@ -69,6 +73,12 @@ class ProfileFragment : Fragment() {
             Toast.makeText(context, "Opening account switcher...", Toast.LENGTH_SHORT).show()
             showAccountSwitcher()
             true
+        }
+        
+        tvLogout.setOnClickListener { 
+            model.logout()
+            startActivity(Intent(requireContext(), StartActivity::class.java))
+            requireActivity().finishAffinity()
         }
     }
 
