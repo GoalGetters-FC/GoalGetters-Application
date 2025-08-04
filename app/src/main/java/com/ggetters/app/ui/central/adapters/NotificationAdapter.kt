@@ -12,7 +12,6 @@ import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.NotificationItem
 import com.ggetters.app.ui.central.models.NotificationType
 import com.ggetters.app.ui.central.models.RSVPStatus
-import com.google.android.material.button.MaterialButton
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -43,26 +42,24 @@ class NotificationAdapter(
 
     inner class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val unreadIndicator: View = itemView.findViewById(R.id.unreadIndicator)
-        private val pinIcon: ImageView = itemView.findViewById(R.id.pinIcon)
         private val notificationIcon: ImageView = itemView.findViewById(R.id.notificationIcon)
-        private val notificationTitle: TextView = itemView.findViewById(R.id.notificationTitle)
-        private val notificationSubtitle: TextView = itemView.findViewById(R.id.notificationSubtitle)
+        private val notificationText: TextView = itemView.findViewById(R.id.notificationText)
         private val notificationTimestamp: TextView = itemView.findViewById(R.id.notificationTimestamp)
-        private val eventDetails: LinearLayout = itemView.findViewById(R.id.eventDetails)
+        private val resultsSummary: LinearLayout = itemView.findViewById(R.id.resultsSummary)
+        private val homeScore: TextView = itemView.findViewById(R.id.homeScore)
+        private val homeLabel: TextView = itemView.findViewById(R.id.homeLabel)
+        private val awayScore: TextView = itemView.findViewById(R.id.awayScore)
+        private val awayLabel: TextView = itemView.findViewById(R.id.awayLabel)
+        private val scheduledEvent: LinearLayout = itemView.findViewById(R.id.scheduledEvent)
+        private val eventIcon: ImageView = itemView.findViewById(R.id.eventIcon)
         private val eventDateTime: TextView = itemView.findViewById(R.id.eventDateTime)
-        private val eventVenue: TextView = itemView.findViewById(R.id.eventVenue)
-        private val countdownText: TextView = itemView.findViewById(R.id.countdownText)
-        private val rsvpButtons: LinearLayout = itemView.findViewById(R.id.rsvpButtons)
-        private val btnAvailable: MaterialButton = itemView.findViewById(R.id.btnAvailable)
-        private val btnMaybe: MaterialButton = itemView.findViewById(R.id.btnMaybe)
-        private val btnUnavailable: MaterialButton = itemView.findViewById(R.id.btnUnavailable)
-        private val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
-        private val markSeenButton: ImageButton = itemView.findViewById(R.id.markSeenButton)
+        private val actionMenuButton: ImageButton = itemView.findViewById(R.id.actionMenuButton)
 
         fun bind(notification: NotificationItem) {
-            // Set notification content
-            notificationTitle.text = notification.title
-            notificationSubtitle.text = notification.subtitle
+            // Set main notification text
+            notificationText.text = notification.message
+            
+            // Set timestamp
             notificationTimestamp.text = formatTimestamp(notification.timestamp)
             
             // Set icon based on notification type
@@ -71,11 +68,8 @@ class NotificationAdapter(
             // Set visual states
             setVisualStates(notification)
             
-            // Set up event details for RSVP and reminder notifications
-            setupEventDetails(notification)
-            
-            // Set up RSVP buttons
-            setupRSVPButtons(notification)
+            // Set up specific notification types
+            setupNotificationType(notification)
             
             // Set up click listeners
             setupClickListeners(notification)
@@ -98,100 +92,68 @@ class NotificationAdapter(
             // Set unread indicator
             unreadIndicator.visibility = if (!notification.isSeen) View.VISIBLE else View.GONE
             
-            // Set pin icon
-            pinIcon.visibility = if (notification.isPinned) View.VISIBLE else View.GONE
-            
-            // Set title style based on read status
+            // Set text style based on read status
             if (notification.isSeen) {
-                itemView.setBackgroundResource(R.color.white)
-                notificationTitle.setTypeface(null, android.graphics.Typeface.NORMAL)
+                notificationText.setTextColor(itemView.context.getColor(R.color.text_secondary))
+                notificationText.setTypeface(null, android.graphics.Typeface.NORMAL)
             } else {
-                itemView.setBackgroundResource(R.color.surface_elevated)
-                notificationTitle.setTypeface(null, android.graphics.Typeface.BOLD)
+                notificationText.setTextColor(itemView.context.getColor(R.color.black))
+                notificationText.setTypeface(null, android.graphics.Typeface.BOLD)
             }
         }
 
-        private fun setupEventDetails(notification: NotificationItem) {
-            if (notification.type == NotificationType.GAME_RSVP || notification.type == NotificationType.PRACTICE_RSVP || 
-                notification.type == NotificationType.GAME_REMINDER || notification.type == NotificationType.PRACTICE_REMINDER) {
-                eventDetails.visibility = View.VISIBLE
-                
-                // Set date and time
-                notification.eventDate?.let { date ->
-                    eventDateTime.text = formatEventDateTime(date)
-                }
-                
-                // Set venue/opponent
-                when {
-                    notification.opponent != null -> {
-                        eventVenue.text = "vs ${notification.opponent}"
-                    }
-                    notification.venue != null -> {
-                        eventVenue.text = notification.venue
-                    }
-                }
-                
-                // Set countdown for reminder notifications
-                if (notification.type == NotificationType.GAME_REMINDER || notification.type == NotificationType.PRACTICE_REMINDER) {
-                    countdownText.visibility = View.VISIBLE
-                    notification.countdownTime?.let { countdown ->
-                        countdownText.text = formatCountdown(countdown)
-                    }
-                } else {
-                    countdownText.visibility = View.GONE
-                }
-            } else {
-                eventDetails.visibility = View.GONE
-            }
-        }
-
-        private fun setupRSVPButtons(notification: NotificationItem) {
-            if (notification.type == NotificationType.GAME_RSVP || notification.type == NotificationType.PRACTICE_RSVP) {
-                rsvpButtons.visibility = View.VISIBLE
-                
-                // Set current RSVP status
-                updateRSVPButtonStates(notification)
-                
-                // Set click listeners for RSVP buttons
-                btnAvailable.setOnClickListener {
-                    onRSVPClick(notification, RSVPStatus.AVAILABLE)
-                }
-                
-                btnMaybe.setOnClickListener {
-                    onRSVPClick(notification, RSVPStatus.MAYBE)
-                }
-                
-                btnUnavailable.setOnClickListener {
-                    onRSVPClick(notification, RSVPStatus.UNAVAILABLE)
-                }
-            } else {
-                rsvpButtons.visibility = View.GONE
-            }
-        }
-
-        private fun updateRSVPButtonStates(notification: NotificationItem) {
-            // Reset all buttons to default state
-            btnAvailable.setBackgroundTintList(null)
-            btnMaybe.setBackgroundTintList(null)
-            btnUnavailable.setBackgroundTintList(null)
+        private fun setupNotificationType(notification: NotificationItem) {
+            // Hide all special layouts first
+            resultsSummary.visibility = View.GONE
+            scheduledEvent.visibility = View.GONE
             
-            // Highlight the selected RSVP status
-            when (notification.rsvpStatus) {
-                RSVPStatus.AVAILABLE -> {
-                    btnAvailable.setBackgroundTintList(itemView.context.getColorStateList(R.color.success))
-                    btnAvailable.setTextColor(itemView.context.getColor(R.color.white))
+            when (notification.type) {
+                NotificationType.GAME_RSVP, NotificationType.PRACTICE_RSVP -> {
+                    // Show scheduled event for RSVP notifications
+                    scheduledEvent.visibility = View.VISIBLE
+                    notification.eventDate?.let { date ->
+                        eventDateTime.text = formatEventDateTime(date)
+                    }
                 }
-                RSVPStatus.MAYBE -> {
-                    btnMaybe.setBackgroundTintList(itemView.context.getColorStateList(R.color.warning))
-                    btnMaybe.setTextColor(itemView.context.getColor(R.color.white))
+                NotificationType.GAME_REMINDER, NotificationType.PRACTICE_REMINDER -> {
+                    // Show scheduled event for reminder notifications
+                    scheduledEvent.visibility = View.VISIBLE
+                    notification.eventDate?.let { date ->
+                        eventDateTime.text = formatEventDateTime(date)
+                    }
                 }
-                RSVPStatus.UNAVAILABLE -> {
-                    btnUnavailable.setBackgroundTintList(itemView.context.getColorStateList(R.color.error))
-                    btnUnavailable.setTextColor(itemView.context.getColor(R.color.white))
+                NotificationType.ANNOUNCEMENT -> {
+                    // Check if it's a results announcement
+                    if (notification.message.contains("Summary of results") || 
+                        notification.message.contains("Match result")) {
+                        resultsSummary.visibility = View.VISIBLE
+                        setupResultsSummary(notification)
+                    }
                 }
                 else -> {
-                    // No RSVP selected yet
+                    // Regular text notification - no special layout needed
                 }
+            }
+        }
+
+        private fun setupResultsSummary(notification: NotificationItem) {
+            // Extract scores from notification data or use defaults
+            val homeScoreValue = notification.data["homeScore"] as? String ?: "15"
+            val awayScoreValue = notification.data["awayScore"] as? String ?: "2"
+            val homeTeamName = notification.data["homeTeam"] as? String ?: "Home"
+            val awayTeamName = notification.data["awayTeam"] as? String ?: "Away"
+            
+            homeScore.text = homeScoreValue
+            awayScore.text = awayScoreValue
+            homeLabel.text = homeTeamName
+            awayLabel.text = awayTeamName
+            
+            // Set background colors based on win/loss
+            val isWin = homeScoreValue.toIntOrNull() ?: 0 > awayScoreValue.toIntOrNull() ?: 0
+            if (isWin) {
+                resultsSummary.setBackgroundResource(R.drawable.result_home_background)
+            } else {
+                resultsSummary.setBackgroundResource(R.drawable.result_away_background)
             }
         }
 
@@ -201,14 +163,33 @@ class NotificationAdapter(
                 onItemClick(notification)
             }
             
-            // Action buttons
-            deleteButton.setOnClickListener {
-                onActionClick(notification, "delete")
+            // Action menu button
+            actionMenuButton.setOnClickListener {
+                showActionMenu(notification)
             }
+        }
 
-            markSeenButton.setOnClickListener {
-                onActionClick(notification, "mark_seen")
+        private fun showActionMenu(notification: NotificationItem) {
+            // Create and show popup menu
+            val popup = android.widget.PopupMenu(itemView.context, actionMenuButton)
+            popup.menuInflater.inflate(R.menu.menu_notification_actions, popup.menu)
+            
+            // Set up menu item click listeners
+            popup.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.action_mark_seen -> {
+                        onActionClick(notification, "mark_seen")
+                        true
+                    }
+                    R.id.action_delete -> {
+                        onActionClick(notification, "delete")
+                        true
+                    }
+                    else -> false
+                }
             }
+            
+            popup.show()
         }
 
         private fun formatTimestamp(timestamp: Long): String {
@@ -220,26 +201,14 @@ class NotificationAdapter(
                 diff < 3600000 -> "${diff / 60000}m ago"
                 diff < 86400000 -> "${diff / 3600000}h ago"
                 diff < 604800000 -> "${diff / 86400000}d ago"
-                else -> SimpleDateFormat("MMM dd", Locale.getDefault()).format(Date(timestamp))
+                else -> SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(timestamp))
             }
         }
 
         private fun formatEventDateTime(timestamp: Long): String {
             val date = Date(timestamp)
-            val formatter = SimpleDateFormat("EEE dd MMM • HH:mm", Locale.getDefault())
+            val formatter = SimpleDateFormat("dd/MM HH:mm", Locale.getDefault())
             return formatter.format(date)
-        }
-
-        private fun formatCountdown(countdownTime: Long): String {
-            val now = System.currentTimeMillis()
-            val diff = countdownTime - now
-            
-            return when {
-                diff < 0 -> "Event started"
-                diff < 3600000 -> "Starts in ${diff / 60000}m"
-                diff < 86400000 -> "Starts in ${diff / 3600000}h"
-                else -> "Starts in ${diff / 86400000}d"
-            }
         }
     }
 } 

@@ -19,6 +19,7 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
+import android.widget.ImageButton
 
 @AndroidEntryPoint
 class NotificationsActivity : AppCompatActivity() {
@@ -33,30 +34,13 @@ class NotificationsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_notifications)
 
-        setupToolbar()
-        setupFilterChips()
+        setupHeader()
         setupNotifications()
     }
 
-    private fun setupToolbar() {
-        supportActionBar?.apply {
-            title = "Notifications"
-            setDisplayHomeAsUpEnabled(true)
-        }
-    }
-
-    private fun setupFilterChips() {
-        filterChipGroup = findViewById(R.id.filterChipGroup)
-        filterChipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
-            val selectedChip = checkedIds.firstOrNull()?.let { group.findViewById<Chip>(it) }
-            val filterType = when (selectedChip?.id) {
-                R.id.chipAll -> "all"
-                R.id.chipGames -> "game"
-                R.id.chipPractices -> "practice"
-                R.id.chipAnnouncements -> "announcement"
-                else -> "all"
-            }
-            filterNotifications(filterType)
+    private fun setupHeader() {
+        findViewById<ImageButton>(R.id.backButton).setOnClickListener {
+            finish()
         }
     }
 
@@ -66,9 +50,64 @@ class NotificationsActivity : AppCompatActivity() {
 
         // Sample notifications data with enhanced structure
         val notifications = listOf(
-            // Game RSVP Notification
+            // General Text Notification (matches image)
             NotificationItem(
                 id = 1,
+                title = "Reminder",
+                subtitle = "Shin guards reminder",
+                message = "Don't forget to pack your shin guards for tomorrow!",
+                isSeen = false,
+                type = NotificationType.ADMIN_MESSAGE,
+                timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
+                sender = "Coach"
+            ),
+            
+            // Results Summary Notification (matches image)
+            NotificationItem(
+                id = 2,
+                title = "Match Results",
+                subtitle = "Summary of results",
+                message = "Summary of results.",
+                isSeen = false,
+                type = NotificationType.ANNOUNCEMENT,
+                timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
+                sender = "System",
+                data = mapOf(
+                    "homeScore" to "15",
+                    "awayScore" to "2",
+                    "homeTeam" to "Home",
+                    "awayTeam" to "Away"
+                )
+            ),
+            
+            // Scheduled Event Notification (matches image)
+            NotificationItem(
+                id = 3,
+                title = "New Practice",
+                subtitle = "Practice scheduled",
+                message = "New practice scheduled!",
+                isSeen = false,
+                type = NotificationType.PRACTICE_RSVP,
+                timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
+                sender = "Coach",
+                eventDate = System.currentTimeMillis() + 86400000 // Tomorrow
+            ),
+            
+            // Long Text Notification (matches image)
+            NotificationItem(
+                id = 4,
+                title = "Parent Pickup",
+                subtitle = "Important notice",
+                message = "Parents: remember to pick up your players from the front not the back. Thanks.",
+                isSeen = true,
+                type = NotificationType.ANNOUNCEMENT,
+                timestamp = System.currentTimeMillis() + 86400000, // Future date
+                sender = "Coach"
+            ),
+            
+            // Game RSVP Notification
+            NotificationItem(
+                id = 5,
                 title = "Match vs Tigers FC",
                 subtitle = "RSVP Request",
                 message = "Please confirm your availability for the upcoming match.",
@@ -85,7 +124,7 @@ class NotificationsActivity : AppCompatActivity() {
             
             // Game Reminder Notification
             NotificationItem(
-                id = 2,
+                id = 6,
                 title = "Reminder: Match today",
                 subtitle = "Home match against Greenfield United",
                 message = "Your team has a match this weekend at the home ground. Please arrive 30 minutes early.",
@@ -102,7 +141,7 @@ class NotificationsActivity : AppCompatActivity() {
             
             // Practice RSVP Notification
             NotificationItem(
-                id = 3,
+                id = 7,
                 title = "Training Session Tomorrow",
                 subtitle = "RSVP Request",
                 message = "Team practice scheduled for tomorrow at 3 PM. Focus on passing drills.",
@@ -118,7 +157,7 @@ class NotificationsActivity : AppCompatActivity() {
             
             // Practice Reminder Notification
             NotificationItem(
-                id = 4,
+                id = 8,
                 title = "Practice Reminder",
                 subtitle = "Training at 3 PM - Field 2",
                 message = "Don't forget to bring your training gear and water bottle.",
@@ -134,7 +173,7 @@ class NotificationsActivity : AppCompatActivity() {
             
             // Announcement Notification
             NotificationItem(
-                id = 5,
+                id = 9,
                 title = "Team Announcement",
                 subtitle = "Important team meeting",
                 message = "Team meeting this Friday at 6 PM to discuss upcoming tournament strategy.",
@@ -147,7 +186,7 @@ class NotificationsActivity : AppCompatActivity() {
             
             // Player Update Notification
             NotificationItem(
-                id = 6,
+                id = 10,
                 title = "New Player Joined",
                 subtitle = "John Doe added to roster",
                 message = "John Doe has joined your team and will be available for the next match.",
@@ -159,7 +198,7 @@ class NotificationsActivity : AppCompatActivity() {
             
             // Schedule Change Notification
             NotificationItem(
-                id = 7,
+                id = 11,
                 title = "Schedule Change",
                 subtitle = "Practice time updated",
                 message = "Tomorrow's practice has been moved from 3 PM to 4 PM due to field maintenance.",
@@ -171,7 +210,7 @@ class NotificationsActivity : AppCompatActivity() {
             
             // Admin Message Notification
             NotificationItem(
-                id = 8,
+                id = 12,
                 title = "Message from Coach",
                 subtitle = "Don't forget shin guards",
                 message = "Don't forget to bring your shin guards for tomorrow's game. They're mandatory for safety.",
@@ -198,64 +237,64 @@ class NotificationsActivity : AppCompatActivity() {
                 }
             },
             onItemClick = { notification ->
-                showNotificationDetails(notification)
+                // Handle notification item click
+                handleNotificationClick(notification)
             },
-            onRSVPClick = { notification, rsvpStatus ->
-                handleRSVPResponse(notification, rsvpStatus)
+            onRSVPClick = { notification, status ->
+                handleRSVPResponse(notification, status)
             },
             onSwipeAction = { notification, action ->
                 when (action) {
-                    "mark_read" -> handleMarkAsSeen(notification)
                     "delete" -> showDeleteConfirmation(notification)
-                    "pin" -> handlePinNotification(notification)
+                    "mark_seen" -> handleMarkAsSeen(notification)
                 }
             }
         )
-
+        
         recyclerView.adapter = notificationAdapter
     }
 
-    private fun filterNotifications(filterType: String) {
-        filteredNotifications = when (filterType) {
-            "all" -> allNotifications
-            "game" -> allNotifications.filter { 
-                it.type == NotificationType.GAME_RSVP || it.type == NotificationType.GAME_REMINDER 
+    private fun showDeleteConfirmation(notification: NotificationItem) {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Delete Notification")
+            .setMessage("Are you sure you want to delete this notification?")
+            .setPositiveButton("Delete") { _, _ ->
+                // TODO: Backend - Delete notification from backend
+                allNotifications = allNotifications.filter { it.id != notification.id }
+                filteredNotifications = filteredNotifications.filter { it.id != notification.id }
+                notificationAdapter.updateNotifications(filteredNotifications.toMutableList())
+                Snackbar.make(findViewById(android.R.id.content), "Notification deleted", Snackbar.LENGTH_SHORT).show()
             }
-            "practice" -> allNotifications.filter { 
-                it.type == NotificationType.PRACTICE_RSVP || it.type == NotificationType.PRACTICE_REMINDER 
-            }
-            "announcement" -> allNotifications.filter { 
-                it.type == NotificationType.ANNOUNCEMENT || it.type == NotificationType.ADMIN_MESSAGE 
-            }
-            else -> allNotifications
-        }
+            .setNegativeButton("Cancel", null)
+            .create()
         
-        notificationAdapter.updateNotifications(filteredNotifications.toMutableList())
+        dialog.show()
     }
 
-    private fun handleRSVPResponse(notification: NotificationItem, rsvpStatus: RSVPStatus) {
+    private fun handleNotificationClick(notification: NotificationItem) {
+        // Simple click handling - could show details or mark as read
+        if (!notification.isSeen) {
+            handleMarkAsSeen(notification)
+        }
+    }
+
+    private fun handleRSVPResponse(notification: NotificationItem, status: RSVPStatus) {
         // TODO: Backend - Send RSVP response to backend
-        // notificationRepo.updateRSVP(notification.eventId, rsvpStatus)
+        notification.rsvpStatus = status
+        notificationAdapter.notifyDataSetChanged()
         
-        // Update local notification
-        notification.rsvpStatus = rsvpStatus
-        
-        // Show confirmation
-        val statusText = when (rsvpStatus) {
+        val statusText = when (status) {
             RSVPStatus.AVAILABLE -> "Available"
             RSVPStatus.MAYBE -> "Maybe"
             RSVPStatus.UNAVAILABLE -> "Unavailable"
-            else -> "Not Responded"
+            else -> "Unknown"
         }
         
         Snackbar.make(
             findViewById(android.R.id.content), 
-            "RSVP updated: $statusText", 
+            "RSVP status set to: $statusText", 
             Snackbar.LENGTH_SHORT
         ).show()
-        
-        // Refresh the adapter
-        notificationAdapter.notifyDataSetChanged()
     }
 
     private fun handleMarkAsSeen(notification: NotificationItem) {
@@ -269,86 +308,5 @@ class NotificationsActivity : AppCompatActivity() {
             "Notification $action", 
             Snackbar.LENGTH_SHORT
         ).show()
-    }
-
-    private fun handlePinNotification(notification: NotificationItem) {
-        // TODO: Backend - Pin/unpin notification
-        notification.isPinned = !notification.isPinned
-        notificationAdapter.notifyDataSetChanged()
-        
-        val action = if (notification.isPinned) "pinned" else "unpinned"
-        Snackbar.make(
-            findViewById(android.R.id.content), 
-            "Notification $action", 
-            Snackbar.LENGTH_SHORT
-        ).show()
-    }
-
-    private fun showDeleteConfirmation(notification: NotificationItem) {
-        val dialog = AlertDialog.Builder(this, R.style.Theme_GoalGetters_Dialog)
-            .setTitle("Delete Notification")
-            .setMessage("Are you sure you want to delete this notification?")
-            .setPositiveButton("Delete") { _, _ ->
-                // TODO: Backend - Delete notification from backend
-                allNotifications = allNotifications.filter { it.id != notification.id }
-                filteredNotifications = filteredNotifications.filter { it.id != notification.id }
-                notificationAdapter.updateNotifications(filteredNotifications.toMutableList())
-                Snackbar.make(findViewById(android.R.id.content), "Notification deleted", Snackbar.LENGTH_SHORT).show()
-            }
-            .setNegativeButton("Cancel", null)
-            .create()
-        
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(resources.getColor(R.color.error, null))
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(resources.getColor(R.color.text_secondary, null))
-        }
-        
-        dialog.show()
-    }
-
-    private fun showNotificationDetails(notification: NotificationItem) {
-        val dialog = AlertDialog.Builder(this, R.style.Theme_GoalGetters_Dialog)
-            .setTitle(notification.title)
-            .setMessage(notification.message)
-            .setPositiveButton("Mark as ${if (notification.isSeen) "Unread" else "Read"}") { _, _ ->
-                handleMarkAsSeen(notification)
-            }
-            .setNegativeButton("Close", null)
-            .create()
-        
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(resources.getColor(R.color.primary, null))
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(resources.getColor(R.color.text_secondary, null))
-        }
-        
-        dialog.show()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_notifications_toolbar, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_mark_all_read -> {
-                markAllAsRead()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    private fun markAllAsRead() {
-        // TODO: Backend - Mark all notifications as read
-        allNotifications.forEach { it.isSeen = true }
-        filteredNotifications.forEach { it.isSeen = true }
-        notificationAdapter.notifyDataSetChanged()
-        Snackbar.make(findViewById(android.R.id.content), "All notifications marked as read", Snackbar.LENGTH_SHORT).show()
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
     }
 } 
