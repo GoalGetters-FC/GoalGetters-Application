@@ -1,5 +1,6 @@
 package com.ggetters.app.ui.central.sheets
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.Event
 import com.ggetters.app.ui.central.models.EventType
+import com.ggetters.app.ui.central.views.MatchControlActivity
 
 class EventDetailsBottomSheet : BottomSheetDialogFragment() {
     
@@ -61,6 +63,7 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
         val eventOpponent = view.findViewById<TextView>(R.id.eventOpponent)
         val eventDescription = view.findViewById<TextView>(R.id.eventDescription)
         val eventCreatedBy = view.findViewById<TextView>(R.id.eventCreatedBy)
+        val infoButton = view.findViewById<Button>(R.id.infoButton)
         val editButton = view.findViewById<Button>(R.id.editButton)
         val deleteButton = view.findViewById<Button>(R.id.deleteButton)
         
@@ -87,6 +90,25 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
             eventDescription.text = event.description
         } else {
             eventDescription.visibility = View.GONE
+        }
+        
+        // Show Info button for games (match control)
+        if (event.type == EventType.MATCH) {
+            infoButton.visibility = View.VISIBLE
+            infoButton.setOnClickListener {
+                // Launch match control activity
+                val intent = Intent(requireContext(), MatchControlActivity::class.java)
+                intent.putExtra("event_id", event.id)
+                intent.putExtra("event_title", event.title)
+                intent.putExtra("event_opponent", event.opponent)
+                intent.putExtra("event_venue", event.venue)
+                intent.putExtra("event_date", event.date)
+                intent.putExtra("event_time", event.time)
+                startActivity(intent)
+                dismiss()
+            }
+        } else {
+            infoButton.visibility = View.GONE
         }
         
         // Set button listeners

@@ -21,6 +21,7 @@
     <color name="surface_elevated">#F8F9FA</color>
     <color name="surface_variant">#F5F5F5</color>
     <color name="divider">#E0E0E0</color>
+    <color name="primary_light">#FFF8E1</color>
 
     <!-- Backgrounds & Containers: White (default) -->
     <color name="background">#FFFFFF</color>
