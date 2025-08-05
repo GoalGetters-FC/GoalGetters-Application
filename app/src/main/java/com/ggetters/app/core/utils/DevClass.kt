@@ -69,7 +69,7 @@ class DevClass @Inject constructor(
 
         // Optional: Comment out blocks below as needed
         //clearLocalDb()
-        seedTestData()
+        //seedTestData()
         //logRoomCounts()
         //syncToFirestore()
 
