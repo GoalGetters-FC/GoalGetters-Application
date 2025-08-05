@@ -67,9 +67,7 @@ class TeamSwitcherBottomSheet : BottomSheetDialogFragment() {
 
         // Switch team button
         view?.findViewById<MaterialButton>(R.id.switchTeamButton)?.setOnClickListener {
-            // TODO: Backend - Implement team switching logic
-            Snackbar.make(requireView(), "Team switching functionality coming soon!", Snackbar.LENGTH_SHORT).show()
-            dismiss()
+            handleTeamSwitch()
         }
 
         view?.findViewById<MaterialButton>(R.id.manageTeamsButton)?.setOnClickListener {

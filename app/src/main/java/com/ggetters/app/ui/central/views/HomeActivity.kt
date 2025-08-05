@@ -108,7 +108,10 @@ class HomeActivity : AppCompatActivity() {
 
 
     private fun setupBottomNavigation() {
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        val bottomNav = binds.bottomNavigationView
+        
+        // Ensure labels are always visible
+        bottomNav.labelVisibilityMode = BottomNavigationView.LABEL_VISIBILITY_LABELED
         
         bottomNav.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
