@@ -23,6 +23,15 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import android.widget.ImageButton
 
+// TODO: Backend - Implement real-time notification delivery using WebSocket or FCM
+// TODO: Backend - Add notification preferences and user settings
+// TODO: Backend - Implement notification analytics and engagement tracking
+// TODO: Backend - Add notification templates and automated notifications
+// TODO: Backend - Implement notification scheduling and delayed delivery
+// TODO: Backend - Add notification grouping and smart categorization
+// TODO: Backend - Implement notification search and filtering
+// TODO: Backend - Add notification export and backup functionality
+
 @AndroidEntryPoint
 class NotificationsActivity : AppCompatActivity() {
 
@@ -51,6 +60,9 @@ class NotificationsActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // TODO: Backend - Fetch notifications from backend with proper data structure
+        // TODO: Backend - Implement notification pagination for large datasets
+        // TODO: Backend - Add notification caching for offline access
+        // TODO: Backend - Implement notification sync across devices
         val notifications = listOf(
             // General Text Notification (matches image)
             NotificationItem(
@@ -288,6 +300,9 @@ class NotificationsActivity : AppCompatActivity() {
 
     private fun handleRSVPResponse(notification: NotificationItem, status: RSVPStatus) {
         // TODO: Backend - Send RSVP response to backend and update attendance counts
+        // TODO: Backend - Implement real-time attendance updates for coaches
+        // TODO: Backend - Add RSVP analytics and response tracking
+        // TODO: Backend - Implement automated reminders for pending RSVPs
         notification.rsvpStatus = status
         notificationAdapter.notifyDataSetChanged()
         
@@ -310,6 +325,9 @@ class NotificationsActivity : AppCompatActivity() {
 
     private fun handleMarkAsSeen(notification: NotificationItem) {
         // TODO: Backend - Mark notification as seen/unseen in backend
+        // TODO: Backend - Implement notification read status synchronization
+        // TODO: Backend - Add notification analytics for engagement tracking
+        // TODO: Backend - Implement bulk read/unread operations
         notification.isSeen = !notification.isSeen
         notificationAdapter.notifyDataSetChanged()
         
@@ -323,6 +341,9 @@ class NotificationsActivity : AppCompatActivity() {
 
     private fun handlePinNotification(notification: NotificationItem) {
         // TODO: Backend - Pin/unpin notification in backend
+        // TODO: Backend - Implement pinned notification persistence
+        // TODO: Backend - Add pinned notification limits and management
+        // TODO: Backend - Implement pinned notification sync across devices
         notification.isPinned = !notification.isPinned
         notificationAdapter.notifyDataSetChanged()
         
@@ -367,6 +388,9 @@ class NotificationsActivity : AppCompatActivity() {
             .setMessage("Are you sure you want to delete this notification?")
             .setPositiveButton("Delete") { _, _ ->
                 // TODO: Backend - Delete notification from backend
+                // TODO: Backend - Implement soft delete for notification recovery
+                // TODO: Backend - Add notification deletion analytics
+                // TODO: Backend - Implement bulk delete operations
                 allNotifications = allNotifications.filter { it.id != notification.id }
                 filteredNotifications = filteredNotifications.filter { it.id != notification.id }
                 notificationAdapter.updateNotifications(filteredNotifications.toMutableList())

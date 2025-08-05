@@ -20,6 +20,16 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
 
+// TODO: Backend - Implement real-time match data synchronization
+// TODO: Backend - Add match analytics and performance tracking
+// TODO: Backend - Implement match recording and video integration
+// TODO: Backend - Add match statistics and reporting
+// TODO: Backend - Implement match sharing and social features
+// TODO: Backend - Add match export and data backup
+// TODO: Backend - Implement match templates and presets
+// TODO: Backend - Add match collaboration and multi-coach support
+// TODO: Backend - Implement match notifications and alerts
+
 @AndroidEntryPoint
 class MatchControlActivity : AppCompatActivity() {
 
@@ -130,9 +140,13 @@ class MatchControlActivity : AppCompatActivity() {
         val eventTime = intent.getStringExtra("event_time")
         
         // TODO: Backend - Load match data from backend using eventId
+        // TODO: Backend - Implement match data caching for offline access
+        // TODO: Backend - Add match data synchronization across devices
+        // TODO: Backend - Implement match state persistence and recovery
+        // TODO: Backend - Add match data validation and integrity checks
         val matchId = eventId ?: "sample_match"
         
-        // Use actual event data if available, otherwise use sample data
+        // Initialize matchState first before using it in createSampleLineup
         matchState = MatchState(
             matchId = matchId,
             status = MatchStatus.SCHEDULED,
@@ -140,7 +154,7 @@ class MatchControlActivity : AppCompatActivity() {
             awayTeam = eventOpponent ?: "Tigers FC",
             homeScore = 0,
             awayScore = 0,
-            lineup = createSampleLineup()
+            lineup = createSampleLineup(matchId)
         )
 
         // Update header with actual event details
@@ -155,8 +169,13 @@ class MatchControlActivity : AppCompatActivity() {
         updateUI()
     }
 
-    private fun createSampleLineup(): MatchLineup {
+    private fun createSampleLineup(matchId: String): MatchLineup {
         // TODO: Backend - Load actual lineup from backend
+        // TODO: Backend - Implement lineup management and editing
+        // TODO: Backend - Add lineup validation and conflict detection
+        // TODO: Backend - Implement lineup templates and presets
+        // TODO: Backend - Add lineup analytics and performance tracking
+        // TODO: Backend - Implement lineup sharing and collaboration
         val startingPlayers = listOf(
             LineupPlayer("1", "John Smith", "GK", 1),
             LineupPlayer("2", "Mike Johnson", "LB", 2),
@@ -179,7 +198,7 @@ class MatchControlActivity : AppCompatActivity() {
         )
 
         return MatchLineup(
-            matchId = matchState.matchId,
+            matchId = matchId,
             formation = "4-3-3",
             startingPlayers = startingPlayers,
             substitutes = substitutes
@@ -252,6 +271,10 @@ class MatchControlActivity : AppCompatActivity() {
 
     private fun handleStartMatch() {
         // TODO: Backend - Start match in backend
+        // TODO: Backend - Implement match start validation and permissions
+        // TODO: Backend - Add match start notifications and alerts
+        // TODO: Backend - Implement match start analytics and tracking
+        // TODO: Backend - Add match start data synchronization
         matchState = matchState.copy(
             status = MatchStatus.IN_PROGRESS,
             startTime = System.currentTimeMillis(),
@@ -276,6 +299,10 @@ class MatchControlActivity : AppCompatActivity() {
 
     private fun handlePauseMatch() {
         // TODO: Backend - Pause/resume match in backend
+        // TODO: Backend - Implement match pause validation and permissions
+        // TODO: Backend - Add match pause notifications and alerts
+        // TODO: Backend - Implement match pause analytics and tracking
+        // TODO: Backend - Add match pause data synchronization
         if (matchState.status == MatchStatus.IN_PROGRESS) {
             matchState = matchState.copy(
                 status = MatchStatus.PAUSED,
@@ -299,6 +326,11 @@ class MatchControlActivity : AppCompatActivity() {
 
     private fun handleEndMatch() {
         // TODO: Backend - End match in backend
+        // TODO: Backend - Implement match end validation and permissions
+        // TODO: Backend - Add match end notifications and alerts
+        // TODO: Backend - Implement match end analytics and tracking
+        // TODO: Backend - Add match end data synchronization
+        // TODO: Backend - Implement post-match summary generation
         matchState = matchState.copy(
             status = MatchStatus.FULL_TIME,
             endTime = System.currentTimeMillis(),
@@ -323,6 +355,10 @@ class MatchControlActivity : AppCompatActivity() {
 
     private fun handleUndoLastEvent() {
         // TODO: Backend - Undo last event in backend
+        // TODO: Backend - Implement event undo validation and permissions
+        // TODO: Backend - Add event undo notifications and alerts
+        // TODO: Backend - Implement event undo analytics and tracking
+        // TODO: Backend - Add event undo data synchronization
         if (matchState.events.isNotEmpty()) {
             val lastEvent = matchState.events.last()
             matchState = matchState.copy(
@@ -344,12 +380,20 @@ class MatchControlActivity : AppCompatActivity() {
 
     private fun showTimerControlDialog() {
         // TODO: Backend - Show timer control bottom sheet
+        // TODO: Backend - Implement timer control validation and permissions
+        // TODO: Backend - Add timer control notifications and alerts
+        // TODO: Backend - Implement timer control analytics and tracking
+        // TODO: Backend - Add timer control data synchronization
         val timerSheet = TimerControlBottomSheet.newInstance(matchState.currentMinute)
         timerSheet.show(supportFragmentManager, "timer_control")
     }
 
     private fun showAnalytics() {
         // TODO: Backend - Show match analytics/statistics
+        // TODO: Backend - Implement real-time analytics and reporting
+        // TODO: Backend - Add analytics export and sharing
+        // TODO: Backend - Implement analytics caching and offline access
+        // TODO: Backend - Add analytics customization and filtering
         Snackbar.make(findViewById(android.R.id.content), "Analytics coming soon", Snackbar.LENGTH_SHORT).show()
     }
 
@@ -380,17 +424,29 @@ class MatchControlActivity : AppCompatActivity() {
 
     private fun showRecordEventDialog() {
         // TODO: Backend - Show record event bottom sheet
+        // TODO: Backend - Implement event recording validation and permissions
+        // TODO: Backend - Add event recording notifications and alerts
+        // TODO: Backend - Implement event recording analytics and tracking
+        // TODO: Backend - Add event recording data synchronization
         val eventSheet = RecordEventBottomSheet.newInstance(matchState.matchId, matchState.currentMinute)
         eventSheet.show(supportFragmentManager, "record_event")
     }
 
     private fun showSettings() {
         // TODO: Backend - Show match settings
+        // TODO: Backend - Implement match settings management
+        // TODO: Backend - Add match settings validation and permissions
+        // TODO: Backend - Implement match settings analytics and tracking
+        // TODO: Backend - Add match settings data synchronization
         Snackbar.make(findViewById(android.R.id.content), "Settings coming soon", Snackbar.LENGTH_SHORT).show()
     }
 
     private fun showPostMatchSummary() {
         // TODO: Backend - Navigate to post-match summary screen
+        // TODO: Backend - Implement post-match summary generation
+        // TODO: Backend - Add post-match summary sharing and export
+        // TODO: Backend - Implement post-match summary analytics and tracking
+        // TODO: Backend - Add post-match summary data synchronization
         Snackbar.make(findViewById(android.R.id.content), "Match ended! Viewing post-match summary...", Snackbar.LENGTH_LONG).show()
         
         // Navigate to post-match summary
