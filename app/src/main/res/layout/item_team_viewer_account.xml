@@ -31,6 +31,7 @@
                             android:layout_width="80dp">
 
                         <ImageView
+                                android:id="@+id/teamLogo"
                                 android:src="@drawable/ic_unicons_soccer_24"
                                 android:importantForAccessibility="no"
                                 android:layout_gravity="center"
@@ -81,14 +82,33 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <ImageView
-                    android:id="@+id/iv_options"
-                    android:src="@drawable/ic_unicons_ellipsis_v"
-                    android:background="?attr/selectableItemBackground"
-                    android:importantForAccessibility="no"
+            <LinearLayout
                     android:layout_gravity="center_vertical|end"
                     android:layout_height="wrap_content"
-                    android:layout_width="wrap_content" />
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSetDefault"
+                        style="@style/Widget.GoalGetters.Button.Outlined"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Set Default"
+                        android:textSize="12sp"
+                        android:minHeight="32dp"
+                        android:paddingHorizontal="12dp" />
+
+                <ImageView
+                        android:id="@+id/iv_options"
+                        android:src="@drawable/ic_unicons_ellipsis_v"
+                        android:background="?attr/selectableItemBackground"
+                        android:importantForAccessibility="no"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:layout_marginTop="4dp" />
+
+            </LinearLayout>
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </com.google.android.material.card.MaterialCardView>

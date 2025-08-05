@@ -1,5 +1,6 @@
 package com.ggetters.app.ui.central.views
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -21,24 +21,41 @@ import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
 import com.ggetters.app.ui.central.viewmodels.HomePlayersViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.central.viewmodels.ProfileViewModel
-import com.ggetters.app.ui.startup.views.StartActivity
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
 import java.time.LocalDate
 import kotlin.getValue
 
+// TODO: Backend - Implement user profile management and photo upload
+// TODO: Backend - Add account switching with proper authentication
+// TODO: Backend - Implement team profile management and settings
+// TODO: Backend - Add notification preferences and user settings
+// TODO: Backend - Implement privacy policy and terms of service
+// TODO: Backend - Add user analytics and engagement tracking
+// TODO: Backend - Implement data export and account deletion
+// TODO: Backend - Add multi-team support and team switching
+// TODO: Backend - Implement user feedback and support system
+
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
 
-
     private val model: ProfileViewModel by viewModels()
-    
 
-    private lateinit var tvLogout: TextView
     private lateinit var profileAvatar: ImageView
     private lateinit var userNameText: TextView
-    private lateinit var userEmailText: TextView
+    private lateinit var userHandleText: TextView
     private lateinit var teamNameText: TextView
+    
+    // Settings items
+    private lateinit var accountItem: View
+    private lateinit var teamProfileItem: View
+    private lateinit var notificationsItem: View
+    private lateinit var privacyPolicyItem: View
+    private lateinit var contactDevelopersItem: View
+    private lateinit var helpFaqItem: View
+    private lateinit var logoutButton: MaterialButton
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,90 +72,206 @@ class ProfileFragment : Fragment() {
 
     private fun setupViews(view: View) {
         profileAvatar = view.findViewById(R.id.profileAvatar)
-        userNameText  = view.findViewById(R.id.userNameText)
-        userEmailText = view.findViewById(R.id.userEmailText)
-        teamNameText  = view.findViewById(R.id.teamNameText)
-        tvLogout = view.findViewById(R.id.tv_logout)
+        userNameText = view.findViewById(R.id.userNameText)
+        userHandleText = view.findViewById(R.id.userHandleText)
+        teamNameText = view.findViewById(R.id.teamNameText)
+        
+        // Settings items
+        accountItem = view.findViewById(R.id.accountItem)
+        teamProfileItem = view.findViewById(R.id.teamProfileItem)
+        notificationsItem = view.findViewById(R.id.notificationsItem)
+        privacyPolicyItem = view.findViewById(R.id.privacyPolicyItem)
+        contactDevelopersItem = view.findViewById(R.id.contactDevelopersItem)
+        helpFaqItem = view.findViewById(R.id.helpFaqItem)
+        logoutButton = view.findViewById(R.id.logoutButton)
     }
 
     private fun setupClickListeners() {
-        profileAvatar.setOnClickListener {
-            Log.d("ProfileFragment", "Profile avatar clicked")
-            Toast.makeText(context, "Profile clicked", Toast.LENGTH_SHORT).show()
-            // TODO: navigate to real profile/edit screen
-        }
-
+        // Long press avatar to switch accounts
         profileAvatar.setOnLongClickListener {
-            Log.d("ProfileFragment", "Profile avatar long pressed")
-            Toast.makeText(context, "Opening account switcher...", Toast.LENGTH_SHORT).show()
             showAccountSwitcher()
             true
         }
         
-        tvLogout.setOnClickListener { 
-            model.logout()
-            startActivity(Intent(requireContext(), StartActivity::class.java))
-            requireActivity().finishAffinity()
+        // Settings item clicks
+        accountItem.setOnClickListener {
+            showAccountSettings()
+        }
+        
+        teamProfileItem.setOnClickListener {
+            navigateToTeamProfile()
+        }
+        
+        notificationsItem.setOnClickListener {
+            showNotificationSettings()
+        }
+        
+        privacyPolicyItem.setOnClickListener {
+            showPrivacyPolicy()
+        }
+        
+        contactDevelopersItem.setOnClickListener {
+            contactDevelopers()
+        }
+        
+        helpFaqItem.setOnClickListener {
+            showHelpFaq()
+        }
+        
+        logoutButton.setOnClickListener {
+            showLogoutConfirmation()
         }
     }
 
     private fun loadUserProfile() {
-        // TODO: Replace with real UserRepository call
+        // TODO: Backend - Fetch current user data from backend
+        // TODO: Backend - Implement user data caching for offline access
+        // TODO: Backend - Add user data synchronization across devices
+        // TODO: Backend - Implement user profile photo upload and management
+        // TODO: Backend - Add user preferences and settings persistence
+        // val user = userRepo.getCurrentUser()
+        
+        // Sample user data for demo
         val sampleUser = User(
-            id           = "fake-id-123",
-            createdAt    = Instant.now(),
-            updatedAt    = Instant.now(),
-            stainedAt    = null,
-            code         = null,
-            authId       = "auth123",
-            teamId       = "team1",
-            annexedAt    = null,
-            role         = UserRole.FULL_TIME_PLAYER,
-            name         = "John",
-            surname      = "Doe",
-            alias        = "JohnDoe",
-            dateOfBirth  = LocalDate.of(1990, 1, 1),
-            email        = "john.doe@example.com",
-            position     = null,
-            number       = null,
-            status       = UserStatus.ACTIVE,
-            healthWeight = null,
-            healthHeight = null
+            id = "1",
+            authId = "auth123",
+            teamId = "team1",
+            name = "Matthew",
+            surname = "Pieterse",
+            alias = "matthew_pieterse",
+            email = "matthew@example.com",
+            dateOfBirth = LocalDate.of(1990, 5, 15),
+            role = UserRole.FULL_TIME_PLAYER,
+            status = UserStatus.ACTIVE,
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
         )
 
         displayUserInfo(sampleUser)
     }
 
     private fun displayUserInfo(user: User) {
-        userNameText .text = user.getFullName()
-        userEmailText.text = user.email ?: "${user.alias}@example.com"
-        teamNameText .text = "Goal Getters FC"  // TODO: fetch real team name later
+        userNameText.text = user.getFullName()
+        userHandleText.text = "@${user.alias}"
+        teamNameText.text = "U15a Football" // TODO: Fetch current team name from backend
 
-        // TODO: load avatar with Glide/Coil
+        // TODO: Load avatar with Glide/Coil
+        // Glide.with(this).load(user.avatar).into(profileAvatar)
     }
 
     fun showAccountSwitcher() {
         Log.d("ProfileFragment", "Showing account switcher")
 
-        // TODO: fetch available accounts from backend/local
+        // TODO: Backend - Fetch available accounts from backend/local
+        // TODO: Backend - Implement secure account switching with proper authentication
+        // TODO: Backend - Add account switching analytics and audit logging
+        // TODO: Backend - Implement account switching notifications
+        // TODO: Backend - Add account switching validation and permissions
         val availableAccounts = listOf(
             UserAccount(
                 "1",
-                "John Doe",
-                "john.doe@example.com",
+                "Matthew Pieterse",
+                "matthew@example.com",
                 null,
-                "Goal Getters FC",
+                "U15a Football",
                 "Player",
                 true
             ),
-            UserAccount("2", "Jane Smith","jane.smith@example.com",null, "City FC",           "Coach",  false)
+            UserAccount(
+                "2", 
+                "Matthew Pieterse", 
+                "matthew@example.com",
+                null, 
+                "City FC", 
+                "Coach", 
+                false
+            )
         )
 
         AccountSwitcherBottomSheet
             .newInstance(availableAccounts) { selectedAccount ->
-                // TODO: call backend to switch, then re-load profile
-                loadUserProfile()
+                // TODO: Backend - Call backend to switch active team
+                // teamRepo.switchActiveTeam(selectedAccount.id)
+                Snackbar.make(requireView(), "Switched to ${selectedAccount.teamName}", Snackbar.LENGTH_SHORT).show()
+                loadUserProfile() // Refresh profile with new team
             }
             .show(childFragmentManager, "AccountSwitcher")
+    }
+    
+    private fun showAccountSettings() {
+        // TODO: Backend - Navigate to account settings screen
+        // TODO: Backend - Implement account settings management
+        // TODO: Backend - Add account security and privacy settings
+        // TODO: Backend - Implement account data export and backup
+        // TODO: Backend - Add account deletion and deactivation
+        Snackbar.make(requireView(), "Account settings coming soon", Snackbar.LENGTH_SHORT).show()
+    }
+    
+    private fun navigateToTeamProfile() {
+        // TODO: Backend - Navigate to current team profile
+        // TODO: Backend - Implement team profile management
+        // TODO: Backend - Add team settings and configuration
+        // TODO: Backend - Implement team analytics and reporting
+        // TODO: Backend - Add team member management and permissions
+        val teamProfileFragment = TeamProfileFragment()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, teamProfileFragment)
+            .addToBackStack("profile_to_team_profile")
+            .commit()
+    }
+    
+    private fun showNotificationSettings() {
+        // TODO: Backend - Show notification preferences dialog/screen
+        // TODO: Backend - Implement notification preferences management
+        // TODO: Backend - Add notification categories and filtering
+        // TODO: Backend - Implement notification scheduling and quiet hours
+        // TODO: Backend - Add notification delivery preferences
+        Snackbar.make(requireView(), "Notification settings coming soon", Snackbar.LENGTH_SHORT).show()
+    }
+    
+    private fun showPrivacyPolicy() {
+        // TODO: Backend - Show privacy policy web view or dialog
+        // TODO: Backend - Implement privacy policy version management
+        // TODO: Backend - Add privacy policy acceptance tracking
+        // TODO: Backend - Implement privacy settings and data controls
+        // TODO: Backend - Add GDPR compliance and data portability
+        Snackbar.make(requireView(), "Privacy policy coming soon", Snackbar.LENGTH_SHORT).show()
+    }
+    
+    private fun contactDevelopers() {
+        // TODO: Backend - Open email intent or contact form
+        // TODO: Backend - Implement in-app feedback system
+        // TODO: Backend - Add bug reporting and feature requests
+        // TODO: Backend - Implement support ticket management
+        // TODO: Backend - Add user feedback analytics and tracking
+        Snackbar.make(requireView(), "Contact developers coming soon", Snackbar.LENGTH_SHORT).show()
+    }
+    
+    private fun showHelpFaq() {
+        // TODO: Backend - Show help and FAQ screen
+        // TODO: Backend - Implement help content management
+        // TODO: Backend - Add searchable help documentation
+        // TODO: Backend - Implement contextual help and tooltips
+        // TODO: Backend - Add help analytics and usage tracking
+        Snackbar.make(requireView(), "Help & FAQ coming soon", Snackbar.LENGTH_SHORT).show()
+    }
+    
+    private fun showLogoutConfirmation() {
+        AlertDialog.Builder(requireContext(), R.style.Theme_GoalGetters_Dialog)
+            .setTitle("Logout")
+            .setMessage("Are you sure you want to logout?")
+            .setPositiveButton("Logout") { _, _ ->
+                // TODO: Backend - Call logout API and clear local data
+                // TODO: Backend - Implement secure logout with token invalidation
+                // TODO: Backend - Add logout analytics and session tracking
+                // TODO: Backend - Implement logout notifications and cleanup
+                // TODO: Backend - Add logout confirmation and data backup
+                // authRepo.logout()
+                // Clear local storage
+                // Navigate to login screen
+                Snackbar.make(requireView(), "Logged out successfully", Snackbar.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 }
