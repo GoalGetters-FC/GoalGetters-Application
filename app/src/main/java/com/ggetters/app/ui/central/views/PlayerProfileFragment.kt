@@ -14,6 +14,8 @@ import com.ggetters.app.ui.central.models.PlayerStats
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
+import android.widget.AutoCompleteTextView
 
 class PlayerProfileFragment : Fragment() {
     
@@ -32,20 +34,26 @@ class PlayerProfileFragment : Fragment() {
     private var playerId: String? = null
     private lateinit var playerAvatar: ImageView
     private lateinit var playerName: TextView
-    private lateinit var playerPosition: TextView
-    private lateinit var playerJerseyNumber: TextView
-    private lateinit var playerEmail: TextView
-    private lateinit var playerPhone: TextView
-    private lateinit var playerJoinedDate: TextView
-    private lateinit var chipCaptain: Chip
-    private lateinit var chipNew: Chip
-    private lateinit var chipInjured: Chip
+    private lateinit var playerAge: TextView
+    
+    // Form inputs
+    private lateinit var playerNameInput: TextInputEditText
+    private lateinit var playerNumberInput: TextInputEditText
+    private lateinit var playerEmailInput: TextInputEditText
+    private lateinit var playerDateOfBirthInput: TextInputEditText
+    private lateinit var playerContactInput: TextInputEditText
+    private lateinit var playerStatusDropdown: AutoCompleteTextView
+    private lateinit var playerRoleDropdown: AutoCompleteTextView
+    
+    // Statistics
     private lateinit var statsGoals: TextView
     private lateinit var statsAssists: TextView
     private lateinit var statsMatches: TextView
     private lateinit var statsYellowCards: TextView
     private lateinit var statsRedCards: TextView
     private lateinit var statsCleanSheets: TextView
+    
+    // Action buttons
     private lateinit var btnEditProfile: MaterialButton
     private lateinit var btnSendMessage: MaterialButton
     private lateinit var btnViewHistory: MaterialButton
@@ -79,20 +87,26 @@ class PlayerProfileFragment : Fragment() {
     private fun setupViews(view: View) {
         playerAvatar = view.findViewById(R.id.playerAvatar)
         playerName = view.findViewById(R.id.playerName)
-        playerPosition = view.findViewById(R.id.playerPosition)
-        playerJerseyNumber = view.findViewById(R.id.playerJerseyNumber)
-        playerEmail = view.findViewById(R.id.playerEmail)
-        playerPhone = view.findViewById(R.id.playerPhone)
-        playerJoinedDate = view.findViewById(R.id.playerJoinedDate)
-        chipCaptain = view.findViewById(R.id.chipCaptain)
-        chipNew = view.findViewById(R.id.chipNew)
-        chipInjured = view.findViewById(R.id.chipInjured)
+        playerAge = view.findViewById(R.id.playerAge)
+        
+        // Form inputs
+        playerNameInput = view.findViewById(R.id.playerNameInput)
+        playerNumberInput = view.findViewById(R.id.playerNumberInput)
+        playerEmailInput = view.findViewById(R.id.playerEmailInput)
+        playerDateOfBirthInput = view.findViewById(R.id.playerDateOfBirthInput)
+        playerContactInput = view.findViewById(R.id.playerContactInput)
+        playerStatusDropdown = view.findViewById(R.id.playerStatusDropdown)
+        playerRoleDropdown = view.findViewById(R.id.playerRoleDropdown)
+        
+        // Statistics
         statsGoals = view.findViewById(R.id.statsGoals)
         statsAssists = view.findViewById(R.id.statsAssists)
         statsMatches = view.findViewById(R.id.statsMatches)
         statsYellowCards = view.findViewById(R.id.statsYellowCards)
         statsRedCards = view.findViewById(R.id.statsRedCards)
         statsCleanSheets = view.findViewById(R.id.statsCleanSheets)
+        
+        // Action buttons
         btnEditProfile = view.findViewById(R.id.btnEditProfile)
         btnSendMessage = view.findViewById(R.id.btnSendMessage)
         btnViewHistory = view.findViewById(R.id.btnViewHistory)
@@ -130,16 +144,18 @@ class PlayerProfileFragment : Fragment() {
     
     private fun displayPlayerInfo(player: Player) {
         playerName.text = player.name
-        playerPosition.text = player.position
-        playerJerseyNumber.text = "#${player.jerseyNumber}"
-        playerEmail.text = player.email ?: "No email"
-        playerPhone.text = player.phone ?: "No phone"
-        playerJoinedDate.text = "Joined: ${player.joinedDate ?: "Unknown"}"
+        playerAge.text = "16 yo" // Calculate age from dateOfBirth
         
-        // Show/hide status chips
-        chipCaptain.visibility = if (player.position.equals("Captain", true)) View.VISIBLE else View.GONE
-        chipNew.visibility = if (player.position.equals("New", true)) View.VISIBLE else View.GONE
-        chipInjured.visibility = if (player.position.equals("Injured", true)) View.VISIBLE else View.GONE
+        // Populate form fields
+        playerNameInput.setText(player.name)
+        playerNumberInput.setText(player.jerseyNumber)
+        playerEmailInput.setText(player.email ?: "")
+        playerDateOfBirthInput.setText(player.dateOfBirth ?: "")
+        playerContactInput.setText(player.phone ?: "")
+        
+        // Set dropdown values
+        playerStatusDropdown.setText("Fulltime Player")
+        playerRoleDropdown.setText("Center Striker")
         
         // Display statistics
         statsGoals.text = player.stats.goals.toString()
