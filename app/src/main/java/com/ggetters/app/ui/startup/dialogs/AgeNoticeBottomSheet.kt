@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import com.ggetters.app.R
-import com.ggetters.app.ui.startup.views.WelcomeBackActivity
+import com.ggetters.app.ui.startup.views.OnboardingActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class AgeNoticeBottomSheet : BottomSheetDialogFragment() {
@@ -27,7 +27,7 @@ class AgeNoticeBottomSheet : BottomSheetDialogFragment() {
 
         consentButton.setOnClickListener {
             // TODO: Backend - Log consent event and handle underage consent logic
-            startActivity(Intent(requireContext(), WelcomeBackActivity::class.java))
+            startActivity(Intent(requireContext(), OnboardingActivity::class.java))
             dismiss()
         }
         exitButton.setOnClickListener {

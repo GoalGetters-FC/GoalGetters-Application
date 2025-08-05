@@ -63,7 +63,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
                     TAG, "Success..."
                 )
 
-                startActivity(Intent(this, WelcomeBackActivity::class.java))
+                startActivity(Intent(this, OnboardingActivity::class.java))
                 finishAffinity()
             }
 
@@ -129,7 +129,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
         }
 
         binds.btGoogle.id -> {
-            startActivity(Intent(this, WelcomeBackActivity::class.java))
+            startActivity(Intent(this, OnboardingActivity::class.java))
             finishAffinity()
         }
 

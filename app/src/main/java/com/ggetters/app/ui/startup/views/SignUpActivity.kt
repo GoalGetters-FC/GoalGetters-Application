@@ -64,7 +64,7 @@ class SignUpActivity : AppCompatActivity(), Clickable {
                     TAG, "Success..."
                 )
 
-                startActivity(Intent(this, WelcomeBackActivity::class.java))
+                startActivity(Intent(this, OnboardingActivity::class.java))
                 finishAffinity()
             }
 
