@@ -13,9 +13,11 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
-                android:name=".ui.management.views.TeamViewerActivity"
+                android:name=".ui.startup.views.OnboardingActivity"
                 android:exported="false" />
-        <!-- Activities -->
+        <activity
+                android:name=".ui.management.views.TeamViewerActivity"
+                android:exported="false" /> <!-- Activities -->
         <activity
                 android:name=".ui.startup.views.StartActivity"
                 android:exported="true"
