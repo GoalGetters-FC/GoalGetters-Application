@@ -18,9 +18,11 @@ import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.ui.central.models.UserAccount
 import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
+import com.ggetters.app.ui.central.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.central.viewmodels.HomePlayersViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.central.viewmodels.ProfileViewModel
+import com.ggetters.app.ui.startup.views.SignInActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -87,9 +89,9 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        // Long press avatar to switch accounts
+        // Long press avatar to switch teams (based on design template)
         profileAvatar.setOnLongClickListener {
-            showAccountSwitcher()
+            showTeamSwitcher()
             true
         }
         
@@ -129,7 +131,6 @@ class ProfileFragment : Fragment() {
         // TODO: Backend - Add user data synchronization across devices
         // TODO: Backend - Implement user profile photo upload and management
         // TODO: Backend - Add user preferences and settings persistence
-        // val user = userRepo.getCurrentUser()
         
         // Sample user data for demo
         val sampleUser = User(
@@ -139,7 +140,7 @@ class ProfileFragment : Fragment() {
             name = "Matthew",
             surname = "Pieterse",
             alias = "matthew_pieterse",
-            email = "matthew@example.com",
+            email = "ST10257002@domain.com",
             dateOfBirth = LocalDate.of(1990, 5, 15),
             role = UserRole.FULL_TIME_PLAYER,
             status = UserStatus.ACTIVE,
@@ -152,7 +153,7 @@ class ProfileFragment : Fragment() {
 
     private fun displayUserInfo(user: User) {
         userNameText.text = user.getFullName()
-        userHandleText.text = "@${user.alias}"
+        userHandleText.text = user.email
         teamNameText.text = "U15a Football" // TODO: Fetch current team name from backend
 
         // TODO: Load avatar with Glide/Coil
@@ -197,6 +198,26 @@ class ProfileFragment : Fragment() {
             }
             .show(childFragmentManager, "AccountSwitcher")
     }
+
+    private fun showTeamSwitcher() {
+        // TODO: Backend - Implement team switching with proper authentication
+        // TODO: Backend - Add team switching analytics and tracking
+        // TODO: Backend - Implement team switching notifications and confirmations
+        // TODO: Backend - Add team switching validation and permissions
+        // TODO: Backend - Implement team switching data synchronization
+
+        TeamSwitcherBottomSheet.newInstance(
+            onTeamSelected = { selectedTeam ->
+                // Handle team selection
+                Snackbar.make(requireView(), "Switched to ${selectedTeam.teamName}", Snackbar.LENGTH_SHORT).show()
+                loadUserProfile() // Refresh profile with new team
+            },
+            onManageTeams = {
+                // Navigate to team management
+                navigateToTeamManagement()
+            }
+        ).show(childFragmentManager, "TeamSwitcher")
+    }
     
     private fun showAccountSettings() {
         // TODO: Backend - Navigate to account settings screen
@@ -218,6 +239,15 @@ class ProfileFragment : Fragment() {
             .replace(R.id.fragmentContainer, teamProfileFragment)
             .addToBackStack("profile_to_team_profile")
             .commit()
+    }
+
+    private fun navigateToTeamManagement() {
+        // TODO: Backend - Navigate to team management screen
+        // TODO: Backend - Add team management analytics and tracking
+        // TODO: Backend - Implement team management permissions and validation
+        // TODO: Backend - Add team management audit logging
+        // TODO: Backend - Implement team management data synchronization
+        Snackbar.make(requireView(), "Team management coming soon", Snackbar.LENGTH_SHORT).show()
     }
     
     private fun showNotificationSettings() {
@@ -261,17 +291,37 @@ class ProfileFragment : Fragment() {
             .setTitle("Logout")
             .setMessage("Are you sure you want to logout?")
             .setPositiveButton("Logout") { _, _ ->
-                // TODO: Backend - Call logout API and clear local data
-                // TODO: Backend - Implement secure logout with token invalidation
-                // TODO: Backend - Add logout analytics and session tracking
-                // TODO: Backend - Implement logout notifications and cleanup
-                // TODO: Backend - Add logout confirmation and data backup
-                // authRepo.logout()
-                // Clear local storage
-                // Navigate to login screen
-                Snackbar.make(requireView(), "Logged out successfully", Snackbar.LENGTH_SHORT).show()
+                performLogout()
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun performLogout() {
+        // TODO: Backend - Call logout API and clear local data
+        // TODO: Backend - Implement secure logout with token invalidation
+        // TODO: Backend - Add logout analytics and session tracking
+        // TODO: Backend - Implement logout notifications and cleanup
+        // TODO: Backend - Add logout confirmation and data backup
+        
+        try {
+            // Clear local storage and preferences
+            // TODO: Clear user session data
+            // TODO: Clear cached data
+            // TODO: Clear preferences
+            
+            // Navigate to login screen
+            val intent = Intent(requireContext(), SignInActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+            
+            // Close the current activity
+            requireActivity().finish()
+            
+        } catch (e: Exception) {
+            Log.e("ProfileFragment", "Error during logout", e)
+            Snackbar.make(requireView(), "Error during logout. Please try again.", Snackbar.LENGTH_LONG).show()
+        }
     }
 }

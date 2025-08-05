@@ -24,6 +24,8 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDate
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 // TODO: Backend - Implement real-time player data synchronization
 // TODO: Backend - Add player profile management and photo upload
@@ -41,9 +43,13 @@ class HomePlayersFragment : Fragment() {
     private val activeModel: HomePlayersViewModel by viewModels()
     private val sharedModel: HomeViewModel by activityViewModels()
 
+    private lateinit var playersRecyclerView: RecyclerView
+    private lateinit var emptyStateText: TextView
+    private lateinit var teamNameText: TextView
+    private lateinit var teamSportText: TextView
+    private lateinit var addPlayerFab: FloatingActionButton
     private lateinit var playerAdapter: PlayerAdapter
     private lateinit var recyclerView: RecyclerView
-    private lateinit var emptyStateText: TextView
     private lateinit var summaryChipGroup: ChipGroup
 
     // TODO: Backend - Get user role from backend/UserRepository
@@ -85,9 +91,11 @@ class HomePlayersFragment : Fragment() {
     }
 
     private fun setupViews(view: View) {
-        recyclerView = view.findViewById(R.id.playersRecyclerView)
+        teamNameText = view.findViewById(R.id.teamNameText)
+        teamSportText = view.findViewById(R.id.teamSportText)
+        playersRecyclerView = view.findViewById(R.id.playersRecyclerView)
         emptyStateText = view.findViewById(R.id.emptyStateText)
-        summaryChipGroup = view.findViewById(R.id.summaryChipGroup)
+        addPlayerFab = view.findViewById(R.id.addPlayerFab)
     }
 
     private fun showFilterDialog() {
@@ -127,8 +135,8 @@ class HomePlayersFragment : Fragment() {
                 navigateToPlayerProfile(player)
             }
         )
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = playerAdapter
+        playersRecyclerView.layoutManager = LinearLayoutManager(context)
+        playersRecyclerView.adapter = playerAdapter
     }
 
     private fun navigateToPlayerProfile(player: Player) {
@@ -241,89 +249,95 @@ class HomePlayersFragment : Fragment() {
     }
 
     private fun loadPlayers() {
-        // TODO: Backend - Fetch players from backend (replace sample data)
-        // TODO: Backend - Implement player data caching for offline access
-        // TODO: Backend - Add player data synchronization across devices
+        // TODO: Backend - Fetch real player data from API
+        // TODO: Backend - Implement player data caching and offline support
+        // TODO: Backend - Add player data synchronization and real-time updates
         // TODO: Backend - Implement player search and filtering
-        // TODO: Backend - Add player analytics and engagement tracking
-        allPlayers = listOf(
+        // TODO: Backend - Add player analytics and performance tracking
+
+        val samplePlayers = listOf(
             Player(
                 id = "1",
-                firstName = "John",
-                lastName = "Doe",
-                position = "Forward",
+                firstName = "Fortune",
+                lastName = "Martinez",
+                position = "Striker",
                 jerseyNumber = "10",
-                avatar = null,
-                isActive = true,
-                stats = PlayerStats(goals = 15, assists = 8, matches = 25)
+                email = "fortune@example.com",
+                dateOfBirth = "2008-03-15"
             ),
             Player(
                 id = "2",
-                firstName = "Jane",
-                lastName = "Smith",
+                firstName = "Alex",
+                lastName = "Johnson",
                 position = "Midfielder",
-                jerseyNumber = "8",
-                avatar = null,
-                isActive = true,
-                stats = PlayerStats(goals = 5, assists = 12, matches = 22)
+                jerseyNumber = "7",
+                email = "alex@example.com",
+                dateOfBirth = "2008-07-22"
             ),
             Player(
                 id = "3",
-                firstName = "Mike",
-                lastName = "Johnson",
+                firstName = "Sarah",
+                lastName = "Williams",
                 position = "Defender",
                 jerseyNumber = "4",
-                avatar = null,
-                isActive = false,
-                stats = PlayerStats(goals = 1, assists = 3, matches = 18)
+                email = "sarah@example.com",
+                dateOfBirth = "2008-11-08"
             ),
             Player(
                 id = "4",
-                firstName = "Coach",
-                lastName = "Smith",
-                position = "Coach",
-                jerseyNumber = "-",
-                avatar = null,
-                isActive = true,
-                stats = PlayerStats(goals = 0, assists = 0, matches = 0)
+                firstName = "Mike",
+                lastName = "Chen",
+                position = "Goalkeeper",
+                jerseyNumber = "1",
+                email = "mike@example.com",
+                dateOfBirth = "2008-01-30"
             ),
             Player(
                 id = "5",
-                firstName = "Alex",
-                lastName = "Lee",
-                position = "Goalkeeper",
-                jerseyNumber = "1",
-                avatar = null,
-                isActive = true,
-                stats = PlayerStats(goals = 0, assists = 1, matches = 20)
+                firstName = "Emma",
+                lastName = "Davis",
+                position = "Forward",
+                jerseyNumber = "9",
+                email = "emma@example.com",
+                dateOfBirth = "2008-05-12"
+            ),
+            Player(
+                id = "6",
+                firstName = "Tom",
+                lastName = "Wilson",
+                position = "Midfielder",
+                jerseyNumber = "6",
+                email = "tom@example.com",
+                dateOfBirth = "2008-09-18"
             )
         )
-        
-        // Guardian logic: only show their child
-        if (userRole == "guardian") {
-            // TODO: Backend - Fetch guardian's child from backend
-            filteredPlayers = allPlayers.filter { it.getFullName() == "John Doe" } // Replace with real child check
-        } else {
-            filteredPlayers = allPlayers
-        }
-        
-        updateSummaryChips()
-        playerAdapter.updatePlayers(filteredPlayers)
-        updateEmptyState(filteredPlayers.isEmpty())
+
+        updatePlayersList(samplePlayers)
     }
 
-    private fun updateSummaryChips() {
-        val playersCount = allPlayers.count { it.position != "Coach" && it.position != "Assistant" }
-        val assistantsCount = allPlayers.count { it.position == "Assistant" }
-        val coachCount = allPlayers.count { it.position == "Coach" }
-        
-        summaryChipGroup.findViewById<Chip>(R.id.chipPlayersCount).text = "Players: $playersCount"
-        summaryChipGroup.findViewById<Chip>(R.id.chipAssistantsCount).text = "Assistants: $assistantsCount"
-        summaryChipGroup.findViewById<Chip>(R.id.chipCoachCount).text = "Coach: $coachCount"
+    private fun updatePlayersList(players: List<Player>) {
+        if (players.isEmpty()) {
+            emptyStateText.visibility = View.VISIBLE
+            playersRecyclerView.visibility = View.GONE
+        } else {
+            emptyStateText.visibility = View.GONE
+            playersRecyclerView.visibility = View.VISIBLE
+            playerAdapter.updatePlayers(players)
+        }
+    }
+
+    private fun showAddPlayerDialog() {
+        // TODO: Backend - Implement player creation with validation
+        // TODO: Backend - Add player creation analytics and tracking
+        // TODO: Backend - Implement player creation notifications
+        // TODO: Backend - Add player creation permissions and validation
+        // TODO: Backend - Implement player creation templates and presets
+
+        Snackbar.make(requireView(), "Add player functionality coming soon", Snackbar.LENGTH_SHORT).show()
     }
 
     private fun updateEmptyState(isEmpty: Boolean) {
         emptyStateText.visibility = if (isEmpty) View.VISIBLE else View.GONE
-        recyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        playersRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 } 

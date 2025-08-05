@@ -6,84 +6,121 @@
     android:orientation="vertical"
     android:background="@color/white">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <!-- Header with team info -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="20dp"
+        android:gravity="center_vertical"
         android:background="@color/white"
-        app:title="Players"
-        app:titleTextColor="@color/black"
-        app:titleCentered="true"
-        app:menu="@menu/menu_players_toolbar" />
+        android:elevation="2dp">
 
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport="true"
-        android:scrollbars="none"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
+        <!-- Team Avatar -->
+        <FrameLayout
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="16dp">
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/summaryChipGroup"
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/ic_unicons_soccer_24"
+                android:background="@drawable/circle_background"
+                android:scaleType="centerCrop" />
+
+        </FrameLayout>
+
+        <!-- Team Info -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/teamNameText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="U15a Football"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:fontFamily="@font/variable_inter" />
+
+            <TextView
+                android:id="@+id/teamSportText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Football (Soccer)"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/variable_inter" />
+
+        </LinearLayout>
+
+        <!-- Action Icons -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:singleLine="true"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
+            android:orientation="horizontal">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipPlayersCount"
-                style="@style/Widget.GoalGetters.Chip.Filled"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Players: 15"
-                app:chipIcon="@drawable/ic_unicons_user_24"
-                app:chipIconTint="#007AFF"
-                android:textColor="@color/black" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_unicons_bell_24"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_marginEnd="16dp"
+                app:tint="@color/text_secondary" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipAssistantsCount"
-                style="@style/Widget.GoalGetters.Chip.Filled"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Assistants: 2"
-                app:chipIcon="@drawable/ic_unicons_handshake_24"
-                app:chipIconTint="#007AFF"
-                android:textColor="@color/black" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_unicons_settings_24"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="@color/text_secondary" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipCoachCount"
-                style="@style/Widget.GoalGetters.Chip.Filled"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Coach: 1"
-                app:chipIcon="@drawable/ic_unicons_hat_24"
-                app:chipIconTint="#007AFF"
-                android:textColor="@color/black" />
-        </com.google.android.material.chip.ChipGroup>
-    </HorizontalScrollView>
+        </LinearLayout>
 
+    </LinearLayout>
+
+    <!-- Players List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/playersRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:paddingBottom="16dp"
         android:paddingTop="8dp"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp" />
+        android:paddingBottom="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp" />
 
+    <!-- Empty State -->
     <TextView
         android:id="@+id/emptyStateText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="No players found"
-        android:textColor="#999999"
+        android:textColor="@color/text_secondary"
         android:textSize="16sp"
         android:visibility="gone"
         android:layout_gravity="center_horizontal"
-        android:paddingTop="32dp" />
+        android:paddingTop="32dp"
+        android:fontFamily="@font/variable_inter" />
+
+    <!-- Add Player FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addPlayerFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20dp"
+        android:src="@drawable/xic_x24_uic_line_plus"
+        app:backgroundTint="@color/yellow"
+        app:tint="@color/black"
+        app:elevation="8dp"
+        app:pressedTranslationZ="12dp" />
 
 </LinearLayout> 

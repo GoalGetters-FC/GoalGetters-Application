@@ -18,6 +18,10 @@ import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivityHomeBinding
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
+import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
+import com.ggetters.app.ui.central.sheets.TeamSwitcherBottomSheet
 
 // TODO: Backend - Fetch data for each tab (Notifications, Calendar, Players, Team Profile)
 // TODO: Backend - Log analytics for tab navigation
@@ -104,83 +108,33 @@ class HomeActivity : AppCompatActivity() {
 
 
     private fun setupBottomNavigation() {
-        binds.bottomNavigationView.setOnItemSelectedListener { menuItem ->
-            val newFragment = when (menuItem.itemId) {
-                R.id.nav_calendar -> HomeCalendarFragment()
-                R.id.nav_team_players -> HomePlayersFragment()
-                R.id.nav_team_profile -> TeamProfileFragment()
-                R.id.nav_profile -> ProfileFragment()
-                else -> null
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        
+        bottomNav.setOnItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_calendar -> {
+                    switchFragment(HomeCalendarFragment())
+                    true
+                }
+                R.id.nav_team_players -> {
+                    switchFragment(HomePlayersFragment())
+                    true
+                }
+                R.id.nav_team_profile -> {
+                    switchFragment(TeamProfileFragment())
+                    true
+                }
+                R.id.nav_profile -> {
+                    switchFragment(ProfileFragment())
+                    true
+                }
+                else -> false
             }
-
-            if (newFragment != null) {
-                switchFragment(newFragment)
-            }
-
-            true
         }
 
-        // Set up long press detection for profile tab
-        binds.bottomNavigationView.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    longPressStartTime = System.currentTimeMillis()
-                    false
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    val pressDuration = System.currentTimeMillis() - longPressStartTime
-                    if (pressDuration >= LONG_PRESS_DURATION_MS) {
-                        // Check if we're pressing on the profile tab
-                        val profileTab =
-                            binds.bottomNavigationView.findViewById<View>(R.id.nav_profile)
-                        if (profileTab != null && isTouchInView(event, profileTab)) {
-                            Clogger.d(
-                                TAG, "Long press detected on profile tab"
-                            )
-
-                            showAccountSwitcher()
-                            return@setOnTouchListener true
-                        }
-                    }
-                    false
-                }
-
-                MotionEvent.ACTION_MOVE -> {
-                    val pressDuration = System.currentTimeMillis() - longPressStartTime
-                    if (pressDuration >= LONG_PRESS_DURATION_MS) {
-                        // Check if we're still pressing on the profile tab
-                        val profileTab =
-                            binds.bottomNavigationView.findViewById<View>(R.id.nav_profile)
-                        if (profileTab != null && isTouchInView(event, profileTab)) {
-                            return@setOnTouchListener true
-                        }
-                    }
-                    false
-                }
-            }
-            false
-        }
-
-
-        // Alternative approach: Add long click listener after view is laid out
-        binds.bottomNavigationView.post {
-            val profileTab = binds.bottomNavigationView.findViewById<View>(R.id.nav_profile)
-            Clogger.d(
-                TAG, "Profile tab found: ${profileTab != null}"
-            )
-
-            profileTab?.setOnLongClickListener {
-                Clogger.d(
-                    TAG, "Profile tab long clicked"
-                )
-
-                showAccountSwitcher()
-                true
-            }
-        }
+        // Set default fragment
+        switchFragment(HomeCalendarFragment())
     }
-
 
     private fun switchFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
@@ -202,7 +156,6 @@ class HomeActivity : AppCompatActivity() {
         transaction.commit()
         currentFragment = fragment
     }
-
 
     private fun showAccountSwitcher() {
         Clogger.d(
