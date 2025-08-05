@@ -33,7 +33,6 @@
                         <ImageView
                                 android:src="@drawable/xic_x36_uic_line_football"
                                 android:id="@+id/teamLogo"
-                                android:src="@drawable/ic_unicons_soccer_24"
                                 android:importantForAccessibility="no"
                                 android:layout_gravity="center"
                                 android:layout_height="wrap_content"
