@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
@@ -48,7 +49,7 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         setupTouchListeners()
         setupRecyclerView()
 
-        seed() // T E M P O R A R Y
+        //seed() // T E M P O R A R Y
 
         observe()
     }
@@ -58,8 +59,13 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
 
 
     private fun observe() {
-        // TODO: Observe view-model in here if needed
+        lifecycleScope.launchWhenStarted {
+            model.teams.collect { teams ->
+                adapter.update(teams)
+            }
+        }
     }
+
 
 
 // --- Delegates
