@@ -13,6 +13,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.UserAccount
 import com.ggetters.app.ui.central.views.TeamsFragment
+import com.ggetters.app.ui.management.views.TeamViewerActivity
 
 class AccountSwitcherBottomSheet : BottomSheetDialogFragment() {
     
@@ -52,13 +53,15 @@ class AccountSwitcherBottomSheet : BottomSheetDialogFragment() {
 
         val button = view.findViewById<TextView>(R.id.tvManageTeams)       
         button.setOnClickListener { 
+            startActivity(Intent(requireActivity(), TeamViewerActivity::class.java))
+            
             // Navigate to Teams screen
-            val teamsFragment = TeamsFragment()
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, teamsFragment)
-                .addToBackStack("account_switcher_to_teams")
-                .commit()
-            dismiss()
+//            val teamsFragment = TeamsFragment()
+//            parentFragmentManager.beginTransaction()
+//                .replace(R.id.fragmentContainer, teamsFragment)
+//                .addToBackStack("account_switcher_to_teams")
+//                .commit()
+//            dismiss()
         }
         
         loadAccounts()
