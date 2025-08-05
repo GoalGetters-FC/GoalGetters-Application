@@ -3,33 +3,30 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center_horizontal">
+    android:padding="16dp">
 
     <TextView
-        android:id="@+id/inviteCodeText"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="U16-LIONS"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="#000000"
-        android:fontFamily="sans-serif-medium"
+        android:text="Enter the team invite code"
+        android:textColor="@color/text_primary"
+        android:textSize="16sp"
         android:layout_marginBottom="16dp" />
 
-    <ImageView
-        android:id="@+id/qrCodeImage"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@drawable/ic_unicons_qr_placeholder"
-        android:layout_marginBottom="16dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Share this code or scan the QR to join the team."
-        android:textColor="#666666"
-        android:textSize="14sp"
-        android:gravity="center" />
+        android:hint="Team Code"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/codeEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapCharacters"
+            android:maxLength="8"
+            android:hint="Enter code" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout> 

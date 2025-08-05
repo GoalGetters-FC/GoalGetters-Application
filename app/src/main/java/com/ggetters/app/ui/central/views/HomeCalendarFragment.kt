@@ -35,6 +35,15 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.abs
 
+// TODO: Backend - Implement real-time event synchronization across devices
+// TODO: Backend - Add event caching and offline support for calendar data
+// TODO: Backend - Implement event sharing and team collaboration features
+// TODO: Backend - Add event analytics and attendance tracking
+// TODO: Backend - Implement event reminders and push notifications
+// TODO: Backend - Add event search and filtering capabilities
+// TODO: Backend - Implement event templates and recurring events
+// TODO: Backend - Add event conflict detection and resolution
+
 @AndroidEntryPoint
 class HomeCalendarFragment : Fragment(), Clickable {
     companion object {
@@ -237,6 +246,10 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
     // TODO: Business logic should be in ViewModel
     private fun getEventsForDate(date: Date): List<Event> {
+        // TODO: Backend - Fetch events from backend using proper date filtering
+        // TODO: Backend - Implement event caching for better performance
+        // TODO: Backend - Add event sorting by priority and type
+        // TODO: Backend - Implement event search and filtering
         val calendar = Calendar.getInstance()
         calendar.time = date
         val targetDay = calendar.get(Calendar.DAY_OF_MONTH)
@@ -336,6 +349,10 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
 
     private fun showAddEventBottomSheet(selectedDay: Int? = null) {
+        // TODO: Backend - Validate user permissions for event creation
+        // TODO: Backend - Implement event creation with proper validation
+        // TODO: Backend - Add event template support for common event types
+        // TODO: Backend - Implement event sharing and team notifications
         val intent = Intent(requireContext(), AddEventActivity::class.java)
         if (selectedDay != null) {
             val calendar = currentDate.clone() as Calendar
@@ -476,6 +493,10 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
 
     private fun seed() {
+        // TODO: Backend - Remove sample data and fetch real events from backend
+        // TODO: Backend - Implement proper event data models and API integration
+        // TODO: Backend - Add event synchronization with server
+        // TODO: Backend - Implement event caching and offline support
         val calendar = Calendar.getInstance()
 
         // Sample practice event

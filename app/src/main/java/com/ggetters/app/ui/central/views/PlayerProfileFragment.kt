@@ -105,7 +105,8 @@ class PlayerProfileFragment : Fragment() {
         // Sample data for demo
         val player = Player(
             id = playerId ?: "1",
-            name = "John Doe",
+            firstName = "John",
+            lastName = "Doe",
             position = "Forward",
             jerseyNumber = "10",
             avatar = null,
@@ -116,8 +117,7 @@ class PlayerProfileFragment : Fragment() {
                 matches = 25,
                 yellowCards = 2,
                 redCards = 0,
-                cleanSheets = 0,
-                minutesPlayed = 2250
+                cleanSheets = 0
             ),
             email = "john.doe@example.com",
             phone = "+1 234 567 8900",

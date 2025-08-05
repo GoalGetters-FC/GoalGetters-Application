@@ -20,7 +20,7 @@
             app:title="Player Profile"
             app:titleTextColor="@color/black"
             app:titleCentered="true"
-            app:navigationIcon="@drawable/ic_arrow_left"
+            app:navigationIcon="@drawable/ic_unicons_arrow_left"
             app:navigationIconTint="@color/black" />
 
         <!-- Player Header Section -->

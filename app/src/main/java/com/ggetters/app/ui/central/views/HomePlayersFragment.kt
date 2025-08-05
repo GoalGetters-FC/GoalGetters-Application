@@ -25,6 +25,16 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
+// TODO: Backend - Implement real-time player data synchronization
+// TODO: Backend - Add player profile management and photo upload
+// TODO: Backend - Implement player statistics and performance tracking
+// TODO: Backend - Add player attendance and availability tracking
+// TODO: Backend - Implement player role management and permissions
+// TODO: Backend - Add player search and filtering capabilities
+// TODO: Backend - Implement player messaging and communication
+// TODO: Backend - Add player health and injury tracking
+// TODO: Backend - Implement player export and data backup
+
 @AndroidEntryPoint
 class HomePlayersFragment : Fragment() {
 
@@ -115,14 +125,6 @@ class HomePlayersFragment : Fragment() {
             onPlayerClick = { player ->
                 // Navigate to player profile/details screen
                 navigateToPlayerProfile(player)
-            },
-            onPlayerLongClick = { player ->
-                // Show player actions bottom sheet/modal (admin actions: edit role, remove, message, etc.)
-                if (userRole == "coach" || userRole == "assistant") {
-                    showPlayerActionsDialog(player)
-                } else if (userRole == "guardian") {
-                    showGuardianActionsDialog(player)
-                }
             }
         )
         recyclerView.layoutManager = LinearLayoutManager(context)
@@ -191,6 +193,9 @@ class HomePlayersFragment : Fragment() {
             .setSingleChoiceItems(roles, currentRoleIndex) { dialog, which ->
                 val newRole = roles[which]
                 // TODO: Backend - Call backend to update player role
+                // TODO: Backend - Implement role change validation and permissions
+                // TODO: Backend - Add role change notifications to team members
+                // TODO: Backend - Implement role change audit logging
                 // playerRepo.updatePlayerRole(player.id, newRole)
                 Snackbar.make(requireView(), "Role updated to $newRole", Snackbar.LENGTH_SHORT).show()
                 loadPlayers() // Refresh the list
@@ -206,6 +211,9 @@ class HomePlayersFragment : Fragment() {
             .setMessage("Are you sure you want to remove ${player.name} from the team?")
             .setPositiveButton("Remove") { _, _ ->
                 // TODO: Backend - Call backend to remove player from team
+                // TODO: Backend - Implement player removal validation and permissions
+                // TODO: Backend - Add player removal notifications and confirmations
+                // TODO: Backend - Implement player data cleanup and archiving
                 // playerRepo.removeFromTeam(player.id, currentTeamId)
                 Snackbar.make(requireView(), "${player.name} removed from team", Snackbar.LENGTH_SHORT).show()
                 loadPlayers() // Refresh the list
@@ -216,22 +224,33 @@ class HomePlayersFragment : Fragment() {
 
     private fun showSendMessageDialog(player: Player) {
         // TODO: Backend - Implement messaging functionality
+        // TODO: Backend - Add message templates and quick responses
+        // TODO: Backend - Implement message delivery status and read receipts
+        // TODO: Backend - Add message history and conversation management
+        // TODO: Backend - Implement message notifications and alerts
         Snackbar.make(requireView(), "Messaging functionality coming soon", Snackbar.LENGTH_SHORT).show()
     }
 
     private fun approveAttendance(player: Player) {
         // TODO: Backend - Call backend to approve attendance
+        // TODO: Backend - Implement attendance approval workflow
+        // TODO: Backend - Add attendance analytics and reporting
+        // TODO: Backend - Implement attendance notifications and reminders
         // attendanceRepo.approveAttendance(player.id, currentEventId)
         Snackbar.make(requireView(), "Attendance approved for ${player.name}", Snackbar.LENGTH_SHORT).show()
     }
 
     private fun loadPlayers() {
         // TODO: Backend - Fetch players from backend (replace sample data)
-        // val players = playerRepo.getPlayersForTeam(teamId)
+        // TODO: Backend - Implement player data caching for offline access
+        // TODO: Backend - Add player data synchronization across devices
+        // TODO: Backend - Implement player search and filtering
+        // TODO: Backend - Add player analytics and engagement tracking
         allPlayers = listOf(
             Player(
                 id = "1",
-                name = "John Doe",
+                firstName = "John",
+                lastName = "Doe",
                 position = "Forward",
                 jerseyNumber = "10",
                 avatar = null,
@@ -240,7 +259,8 @@ class HomePlayersFragment : Fragment() {
             ),
             Player(
                 id = "2",
-                name = "Jane Smith",
+                firstName = "Jane",
+                lastName = "Smith",
                 position = "Midfielder",
                 jerseyNumber = "8",
                 avatar = null,
@@ -249,7 +269,8 @@ class HomePlayersFragment : Fragment() {
             ),
             Player(
                 id = "3",
-                name = "Mike Johnson",
+                firstName = "Mike",
+                lastName = "Johnson",
                 position = "Defender",
                 jerseyNumber = "4",
                 avatar = null,
@@ -258,7 +279,8 @@ class HomePlayersFragment : Fragment() {
             ),
             Player(
                 id = "4",
-                name = "Coach Smith",
+                firstName = "Coach",
+                lastName = "Smith",
                 position = "Coach",
                 jerseyNumber = "-",
                 avatar = null,
@@ -267,7 +289,8 @@ class HomePlayersFragment : Fragment() {
             ),
             Player(
                 id = "5",
-                name = "Alex Lee",
+                firstName = "Alex",
+                lastName = "Lee",
                 position = "Goalkeeper",
                 jerseyNumber = "1",
                 avatar = null,
@@ -279,7 +302,7 @@ class HomePlayersFragment : Fragment() {
         // Guardian logic: only show their child
         if (userRole == "guardian") {
             // TODO: Backend - Fetch guardian's child from backend
-            filteredPlayers = allPlayers.filter { it.name == "John Doe" } // Replace with real child check
+            filteredPlayers = allPlayers.filter { it.getFullName() == "John Doe" } // Replace with real child check
         } else {
             filteredPlayers = allPlayers
         }

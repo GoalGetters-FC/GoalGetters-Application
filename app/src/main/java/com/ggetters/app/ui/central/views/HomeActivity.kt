@@ -21,6 +21,12 @@ import dagger.hilt.android.AndroidEntryPoint
 
 // TODO: Backend - Fetch data for each tab (Notifications, Calendar, Players, Team Profile)
 // TODO: Backend - Log analytics for tab navigation
+// TODO: Backend - Implement real-time notification badge updates
+// TODO: Backend - Add analytics tracking for tab navigation and user interactions
+// TODO: Backend - Implement proper user session management and authentication state
+// TODO: Backend - Add offline/online state handling for data synchronization
+// TODO: Backend - Implement push notification handling and badge management
+// TODO: Backend - Add proper error handling and retry mechanisms for network operations
 
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
@@ -216,6 +222,9 @@ class HomeActivity : AppCompatActivity() {
 
 
     private fun checkUnreadNotifications() {
+        // TODO: Backend - Fetch real unread notification count from backend
+        // TODO: Backend - Implement real-time updates using WebSocket or polling
+        // TODO: Backend - Add notification preferences and filtering
         val hasUnreadNotifications = true
         showNotificationBadge(hasUnreadNotifications)
         binds.bottomNavigationView.showNotificationBadge(hasUnreadNotifications)

@@ -184,7 +184,7 @@
                     android:background="@color/surface_elevated">
 
                 <ImageView
-                        android:src="@drawable/xic_x18_uic_line_calendar"
+                        android:src="@drawable/ic_unicons_calendar_24"
                         android:importantForAccessibility="no"
                         android:gravity="center_vertical"
                         android:layout_marginEnd="12dp"
@@ -233,7 +233,7 @@
                     <ImageView
                             android:layout_width="48dp"
                             android:layout_height="48dp"
-                            android:src="@drawable/ic_calendar_line"
+                            android:src="@drawable/ic_unicons_calendar_24"
                             android:layout_marginBottom="12dp"
                             android:alpha="0.6"
                             app:tint="@color/text_tertiary" />
