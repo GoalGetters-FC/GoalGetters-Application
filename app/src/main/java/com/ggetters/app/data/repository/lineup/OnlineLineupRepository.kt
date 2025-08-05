@@ -33,16 +33,17 @@ class OnlineLineupRepository @Inject constructor(
         firestore.delete(entity)
     }
 
-    override fun getByEventId(eventId: String): Flow<List<Lineup>> = flow {
-        emit(firestore.getByEventId(eventId))
-    }
-
-    override fun deleteAll() {
+    override suspend fun deleteAll() {
         runBlocking {
-            val allLineups = firestore.getAll()
-            allLineups.forEach { lineup ->
+            firestore.getAll().forEach { lineup ->
                 firestore.delete(lineup)
             }
         }
     }
+
+    override fun getByEventId(eventId: String): Flow<List<Lineup>> = flow {
+        emit(firestore.getByEventId(eventId))
+    }
+
+
 }

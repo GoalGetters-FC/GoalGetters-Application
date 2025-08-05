@@ -1,6 +1,7 @@
 // app/src/main/java/com/ggetters/app/data/di/FirestoreModule.kt
 package com.ggetters.app.data.di
 
+import com.ggetters.app.data.remote.FirestorePathProvider
 import com.ggetters.app.data.remote.firestore.BroadcastFirestore
 import com.ggetters.app.data.remote.firestore.BroadcastStatusFirestore
 import com.ggetters.app.data.remote.firestore.TeamFirestore
@@ -25,11 +26,22 @@ object FirestoreModule {
     fun provideFirebaseFirestore(): FirebaseFirestore =
         Firebase.firestore
 
+    @Provides
+    @Singleton
+    fun provideFirestorePathProvider(
+        firestore: FirebaseFirestore
+    ): FirestorePathProvider =
+        FirestorePathProvider(firestore)
+
+
     /** Your wrapper for the "team" collection */
     @Provides
     @Singleton
-    fun provideTeamFirestore(firestore: FirebaseFirestore): TeamFirestore =
-        TeamFirestore(firestore)
+    fun provideTeamFirestore(
+        firestore: FirebaseFirestore,
+        pathProvider: FirestorePathProvider
+    ): TeamFirestore =
+        TeamFirestore( pathProvider)
 
     /** Your wrapper for the "user" collection */
     @Provides

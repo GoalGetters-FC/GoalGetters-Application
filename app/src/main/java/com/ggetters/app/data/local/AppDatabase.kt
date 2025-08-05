@@ -24,6 +24,8 @@ import com.ggetters.app.data.model.Event
 import com.ggetters.app.data.model.Attendance
 import com.ggetters.app.data.model.Lineup
 import com.ggetters.app.data.model.PerformanceLog
+import com.ggetters.app.data.local.migrations.MIGRATION_2_3
+import com.ggetters.app.data.local.migrations.MIGRATION_3_4
 
 /**
  * Local [RoomDatabase] for the application.
@@ -45,7 +47,7 @@ import com.ggetters.app.data.model.PerformanceLog
     
     // Configuration
     
-    version = 2,  // TODO: Backend - Implement migration from v1 to v2
+    version = 4,
     exportSchema = true // TODO: Add location to silence build warnings
 )
 @TypeConverters(
@@ -66,10 +68,13 @@ abstract class AppDatabase : RoomDatabase() {
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
-                    context.applicationContext, AppDatabase::class.java, DATABASE_NAME
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    DATABASE_NAME
                 )
-                    .fallbackToDestructiveMigration(true) // Dev Class temp test
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
                     .build()
+
                 INSTANCE = instance
                 instance
             }
@@ -82,14 +87,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun teamDao(): TeamDao
     abstract fun broadcastDao(): BroadcastDao
     abstract fun broadcastStatusDao(): BroadcastStatusDao
-    
-    // TODO: Backend - Add Event-related DAOs
     abstract fun eventDao(): EventDao
-
     abstract fun attendanceDao(): AttendanceDao
     abstract fun lineupDao(): LineupDao
 
-    // TODO: Backend - Create and add AttendanceDao
-    // TODO: Backend - Create and add LineupDao  
-    // TODO: Backend - Create and add PerformanceLogDao
 }

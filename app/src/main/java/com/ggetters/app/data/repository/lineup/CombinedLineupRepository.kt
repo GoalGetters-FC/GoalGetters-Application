@@ -35,7 +35,7 @@ class CombinedLineupRepository @Inject constructor(
     override fun getByEventId(eventId: String): Flow<List<Lineup>> =
         offline.getByEventId(eventId)
 
-    override fun deleteAll() {
+    override suspend fun deleteAll() {
         runBlocking {
             offline.deleteAll()
             online.deleteAll()

@@ -14,55 +14,36 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TeamDao {
 
-    /**
-     * Insert or update a single [Team].
-     * When a conflict on the primary key occurs, the existing record is replaced.
-     *
-     * @param team the [Team] object to upsert into the database
-     */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(team: Team)
 
-    /**
-     * Insert or update a list of [Team]s in a batch operation.
-     * Conflicting records (same primary key) will be replaced.
-     *
-     * @param teams the list of [Team] objects to upsert
-     */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(teams: List<Team>)
 
-    /**
-     * Observe a single [Team] by its ID.
-     * Returns a [Flow] that emits updates whenever the underlying row changes.
-     *
-     * @param id the unique identifier of the team to observe
-     * @return a [Flow] emitting the matching [Team] or null if not found
-     */
     @Query("SELECT * FROM team WHERE id = :id")
     fun getById(id: String): Flow<Team?>
 
-    /**
-     * Observe all teams in the database.
-     * Returns a [Flow] that emits the full list upon any insert/update/delete.
-     *
-     * @return a [Flow] emitting the current list of [Team] objects
-     */
     @Query("SELECT * FROM team")
     fun getAll(): Flow<List<Team>>
 
-    /**
-     * Delete the team with the given ID.
-     *
-     * @param id the unique identifier of the team to remove
-     */
     @Query("DELETE FROM team WHERE id = :id")
     suspend fun deleteById(id: String)
 
-    /**
-     * Delete all teams from the database.
-     * This operation is irreversible and will remove all records.
-     */
     @Query("DELETE FROM team")
     suspend fun deleteAll()
+
+    @Query("SELECT * FROM team WHERE is_active = 1 LIMIT 1")
+    fun getActiveTeam(): Flow<Team?>
+
+    @Query("SELECT * FROM team WHERE code = :code LIMIT 1")
+    suspend fun getByCode(code: String): Team?
+
+    @Query("UPDATE team SET is_active = 0")
+    suspend fun clearActive()
+
+    @Query("UPDATE team SET is_active = 1 WHERE id = :teamId")
+    suspend fun setActiveTeam(teamId: String)
+
+    @Query("UPDATE team SET is_active = 0 WHERE id != :teamId")
+    suspend fun clearOtherActiveTeams(teamId: String)
 }

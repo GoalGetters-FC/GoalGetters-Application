@@ -69,6 +69,6 @@ interface EventRepository : CrudRepository<Event> {
     /**
      * Delete all events from the repository.
     */
-    suspend fun deleteAll()
+
 
 } 

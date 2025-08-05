@@ -43,118 +43,179 @@ class DevClass @Inject constructor(
 
     // Shared IDs for linking seeded entities
     private lateinit var teamId: String
+    private lateinit var code: String
+
     private lateinit var userId: String
     private lateinit var eventId: String
     private lateinit var broadcastId: String
 
     /**
-     * Public entry point. Launches seeding in IO context if app is debuggable.
+     * Seeds dev data and performs sync (debug builds only).
+     * - Clears RoomDB
+     * - Seeds test data (optional)
+     * - Logs counts
+     * - Syncs to Firestore
      */
     suspend fun init() {
-        Clogger.i("DevClass", "$isInitialized")
-        if (isInitialized) return
+        if (!isDebuggable()) return
+
+        if (isInitialized) {
+            Clogger.w("DevClass", "Already initialized. Skipping.")
+            return
+        }
         isInitialized = true
 
-        Clogger.i("DevClass", "Pass 2: $isInitialized")
+        Clogger.i("DevClass", "🛠 Starting dev data seed...")
 
-        try {
-            clearAll()
-            Clogger.i("DevClass", "🧹 Database cleared 1")
-        } catch (
-            e: Exception
-        ) {
-            Clogger.e("DevClass", "Failed to clear database", e)
-        }
+        // Optional: Comment out blocks below as needed
+        //clearLocalDb()
+        seedTestData()
+        //logRoomCounts()
+        //syncToFirestore()
 
-        try {
-            seedTeam()
-            seedUser()
-            seedEvent()
-            seedAttendance()
-            seedBroadcast()
-            seedBroadcastStatus()
-            seedLineup()
-            seedLineupWithSpots()
-        } catch (e: Exception) {
-            Clogger.e("DevClass", "Failed to seed dev data", e)
-        }
-
-        // 🔍 read-back checks
-        val teamCount       = teamRepo.all().first().size
-        val userCount       = userRepo.all().first().size
-        val eventCount      = eventRepo.all().first().size
-        val attendanceCount = attendanceRepo.getAll().first().size
-        val broadcastCount  = broadcastRepo.all().first().size
-        val statusCount     = broadcastStatusRepo.all().first().size
-
-
-        Clogger.i("DevClass", "📊 After seeding → teams=$teamCount, users=$userCount, " +
-                "events=$eventCount, attendance=$attendanceCount, " +
-                "broadcasts=$broadcastCount, statuses=$statusCount")
-
-        Clogger.i("DevClass", "🏁 Dev data seed completed")
+        Clogger.i("DevClass", "🏁 Dev init completed")
     }
 
-    /** Deletes all rows from every table in child→parent order. */
+    // ———————————————————————————————————————————————————————————————
+// 🔹 STEP 1: Clear Local DB
+    private suspend fun clearLocalDb() {
+        runCatching {
+            clearAll()
+            Clogger.i("DevClass", "🧹 RoomDB cleared")
+        }.onFailure {
+            Clogger.e("DevClass", "❌ Failed to clear RoomDB", it)
+        }
+    }
+
+    // ———————————————————————————————————————————————————————————————
+// 🔹 STEP 2: Seed Test Data (comment lines inside as needed)
+    private suspend fun seedTestData() {
+        runCatching {
+             seedTeam()
+            // seedUser()
+            // seedEvent()
+            // seedAttendance()
+            // seedBroadcast()
+            // seedBroadcastStatus()
+            // seedLineup()
+            // seedLineupWithSpots()
+        }.onFailure {
+            Clogger.e("DevClass", "❌ Dev data seeding failed", it)
+        }
+    }
+
+    // ———————————————————————————————————————————————————————————————
+// 🔹 STEP 3: Log RoomDB Counts
+    private suspend fun logRoomCounts() {
+        runCatching {
+            val teamCount       = teamRepo.all().first().size
+            val userCount       = userRepo.all().first().size
+            val eventCount      = eventRepo.all().first().size
+            val attendanceCount = attendanceRepo.getAll().first().size
+            val broadcastCount  = broadcastRepo.all().first().size
+            val statusCount     = broadcastStatusRepo.all().first().size
+
+            Clogger.i("DevClass", "📊 After seed → teams=$teamCount, users=$userCount, " +
+                    "events=$eventCount, attendance=$attendanceCount, " +
+                    "broadcasts=$broadcastCount, statuses=$statusCount")
+        }.onFailure {
+            Clogger.i("DevClass", "⚠️ Failed read-back check")
+        }
+    }
+
+    // ———————————————————————————————————————————————————————————————
+// 🔹 STEP 4: Sync to Firestore
+    private suspend fun syncToFirestore() {
+        runCatching {
+            // teamRepo.sync()
+            // userRepo.sync()
+            // eventRepo.sync()
+            // attendanceRepo.sync()
+            // broadcastRepo.sync()
+            // broadcastStatusRepo.sync()
+            // lineupRepo.sync()
+        }.onFailure {
+            Clogger.e("DevClass", "❌ Sync failed", it)
+        }
+    }
+
+
+    /** Only run on debug builds */
+    private fun isDebuggable(): Boolean {
+        return app.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
+    }
+
+
+    /**
+     * Deletes all local data from RoomDB.
+     *
+     * ⚠️ This only clears **local tables** in Room. Firestore data is unaffected.
+     * Currently, only `Team` is cleared, as Room does not yet enforce relational hierarchy.
+     *
+     * In Firestore: `Team` is the root entity, and child entities are scoped under it.
+     * In Room: entities are stored flatly without foreign key cascading, so deletions must be manual.
+     *
+     * TODO: Extend to include manual deletion of dependent tables (User, Event, etc.)
+     */
     private suspend fun clearAll() {
         runCatching {
+            val teamCount = teamRepo.all().first().size
+            Clogger.i("DevClass", "Room check BEFORE deleteAll: $teamCount teams")
 
             teamRepo.deleteAll()
-            userRepo.deleteAll()
-            eventRepo.deleteAll()
-            attendanceRepo.deleteAll()
-            broadcastRepo.deleteAll()
-            broadcastStatusRepo.deleteAll()
-            lineupRepo.deleteAll()
-            Clogger.i("DevClass", "🧹 Database cleared 3")
 
-            // child tables first
-//            broadcastStatusRepo.all().first().forEach { broadcastStatusRepo.delete(it) }
-//            broadcastRepo.all().first().forEach { broadcastRepo.delete(it) }
-//            attendanceRepo.deleteAll()
-
-            // then parents
-//            eventRepo.all().first().forEach { eventRepo.delete(it) }
-//            userRepo.all().first().forEach { userRepo.delete(it) }
-//            teamRepo.all().first().forEach { teamRepo.delete(it) }
-
-
-        }.onSuccess {
-            Clogger.i("DevClass", "🧹 Database cleared 2")
+            Clogger.i("DevClass", "🧹 Local DB cleared successfully")
         }.onFailure {
-            Clogger.e("DevClass", "🧹 Failed to clear database", it)
+            Clogger.e("DevClass", "❌ Failed to clear RoomDB", it)
         }
     }
 
     /**
-     * Creates and persists a Team.
+     * Creates and persists a Team using the repository.
+     * Only creates if no team with the same code exists (locally or remotely).
      */
     private suspend fun seedTeam() {
         runCatching {
+            code = (1000..9999).random().toString()
+
+            // 1. Check for existing team with this code
+            val existingTeam = teamRepo.getByCode(code)
+            if (existingTeam != null) {
+                Clogger.i("DevClass", "🚫 Team with code=$code already exists: ID=${existingTeam.id}")
+                // Optionally: set as active, or skip
+                teamRepo.setActiveTeam(existingTeam)
+                teamId = existingTeam.id
+                return@runCatching // Early exit, no need to create
+            }
+
+            // 2. Create a new team
             teamId = UUID.randomUUID().toString()
+            Clogger.i("DevClass", "(1)Seeding team: ID=$teamId, Code=$code")
             val now = Instant.now()
             val team = Team(
                 id = teamId,
                 createdAt = now,
                 updatedAt = now,
-                code = "DEV",
-                name = "Dev Team",
-                alias = "DVT",
-                description = "Development Team",
+                code = code,
+                name = "Holywood Team",
+                alias = "GG",
+                description = "Hollywood Team",
                 composition = TeamComposition.UNISEX_MALE,
-                denomination = TeamDenomination.OPEN,
+                denomination = TeamDenomination.U18,
                 yearFormed = "2025",
                 contactCell = "+27123456789",
                 contactMail = "dev@goalgetters.app",
-                clubAddress = "Debug Street, Dev City"
+                clubAddress = "Debug Street, Dev City",
+                isActive = true // Set active for dev purposes
             )
-            teamRepo.upsert(team)
-        }.onSuccess {
-            Clogger.i("DevClass", "✅ Team seeded: $teamId")
+            teamRepo.createTeam(team)
+            Clogger.i("DevClass", "✅ Team seeded: $teamId, Code=$code")
         }.onFailure {
             Clogger.e("DevClass", "❌ Team seeding failed", it)
         }
+        Clogger.i("DevClass", "Seed team finished.")
     }
+
 
     /**
      * Creates and persists a User linked to the seeded Team.
