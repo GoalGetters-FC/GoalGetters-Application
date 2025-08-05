@@ -13,6 +13,8 @@ import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.Exclude
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Date
 import java.util.UUID
 
 @Entity(
@@ -75,7 +77,7 @@ data class User(
 
 
     @ColumnInfo(name = "role")
-    var role: UserRole,
+    var role: Int,
 
 
     @ColumnInfo(name = "name")
@@ -91,7 +93,7 @@ data class User(
 
 
     @ColumnInfo(name = "date_of_birth")
-    var dateOfBirth: LocalDate,
+    var dateOfBirth: Date,
 
 
     @ColumnInfo(name = "email")
@@ -125,8 +127,8 @@ data class User(
 
 
     // --- Functions
-    
-    
+
+
     fun NotifyJoinedTeam() {
         annexedAt = Instant.now()
     }
@@ -144,5 +146,10 @@ data class User(
     }
 
 
-    fun isAdult(): Boolean = !LocalDate.now().isBefore(dateOfBirth.plusYears(18))
+    fun isAdult(): Boolean {
+        val birthLocalDate = dateOfBirth.toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+        return !LocalDate.now().isBefore(birthLocalDate.plusYears(18))
+    }
 }
