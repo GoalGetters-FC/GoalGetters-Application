@@ -85,42 +85,47 @@
 
     </LinearLayout>
 
-    <!-- Players List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/playersRecyclerView"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingTop="8dp"
-        android:paddingBottom="16dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp" />
+        android:layout_weight="1">
 
-    <!-- Empty State -->
-    <TextView
-        android:id="@+id/emptyStateText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No players found"
-        android:textColor="@color/text_secondary"
-        android:textSize="16sp"
-        android:visibility="gone"
-        android:layout_gravity="center_horizontal"
-        android:paddingTop="32dp"
-        android:fontFamily="@font/variable_inter" />
+        <!-- Players List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/playersRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp" />
 
-    <!-- Add Player FAB -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addPlayerFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="20dp"
-        android:src="@drawable/ic_unicons_plus_24"
-        app:backgroundTint="@color/yellow"
-        app:tint="@color/black"
-        app:elevation="8dp"
-        app:pressedTranslationZ="12dp" />
+        <!-- Empty State -->
+        <TextView
+            android:id="@+id/emptyStateText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No players found"
+            android:textColor="@color/text_secondary"
+            android:textSize="16sp"
+            android:visibility="gone"
+            android:layout_gravity="center"
+            android:fontFamily="@font/variable_inter" />
+
+        <!-- Add Player FAB -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addPlayerFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="20dp"
+            android:src="@drawable/ic_unicons_plus_24"
+            app:backgroundTint="@color/yellow"
+            app:tint="@color/black"
+            app:elevation="8dp"
+            app:pressedTranslationZ="12dp" />
+
+    </FrameLayout>
 
 </LinearLayout> 

@@ -22,6 +22,8 @@ import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.central.viewmodels.HomePlayersViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.central.viewmodels.ProfileViewModel
+import com.ggetters.app.ui.management.views.TeamViewerActivity
+import com.ggetters.app.ui.startup.views.OnboardingActivity
 import com.ggetters.app.ui.startup.views.SignInActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
@@ -93,6 +95,12 @@ class ProfileFragment : Fragment() {
         profileAvatar.setOnLongClickListener {
             Log.d("ProfileFragment", "Avatar long-press detected")
             showAccountSwitcher()
+            true
+        }
+        
+        // TODO: Temporary bypass - remove once proper implementation is done
+        logoutButton.setOnLongClickListener {
+            startActivity(Intent(requireContext(), TeamViewerActivity::class.java))
             true
         }
         
@@ -327,14 +335,9 @@ class ProfileFragment : Fragment() {
             // TODO: Clear preferences
             
             // Navigate to login screen
-            val intent = Intent(requireContext(), SignInActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
-            startActivity(intent)
-            
-            // Close the current activity
-            requireActivity().finish()
-            
+            model.logout()
+            startActivity(Intent(requireContext(), OnboardingActivity::class.java))
+            requireActivity().finishAffinity()
         } catch (e: Exception) {
             Log.e("ProfileFragment", "Error during logout", e)
             Snackbar.make(requireView(), "Error during logout. Please try again.", Snackbar.LENGTH_LONG).show()
