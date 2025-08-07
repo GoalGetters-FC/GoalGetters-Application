@@ -23,19 +23,13 @@ class TeamViewerAccountViewHolder(
         private const val DEV_VERBOSE_LOGGER = false
     }
 
-
-// --- Internals
-
+    // --- Internals
 
     /**
      * Binds the data to the view.
      */
-    fun bind(
-        item: Team
-    ) {
-        if (DEV_VERBOSE_LOGGER) Clogger.d(
-            TAG, "<bind>: id=[${item.id}]"
-        )
+    fun bind(item: Team) {
+        if (DEV_VERBOSE_LOGGER) Clogger.d(TAG, "<bind>: id=[${item.id}]")
 
         // Apply the objects information to the view
         binding.apply {
@@ -44,27 +38,26 @@ class TeamViewerAccountViewHolder(
             }
 
             tvTeamName.text = item.name
+            
+            // Set role (Coach/Player) - for now showing Coach for first team, Player for second
+            tvTeamRole.text = if (item.name.contains("U15a")) "Coach" else "Full-time Player"
+            
+            // Set member count - for now showing 15 for first team, 8 for second
+            tvTeamCount.text = if (item.name.contains("U15a")) "15 members" else "8 members"
         }
     }
 
-
-    private fun showPopupMenu(
-        view: View, item: Team
-    ) = PopupMenu(view.context, view).apply {
+    private fun showPopupMenu(view: View, item: Team) = PopupMenu(view.context, view).apply {
         inflate(R.menu.menu_team_viewer_account)
         setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_item_team_viewer_account_select -> onSelectClicked(item)
                 R.id.nav_item_team_viewer_account_delete -> onDeleteClicked(item)
                 else -> {
-                    Clogger.w(
-                        TAG, "Unhandled menu-item-on-click for: ${menuItem.itemId}"
-                    )
-
+                    Clogger.w(TAG, "Unhandled menu-item-on-click for: ${menuItem.itemId}")
                     false
                 }
             }
-
             true
         }
     }.show()

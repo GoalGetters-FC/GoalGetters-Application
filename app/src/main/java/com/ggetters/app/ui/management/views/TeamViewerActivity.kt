@@ -28,20 +28,15 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         private const val TAG = "TeamViewerActivity"
     }
 
-
     private lateinit var binds: ActivityTeamViewerBinding
     private val model: TeamViewerViewModel by viewModels()
     private lateinit var adapter: TeamViewerAccountAdapter
 
-
-// --- Lifecycle
-
+    // --- Lifecycle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Clogger.d(
-            TAG, "Created a new instance of the activity"
-        )
+        Clogger.d(TAG, "Created a new instance of the activity")
 
         setupBindings()
         setupLayoutUi()
@@ -53,17 +48,13 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         observe()
     }
 
-
-// --- ViewModel
-
+    // --- ViewModel
 
     private fun observe() {
         // TODO: Observe view-model in here if needed
     }
 
-
-// --- Delegates
-
+    // --- Delegates
 
     private fun onItemOptionSelectClicked(entity: Team) {
         // Navigate to TeamDetailActivity
@@ -73,58 +64,56 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         startActivity(intent)
     }
 
-
     private fun onItemOptionDeleteClicked(entity: Team) {
-        Toast.makeText(
-            this, "Delete: ${entity.name}", Toast.LENGTH_SHORT
-        ).show()
+        Toast.makeText(this, "Delete: ${entity.name}", Toast.LENGTH_SHORT).show()
     }
-    
 
     private fun onCreateTeamSheetSubmitted(teamName: String) {
         // TODO
     }
 
-
-    private fun onJoinTeamSheetSubmitted(
-        teamCode: String, userCode: String
-    ) {
+    private fun onJoinTeamSheetSubmitted(teamCode: String, userCode: String) {
         // TODO
     }
 
-
-// --- Event Handlers
-
+    // --- Event Handlers
 
     override fun setupTouchListeners() {
-        binds.fab.setOnClickListener(this)
-    }
+        // Back button
+        binds.backButton.setOnClickListener {
+            onBackPressed()
+        }
 
+        // Link team button
+        binds.linkTeamButton.setOnClickListener {
+            JoinTeamBottomSheet(
+                this::onJoinTeamSheetSubmitted
+            ).show(
+                supportFragmentManager, JoinTeamBottomSheet.TAG
+            )
+        }
 
-    override fun onClick(view: View?) = when (view?.id) {
-        binds.fab.id -> {
+        // Create team button
+        binds.createTeamButton.setOnClickListener {
             CreateTeamBottomSheet(
                 this::onCreateTeamSheetSubmitted
             ).show(
                 supportFragmentManager, CreateTeamBottomSheet.TAG
             )
         }
+    }
 
+    override fun onClick(view: View?) = when (view?.id) {
         else -> {
-            Clogger.w(
-                TAG, "Unhandled on-click for: ${view?.id}"
-            )
+            Clogger.w(TAG, "Unhandled on-click for: ${view?.id}")
         }
     }
 
-
-// --- UI
-
+    // --- UI
 
     private fun setupBindings() {
         binds = ActivityTeamViewerBinding.inflate(layoutInflater)
     }
-
 
     private fun setupLayoutUi() {
         setContentView(binds.root)
@@ -135,31 +124,9 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Teams"
 
-        // Setup click listeners
+        // Setup toolbar navigation
         binds.toolbar.setNavigationOnClickListener {
             onBackPressed()
-        }
-
-        // Setup menu click listeners
-        binds.toolbar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.action_link_team -> {
-                    // TODO: Show link team dialog
-                    Clogger.d(TAG, "Link team clicked")
-                    true
-                }
-                R.id.action_join_team -> {
-                    // TODO: Show join team dialog
-                    Clogger.d(TAG, "Join team clicked")
-                    true
-                }
-                R.id.action_refresh -> {
-                    // TODO: Refresh team list
-                    Clogger.d(TAG, "Refresh clicked")
-                    true
-                }
-                else -> false
-            }
         }
 
         // Apply system-bar insets to the root view
@@ -169,7 +136,6 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
             insets
         }
     }
-
 
     private fun setupRecyclerView() {
         adapter = TeamViewerAccountAdapter(
@@ -181,35 +147,34 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         binds.rvAccounts.adapter = adapter
     }
 
-
-// --- Temporary
-
+    // --- Temporary
 
     private fun seed() {
         adapter.update(
             listOf(
                 Team(
-                    code = "DEV",
-                    name = "Dev Team A",
-                    alias = "DVT",
-                    description = "Development Team",
+                    code = "U15A",
+                    name = "U15a Football",
+                    alias = "U15A",
+                    description = "Under 15 Football Team",
                     composition = TeamComposition.UNISEX_MALE,
                     denomination = TeamDenomination.OPEN,
-                    yearFormed = "2025",
+                    yearFormed = "2024",
                     contactCell = "+27123456789",
-                    contactMail = "dev@goalgetters.app",
-                    clubAddress = "Debug Street, Dev City"
-                ), Team(
-                    code = "DEV",
-                    name = "Dev Team B",
-                    alias = "DVT",
-                    description = "Development Team",
+                    contactMail = "u15a@goalgetters.app",
+                    clubAddress = "Goal Getters FC"
+                ),
+                Team(
+                    code = "SEN",
+                    name = "Seniors League",
+                    alias = "SEN",
+                    description = "Senior League Team",
                     composition = TeamComposition.UNISEX_MALE,
                     denomination = TeamDenomination.OPEN,
-                    yearFormed = "2025",
+                    yearFormed = "2023",
                     contactCell = "+27123456789",
-                    contactMail = "dev@goalgetters.app",
-                    clubAddress = "Debug Street, Dev City"
+                    contactMail = "seniors@goalgetters.app",
+                    clubAddress = "Goal Getters FC"
                 )
             )
         )

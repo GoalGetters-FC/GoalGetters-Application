@@ -17,8 +17,7 @@
         app:navigationIcon="@drawable/ic_unicons_arrow_left"
         app:title="Teams"
         app:titleTextColor="@color/black"
-        app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-        app:menu="@menu/menu_team_viewer_toolbar" />
+        app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
 
     <!-- Content -->
     <androidx.core.widget.NestedScrollView
@@ -56,35 +55,97 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Action Buttons -->
+    <!-- Bottom Toolbar (MUI3 Toolbar) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp"
+        android:orientation="horizontal"
+        android:padding="16dp"
         android:background="@color/white"
-        android:elevation="8dp">
+        android:elevation="8dp"
+        android:gravity="center_vertical">
+
+        <!-- Back Button -->
+        <LinearLayout
+            android:id="@+id/backButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackground"
+            android:padding="8dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_unicons_arrow_left"
+                android:tint="@color/black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Back"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
+
+        <!-- Link Team Button -->
+        <LinearLayout
+            android:id="@+id/linkTeamButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackground"
+            android:padding="8dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_unicons_link_24"
+                android:tint="@color/black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Link (Team Code)"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
 
         <!-- Create New Team Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/fab"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/createTeamButton"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Create New Team"
-            android:icon="@drawable/ic_unicons_plus_24"
-            style="@style/Widget.MaterialComponents.Button" />
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackground"
+            android:padding="8dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_unicons_plus_24"
+                android:tint="@color/black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Create new team"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
-
-    <!-- Floating Action Button for quick actions -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/quickActionFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_unicons_plus_24"
-        app:backgroundTint="@color/yellow"
-        app:tint="@color/black" />
 
 </LinearLayout>
