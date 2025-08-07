@@ -19,6 +19,11 @@
                 android:name=".ui.management.views.TeamViewerActivity"
                 android:exported="false" /> <!-- Activities -->
         <activity
+                android:name=".ui.management.views.TeamDetailActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
+        <activity
                 android:name=".ui.startup.views.StartActivity"
                 android:exported="true"
                 android:theme="@style/AppTheme">
@@ -47,19 +52,23 @@
         <activity
                 android:name=".ui.central.views.HomeActivity"
                 android:exported="false"
-                android:theme="@style/AppTheme" />
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
         <activity
                 android:name=".ui.central.views.NotificationsActivity"
                 android:exported="false"
-                android:theme="@style/AppTheme" />
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
         <activity
                 android:name=".ui.central.views.AddEventActivity"
                 android:exported="false"
-                android:theme="@style/AppTheme" />
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
         <activity
                 android:name=".ui.central.views.MatchControlActivity"
                 android:exported="false"
-                android:theme="@style/AppTheme" />
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

@@ -44,6 +44,10 @@ class NotificationsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_notifications)
 
+        // Enable smooth activity transitions
+        supportPostponeEnterTransition()
+        supportStartPostponedEnterTransition()
+
         setupHeader()
         setupNotifications()
         setupSwipeActions()

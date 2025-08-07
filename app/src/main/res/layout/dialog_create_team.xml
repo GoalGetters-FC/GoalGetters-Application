@@ -33,18 +33,18 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Team Composition -->
+    <!-- Uniform/Division -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        android:hint="Team Composition"
-        app:startIconDrawable="@drawable/ic_unicons_users_24"
+        android:hint="Uniform/Division"
+        app:startIconDrawable="@drawable/ic_unicons_soccer_24"
         app:startIconTint="@color/text_secondary"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
         <AutoCompleteTextView
-            android:id="@+id/teamCompositionDropdown"
+            android:id="@+id/uniformDropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="none" />
@@ -66,6 +66,41 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="none" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Contact Info -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:hint="Email"
+        app:startIconDrawable="@drawable/ic_unicons_bell_24"
+        app:startIconTint="@color/text_secondary"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/emailInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:hint="Phone"
+        app:startIconDrawable="@drawable/ic_unicons_bell_24"
+        app:startIconTint="@color/text_secondary"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/phoneInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

@@ -34,6 +34,10 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.BottomSheetDialogFragment)
+        
+        // Enable smooth bottom sheet transitions
+        setEnterTransition(android.transition.Fade())
+        setExitTransition(android.transition.Fade())
     }
     
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

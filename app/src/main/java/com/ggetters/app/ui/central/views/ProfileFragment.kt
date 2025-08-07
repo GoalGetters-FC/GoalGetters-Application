@@ -18,7 +18,7 @@ import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.ui.central.models.UserAccount
 import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
-import com.ggetters.app.ui.central.sheets.TeamSwitcherBottomSheet
+import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.central.viewmodels.HomePlayersViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.central.viewmodels.ProfileViewModel
@@ -89,9 +89,10 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        // Long press avatar to switch teams (based on design template)
+        // Long press avatar to switch accounts (based on design template)
         profileAvatar.setOnLongClickListener {
-            showTeamSwitcher()
+            Log.d("ProfileFragment", "Avatar long-press detected")
+            showAccountSwitcher()
             true
         }
         
@@ -161,21 +162,22 @@ class ProfileFragment : Fragment() {
     }
 
     fun showAccountSwitcher() {
-        Log.d("ProfileFragment", "Showing account switcher")
-
-        // TODO: Backend - Fetch available accounts from backend/local
-        // TODO: Backend - Implement secure account switching with proper authentication
-        // TODO: Backend - Add account switching analytics and audit logging
-        // TODO: Backend - Implement account switching notifications
+        Log.d("ProfileFragment", "showAccountSwitcher called")
+        // TODO: Backend - Load user accounts from backend
+        // TODO: Backend - Implement account switching with proper authentication
+        // TODO: Backend - Add account switching analytics and tracking
+        // TODO: Backend - Implement account switching notifications and confirmations
         // TODO: Backend - Add account switching validation and permissions
+        // TODO: Backend - Implement account switching data synchronization
+
         val availableAccounts = listOf(
             UserAccount(
-                "1",
-                "Matthew Pieterse",
+                "1", 
+                "Matthew Pieterse", 
                 "matthew@example.com",
-                null,
-                "U15a Football",
-                "Player",
+                null, 
+                "U15a Football", 
+                "Coach", 
                 true
             ),
             UserAccount(
@@ -215,8 +217,22 @@ class ProfileFragment : Fragment() {
             onManageTeams = {
                 // Navigate to team management
                 navigateToTeamManagement()
+            },
+            onSetDefaultTeam = { teamId ->
+                // Handle default team setting
+                setDefaultTeam(teamId)
             }
         ).show(childFragmentManager, "TeamSwitcher")
+    }
+    
+    private fun setDefaultTeam(teamId: String) {
+        // TODO: Backend - Save default team preference to backend
+        // TODO: Backend - Implement default team validation
+        // TODO: Backend - Add default team analytics
+        // TODO: Backend - Implement default team notifications
+        // TODO: Backend - Add default team data synchronization
+        
+        Snackbar.make(requireView(), "Default team updated", Snackbar.LENGTH_SHORT).show()
     }
     
     private fun showAccountSettings() {
@@ -234,7 +250,7 @@ class ProfileFragment : Fragment() {
         // TODO: Backend - Add team settings and configuration
         // TODO: Backend - Implement team analytics and reporting
         // TODO: Backend - Add team member management and permissions
-        val teamProfileFragment = TeamProfileFragment()
+        val teamProfileFragment = com.ggetters.app.ui.management.views.TeamProfileFragment()
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, teamProfileFragment)
             .addToBackStack("profile_to_team_profile")

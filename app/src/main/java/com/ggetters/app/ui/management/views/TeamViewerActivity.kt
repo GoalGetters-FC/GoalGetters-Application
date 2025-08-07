@@ -66,9 +66,11 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
 
 
     private fun onItemOptionSelectClicked(entity: Team) {
-        Toast.makeText(
-            this, "Select: ${entity.name}", Toast.LENGTH_SHORT
-        ).show()
+        // Navigate to TeamDetailActivity
+        val intent = android.content.Intent(this, TeamDetailActivity::class.java)
+        intent.putExtra(TeamDetailActivity.EXTRA_TEAM_ID, entity.code)
+        intent.putExtra(TeamDetailActivity.EXTRA_TEAM_NAME, entity.name)
+        startActivity(intent)
     }
 
 
@@ -96,35 +98,6 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
 
     override fun setupTouchListeners() {
         binds.fab.setOnClickListener(this)
-        binds.bottomBar.setOnMenuItemClickListener { menuItem ->
-            Clogger.d(
-                TAG, "Clicked menu-item: ${menuItem.itemId}"
-            )
-
-            when (menuItem.itemId) {
-                R.id.nav_item_team_viewer_back -> {
-                    finish()
-                }
-
-                R.id.nav_item_team_viewer_code -> {
-                    JoinTeamBottomSheet(
-                        this::onJoinTeamSheetSubmitted
-                    ).show(
-                        supportFragmentManager, JoinTeamBottomSheet.TAG
-                    )
-                }
-
-                else -> {
-                    Clogger.w(
-                        TAG, "Unhandled menu-item-on-click for: ${menuItem.itemId}"
-                    )
-
-                    false
-                }
-            }
-
-            true
-        }
     }
 
 
@@ -157,10 +130,42 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         setContentView(binds.root)
         enableEdgeToEdge()
 
+        // Setup toolbar
+        setSupportActionBar(binds.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Teams"
+
+        // Setup click listeners
+        binds.toolbar.setNavigationOnClickListener {
+            onBackPressed()
+        }
+
+        // Setup menu click listeners
+        binds.toolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_link_team -> {
+                    // TODO: Show link team dialog
+                    Clogger.d(TAG, "Link team clicked")
+                    true
+                }
+                R.id.action_join_team -> {
+                    // TODO: Show join team dialog
+                    Clogger.d(TAG, "Join team clicked")
+                    true
+                }
+                R.id.action_refresh -> {
+                    // TODO: Refresh team list
+                    Clogger.d(TAG, "Refresh clicked")
+                    true
+                }
+                else -> false
+            }
+        }
+
         // Apply system-bar insets to the root view
         ViewCompat.setOnApplyWindowInsetsListener(binds.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
     }

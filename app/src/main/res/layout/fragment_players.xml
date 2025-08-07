@@ -117,7 +117,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="20dp"
-        android:src="@drawable/xic_x24_uic_line_plus"
+        android:src="@drawable/ic_unicons_plus_24"
         app:backgroundTint="@color/yellow"
         app:tint="@color/black"
         app:elevation="8dp"

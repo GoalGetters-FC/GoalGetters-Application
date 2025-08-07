@@ -12,8 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.UserAccount
-import com.ggetters.app.ui.central.views.TeamsFragment
+import com.ggetters.app.ui.management.views.TeamsFragment
 import com.ggetters.app.ui.management.views.TeamViewerActivity
+import android.widget.Toast
+import android.util.Log
 
 class AccountSwitcherBottomSheet : BottomSheetDialogFragment() {
     
@@ -48,22 +50,21 @@ class AccountSwitcherBottomSheet : BottomSheetDialogFragment() {
     
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+        Log.d("AccountSwitcher", "onViewCreated called")
         setupViews(view)
 
-        val button = view.findViewById<TextView>(R.id.tvManageTeams)       
-        button.setOnClickListener { 
-            startActivity(Intent(requireActivity(), TeamViewerActivity::class.java))
-            
-            // Navigate to Teams screen
-//            val teamsFragment = TeamsFragment()
-//            parentFragmentManager.beginTransaction()
-//                .replace(R.id.fragmentContainer, teamsFragment)
-//                .addToBackStack("account_switcher_to_teams")
-//                .commit()
-//            dismiss()
+        val button = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.manageTeamsButton)
+        Log.d("AccountSwitcher", "manageTeamsButton is null? ${button == null}")
+        if (button != null) {
+            Log.d("AccountSwitcher", "manageTeamsButton is visible? ${button.visibility == View.VISIBLE}, enabled? ${button.isEnabled}")
+            button.setOnClickListener {
+                Toast.makeText(requireContext(), "Manage Teams clicked", Toast.LENGTH_SHORT).show()
+                Log.d("AccountSwitcher", "Manage Teams button clicked")
+                val intent = android.content.Intent(requireContext(), com.ggetters.app.ui.management.views.TeamViewerActivity::class.java)
+                startActivity(intent)
+                dismiss()
+            }
         }
-        
         loadAccounts()
     }
     

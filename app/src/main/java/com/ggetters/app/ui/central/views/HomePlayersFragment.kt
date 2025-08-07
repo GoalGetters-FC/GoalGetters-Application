@@ -26,6 +26,8 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import android.widget.AutoCompleteTextView
+import com.google.android.material.button.MaterialButton
 
 // TODO: Backend - Implement real-time player data synchronization
 // TODO: Backend - Add player profile management and photo upload
@@ -96,6 +98,11 @@ class HomePlayersFragment : Fragment() {
         playersRecyclerView = view.findViewById(R.id.playersRecyclerView)
         emptyStateText = view.findViewById(R.id.emptyStateText)
         addPlayerFab = view.findViewById(R.id.addPlayerFab)
+        
+        // Setup FAB click listener
+        addPlayerFab.setOnClickListener {
+            showAddPlayerDialog()
+        }
     }
 
     private fun showFilterDialog() {
@@ -327,13 +334,72 @@ class HomePlayersFragment : Fragment() {
     }
 
     private fun showAddPlayerDialog() {
-        // TODO: Backend - Implement player creation with validation
-        // TODO: Backend - Add player creation analytics and tracking
-        // TODO: Backend - Implement player creation notifications
-        // TODO: Backend - Add player creation permissions and validation
-        // TODO: Backend - Implement player creation templates and presets
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_player, null)
+        val dialog = AlertDialog.Builder(requireContext(), R.style.Theme_GoalGetters_Dialog)
+            .setView(dialogView)
+            .create()
 
-        Snackbar.make(requireView(), "Add player functionality coming soon", Snackbar.LENGTH_SHORT).show()
+        // Setup position dropdown
+        val positionInput = dialogView.findViewById<AutoCompleteTextView>(R.id.playerPositionInput)
+        val positions = arrayOf("Striker", "Forward", "Midfielder", "Defender", "Goalkeeper", "Winger", "Center Back", "Full Back")
+        val positionAdapter = android.widget.ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, positions)
+        positionInput.setAdapter(positionAdapter)
+
+        // Setup button click listeners
+        dialogView.findViewById<MaterialButton>(R.id.cancelButton).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogView.findViewById<MaterialButton>(R.id.addPlayerButton).setOnClickListener {
+            // Get form data
+            val firstName = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.playerFirstNameInput).text.toString().trim()
+            val lastName = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.playerLastNameInput).text.toString().trim()
+            val email = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.playerEmailInput).text.toString().trim()
+            val position = dialogView.findViewById<AutoCompleteTextView>(R.id.playerPositionInput).text.toString().trim()
+            val jerseyNumber = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.playerJerseyNumberInput).text.toString().trim()
+            val dateOfBirth = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.playerDateOfBirthInput).text.toString().trim()
+
+            // Validate form data
+            if (firstName.isBlank()) {
+                dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.playerFirstNameInput).error = "First name is required"
+                return@setOnClickListener
+            }
+
+            if (lastName.isBlank()) {
+                dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.playerLastNameInput).error = "Last name is required"
+                return@setOnClickListener
+            }
+
+            if (email.isBlank()) {
+                dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.playerEmailInput).error = "Email is required"
+                return@setOnClickListener
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.playerEmailInput).error = "Please enter a valid email"
+                return@setOnClickListener
+            }
+
+            if (position.isBlank()) {
+                dialogView.findViewById<AutoCompleteTextView>(R.id.playerPositionInput).error = "Position is required"
+                return@setOnClickListener
+            }
+
+            // TODO: Backend - Validate and save player data
+            // TODO: Backend - Add player to team roster
+            // TODO: Backend - Send invitation email to player
+            // TODO: Backend - Add player analytics and tracking
+            // TODO: Backend - Implement player data synchronization
+
+            // Show success message
+            Snackbar.make(requireView(), "Player ${firstName} ${lastName} added successfully", Snackbar.LENGTH_LONG).show()
+            
+            // Close dialog and refresh list
+            dialog.dismiss()
+            loadPlayers() // Refresh the list
+        }
+
+        dialog.show()
     }
 
     private fun updateEmptyState(isEmpty: Boolean) {

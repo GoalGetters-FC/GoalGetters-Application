@@ -59,6 +59,10 @@ class MatchControlActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_match_control)
 
+        // Enable smooth activity transitions
+        supportPostponeEnterTransition()
+        supportStartPostponedEnterTransition()
+
         setupViews()
         setupClickListeners()
         loadMatchData()

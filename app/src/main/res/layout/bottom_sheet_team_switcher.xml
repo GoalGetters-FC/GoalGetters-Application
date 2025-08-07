@@ -39,17 +39,18 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Keep in touch across the field"
+        android:text="Select a team to switch to from the list"
         android:textSize="14sp"
         android:textColor="@color/text_secondary"
         android:layout_marginBottom="24dp"
         android:fontFamily="@font/variable_inter" />
 
-    <!-- Team Options -->
+    <!-- Team List -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginBottom="24dp">
 
         <!-- Current Team Option -->
         <LinearLayout
@@ -67,7 +68,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="12dp"
+                android:buttonTint="@color/yellow" />
 
             <ImageView
                 android:layout_width="40dp"
@@ -124,14 +126,15 @@
             android:gravity="center_vertical"
             android:padding="16dp"
             android:background="?attr/selectableItemBackground"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="8dp">
 
             <RadioButton
                 android:id="@+id/otherTeamRadio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="12dp"
+                android:buttonTint="@color/text_secondary" />
 
             <ImageView
                 android:layout_width="40dp"
@@ -178,6 +181,31 @@
                 android:fontFamily="@font/variable_inter" />
 
         </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Default Team Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Set as default team"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:fontFamily="@font/variable_inter" />
+
+        <Switch
+            android:id="@+id/defaultTeamSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true" />
 
     </LinearLayout>
 

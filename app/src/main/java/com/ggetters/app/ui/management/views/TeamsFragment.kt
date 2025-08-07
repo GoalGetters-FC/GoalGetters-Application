@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.central.views
+package com.ggetters.app.ui.management.views
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -10,11 +10,11 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.adapters.TeamAdapter
-import com.ggetters.app.ui.central.models.Team
-import com.ggetters.app.ui.central.models.TeamComposition
-import com.ggetters.app.ui.central.models.TeamDenomination
-import com.ggetters.app.ui.central.models.TeamContact
+import com.ggetters.app.ui.management.adapters.TeamAdapter
+import com.ggetters.app.ui.management.models.Team
+import com.ggetters.app.ui.management.models.TeamComposition
+import com.ggetters.app.ui.management.models.TeamDenomination
+import com.ggetters.app.ui.management.models.TeamContact
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
@@ -103,8 +103,7 @@ class TeamsFragment : Fragment() {
         // TODO: Backend - Implement team data validation and integrity checks
         // TODO: Backend - Add team data analytics and usage tracking
 
-        // Sample teams for demo
-        teams = listOf(
+        val sampleTeams = listOf(
             Team(
                 id = "1",
                 name = "U15a Football",
@@ -113,9 +112,9 @@ class TeamsFragment : Fragment() {
                 composition = TeamComposition.UNISEX_MALE,
                 denomination = TeamDenomination.ALL_U15,
                 contact = TeamContact(
-                    email = "u15a@goalgetters.com",
-                    phone = "+27 12 345 6789",
-                    website = "https://goalgetters.com/u15a"
+                    email = "coach@u15a.com",
+                    phone = "+1 234 567 8900",
+                    website = "https://u15a.com"
                 ),
                 isCurrentTeam = true,
                 memberCount = 15,
@@ -126,12 +125,12 @@ class TeamsFragment : Fragment() {
                 name = "Seniors League",
                 alias = "Seniors",
                 description = "Senior football team",
-                composition = TeamComposition.MALE_ONLY,
+                composition = TeamComposition.UNISEX_MALE,
                 denomination = TeamDenomination.SENIORS,
                 contact = TeamContact(
-                    email = "seniors@goalgetters.com",
-                    phone = "+27 12 345 6790",
-                    website = "https://goalgetters.com/seniors"
+                    email = "seniors@league.com",
+                    phone = "+1 234 567 8901",
+                    website = "https://seniors.com"
                 ),
                 isCurrentTeam = false,
                 memberCount = 10,
@@ -139,17 +138,19 @@ class TeamsFragment : Fragment() {
             )
         )
 
-        updateTeamsList()
+        updateTeamsList(sampleTeams)
     }
 
-    private fun updateTeamsList() {
+    private fun updateTeamsList(teams: List<Team>) {
+        this.teams = teams
+        teamAdapter.submitList(teams)
+        
         if (teams.isEmpty()) {
             emptyStateText.visibility = View.VISIBLE
             teamsRecyclerView.visibility = View.GONE
         } else {
             emptyStateText.visibility = View.GONE
             teamsRecyclerView.visibility = View.VISIBLE
-            teamAdapter.updateTeams(teams)
         }
     }
 
@@ -195,18 +196,16 @@ class TeamsFragment : Fragment() {
     }
 
     private fun navigateToTeamProfile(team: Team) {
-        // TODO: Backend - Navigate to team profile with proper team context
-        // TODO: Backend - Add team profile analytics and tracking
-        // TODO: Backend - Implement team profile permissions and validation
-        // TODO: Backend - Add team profile data synchronization
-        // TODO: Backend - Implement team profile editing and management
+        // TODO: Backend - Navigate to team viewer activity with proper team context
+        // TODO: Backend - Add team viewer analytics and tracking
+        // TODO: Backend - Implement team viewer permissions and validation
+        // TODO: Backend - Add team viewer data synchronization
+        // TODO: Backend - Implement team viewer editing and management
 
-        val teamProfileFragment = TeamProfileFragment()
-        // TODO: Pass team data to fragment
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, teamProfileFragment)
-            .addToBackStack("teams_to_team_profile")
-            .commit()
+        val intent = android.content.Intent(requireContext(), com.ggetters.app.ui.management.views.TeamViewerActivity::class.java)
+        intent.putExtra("team_id", team.id)
+        intent.putExtra("team_name", team.name)
+        startActivity(intent)
     }
 
     private fun switchToTeam(team: Team) {
@@ -250,7 +249,7 @@ class TeamsFragment : Fragment() {
         // TODO: Backend - Add team deletion analytics and tracking
 
         teams = teams.filter { it.id != team.id }
-        updateTeamsList()
+        updateTeamsList(teams)
         
         Snackbar.make(requireView(), "Team '${team.name}' deleted", Snackbar.LENGTH_SHORT).show()
     }

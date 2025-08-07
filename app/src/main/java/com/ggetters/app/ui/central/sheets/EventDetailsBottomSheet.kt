@@ -34,6 +34,10 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.BottomSheetDialogFragment)
         
+        // Enable smooth bottom sheet transitions
+        setEnterTransition(android.transition.Fade())
+        setExitTransition(android.transition.Fade())
+        
         arguments?.let { args ->
             val eventParcelable = args.getParcelable<EventParcelable>(ARG_EVENT)
             event = eventParcelable?.toEvent()

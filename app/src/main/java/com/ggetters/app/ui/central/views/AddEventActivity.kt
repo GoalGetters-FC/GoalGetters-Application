@@ -39,6 +39,10 @@ class AddEventActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_event)
 
+        // Enable smooth activity transitions
+        supportPostponeEnterTransition()
+        supportStartPostponedEnterTransition()
+
         setupViews()
         setupViewPager()
         setupTabLayout()

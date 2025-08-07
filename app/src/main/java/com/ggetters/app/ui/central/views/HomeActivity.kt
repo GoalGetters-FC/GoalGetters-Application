@@ -21,7 +21,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
-import com.ggetters.app.ui.central.sheets.TeamSwitcherBottomSheet
+import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
+import com.ggetters.app.ui.management.views.TeamsFragment
 
 // TODO: Backend - Fetch data for each tab (Notifications, Calendar, Players, Team Profile)
 // TODO: Backend - Log analytics for tab navigation
@@ -108,26 +109,25 @@ class HomeActivity : AppCompatActivity() {
 
 
     private fun setupBottomNavigation() {
-        val bottomNav = binds.bottomNavigationView
-        
-        // Ensure labels are always visible
-        bottomNav.labelVisibilityMode = BottomNavigationView.LABEL_VISIBILITY_LABELED
-        
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        bottomNav.labelVisibilityMode = BottomNavigationView.LABEL_VISIBILITY_LABELED // Ensure labels are always visible
+
         bottomNav.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_calendar -> {
                     switchFragment(HomeCalendarFragment())
                     true
                 }
-                R.id.nav_team_players -> {
+                R.id.nav_team_players -> { // Corrected ID
                     switchFragment(HomePlayersFragment())
                     true
                 }
-                R.id.nav_team_profile -> {
-                    switchFragment(TeamProfileFragment())
+                R.id.nav_player_profile -> { // Player Profile - Show player details
+                    switchFragment(PlayerDetailsFragment())
                     true
                 }
                 R.id.nav_profile -> {
+                    // Options tab - Show account switcher on long press, regular click shows profile
                     switchFragment(ProfileFragment())
                     true
                 }
@@ -135,14 +135,88 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
-        // Set default fragment
-        switchFragment(HomeCalendarFragment())
+        // Add custom touch listener for long press functionality
+        var longPressHandler: android.os.Handler? = null
+        var longPressRunnable: Runnable? = null
+        
+        bottomNav.setOnTouchListener { _, event ->
+            when (event.action) {
+                android.view.MotionEvent.ACTION_DOWN -> {
+                    val touchedItem = getBottomNavItemAtLocation(bottomNav, event.x, event.y)
+                    if (touchedItem == R.id.nav_player_profile || touchedItem == R.id.nav_profile) {
+                        // Start a timer for long press - both player profile and options should show account switcher
+                        longPressRunnable = Runnable {
+                            showAccountSwitcher()
+                        }
+                        longPressHandler = android.os.Handler(android.os.Looper.getMainLooper())
+                        longPressHandler?.postDelayed(longPressRunnable!!, 500) // 500ms for long press
+                    }
+                }
+                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                    // Cancel long press if touch is released
+                    longPressHandler?.removeCallbacksAndMessages(null)
+                    longPressHandler = null
+                    longPressRunnable = null
+                }
+            }
+            false // Don't consume the event
+        }
+        
+        switchFragment(HomeCalendarFragment()) // Set default fragment
+    }
+
+    private fun getBottomNavItemAtLocation(bottomNav: BottomNavigationView, x: Float, y: Float): Int? {
+        // Simple implementation - you might need to refine this based on your needs
+        val menu = bottomNav.menu
+        val itemCount = menu.size()
+        val itemWidth = bottomNav.width / itemCount
+        
+        val itemIndex = (x / itemWidth).toInt()
+        return if (itemIndex in 0 until itemCount) {
+            menu.getItem(itemIndex).itemId
+        } else null
+    }
+    
+    private fun showTeamSwitcher() {
+        // TODO: Backend - Implement team switching with proper authentication
+        // TODO: Backend - Add team switching analytics and tracking
+        // TODO: Backend - Implement team switching notifications and confirmations
+        // TODO: Backend - Add team switching validation and permissions
+        // TODO: Backend - Implement team switching data synchronization
+
+        TeamSwitcherBottomSheet.newInstance(
+            onTeamSelected = { selectedTeam ->
+                // Handle team selection
+                Snackbar.make(findViewById(android.R.id.content), "Switched to ${selectedTeam.teamName}", Snackbar.LENGTH_SHORT).show()
+                // TODO: Backend - Update current team in backend
+                // TODO: Backend - Refresh all fragments with new team data
+                // TODO: Backend - Update team-specific data across the app
+            },
+            onManageTeams = {
+                // Navigate to team management
+                switchFragment(TeamsFragment())
+            },
+            onSetDefaultTeam = { teamId ->
+                // Handle default team setting
+                setDefaultTeam(teamId)
+            }
+        ).show(supportFragmentManager, "TeamSwitcher")
+    }
+    
+    private fun setDefaultTeam(teamId: String) {
+        // TODO: Backend - Save default team preference to backend
+        // TODO: Backend - Implement default team validation
+        // TODO: Backend - Add default team analytics
+        // TODO: Backend - Implement default team notifications
+        // TODO: Backend - Add default team data synchronization
+        
+        Snackbar.make(findViewById(android.R.id.content), "Default team updated", Snackbar.LENGTH_SHORT).show()
     }
 
     private fun switchFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
 
-        // Add smooth transitions
+        // Add smooth transitions with better timing
         transaction.setCustomAnimations(
             R.anim.slide_in_right,
             R.anim.slide_out_left,
@@ -150,17 +224,15 @@ class HomeActivity : AppCompatActivity() {
             R.anim.slide_out_right
         )
 
-        if (currentFragment == null) {
-            transaction.replace(R.id.fragmentContainer, fragment)
-        } else {
-            transaction.replace(R.id.fragmentContainer, fragment)
-        }
+        // Add to back stack for proper navigation
+        transaction.replace(R.id.fragmentContainer, fragment)
+        transaction.addToBackStack(null)
 
         transaction.commit()
         currentFragment = fragment
     }
 
-    private fun showAccountSwitcher() {
+    fun showAccountSwitcher() {
         Clogger.d(
             TAG, "Showing account switcher from HomeActivity"
         )
@@ -183,7 +255,7 @@ class HomeActivity : AppCompatActivity() {
         // TODO: Backend - Add notification preferences and filtering
         val hasUnreadNotifications = true
         showNotificationBadge(hasUnreadNotifications)
-        binds.bottomNavigationView.showNotificationBadge(hasUnreadNotifications)
+        //binds.bottomNavigationView.showNotificationBadge(hasUnreadNotifications)
     }
 
 

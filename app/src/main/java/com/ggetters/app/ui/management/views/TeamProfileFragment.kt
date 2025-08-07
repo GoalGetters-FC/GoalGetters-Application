@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.central.views
+package com.ggetters.app.ui.management.views
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -36,7 +36,7 @@ class TeamProfileFragment : Fragment() {
     private lateinit var toolbar: MaterialToolbar
     private lateinit var teamNameInput: TextInputEditText
     private lateinit var shortTeamNameInput: TextInputEditText
-    private lateinit var teamCompositionDropdown: AutoCompleteTextView
+    private lateinit var uniformDropdown: AutoCompleteTextView
     private lateinit var ageGroupDropdown: AutoCompleteTextView
     private lateinit var coachNameInput: TextInputEditText
     private lateinit var emailInput: TextInputEditText
@@ -67,7 +67,7 @@ class TeamProfileFragment : Fragment() {
         toolbar = view.findViewById(R.id.toolbar)
         teamNameInput = view.findViewById(R.id.teamNameInput)
         shortTeamNameInput = view.findViewById(R.id.shortTeamNameInput)
-        teamCompositionDropdown = view.findViewById(R.id.teamCompositionDropdown)
+        uniformDropdown = view.findViewById(R.id.uniformDropdown)
         ageGroupDropdown = view.findViewById(R.id.ageGroupDropdown)
         coachNameInput = view.findViewById(R.id.coachNameInput)
         emailInput = view.findViewById(R.id.emailInput)
@@ -103,13 +103,13 @@ class TeamProfileFragment : Fragment() {
 
     private fun setupDropdowns() {
         // TODO: Backend - Load dropdown options from backend
-        val compositionOptions = arrayOf("Unisex (Male)", "Unisex (Female)", "Male Only", "Female Only")
-        val ageGroupOptions = arrayOf("All U15", "U15 Boys", "U15 Girls", "U16", "U17", "U18", "Seniors")
+        val uniformOptions = arrayOf("Home Kit", "Away Kit", "Training Kit", "Third Kit")
+        val ageGroupOptions = arrayOf("U10", "U15", "Senior")
 
-        val compositionAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, compositionOptions)
+        val uniformAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, uniformOptions)
         val ageGroupAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, ageGroupOptions)
 
-        teamCompositionDropdown.setAdapter(compositionAdapter)
+        uniformDropdown.setAdapter(uniformAdapter)
         ageGroupDropdown.setAdapter(ageGroupAdapter)
     }
 
@@ -150,7 +150,7 @@ class TeamProfileFragment : Fragment() {
     private fun setFieldsEditable(editable: Boolean) {
         teamNameInput.isEnabled = editable
         shortTeamNameInput.isEnabled = editable
-        teamCompositionDropdown.isEnabled = editable
+        uniformDropdown.isEnabled = editable
         ageGroupDropdown.isEnabled = editable
         coachNameInput.isEnabled = editable
         emailInput.isEnabled = editable
@@ -167,7 +167,7 @@ class TeamProfileFragment : Fragment() {
         
         val teamName = teamNameInput.text.toString()
         val shortTeamName = shortTeamNameInput.text.toString()
-        val composition = teamCompositionDropdown.text.toString()
+        val uniform = uniformDropdown.text.toString()
         val ageGroup = ageGroupDropdown.text.toString()
         val coachName = coachNameInput.text.toString()
         val email = emailInput.text.toString()
@@ -190,7 +190,7 @@ class TeamProfileFragment : Fragment() {
         // TODO: Backend - Implement team players filtering and search
         // TODO: Backend - Add team players permissions and role validation
         
-        val playersFragment = HomePlayersFragment()
+        val playersFragment = com.ggetters.app.ui.central.views.HomePlayersFragment()
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, playersFragment)
             .addToBackStack("team_profile_to_players")

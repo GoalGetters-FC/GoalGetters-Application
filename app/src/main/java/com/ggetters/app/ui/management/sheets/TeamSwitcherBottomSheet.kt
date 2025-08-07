@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.central.sheets
+package com.ggetters.app.ui.management.sheets
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Switch
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
@@ -22,19 +23,31 @@ class TeamSwitcherBottomSheet : BottomSheetDialogFragment() {
 
     private var onTeamSelected: ((UserAccount) -> Unit)? = null
     private var onManageTeams: (() -> Unit)? = null
+    private var onSetDefaultTeam: ((String) -> Unit)? = null
 
     companion object {
         const val TAG = "TeamSwitcherBottomSheet"
 
         fun newInstance(
             onTeamSelected: (UserAccount) -> Unit,
-            onManageTeams: () -> Unit
+            onManageTeams: () -> Unit,
+            onSetDefaultTeam: (String) -> Unit
         ): TeamSwitcherBottomSheet {
             return TeamSwitcherBottomSheet().apply {
                 this.onTeamSelected = onTeamSelected
                 this.onManageTeams = onManageTeams
+                this.onSetDefaultTeam = onSetDefaultTeam
             }
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(STYLE_NORMAL, R.style.BottomSheetDialogFragment)
+        
+        // Enable smooth bottom sheet transitions
+        setEnterTransition(android.transition.Fade())
+        setExitTransition(android.transition.Fade())
     }
 
     override fun onCreateView(
@@ -86,6 +99,11 @@ class TeamSwitcherBottomSheet : BottomSheetDialogFragment() {
                 view?.findViewById<RadioButton>(R.id.currentTeamRadio)?.isChecked = false
             }
         }
+
+        // Default team switch
+        view?.findViewById<Switch>(R.id.defaultTeamSwitch)?.setOnCheckedChangeListener { _, isChecked ->
+            handleDefaultTeamToggle(isChecked)
+        }
     }
 
     private fun handleTeamSwitch() {
@@ -129,6 +147,26 @@ class TeamSwitcherBottomSheet : BottomSheetDialogFragment() {
             dismiss()
         } ?: run {
             Snackbar.make(requireView(), "Please select a team", Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun handleDefaultTeamToggle(isDefault: Boolean) {
+        // TODO: Backend - Save default team preference
+        // TODO: Backend - Implement default team validation
+        // TODO: Backend - Add default team analytics
+        // TODO: Backend - Implement default team notifications
+        
+        val teamId = when {
+            view?.findViewById<RadioButton>(R.id.currentTeamRadio)?.isChecked == true -> "1"
+            view?.findViewById<RadioButton>(R.id.otherTeamRadio)?.isChecked == true -> "2"
+            else -> null
+        }
+        
+        teamId?.let { id ->
+            onSetDefaultTeam?.invoke(id)
+            if (isDefault) {
+                Snackbar.make(requireView(), "Default team updated", Snackbar.LENGTH_SHORT).show()
+            }
         }
     }
 

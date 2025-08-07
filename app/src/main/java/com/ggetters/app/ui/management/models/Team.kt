@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.central.models
+package com.ggetters.app.ui.management.models
 
 // TODO: Backend - Implement team data models and validation
 // TODO: Backend - Add team data serialization and deserialization
