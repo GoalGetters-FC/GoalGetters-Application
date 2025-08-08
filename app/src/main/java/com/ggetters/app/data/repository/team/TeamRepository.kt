@@ -15,4 +15,7 @@ interface TeamRepository : CrudRepository<Team> {
     suspend fun joinOrCreateTeam(code: String): Team
 
     suspend fun createTeam(team: Team): Team
+
+    fun getTeamsForCurrentUser(): Flow<List<Team>>
+
 }

@@ -77,5 +77,12 @@ class OfflineTeamRepository @Inject constructor(
         return team
     }
 
+    override fun getTeamsForCurrentUser(): Flow<List<Team>> {
+        // Room should only have teams user belong to, so just return all.
+        // It should, but is not. (currently, needs to change)
+        return dao.getAll()
+    }
+
+
 
 }

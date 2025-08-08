@@ -4,8 +4,10 @@ import com.ggetters.app.data.model.Team
 import com.ggetters.app.data.model.TeamComposition
 import com.ggetters.app.data.model.TeamDenomination
 import com.ggetters.app.data.remote.firestore.TeamFirestore
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class OnlineTeamRepository @Inject constructor(
@@ -20,11 +22,14 @@ class OnlineTeamRepository @Inject constructor(
 
     override suspend fun delete(entity: Team) = fs.delete(entity.id)
 
-    override suspend fun deleteAll() { /* no-op */ }
+    override suspend fun deleteAll() { /* no-op */
+    }
 
-    override suspend fun sync() { /* no-op */ }
+    override suspend fun sync() { /* no-op */
+    }
 
-    override suspend fun setActiveTeam(team: Team) { /* no-op */ }
+    override suspend fun setActiveTeam(team: Team) { /* no-op */
+    }
 
     override fun getActiveTeam(): Flow<Team?> = flowOf(null)
 
@@ -53,4 +58,9 @@ class OnlineTeamRepository @Inject constructor(
         fs.joinTeam(team.id)
         return team
     }
+
+    override fun getTeamsForCurrentUser(): Flow<List<Team>> {
+        return fs.observeTeamsForCurrentUser()
+    }
+
 }

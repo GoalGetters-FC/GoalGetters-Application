@@ -147,6 +147,13 @@ class CombinedTeamRepository @Inject constructor(
 
         return team
     }
+
+    override fun getTeamsForCurrentUser(): Flow<List<Team>> {
+        // Use online if available, otherwise offline
+        // This example just returns offline for now (replace with merge logic if needed)
+        return offline.getTeamsForCurrentUser()
+    }
+
 }
 
 

@@ -11,6 +11,9 @@ import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -80,4 +83,45 @@ class TeamFirestore @Inject constructor(
             .await()
         Clogger.i("DevClass", "User $uid joined team $teamId as $role")
     }
+
+    /**
+     * Returns a Flow of teams where the current user (Auth ID) is in the team's users subcollection.
+     */
+    fun observeTeamsForCurrentUser(): Flow<List<Team>> = callbackFlow {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            trySend(emptyList<Team>()) // Not logged in, show no teams
+            close()
+            return@callbackFlow
+        }
+
+        // Listen to all teams (will be efficient for most real-world club sizes)
+        val subscription = teamsCol.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+            } else {
+                val teams = snapshot?.documents.orEmpty()
+                // Now, for each team, check if this user is present in its /users/ subcollection
+                // We'll fetch these in parallel, and then send the list when all are ready
+                // (or you can optimize by storing a "members" array in each team doc — up to you)
+                if (teams.isEmpty()) {
+                    trySend(emptyList<Team>())
+                } else {
+                    // Only teams where user is present in /users/ subcollection
+                    kotlinx.coroutines.GlobalScope.launch {
+                        val includedTeams = teams.mapNotNull { teamSnap ->
+                            val userSnap = teamSnap.reference.collection("users").document(uid).get().await()
+                            if (userSnap.exists()) {
+                                teamSnap.toObject(Team::class.java)
+                            } else null
+                        }
+                        trySend(includedTeams)
+                    }
+                }
+            }
+        }
+        awaitClose { subscription.remove() }
+    }
+
+
 }
