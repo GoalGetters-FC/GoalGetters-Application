@@ -21,6 +21,9 @@ import com.ggetters.app.ui.shared.modals.CreateTeamBottomSheet
 import com.ggetters.app.ui.shared.modals.JoinTeamBottomSheet
 import com.ggetters.app.ui.shared.models.Clickable
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TeamViewerActivity : AppCompatActivity(), Clickable {
@@ -43,7 +46,7 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         setupTouchListeners()
         setupRecyclerView()
 
-        seed() // T E M P O R A R Y
+
 
         observe()
     }
@@ -51,8 +54,13 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
     // --- ViewModel
 
     private fun observe() {
-        // TODO: Observe view-model in here if needed
+        lifecycleScope.launch {
+            model.teams.collectLatest { teams ->
+                adapter.update(teams)
+            }
+        }
     }
+
 
     // --- Delegates
 
