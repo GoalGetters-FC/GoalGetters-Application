@@ -74,6 +74,7 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
 
     private fun onItemOptionDeleteClicked(entity: Team) {
         Toast.makeText(this, "Delete: ${entity.name}", Toast.LENGTH_SHORT).show()
+        // TODO: Implement deletion logic
     }
 
     private fun onCreateTeamSheetSubmitted(teamName: String) {
@@ -100,6 +101,14 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
                 supportFragmentManager, JoinTeamBottomSheet.TAG
             )
         }
+
+        // testing long-click for sync
+        binds.linkTeamButton.setOnLongClickListener {
+            Toast.makeText(this, "Starting sync…", Toast.LENGTH_SHORT).show()
+            model.syncTeams()
+            true
+        }
+
 
         // Create team button
         binds.createTeamButton.setOnClickListener {

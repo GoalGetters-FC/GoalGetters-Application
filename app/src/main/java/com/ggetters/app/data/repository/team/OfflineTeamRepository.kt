@@ -18,11 +18,18 @@ class OfflineTeamRepository @Inject constructor(
     override suspend fun getById(id: String): Team? =
         dao.getById(id).first()                          // take first emission
 
-    override suspend fun upsert(entity: Team) =
+    override suspend fun upsert(entity: Team) {
+        // mark it dirty so sync() will pick it up
+        entity.stain()
         dao.upsert(entity)
+    }
 
-    override suspend fun delete(entity: Team) =
+    override suspend fun delete(entity: Team) {
+        // you could also treat deletes via a 'deletedAt' tombstone column,
+        // but for now just remove the row and push that delete in CombinedRepo
         dao.deleteById(entity.id)
+    }
+
 
     override suspend fun deleteAll(){
         dao.deleteAll()                                  // delete all teams
@@ -83,6 +90,18 @@ class OfflineTeamRepository @Inject constructor(
         return dao.getAll()
     }
 
+    /** 1️⃣ get teams you’ve edited locally */
+    fun getDirtyTeams(): Flow<List<Team>> = dao.getDirtyTeams()
 
+    /** 2️⃣ mark a team clean after pushing */
+    suspend fun markClean(teamId: String) = dao.markClean(teamId)
 
+    /** 3️⃣ read *all* local teams */
+    suspend fun getAllLocal(): List<Team> = dao.getAll().first()
+
+    /** 4️⃣ delete by id locally */
+    suspend fun deleteByIdLocal(teamId: String) = dao.deleteById(teamId)
+
+    /** 5️⃣ upsert a batch of teams */
+    suspend fun upsertAllLocal(teams: List<Team>) = dao.upsertAll(teams)
 }

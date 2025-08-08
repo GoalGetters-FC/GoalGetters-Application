@@ -123,5 +123,19 @@ class TeamFirestore @Inject constructor(
         awaitClose { subscription.remove() }
     }
 
+    // TeamFirestore.kt
+
+    /** One-shot fetch of all teams you belong to. */
+    suspend fun fetchTeamsForCurrentUser(): List<Team> {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+            ?: return emptyList()
+        val allTeamsSnap = teamsCol.get().await()
+        return allTeamsSnap.documents.mapNotNull { teamDoc ->
+            val userSnap = paths.usersCollection(teamDoc.id).document(uid).get().await()
+            if (userSnap.exists()) teamDoc.toObject(Team::class.java) else null
+        }
+    }
+
+
 
 }

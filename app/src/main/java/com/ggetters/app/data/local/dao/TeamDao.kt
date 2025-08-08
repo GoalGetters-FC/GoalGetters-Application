@@ -46,4 +46,12 @@ interface TeamDao {
 
     @Query("UPDATE team SET is_active = 0 WHERE id != :teamId")
     suspend fun clearOtherActiveTeams(teamId: String)
+
+    // 1️⃣ new: get only the teams that have been edited locally
+    @Query("SELECT * FROM team WHERE stained_at IS NOT NULL")
+    fun getDirtyTeams(): Flow<List<Team>>
+
+    // 2️⃣ new: mark a team as clean after it’s been pushed
+    @Query("UPDATE team SET stained_at = NULL WHERE id = :teamId")
+    suspend fun markClean(teamId: String)
 }

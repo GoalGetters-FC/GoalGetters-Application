@@ -63,4 +63,11 @@ class OnlineTeamRepository @Inject constructor(
         return fs.observeTeamsForCurrentUser()
     }
 
+   // fetch teams for current user
+    /**
+     * One-shot fetch of all teams the current user belongs to,
+     * for use in sync().
+     */
+    suspend fun fetchTeamsForCurrentUser(): List<Team> =
+        fs.fetchTeamsForCurrentUser()
 }

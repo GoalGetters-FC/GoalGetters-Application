@@ -4,8 +4,10 @@ import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.data.model.TeamComposition
 import com.ggetters.app.data.model.TeamDenomination
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class CombinedTeamRepository @Inject constructor(
@@ -47,14 +49,38 @@ class CombinedTeamRepository @Inject constructor(
         }
     }
 
-    override suspend fun sync() {
-        // Pull all from remote...
-        val remoteList = online.all().first()
-        // ...and upsert each one locally
-        remoteList.forEach { team ->
-            offline.upsert(team)
+    // CombinedTeamRepository.kt
+    override suspend fun sync() = withContext(Dispatchers.IO) {
+        // 1) PUSH local changes
+        offline.getDirtyTeams().first().forEach { team ->
+            try {
+                online.upsert(team)
+                offline.markClean(team.id)
+            } catch (e: Exception) {
+                Clogger.e("Sync", "Failed to push team ${team.id}", e)
+            }
         }
+
+        // 2) PULL remote teams for this user (one‐shot)
+        val remote = online.fetchTeamsForCurrentUser()
+        val remoteIds = remote.map { it.id }.toSet()
+        Clogger.i("Sync", "Pulled ${remote.size} remote teams")
+
+        // 3) CLEAN UP stale locals
+        val localAll = offline.getAllLocal()
+        localAll
+            .filter { it.id !in remoteIds && !it.isStained() }
+            .forEach { offline.deleteByIdLocal(it.id) }
+        Clogger.i("Sync", "Dropped ${localAll.size - remoteIds.size} stale locals")
+
+        // 4) MERGE down
+        offline.upsertAllLocal(remote)
+        Clogger.i("Sync", "Merged ${remote.size} remote into local")
     }
+
+
+
+
 
     override suspend fun setActiveTeam(team: Team) {
         offline.setActiveTeam(team)
@@ -157,25 +183,4 @@ class CombinedTeamRepository @Inject constructor(
 }
 
 
-
-// sync
-/**
- * Performs a bidirectional sync between local RoomDB and remote Firestore.
- *
- * 🔽 Pull:
- * - Fetches all remote teams from Firestore.
- * - Upserts them into the local RoomDB.
- *
- * 🔼 Push:
- * - Finds locally modified (dirty) teams.
- * - Pushes them to Firestore.
- * - Marks them clean once synced.
- *
- * ⚠️ Conflict Strategy:
- * - To be implemented. Options: Last-write-wins, remote wins, merge logic, etc.
- *
- * TODO:
- * - Implement `getDirtyTeams()` and `markClean()` in DAO.
- * - Ensure all local writes set `dirty = true`.
- */
 

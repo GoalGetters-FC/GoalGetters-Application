@@ -19,7 +19,9 @@ import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.Exclude
 import java.time.Instant
 import java.util.UUID
+import com.google.firebase.firestore.IgnoreExtraProperties
 
+@IgnoreExtraProperties
 @Entity(
     tableName = "team",
     indices = [
@@ -27,7 +29,7 @@ import java.util.UUID
         Index(value = ["code"], unique = true),
     ]
 )
-data class Team(
+data class Team constructor(
 
     @PrimaryKey
     @DocumentId
@@ -50,7 +52,7 @@ data class Team(
     // --- Attributes
 
     @ColumnInfo(name = "name")
-    var name: String,
+    var name: String = "",
 
     @ColumnInfo(name = "alias")
     var alias: String? = null,
@@ -59,10 +61,10 @@ data class Team(
     var description: String? = null,
 
     @ColumnInfo(name = "composition")
-    var composition: TeamComposition,
+    var composition: TeamComposition = TeamComposition.UNISEX_MALE,
 
     @ColumnInfo(name = "denomination")
-    var denomination: TeamDenomination,
+    var denomination: TeamDenomination = TeamDenomination.OPEN,
 
     @ColumnInfo(name = "year_formed")
     var yearFormed: String? = null,
@@ -81,6 +83,26 @@ data class Team(
     var isActive: Boolean = false
 
 ) : KeyedEntity, CodedEntity, AuditableEntity, StainableEntity {
+
+    // Firestore needs a real no-arg constructor:
+    constructor() : this(
+        id            = "",
+        createdAt    = Instant.now(),
+        updatedAt    = Instant.now(),
+        stainedAt     = null,
+        code          = null,
+        name          = "",
+        alias         = null,
+        description   = null,
+        composition   = TeamComposition.UNISEX_MALE,
+        denomination  = TeamDenomination.OPEN,
+        yearFormed    = null,
+        contactCell   = null,
+        contactMail   = null,
+        clubAddress   = null,
+        isActive      = false
+    )
+
     companion object {
         const val TAG = "Team"
     }
