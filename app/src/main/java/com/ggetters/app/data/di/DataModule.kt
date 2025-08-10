@@ -2,8 +2,10 @@
 package com.ggetters.app.data.di
 
 import android.content.Context
+import androidx.credentials.CredentialManager
 import androidx.room.RoomDatabase
 import com.ggetters.app.core.services.AuthService
+import com.ggetters.app.core.services.GoogleAuthClient
 import com.ggetters.app.data.local.AppDatabase
 import com.ggetters.app.data.local.dao.AttendanceDao
 import com.ggetters.app.data.local.dao.BroadcastDao

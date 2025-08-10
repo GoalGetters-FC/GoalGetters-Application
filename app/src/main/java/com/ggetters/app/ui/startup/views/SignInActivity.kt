@@ -1,11 +1,13 @@
 package com.ggetters.app.ui.startup.views
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -99,8 +101,9 @@ class SignInActivity : AppCompatActivity(), Clickable {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private fun tryAuthenticateGoogleLogin() {
-        // TODO: ...
+        model.googleSignIn()
     }
 
 
@@ -119,18 +122,23 @@ class SignInActivity : AppCompatActivity(), Clickable {
 
     override fun setupTouchListeners() {
         binds.btSignIn.setOnClickListener(this)
+        binds.btGoogle.setOnClickListener(this)
         binds.tvForgotPassword.setOnClickListener(this)
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onClick(view: View?) = when (view?.id) {
         binds.btSignIn.id -> {
             tryAuthenticateCredentials()
         }
 
         binds.btGoogle.id -> {
-            startActivity(Intent(this, OnboardingActivity::class.java))
-            finishAffinity()
+            Clogger.d(
+                TAG, "Clicked Google SSO"
+            )
+            
+            tryAuthenticateGoogleLogin()
         }
 
         binds.tvForgotPassword.id -> {
