@@ -62,6 +62,13 @@ object DataModule {
     @Provides
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+    
+    
+    @Provides
+    @Singleton
+    fun provideCredentialManager(
+        @ApplicationContext ctx: Context
+    ): CredentialManager = CredentialManager.create(ctx)
 
     
     @Provides
