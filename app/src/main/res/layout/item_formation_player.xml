@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/playerCard"
+    android:layout_width="100dp"
+    android:layout_height="match_parent"
+    android:layout_marginHorizontal="4dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/surface_container"
+    app:strokeWidth="2dp"
+    app:strokeColor="@color/outline"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="8dp">
+
+        <!-- Status Indicator -->
+        <View
+            android:id="@+id/statusIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:background="@color/success"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Jersey Number -->
+        <TextView
+            android:id="@+id/jerseyNumber"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:gravity="center"
+            android:text="9"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/on_primary"
+            android:background="@drawable/jersey_number_background"
+            android:layout_marginBottom="6dp" />
+
+        <!-- Player Name -->
+        <TextView
+            android:id="@+id/playerName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Luke J."
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/on_surface"
+            android:gravity="center"
+            android:maxLines="2"
+            android:ellipsize="end"
+            tools:text="Luke J." />
+
+        <!-- Position -->
+        <TextView
+            android:id="@+id/playerPosition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ST"
+            android:textSize="10sp"
+            android:textColor="@color/on_surface_variant"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            tools:text="ST" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

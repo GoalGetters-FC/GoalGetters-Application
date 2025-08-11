@@ -1,20 +1,29 @@
 package com.ggetters.app.ui.central.views
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
+import com.ggetters.app.ui.central.adapters.MatchEventAdapter
 import com.ggetters.app.ui.central.models.*
+import com.ggetters.app.ui.central.sheets.MatchdayBottomSheet
 import com.ggetters.app.ui.central.sheets.RecordEventBottomSheet
 import com.ggetters.app.ui.central.sheets.TimerControlBottomSheet
 import com.ggetters.app.ui.central.viewmodels.MatchControlViewModel
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
@@ -45,6 +54,7 @@ class MatchControlActivity : AppCompatActivity() {
     private lateinit var awayScore: TextView
     private lateinit var matchTimer: TextView
     private lateinit var matchStatus: TextView
+    private lateinit var matchStatusChip: Chip
     private lateinit var btnStartMatch: MaterialButton
     private lateinit var btnPauseMatch: MaterialButton
     private lateinit var btnEndMatch: MaterialButton
@@ -54,6 +64,13 @@ class MatchControlActivity : AppCompatActivity() {
     private lateinit var btnCancelMatch: MaterialButton
     private lateinit var btnRecordEvent: MaterialButton
     private lateinit var btnSettings: MaterialButton
+    // TODO: Add when UI is redesigned
+    // private lateinit var eventsRecyclerView: RecyclerView
+    // private lateinit var quickActionsFab: FloatingActionButton
+    
+    // Adapters
+    // TODO: Add when events UI is implemented
+    // private lateinit var eventsAdapter: MatchEventAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,10 +80,19 @@ class MatchControlActivity : AppCompatActivity() {
         supportPostponeEnterTransition()
         supportStartPostponedEnterTransition()
 
+        setupToolbar()
         setupViews()
+        setupRecyclerView()
         setupClickListeners()
         loadMatchData()
         startTimer()
+    }
+
+    private fun setupToolbar() {
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            title = "Match Control"
+        }
     }
 
     private fun setupViews() {
@@ -82,6 +108,10 @@ class MatchControlActivity : AppCompatActivity() {
         awayScore = findViewById(R.id.awayScore)
         matchTimer = findViewById(R.id.matchTimer)
         matchStatus = findViewById(R.id.matchStatus)
+        // TODO: Add these UI elements to the layout when redesigning
+        // matchStatusChip = findViewById(R.id.matchStatusChip)
+        // eventsRecyclerView = findViewById(R.id.eventsRecyclerView)
+        // quickActionsFab = findViewById(R.id.quickActionsFab)
 
         // Control buttons
         btnStartMatch = findViewById(R.id.btnStartMatch)
@@ -93,6 +123,22 @@ class MatchControlActivity : AppCompatActivity() {
         btnCancelMatch = findViewById(R.id.btnCancelMatch)
         btnRecordEvent = findViewById(R.id.btnRecordEvent)
         btnSettings = findViewById(R.id.btnSettings)
+    }
+
+    private fun setupRecyclerView() {
+        // TODO: Setup RecyclerView when events UI is added to layout
+        // eventsAdapter = MatchEventAdapter(
+        //     onEventClick = { event -> showEventDetails(event) },
+        //     onEventLongClick = { event -> showEventActions(event) }
+        // )
+        // 
+        // eventsRecyclerView.apply {
+        //     layoutManager = LinearLayoutManager(this@MatchControlActivity).apply {
+        //         reverseLayout = true // Show newest events first
+        //         stackFromEnd = true
+        //     }
+        //     adapter = eventsAdapter
+        // }
     }
 
     private fun setupClickListeners() {
@@ -131,6 +177,20 @@ class MatchControlActivity : AppCompatActivity() {
 
         btnSettings.setOnClickListener {
             showSettings()
+        }
+        
+        // TODO: Enhanced floating action button for quick actions
+        // quickActionsFab.setOnClickListener {
+        //     showQuickActionsBottomSheet()
+        // }
+        
+        // Score click listeners for quick score updates
+        homeScore.setOnClickListener {
+            showScoreUpdateDialog(true) // true for home team
+        }
+        
+        awayScore.setOnClickListener {
+            showScoreUpdateDialog(false) // false for away team
         }
     }
 
@@ -171,6 +231,7 @@ class MatchControlActivity : AppCompatActivity() {
         }
 
         updateUI()
+        updateEventsDisplay()
     }
 
     private fun createSampleLineup(matchId: String): MatchLineup {
@@ -458,6 +519,113 @@ class MatchControlActivity : AppCompatActivity() {
         //     putExtra("match_id", matchState.matchId)
         //     startActivity(this)
         // }
+    }
+
+    // Enhanced Methods for Better Integration
+    
+    private fun updateEventsDisplay() {
+        // TODO: Implement when events RecyclerView is added to layout
+        // eventsAdapter.updateEvents(matchState.events)
+        // 
+        // // Scroll to latest event
+        // if (matchState.events.isNotEmpty()) {
+        //     eventsRecyclerView.scrollToPosition(0)
+        // }
+    }
+    
+    private fun showQuickActionsBottomSheet() {
+        // TODO: Backend - Show quick actions bottom sheet
+        val matchdaySheet = MatchdayBottomSheet.newInstance(matchState.matchId)
+        matchdaySheet.show(supportFragmentManager, "matchday_actions")
+    }
+    
+    private fun showScoreUpdateDialog(isHomeTeam: Boolean) {
+        // TODO: Backend - Show score update dialog
+        val teamName = if (isHomeTeam) matchState.homeTeam else matchState.awayTeam
+        Snackbar.make(findViewById(android.R.id.content), 
+            "Score update for $teamName coming soon", Snackbar.LENGTH_SHORT).show()
+    }
+    
+    private fun showEventDetails(event: MatchEvent) {
+        // TODO: Backend - Show event details dialog
+        Snackbar.make(findViewById(android.R.id.content), 
+            "Event: ${event.getEventDescription()}", Snackbar.LENGTH_SHORT).show()
+    }
+    
+    private fun showEventActions(event: MatchEvent) {
+        // TODO: Backend - Show event action dialog (edit/delete)
+        AlertDialog.Builder(this)
+            .setTitle("Event Actions")
+            .setMessage("${event.getEventDescription()} at ${event.getFormattedTime()}")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteEvent(event)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    
+    private fun deleteEvent(event: MatchEvent) {
+        // TODO: Backend - Delete event from backend
+        matchState = matchState.copy(
+            events = matchState.events.filter { it.id != event.id }
+        )
+        updateEventsDisplay()
+        updateUI()
+        
+        Snackbar.make(findViewById(android.R.id.content), 
+            "Event deleted", Snackbar.LENGTH_SHORT)
+            .setAction("UNDO") {
+                // Restore the event
+                matchState = matchState.copy(
+                    events = matchState.events + event
+                )
+                updateEventsDisplay()
+                updateUI()
+            }.show()
+    }
+    
+    private fun navigateToPostMatch() {
+        // TODO: Backend - Navigate to post-match results screen
+        val intent = Intent(this, PostMatchActionsActivity::class.java).apply {
+            putExtra("match_id", matchState.matchId)
+            putExtra("home_team", matchState.homeTeam)
+            putExtra("away_team", matchState.awayTeam)
+            putExtra("home_score", matchState.homeScore)
+            putExtra("away_score", matchState.awayScore)
+        }
+        startActivity(intent)
+        finish() // Close match control activity
+    }
+    
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_match_control, menu)
+        return true
+    }
+    
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_formation -> {
+                // TODO: View current formation
+                Snackbar.make(findViewById(android.R.id.content), 
+                    "Formation view coming soon", Snackbar.LENGTH_SHORT).show()
+                true
+            }
+            R.id.action_substitutions -> {
+                // TODO: Show substitutions screen
+                Snackbar.make(findViewById(android.R.id.content), 
+                    "Substitutions coming soon", Snackbar.LENGTH_SHORT).show()
+                true
+            }
+            R.id.action_statistics -> {
+                showAnalytics()
+                true
+            }
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onDestroy() {

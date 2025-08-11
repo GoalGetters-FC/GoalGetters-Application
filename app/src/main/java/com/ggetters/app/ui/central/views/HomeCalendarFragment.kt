@@ -331,8 +331,22 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
 
     private fun showEventDetails(event: Event) {
-        val eventDetailsSheet = EventDetailsBottomSheet.newInstance(event)
-        eventDetailsSheet.show(childFragmentManager, "EventDetailsBottomSheet")
+        // For match events, navigate to MatchDetailsActivity
+        if (event.type == EventType.MATCH) {
+            val intent = Intent(requireContext(), MatchDetailsActivity::class.java).apply {
+                putExtra("event_id", event.id)
+                putExtra("event_title", event.title)
+                putExtra("event_venue", event.venue)
+                putExtra("event_opponent", event.opponent ?: "Opponent")
+                putExtra("event_date", event.date.time)
+                putExtra("event_time", event.time)
+            }
+            startActivity(intent)
+        } else {
+            // For other events, show the bottom sheet
+            val eventDetailsSheet = EventDetailsBottomSheet.newInstance(event)
+            eventDetailsSheet.show(childFragmentManager, "EventDetailsBottomSheet")
+        }
     }
 
 

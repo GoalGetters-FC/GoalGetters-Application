@@ -69,6 +69,26 @@
                 android:exported="false"
                 android:theme="@style/AppTheme"
                 android:windowSoftInputMode="adjustResize" />
+        <activity
+                android:name=".ui.central.views.MatchDetailsActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
+        <activity
+                android:name=".ui.central.views.MatchRosterActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
+                <activity
+            android:name=".ui.central.views.FormationActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.central.views.PostMatchActionsActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>
