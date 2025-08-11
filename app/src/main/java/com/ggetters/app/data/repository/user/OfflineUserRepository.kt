@@ -46,4 +46,8 @@ class OfflineUserRepository @Inject constructor(
     override suspend fun sync() {
         // no-op
     }
+
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
 }

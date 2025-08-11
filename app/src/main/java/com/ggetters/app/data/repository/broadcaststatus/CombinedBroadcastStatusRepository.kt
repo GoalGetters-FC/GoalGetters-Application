@@ -45,4 +45,8 @@ class CombinedBroadcastStatusRepository @Inject constructor(
             Clogger.e("DevClass", "Failed to delete all statuses online: ${e.message}")
         }
     }
+
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
 }

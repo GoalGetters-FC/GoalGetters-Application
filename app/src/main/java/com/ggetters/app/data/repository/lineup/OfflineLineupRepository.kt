@@ -34,6 +34,10 @@ class OfflineLineupRepository @Inject constructor(
 
     override fun getByEventId(eventId: String): Flow<List<Lineup>> =
         dao.getByEventId(eventId)
+
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
 }
 
 

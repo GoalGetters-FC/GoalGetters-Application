@@ -25,4 +25,8 @@ class OfflineBroadcastStatusRepository @Inject constructor(
     override suspend fun deleteAll() {
         dao.deleteAll()
     }
+
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
 }

@@ -58,7 +58,8 @@ interface EventRepository : CrudRepository<Event> {
      * TODO: Backend - Add permission checks
      */
     fun getEventsByCreator(creatorId: String): Flow<List<Event>>
-    
+    fun hydrateForTeam(id: String)
+
     // TODO: Backend - Add RSVP management methods
     // TODO: Backend - Add event template methods
     // TODO: Backend - Add recurring event methods

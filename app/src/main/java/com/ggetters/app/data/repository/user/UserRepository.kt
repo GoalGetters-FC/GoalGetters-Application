@@ -9,4 +9,5 @@ interface UserRepository : CrudRepository<User> {
     suspend fun insertRemote(user: User)
 
     suspend fun sync()
+    fun hydrateForTeam(id: String)
 }

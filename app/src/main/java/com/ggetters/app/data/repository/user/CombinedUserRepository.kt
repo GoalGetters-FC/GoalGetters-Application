@@ -59,4 +59,8 @@ class CombinedUserRepository @Inject constructor(
         val remoteList = online.all().first()
         remoteList.forEach { offline.upsert(it) }
     }
+
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
 }

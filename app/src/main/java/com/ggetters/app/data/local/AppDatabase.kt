@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.ggetters.app.BuildConfig
 import com.ggetters.app.data.local.converters.DateConverter
 import com.ggetters.app.data.local.converters.EnumConverter
 import com.ggetters.app.data.local.converters.LineupSpotConverter
@@ -12,26 +13,21 @@ import com.ggetters.app.data.local.converters.UuidConverter
 import com.ggetters.app.data.local.dao.AttendanceDao
 import com.ggetters.app.data.local.dao.BroadcastDao
 import com.ggetters.app.data.local.dao.BroadcastStatusDao
-import com.ggetters.app.data.local.dao.TeamDao
-import com.ggetters.app.data.local.dao.UserDao
 import com.ggetters.app.data.local.dao.EventDao
 import com.ggetters.app.data.local.dao.LineupDao
-import com.ggetters.app.data.model.Team
-import com.ggetters.app.data.model.User
+import com.ggetters.app.data.local.dao.TeamDao
+import com.ggetters.app.data.local.dao.UserDao
+import com.ggetters.app.data.model.Attendance
 import com.ggetters.app.data.model.Broadcast
 import com.ggetters.app.data.model.BroadcastStatus
 import com.ggetters.app.data.model.Event
-import com.ggetters.app.data.model.Attendance
 import com.ggetters.app.data.model.Lineup
 import com.ggetters.app.data.model.PerformanceLog
-import com.ggetters.app.data.local.migrations.MIGRATION_2_3
-import com.ggetters.app.data.local.migrations.MIGRATION_3_4
+import com.ggetters.app.data.model.Team
+import com.ggetters.app.data.model.User
 
 /**
- * Local [RoomDatabase] for the application.
- *
- * @property userDao
- * @property teamDao
+ * Fresh baseline schema (v1). No migrations registered.
  */
 @Database(
     entities = [
@@ -44,11 +40,8 @@ import com.ggetters.app.data.local.migrations.MIGRATION_3_4
         Lineup::class,
         PerformanceLog::class
     ],
-    
-    // Configuration
-    
-    version = 4,
-    exportSchema = true // TODO: Add location to silence build warnings
+    version = 1,
+    exportSchema = true
 )
 @TypeConverters(
     UuidConverter::class,
@@ -58,31 +51,6 @@ import com.ggetters.app.data.local.migrations.MIGRATION_3_4
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    companion object {
-        private var INSTANCE: AppDatabase? = null
-        private const val DATABASE_NAME = "ggetters.db"
-
-        /**
-         * Singleton instance of the [AppDatabase].
-         */
-        fun getDatabase(context: Context): AppDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    DATABASE_NAME
-                )
-                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
-                    .build()
-
-                INSTANCE = instance
-                instance
-            }
-        }
-    }
-    
-    // DAO Accessors
-    
     abstract fun userDao(): UserDao
     abstract fun teamDao(): TeamDao
     abstract fun broadcastDao(): BroadcastDao
@@ -91,4 +59,29 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun attendanceDao(): AttendanceDao
     abstract fun lineupDao(): LineupDao
 
+    companion object {
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
+
+        // New name so we don't clash with old files
+        private const val DATABASE_NAME = "ggetters_v1.db"
+
+        fun getDatabase(context: Context): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance =
+                    Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, DATABASE_NAME)
+                        // No .addMigrations(...) — this is the new baseline
+                        .apply {
+                            if (BuildConfig.DEBUG) {
+                                // Dev safety nets; keep if you like
+                                fallbackToDestructiveMigration()
+                                fallbackToDestructiveMigrationOnDowngrade()
+                            }
+                        }
+                        .build()
+                INSTANCE = instance
+                instance
+            }
+        }
+    }
 }

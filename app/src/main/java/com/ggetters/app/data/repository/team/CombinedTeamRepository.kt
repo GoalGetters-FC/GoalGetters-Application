@@ -51,34 +51,62 @@ class CombinedTeamRepository @Inject constructor(
 
     // CombinedTeamRepository.kt
     override suspend fun sync() = withContext(Dispatchers.IO) {
-        // 1) PUSH local changes
+        // snapshot local teams before we mutate anything
+        val localSnapshot = offline.getAllLocal().associateBy { it.id }
+
+        // 1) PUSH local changes — and ensure membership for new teams
+        val pushedIds = mutableSetOf<String>()
         offline.getDirtyTeams().first().forEach { team ->
             try {
                 online.upsert(team)
+                // ensure the current user is a member so the team appears in "pull"
+                try {
+                    online.joinTeam(team.id)  // role = default "PLAYER" in OnlineTeamRepository
+                } catch (_: Exception) {
+                    // membership may already exist (ignore) or fail transiently
+                }
                 offline.markClean(team.id)
+                pushedIds += team.id
             } catch (e: Exception) {
                 Clogger.e("Sync", "Failed to push team ${team.id}", e)
             }
         }
 
-        // 2) PULL remote teams for this user (one‐shot)
+        // 2) PULL remote teams for this user (one-shot)
         val remote = online.fetchTeamsForCurrentUser()
         val remoteIds = remote.map { it.id }.toSet()
         Clogger.i("Sync", "Pulled ${remote.size} remote teams")
 
-        // 3) CLEAN UP stale locals
-        val localAll = offline.getAllLocal()
-        localAll
-            .filter { it.id !in remoteIds && !it.isStained() }
-            .forEach { offline.deleteByIdLocal(it.id) }
-        Clogger.i("Sync", "Dropped ${localAll.size - remoteIds.size} stale locals")
+        // 3) CLEAN UP stale locals (skip just-pushed ids to avoid race with Firestore read-your-writes)
+        val toDelete = offline.getAllLocal()
+            .filter { it.id !in remoteIds && !it.isStained() && it.id !in pushedIds }
+        toDelete.forEach { offline.deleteByIdLocal(it.id) }
+        Clogger.i("Sync", "Dropped ${toDelete.size} stale locals")
 
-        // 4) MERGE down
-        offline.upsertAllLocal(remote)
-        Clogger.i("Sync", "Merged ${remote.size} remote into local")
+        // 4) MERGE down, preserving local-only flags (e.g., isActive)
+        val merged = remote.map { remoteTeam ->
+            val localOld = localSnapshot[remoteTeam.id]
+            if (localOld != null) {
+                remoteTeam.copy(
+                    isActive = localOld.isActive  // preserve local active flag
+                    // stainedAt should remain null for remote items
+                )
+            } else remoteTeam
+        }
+
+        // batch upsert in a transaction (Room DAO should handle this efficiently)
+        offline.upsertAllLocal(merged)
+
+        // 5) ensure we still have an active team — pick a sensible default if not
+        val activeNow = offline.getActiveTeam().first()
+        if (activeNow == null && merged.isNotEmpty()) {
+            // if previously active still exists, keep it; otherwise first remote
+            val previouslyActive = localSnapshot.values.firstOrNull { it.isActive && it.id in remoteIds }
+            offline.setActiveTeam(previouslyActive ?: merged.first())
+        }
+
+        Clogger.i("Sync", "Merged ${merged.size} remote into local")
     }
-
-
 
 
 
@@ -181,6 +209,8 @@ class CombinedTeamRepository @Inject constructor(
     }
 
 }
+
+
 
 
 

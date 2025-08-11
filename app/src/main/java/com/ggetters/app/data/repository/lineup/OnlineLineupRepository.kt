@@ -45,5 +45,9 @@ class OnlineLineupRepository @Inject constructor(
         emit(firestore.getByEventId(eventId))
     }
 
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
+
 
 }

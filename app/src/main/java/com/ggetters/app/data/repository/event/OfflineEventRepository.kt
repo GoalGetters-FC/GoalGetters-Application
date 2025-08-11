@@ -46,6 +46,10 @@ class OfflineEventRepository @Inject constructor(
     override fun getEventsByCreator(creatorId: String): Flow<List<Event>> =
         dao.getEventsByCreator(creatorId)
 
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun deleteAll() {
         dao.deleteAll()
     }

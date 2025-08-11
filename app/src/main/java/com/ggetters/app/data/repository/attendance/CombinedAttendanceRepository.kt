@@ -49,4 +49,8 @@ class CombinedAttendanceRepository @Inject constructor(
         val remoteList = online.getAll().first()
         remoteList.forEach { offline.upsert(it) }
     }
+
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
 }
