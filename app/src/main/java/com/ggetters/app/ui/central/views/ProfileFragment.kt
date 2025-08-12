@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.ggetters.app.R
 import com.ggetters.app.data.model.User
@@ -18,19 +17,15 @@ import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.ui.central.models.UserAccount
 import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
-import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
-import com.ggetters.app.ui.central.viewmodels.HomePlayersViewModel
-import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.central.viewmodels.ProfileViewModel
+import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.management.views.TeamViewerActivity
-import com.ggetters.app.ui.startup.views.OnboardingActivity
-import com.ggetters.app.ui.startup.views.SignInActivity
+import com.ggetters.app.ui.startup.views.StartActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
 import java.time.LocalDate
-import kotlin.getValue
 
 // TODO: Backend - Implement user profile management and photo upload
 // TODO: Backend - Add account switching with proper authentication
@@ -51,7 +46,7 @@ class ProfileFragment : Fragment() {
     private lateinit var userNameText: TextView
     private lateinit var userHandleText: TextView
     private lateinit var teamNameText: TextView
-    
+
     // Settings items
     private lateinit var accountItem: View
     private lateinit var teamProfileItem: View
@@ -79,7 +74,7 @@ class ProfileFragment : Fragment() {
         userNameText = view.findViewById(R.id.userNameText)
         userHandleText = view.findViewById(R.id.userHandleText)
         teamNameText = view.findViewById(R.id.teamNameText)
-        
+
         // Settings items
         accountItem = view.findViewById(R.id.accountItem)
         teamProfileItem = view.findViewById(R.id.teamProfileItem)
@@ -97,38 +92,38 @@ class ProfileFragment : Fragment() {
             showAccountSwitcher()
             true
         }
-        
+
         // TODO: Temporary bypass - remove once proper implementation is done
         logoutButton.setOnLongClickListener {
             startActivity(Intent(requireContext(), TeamViewerActivity::class.java))
             true
         }
-        
+
         // Settings item clicks
         accountItem.setOnClickListener {
             showAccountSettings()
         }
-        
+
         teamProfileItem.setOnClickListener {
             navigateToTeamProfile()
         }
-        
+
         notificationsItem.setOnClickListener {
             showNotificationSettings()
         }
-        
+
         privacyPolicyItem.setOnClickListener {
             showPrivacyPolicy()
         }
-        
+
         contactDevelopersItem.setOnClickListener {
             contactDevelopers()
         }
-        
+
         helpFaqItem.setOnClickListener {
             showHelpFaq()
         }
-        
+
         logoutButton.setOnClickListener {
             showLogoutConfirmation()
         }
@@ -140,7 +135,7 @@ class ProfileFragment : Fragment() {
         // TODO: Backend - Add user data synchronization across devices
         // TODO: Backend - Implement user profile photo upload and management
         // TODO: Backend - Add user preferences and settings persistence
-        
+
         // Sample user data for demo
         val sampleUser = User(
             id = "1",
@@ -180,21 +175,21 @@ class ProfileFragment : Fragment() {
 
         val availableAccounts = listOf(
             UserAccount(
-                "1", 
-                "Matthew Pieterse", 
+                "1",
+                "Matthew Pieterse",
                 "matthew@example.com",
-                null, 
-                "U15a Football", 
-                "Coach", 
+                null,
+                "U15a Football",
+                "Coach",
                 true
             ),
             UserAccount(
-                "2", 
-                "Matthew Pieterse", 
+                "2",
+                "Matthew Pieterse",
                 "matthew@example.com",
-                null, 
-                "City FC", 
-                "Coach", 
+                null,
+                "City FC",
+                "Coach",
                 false
             )
         )
@@ -203,7 +198,11 @@ class ProfileFragment : Fragment() {
             .newInstance(availableAccounts) { selectedAccount ->
                 // TODO: Backend - Call backend to switch active team
                 // teamRepo.switchActiveTeam(selectedAccount.id)
-                Snackbar.make(requireView(), "Switched to ${selectedAccount.teamName}", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(
+                    requireView(),
+                    "Switched to ${selectedAccount.teamName}",
+                    Snackbar.LENGTH_SHORT
+                ).show()
                 loadUserProfile() // Refresh profile with new team
             }
             .show(childFragmentManager, "AccountSwitcher")
@@ -219,7 +218,11 @@ class ProfileFragment : Fragment() {
         TeamSwitcherBottomSheet.newInstance(
             onTeamSelected = { selectedTeam ->
                 // Handle team selection
-                Snackbar.make(requireView(), "Switched to ${selectedTeam.teamName}", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(
+                    requireView(),
+                    "Switched to ${selectedTeam.teamName}",
+                    Snackbar.LENGTH_SHORT
+                ).show()
                 loadUserProfile() // Refresh profile with new team
             },
             onManageTeams = {
@@ -232,17 +235,17 @@ class ProfileFragment : Fragment() {
             }
         ).show(childFragmentManager, "TeamSwitcher")
     }
-    
+
     private fun setDefaultTeam(teamId: String) {
         // TODO: Backend - Save default team preference to backend
         // TODO: Backend - Implement default team validation
         // TODO: Backend - Add default team analytics
         // TODO: Backend - Implement default team notifications
         // TODO: Backend - Add default team data synchronization
-        
+
         Snackbar.make(requireView(), "Default team updated", Snackbar.LENGTH_SHORT).show()
     }
-    
+
     private fun showAccountSettings() {
         // TODO: Backend - Navigate to account settings screen
         // TODO: Backend - Implement account settings management
@@ -251,7 +254,7 @@ class ProfileFragment : Fragment() {
         // TODO: Backend - Add account deletion and deactivation
         Snackbar.make(requireView(), "Account settings coming soon", Snackbar.LENGTH_SHORT).show()
     }
-    
+
     private fun navigateToTeamProfile() {
         // TODO: Backend - Navigate to current team profile
         // TODO: Backend - Implement team profile management
@@ -273,16 +276,17 @@ class ProfileFragment : Fragment() {
         // TODO: Backend - Implement team management data synchronization
         Snackbar.make(requireView(), "Team management coming soon", Snackbar.LENGTH_SHORT).show()
     }
-    
+
     private fun showNotificationSettings() {
         // TODO: Backend - Show notification preferences dialog/screen
         // TODO: Backend - Implement notification preferences management
         // TODO: Backend - Add notification categories and filtering
         // TODO: Backend - Implement notification scheduling and quiet hours
         // TODO: Backend - Add notification delivery preferences
-        Snackbar.make(requireView(), "Notification settings coming soon", Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(requireView(), "Notification settings coming soon", Snackbar.LENGTH_SHORT)
+            .show()
     }
-    
+
     private fun showPrivacyPolicy() {
         // TODO: Backend - Show privacy policy web view or dialog
         // TODO: Backend - Implement privacy policy version management
@@ -291,7 +295,7 @@ class ProfileFragment : Fragment() {
         // TODO: Backend - Add GDPR compliance and data portability
         Snackbar.make(requireView(), "Privacy policy coming soon", Snackbar.LENGTH_SHORT).show()
     }
-    
+
     private fun contactDevelopers() {
         // TODO: Backend - Open email intent or contact form
         // TODO: Backend - Implement in-app feedback system
@@ -300,7 +304,7 @@ class ProfileFragment : Fragment() {
         // TODO: Backend - Add user feedback analytics and tracking
         Snackbar.make(requireView(), "Contact developers coming soon", Snackbar.LENGTH_SHORT).show()
     }
-    
+
     private fun showHelpFaq() {
         // TODO: Backend - Show help and FAQ screen
         // TODO: Backend - Implement help content management
@@ -309,7 +313,7 @@ class ProfileFragment : Fragment() {
         // TODO: Backend - Add help analytics and usage tracking
         Snackbar.make(requireView(), "Help & FAQ coming soon", Snackbar.LENGTH_SHORT).show()
     }
-    
+
     private fun showLogoutConfirmation() {
         AlertDialog.Builder(requireContext(), R.style.Theme_GoalGetters_Dialog)
             .setTitle("Logout")
@@ -327,7 +331,7 @@ class ProfileFragment : Fragment() {
         // TODO: Backend - Add logout analytics and session tracking
         // TODO: Backend - Implement logout notifications and cleanup
         // TODO: Backend - Add logout confirmation and data backup
-        
+
         try {
             // Clear local storage and preferences
             // TODO: Clear user session data
@@ -336,11 +340,15 @@ class ProfileFragment : Fragment() {
             
             // Navigate to login screen
             model.logout()
-            startActivity(Intent(requireContext(), OnboardingActivity::class.java))
+            startActivity(Intent(requireContext(), StartActivity::class.java))
             requireActivity().finishAffinity()
         } catch (e: Exception) {
             Log.e("ProfileFragment", "Error during logout", e)
-            Snackbar.make(requireView(), "Error during logout. Please try again.", Snackbar.LENGTH_LONG).show()
+            Snackbar.make(
+                requireView(),
+                "Error during logout. Please try again.",
+                Snackbar.LENGTH_LONG
+            ).show()
         }
     }
 }
