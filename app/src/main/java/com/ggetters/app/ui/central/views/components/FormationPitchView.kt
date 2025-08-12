@@ -36,37 +36,44 @@ class FormationPitchView @JvmOverloads constructor(
 
     // Drawing properties
     private var pitchRect = RectF()
-    private val playerRadius = 25f
-    private val lineWidth = 3f
+    private val playerRadius = 35f  // Larger for better visibility
+    private val dropZoneRadius = 45f  // Larger drop zones
+    private val lineWidth = 4f
+    private val grassPattern = Paint(Paint.ANTI_ALIAS_FLAG)
 
     init {
         setupPaints()
     }
 
     private fun setupPaints() {
-        // Pitch background
-        pitchPaint.color = pitchColor
+        // Pitch background with realistic grass color
+        pitchPaint.color = Color.parseColor("#2E7D32")  // Deeper grass green
         pitchPaint.style = Paint.Style.FILL
 
-        // Pitch lines
-        linePaint.color = lineColor
+        // Grass pattern for realism
+        grassPattern.color = Color.parseColor("#388E3C")  // Slightly lighter green for stripes
+        grassPattern.style = Paint.Style.FILL
+
+        // Pitch lines - bright white for visibility
+        linePaint.color = Color.WHITE
         linePaint.style = Paint.Style.STROKE
         linePaint.strokeWidth = lineWidth
         linePaint.strokeCap = Paint.Cap.ROUND
 
-        // Player circles
-        playerPaint.color = playerColor
+        // Player circles - more prominent design
+        playerPaint.color = Color.WHITE
         playerPaint.style = Paint.Style.FILL
-        playerPaint.setShadowLayer(4f, 0f, 2f, Color.argb(50, 0, 0, 0))
+        playerPaint.setShadowLayer(6f, 0f, 4f, Color.argb(80, 0, 0, 0))
 
-        // Player text
-        textPaint.color = textColor
+        // Player text - larger and bolder
+        textPaint.color = Color.parseColor("#1976D2")  // Blue for contrast
         textPaint.textAlign = Paint.Align.CENTER
-        textPaint.textSize = 24f
+        textPaint.textSize = 28f
         textPaint.typeface = Typeface.DEFAULT_BOLD
+        textPaint.setShadowLayer(2f, 0f, 1f, Color.argb(100, 255, 255, 255))
 
-        // Shadow for player circles
-        shadowPaint.color = Color.argb(30, 0, 0, 0)
+        // Enhanced shadow for player circles
+        shadowPaint.color = Color.argb(50, 0, 0, 0)
         shadowPaint.style = Paint.Style.FILL
     }
 
@@ -89,37 +96,107 @@ class FormationPitchView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         
-        // Draw pitch background
-        canvas.drawRoundRect(pitchRect, 16f, 16f, pitchPaint)
+        // Draw realistic grass pitch with stripes
+        drawGrassPitch(canvas)
         
-        // Draw pitch markings
+        // Draw professional pitch markings
         drawPitchMarkings(canvas)
+        
+        // Draw empty positions first (drop zones)
+        drawDropZones(canvas)
         
         // Draw positioned players
         drawPlayers(canvas)
+    }
+
+    private fun drawGrassPitch(canvas: Canvas) {
+        // Draw base grass color
+        canvas.drawRoundRect(pitchRect, 12f, 12f, pitchPaint)
+        
+        // Draw grass stripes for realism
+        val stripeWidth = pitchRect.width() / 12f
+        for (i in 0..11) {
+            if (i % 2 == 0) {
+                val left = pitchRect.left + (i * stripeWidth)
+                val right = pitchRect.left + ((i + 1) * stripeWidth)
+                val stripeRect = RectF(left, pitchRect.top, right, pitchRect.bottom)
+                canvas.drawRect(stripeRect, grassPattern)
+            }
+        }
+    }
+
+    private fun drawDropZones(canvas: Canvas) {
+        // Draw rounded square drop zones for empty positions
+        val dropZonePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.argb(60, 255, 255, 255)  // Semi-transparent white
+            style = Paint.Style.FILL
+        }
+        
+        val dropZoneBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.argb(120, 255, 255, 255)  // More visible border
+            style = Paint.Style.STROKE
+            strokeWidth = 3f
+            pathEffect = DashPathEffect(floatArrayOf(10f, 5f), 0f)  // Dashed border
+        }
+        
+        for ((position, point) in playerPositions) {
+            if (!positionedPlayers.containsKey(position) || positionedPlayers[position] == null) {
+                // Draw rounded square drop zone
+                val left = point.x - dropZoneRadius
+                val top = point.y - dropZoneRadius  
+                val right = point.x + dropZoneRadius
+                val bottom = point.y + dropZoneRadius
+                val dropZoneRect = RectF(left, top, right, bottom)
+                
+                // Fill with rounded corners
+                canvas.drawRoundRect(dropZoneRect, 15f, 15f, dropZonePaint)
+                // Dashed border
+                canvas.drawRoundRect(dropZoneRect, 15f, 15f, dropZoneBorderPaint)
+                
+                // Draw position label
+                val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = Color.argb(180, 255, 255, 255)
+                    textAlign = Paint.Align.CENTER
+                    textSize = 24f
+                    typeface = Typeface.DEFAULT_BOLD
+                }
+                canvas.drawText(
+                    position,
+                    point.x,
+                    point.y + (labelPaint.textSize / 3),
+                    labelPaint
+                )
+            }
+        }
     }
 
     private fun drawPitchMarkings(canvas: Canvas) {
         val pitchWidth = pitchRect.width()
         val pitchHeight = pitchRect.height()
         
-        // Outer boundary
-        canvas.drawRoundRect(pitchRect, 16f, 16f, linePaint)
+        // Outer boundary - crisp white lines
+        val thickLinePaint = Paint(linePaint).apply {
+            strokeWidth = 5f
+        }
+        canvas.drawRoundRect(pitchRect, 8f, 8f, thickLinePaint)
         
         // Center line
         val centerX = pitchRect.centerX()
         canvas.drawLine(
             centerX, pitchRect.top,
             centerX, pitchRect.bottom,
-            linePaint
+            thickLinePaint
         )
         
-        // Center circle
-        val centerCircleRadius = pitchWidth * 0.12f
+        // Center circle - proper football size
+        val centerCircleRadius = pitchWidth * 0.15f
         canvas.drawCircle(centerX, pitchRect.centerY(), centerCircleRadius, linePaint)
         
-        // Center spot
-        canvas.drawCircle(centerX, pitchRect.centerY(), 4f, linePaint)
+        // Center spot - more prominent
+        val centerSpotPaint = Paint(linePaint).apply {
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(centerX, pitchRect.centerY(), 6f, centerSpotPaint)
         
         // Goal areas (18-yard boxes)
         val goalAreaWidth = pitchWidth * 0.35f
@@ -204,33 +281,130 @@ class FormationPitchView @JvmOverloads constructor(
             pitchRect.bottom + cornerRadius,
             180f, 90f, false, linePaint
         )
+        
+        // Draw goal posts for realism
+        drawGoalPosts(canvas)
+    }
+    
+    private fun drawGoalPosts(canvas: Canvas) {
+        val pitchWidth = pitchRect.width()
+        val goalWidth = pitchWidth * 0.2f
+        val goalX = (pitchWidth - goalWidth) / 2f
+        
+        val goalPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            strokeWidth = 6f
+            style = Paint.Style.STROKE
+            strokeCap = Paint.Cap.ROUND
+        }
+        
+        // Top goal posts
+        val topGoalY = pitchRect.top - 8f
+        canvas.drawLine(
+            pitchRect.left + goalX, pitchRect.top,
+            pitchRect.left + goalX, topGoalY,
+            goalPaint
+        )
+        canvas.drawLine(
+            pitchRect.left + goalX + goalWidth, pitchRect.top,
+            pitchRect.left + goalX + goalWidth, topGoalY,
+            goalPaint
+        )
+        canvas.drawLine(
+            pitchRect.left + goalX, topGoalY,
+            pitchRect.left + goalX + goalWidth, topGoalY,
+            goalPaint
+        )
+        
+        // Bottom goal posts
+        val bottomGoalY = pitchRect.bottom + 8f
+        canvas.drawLine(
+            pitchRect.left + goalX, pitchRect.bottom,
+            pitchRect.left + goalX, bottomGoalY,
+            goalPaint
+        )
+        canvas.drawLine(
+            pitchRect.left + goalX + goalWidth, pitchRect.bottom,
+            pitchRect.left + goalX + goalWidth, bottomGoalY,
+            goalPaint
+        )
+        canvas.drawLine(
+            pitchRect.left + goalX, bottomGoalY,
+            pitchRect.left + goalX + goalWidth, bottomGoalY,
+            goalPaint
+        )
     }
 
     private fun drawPlayers(canvas: Canvas) {
         for ((position, player) in positionedPlayers) {
             val point = playerPositions[position] ?: continue
+            player ?: continue  // Skip if no player assigned
             
-            // Draw shadow
-            canvas.drawCircle(point.x + 2f, point.y + 2f, playerRadius, shadowPaint)
+            // Draw enhanced shadow
+            canvas.drawCircle(point.x + 4f, point.y + 4f, playerRadius, shadowPaint)
             
-            // Draw player circle
-            canvas.drawCircle(point.x, point.y, playerRadius, playerPaint)
-            
-            // Draw border
-            val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = playerBorderColor
-                style = Paint.Style.STROKE
-                strokeWidth = 2f
+            // Draw player circle with team colors
+            val teamColorPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.parseColor("#1976D2")  // Team blue
+                style = Paint.Style.FILL
+                setShadowLayer(6f, 0f, 4f, Color.argb(80, 0, 0, 0))
             }
-            canvas.drawCircle(point.x, point.y, playerRadius, borderPaint)
+            canvas.drawCircle(point.x, point.y, playerRadius, teamColorPaint)
             
-            // Draw jersey number or position
-            val displayText = player?.jerseyNumber?.toString() ?: position.take(2)
+            // Draw white inner circle for contrast
+            val innerCirclePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.WHITE
+                style = Paint.Style.FILL
+            }
+            canvas.drawCircle(point.x, point.y, playerRadius - 8f, innerCirclePaint)
+            
+            // Draw jersey number prominently
+            val jerseyNumberPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.parseColor("#1976D2")
+                textAlign = Paint.Align.CENTER
+                textSize = 32f
+                typeface = Typeface.DEFAULT_BOLD
+            }
             canvas.drawText(
-                displayText,
+                player.jerseyNumber.toString(),
                 point.x,
-                point.y + (textPaint.textSize / 3),
-                textPaint
+                point.y + 8f,
+                jerseyNumberPaint
+            )
+            
+            // Draw player surname below the circle
+            val surnameY = point.y + playerRadius + 35f
+            val surnamePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.WHITE
+                textAlign = Paint.Align.CENTER
+                textSize = 22f
+                typeface = Typeface.DEFAULT_BOLD
+                setShadowLayer(3f, 0f, 2f, Color.argb(150, 0, 0, 0))
+            }
+            
+            // Extract surname (last word of player name)
+            val surname = player.playerName.split(" ").lastOrNull()?.uppercase() ?: "PLAYER"
+            canvas.drawText(
+                surname,
+                point.x,
+                surnameY,
+                surnamePaint
+            )
+            
+            // Draw position abbreviation above the circle
+            val positionY = point.y - playerRadius - 20f
+            val positionPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.parseColor("#FFD400")  // Yellow for visibility
+                textAlign = Paint.Align.CENTER
+                textSize = 18f
+                typeface = Typeface.DEFAULT_BOLD
+                setShadowLayer(2f, 0f, 1f, Color.argb(150, 0, 0, 0))
+            }
+            canvas.drawText(
+                position,
+                point.x,
+                positionY,
+                positionPaint
             )
         }
     }
@@ -379,7 +553,14 @@ class FormationPitchView @JvmOverloads constructor(
                 ((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y)).toDouble()
             ).toFloat()
             
-            if (distance <= playerRadius + 10f) {
+            // Use larger detection area for easier interaction
+            val detectionRadius = if (positionedPlayers[position] != null) {
+                playerRadius + 15f  // Players
+            } else {
+                dropZoneRadius + 10f  // Empty positions (drop zones)
+            }
+            
+            if (distance <= detectionRadius) {
                 return position
             }
         }
