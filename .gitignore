@@ -18,4 +18,4 @@ node_modules
 .kotlin/
 /.idea
 .idea/
-google-services.jsonapp/google-services.json
+google-services.json
