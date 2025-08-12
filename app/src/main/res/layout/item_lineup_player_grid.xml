@@ -21,7 +21,7 @@
             android:id="@+id/playerAvatar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_account_circle_24"
+            android:src="@drawable/ic_unicons_user_24"
             android:scaleType="centerCrop"
             tools:src="@drawable/ic_account_circle_24" />
 

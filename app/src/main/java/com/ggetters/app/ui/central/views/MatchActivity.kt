@@ -42,6 +42,9 @@ class MatchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_match)
         
+        // Apply smooth entrance animation
+        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
+        
         loadMatchDataFromIntent()
         setupViews()
         setupTabs()
@@ -60,6 +63,7 @@ class MatchActivity : AppCompatActivity() {
         // Header setup
         findViewById<ImageButton>(R.id.backButton).setOnClickListener {
             finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
         
         headerDate = findViewById(R.id.headerDate)
@@ -98,6 +102,33 @@ class MatchActivity : AppCompatActivity() {
         
         // Set default tab to Details
         viewPager.setCurrentItem(0, false)
+        
+        // Add smooth tab switching animations
+        viewPager.setPageTransformer { page, position ->
+            when {
+                position < -1 -> {
+                    // Page is way off-screen to the left
+                    page.alpha = 0f
+                }
+                position <= 1 -> {
+                    // Page is either coming in from the left or going out to the right
+                    page.alpha = 1f
+                    page.translationX = 0f
+                    page.scaleX = 1f
+                    page.scaleY = 1f
+                    
+                    // Apply a subtle scale and fade effect
+                    val scaleFactor = 0.95f + (1f - kotlin.math.abs(position)) * 0.05f
+                    page.scaleX = scaleFactor
+                    page.scaleY = scaleFactor
+                    page.alpha = 0.5f + (1f - kotlin.math.abs(position)) * 0.5f
+                }
+                else -> {
+                    // Page is way off-screen to the right
+                    page.alpha = 0f
+                }
+            }
+        }
     }
 
     private inner class MatchPagerAdapter(activity: AppCompatActivity) : FragmentStateAdapter(activity) {

@@ -53,7 +53,7 @@ class AttendancePlayerAdapter(
             jerseyNumber.text = player.jerseyNumber.toString()
             
             // Player avatar (placeholder for now)
-            playerAvatar.setImageResource(R.drawable.ic_account_circle_24)
+            playerAvatar.setImageResource(R.drawable.ic_unicons_user_24)
             
             // Status indicator color
             val statusColor = when (player.status) {

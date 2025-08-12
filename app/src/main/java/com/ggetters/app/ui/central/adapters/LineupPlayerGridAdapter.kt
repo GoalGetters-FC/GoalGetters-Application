@@ -64,7 +64,7 @@ class LineupPlayerGridAdapter(
 
         fun bind(player: PlayerAvailability) {
             // Player avatar (using placeholder)
-            playerAvatar.setImageResource(R.drawable.ic_account_circle_24)
+            playerAvatar.setImageResource(R.drawable.ic_unicons_user_24)
             
             // Jersey number
             jerseyNumber.text = player.jerseyNumber.toString()

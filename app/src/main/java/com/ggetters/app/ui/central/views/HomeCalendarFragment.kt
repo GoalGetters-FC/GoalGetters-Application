@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.FragmentCalendarBinding
 import com.ggetters.app.ui.central.adapters.CalendarAdapter
@@ -342,6 +343,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
                 putExtra("event_time", event.time)
             }
             startActivity(intent)
+            requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
         } else {
             // For other events, show the bottom sheet
             val eventDetailsSheet = EventDetailsBottomSheet.newInstance(event)
