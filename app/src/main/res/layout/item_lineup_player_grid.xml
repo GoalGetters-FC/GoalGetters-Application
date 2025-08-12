@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="8dp"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- Player Avatar Container -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
+        android:layout_marginBottom="4dp">
+
+        <ImageView
+            android:id="@+id/playerAvatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_account_circle_24"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/ic_account_circle_24" />
+
+        <!-- Jersey Number Overlay -->
+        <TextView
+            android:id="@+id/jerseyNumber"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:text="1"
+            android:textSize="9sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_on_accent"
+            android:background="@drawable/jersey_number_overlay"
+            android:gravity="center"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="1dp"
+            android:layout_marginEnd="1dp"
+            tools:text="1" />
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Player Name -->
+    <TextView
+        android:id="@+id/playerName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Player"
+        android:textSize="11sp"
+        android:textColor="@color/on_surface"
+        android:fontFamily="@font/variable_inter"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:maxWidth="64dp"
+        tools:text="Player" />
+
+    <!-- Player Position -->
+    <TextView
+        android:id="@+id/playerPosition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="FW"
+        android:textSize="9sp"
+        android:textColor="@color/on_surface_variant"
+        android:fontFamily="@font/variable_inter"
+        tools:text="FW" />
+
+</LinearLayout>

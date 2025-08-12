@@ -109,7 +109,7 @@ class NotificationsActivity : AppCompatActivity() {
                 subtitle = "Practice scheduled",
                 message = "New practice scheduled!",
                 isSeen = false,
-                type = NotificationType.PRACTICE_RSVP,
+                type = NotificationType.PRACTICE_NOTIFICATION,
                 timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
                 sender = "Coach",
                 linkedEventType = LinkedEventType.PRACTICE,
@@ -139,7 +139,7 @@ class NotificationsActivity : AppCompatActivity() {
                 subtitle = "RSVP Request",
                 message = "Please confirm your availability for the upcoming match.",
                 isSeen = false,
-                type = NotificationType.GAME_RSVP,
+                type = NotificationType.GAME_NOTIFICATION,
                 timestamp = System.currentTimeMillis() - 7200000, // 2 hours ago
                 sender = "Coach",
                 linkedEventType = LinkedEventType.GAME,
@@ -147,7 +147,7 @@ class NotificationsActivity : AppCompatActivity() {
                 venue = "Main Stadium",
                 eventDate = System.currentTimeMillis() + 86400000, // Tomorrow
                 opponent = "Tigers FC",
-                rsvpStatus = RSVPStatus.NOT_RESPONDED,
+
                 attendanceCounts = AttendanceCounts(12, 2, 1, 15)
             ),
             
@@ -176,14 +176,14 @@ class NotificationsActivity : AppCompatActivity() {
                 subtitle = "RSVP Request",
                 message = "Team practice scheduled for tomorrow at 3 PM. Focus on passing drills.",
                 isSeen = false,
-                type = NotificationType.PRACTICE_RSVP,
+                type = NotificationType.PRACTICE_NOTIFICATION,
                 timestamp = System.currentTimeMillis() - 86400000, // 1 day ago
                 sender = "Coach",
                 linkedEventType = LinkedEventType.PRACTICE,
                 linkedEventId = "practice_002",
                 venue = "Field 2",
                 eventDate = System.currentTimeMillis() + 86400000, // Tomorrow
-                rsvpStatus = RSVPStatus.AVAILABLE,
+
                 attendanceCounts = AttendanceCounts(10, 3, 2, 15)
             ),
             
@@ -227,9 +227,6 @@ class NotificationsActivity : AppCompatActivity() {
             onItemClick = { notification ->
                 // Handle notification item click - opens linked event
                 handleNotificationClick(notification)
-            },
-            onRSVPClick = { notification, status ->
-                handleRSVPResponse(notification, status)
             },
             onSwipeAction = { notification, action ->
                 when (action) {
@@ -302,30 +299,7 @@ class NotificationsActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleRSVPResponse(notification: NotificationItem, status: RSVPStatus) {
-        // TODO: Backend - Send RSVP response to backend and update attendance counts
-        // TODO: Backend - Implement real-time attendance updates for coaches
-        // TODO: Backend - Add RSVP analytics and response tracking
-        // TODO: Backend - Implement automated reminders for pending RSVPs
-        notification.rsvpStatus = status
-        notificationAdapter.notifyDataSetChanged()
-        
-        val statusText = when (status) {
-            RSVPStatus.AVAILABLE -> "Available"
-            RSVPStatus.MAYBE -> "Maybe"
-            RSVPStatus.UNAVAILABLE -> "Unavailable"
-            else -> "Unknown"
-        }
-        
-        Snackbar.make(
-            findViewById(android.R.id.content), 
-            "RSVP status set to: $statusText", 
-            Snackbar.LENGTH_SHORT
-        ).show()
-        
-        // TODO: Backend - Update calendar event status and attendance counts
-        // TODO: Backend - Notify coaches of RSVP changes for lineup adjustments
-    }
+
 
     private fun handleMarkAsSeen(notification: NotificationItem) {
         // TODO: Backend - Mark notification as seen/unseen in backend

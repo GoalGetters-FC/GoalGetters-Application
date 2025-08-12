@@ -180,3 +180,4 @@ class MatchDetailsViewModel @Inject constructor(
         }
     }
 }
+

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="12dp"
+    android:paddingHorizontal="8dp"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- Status Indicator -->
+    <View
+        android:id="@+id/statusIndicator"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:background="@drawable/indicator_available"
+        android:layout_marginEnd="16dp"
+        tools:background="@drawable/indicator_available" />
+
+    <!-- Player Avatar -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        android:layout_marginEnd="12dp">
+
+        <ImageView
+            android:id="@+id/playerAvatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_account_circle_24"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/ic_account_circle_24" />
+
+        <!-- Jersey Number Overlay -->
+        <TextView
+            android:id="@+id/jerseyNumber"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:text="1"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_on_accent"
+            android:background="@drawable/jersey_number_overlay"
+            android:gravity="center"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="2dp"
+            android:layout_marginEnd="2dp"
+            tools:text="1" />
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Player Name -->
+    <TextView
+        android:id="@+id/playerName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Aaron Robertson"
+        android:textSize="16sp"
+        android:textColor="@color/on_surface"
+        android:fontFamily="@font/variable_inter"
+        android:singleLine="true"
+        android:ellipsize="end"
+        tools:text="Aaron Robertson" />
+
+    <!-- Menu Button -->
+    <ImageButton
+        android:id="@+id/menuButton"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_unicons_ellipsis_v"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Player options"
+        app:tint="@color/on_surface_variant" />
+
+</LinearLayout>

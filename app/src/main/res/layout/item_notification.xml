@@ -213,46 +213,6 @@
 
     </LinearLayout>
 
-    <!-- RSVP Buttons (for RSVP notifications) -->
-    <LinearLayout
-        android:id="@+id/rsvpButtons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="12dp"
-        android:visibility="gone">
 
-        <!-- Available Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAvailable"
-            style="@style/Widget.GoalGetters.Button.RSVP.Available"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:layout_weight="1"
-            android:text="Available"
-            android:layout_marginEnd="4dp" />
-
-        <!-- Maybe Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnMaybe"
-            style="@style/Widget.GoalGetters.Button.RSVP.Maybe"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:layout_weight="1"
-            android:text="Maybe"
-            android:layout_marginHorizontal="2dp" />
-
-        <!-- Unavailable Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnUnavailable"
-            style="@style/Widget.GoalGetters.Button.RSVP.Unavailable"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:layout_weight="1"
-            android:text="Unavailable"
-            android:layout_marginStart="4dp" />
-
-    </LinearLayout>
 
 </LinearLayout> 

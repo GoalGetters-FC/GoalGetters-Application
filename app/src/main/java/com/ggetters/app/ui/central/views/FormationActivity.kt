@@ -371,3 +371,4 @@ class FormationActivity : AppCompatActivity() {
         updateFormationStats()
     }
 }
+

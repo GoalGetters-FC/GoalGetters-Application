@@ -333,7 +333,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
     private fun showEventDetails(event: Event) {
         // For match events, navigate to MatchDetailsActivity
         if (event.type == EventType.MATCH) {
-            val intent = Intent(requireContext(), MatchDetailsActivity::class.java).apply {
+            val intent = Intent(requireContext(), MatchActivity::class.java).apply {
                 putExtra("event_id", event.id)
                 putExtra("event_title", event.title)
                 putExtra("event_venue", event.venue)
