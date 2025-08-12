@@ -46,8 +46,6 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         setupTouchListeners()
         setupRecyclerView()
 
-
-
         observe()
     }
 
@@ -57,6 +55,20 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         lifecycleScope.launch {
             model.teams.collectLatest { teams ->
                 adapter.update(teams)
+            }
+        }
+
+        // ---- NEW: toast + busy collectors ----
+        lifecycleScope.launch {
+            model.toast.collectLatest { msg ->
+                Toast.makeText(this@TeamViewerActivity, msg, Toast.LENGTH_SHORT).show()
+            }
+        }
+        lifecycleScope.launch {
+            model.busy.collectLatest { isBusy ->
+                // If you don't have a progress view yet, add a small ProgressBar with id "progress"
+                val progress = binds.root.findViewById<View?>(R.id.progress)
+                progress?.visibility = if (isBusy) View.VISIBLE else View.GONE
             }
         }
     }
@@ -78,11 +90,13 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
     }
 
     private fun onCreateTeamSheetSubmitted(teamName: String) {
-        // TODO
+        // ---- NEW ----
+        model.createTeamFromName(teamName)
     }
 
     private fun onJoinTeamSheetSubmitted(teamCode: String, userCode: String) {
-        // TODO
+        // ---- NEW ----
+        model.joinByCode(teamCode, userCode)
     }
 
     // --- Event Handlers
