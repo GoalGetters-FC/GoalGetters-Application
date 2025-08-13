@@ -6,9 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ggetters.app.core.services.AuthService
-import com.ggetters.app.core.services.GoogleAuthClient
-import com.ggetters.app.core.utils.AuthValidator
+import com.ggetters.app.core.services.AuthenticationService
+import com.ggetters.app.core.services.GoogleAuthenticationClient
+import com.ggetters.app.core.utils.CredentialValidator
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.ui.shared.models.UiState
 import com.ggetters.app.ui.shared.models.UiState.Failure
@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
-    private val authService: AuthService
+    private val authService: AuthenticationService
 ) : ViewModel() {
     companion object {
         private const val TAG = "SignInViewModel"
@@ -32,7 +32,7 @@ class SignInViewModel @Inject constructor(
     
     
     @Inject
-    lateinit var ssoClient: GoogleAuthClient
+    lateinit var ssoClient: GoogleAuthenticationClient
 
 
     private val _uiState = MutableLiveData<UiState>()
@@ -46,8 +46,8 @@ class SignInViewModel @Inject constructor(
         email: String, password: String
     ) = viewModelScope.launch {
         try { // Validate input
-            require(AuthValidator.isValidEAddress(email))
-            require(AuthValidator.isValidPassword(password))
+            require(CredentialValidator.isValidEAddress(email))
+            require(CredentialValidator.isValidPassword(password))
         } catch (e: IllegalArgumentException) {
             Clogger.d(
                 TAG, "Caught validation errors"

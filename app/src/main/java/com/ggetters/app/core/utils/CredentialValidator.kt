@@ -5,7 +5,7 @@ import android.util.Patterns
 /**
  * Helper to validate credentials against Firebase Authentication rulesets.
  */
-object AuthValidator {
+object CredentialValidator {
     
     /**
      * Validates an email address using [Patterns.EMAIL_ADDRESS].
