@@ -4,9 +4,8 @@ package com.ggetters.app.data.di
 import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.room.RoomDatabase
-import com.ggetters.app.core.services.AuthService
-import com.ggetters.app.core.services.ConfigurationService
-import com.ggetters.app.core.services.GoogleAuthClient
+import com.ggetters.app.core.services.AuthenticationService
+import com.ggetters.app.core.services.ConfigurationsService
 import com.ggetters.app.data.local.AppDatabase
 import com.ggetters.app.data.local.dao.AttendanceDao
 import com.ggetters.app.data.local.dao.BroadcastDao
@@ -16,7 +15,6 @@ import com.ggetters.app.data.local.dao.UserDao
 import com.ggetters.app.data.local.dao.EventDao
 import com.ggetters.app.data.local.dao.LineupDao
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -69,7 +67,7 @@ object DataModule {
     @Singleton
     fun provideConfigurationService(
         @ApplicationContext ctx: Context
-    ): ConfigurationService = ConfigurationService(ctx)
+    ): ConfigurationsService = ConfigurationsService(ctx)
     
     
     @Provides
@@ -81,7 +79,7 @@ object DataModule {
     
     @Provides
     @Singleton
-    fun provideAuthService(firebaseAuth: FirebaseAuth): AuthService = AuthService(firebaseAuth)
+    fun provideAuthService(firebaseAuth: FirebaseAuth): AuthenticationService = AuthenticationService(firebaseAuth)
 
 
     /**

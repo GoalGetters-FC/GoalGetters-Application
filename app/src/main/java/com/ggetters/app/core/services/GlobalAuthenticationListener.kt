@@ -24,8 +24,8 @@ class GlobalAuthenticationListener
     @ApplicationContext
     private val context: Context,
     private val firebaseAuth: FirebaseAuth,
-    private val firebaseAuthService: AuthService,
-    private val configurationService: ConfigurationService
+    private val firebaseAuthService: AuthenticationService,
+    private val configurationService: ConfigurationsService
 ) : FirebaseAuth.AuthStateListener, DefaultLifecycleObserver {
     companion object {
         private const val TAG = "GlobalAuthenticationListener"

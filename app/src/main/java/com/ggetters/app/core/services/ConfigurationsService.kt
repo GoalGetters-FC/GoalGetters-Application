@@ -22,13 +22,13 @@ import javax.inject.Inject
 /**
  * Service to interact with the application DataStore.
  */
-class ConfigurationService
+class ConfigurationsService
 @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     companion object {
-        private const val TAG = "ConfigurationService"
-        private const val KEY = "ConfigurationOptions"
+        private const val TAG = "ConfigurationsService"
+        private const val KEY = "ConfigurationsOptions"
         private const val TIMEOUT_MILLISECONDS = 5_000L
 
         private val Context.dataStore by preferencesDataStore(

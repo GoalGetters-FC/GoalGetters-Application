@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ggetters.app.core.services.AuthService
-import com.ggetters.app.core.utils.AuthValidator
+import com.ggetters.app.core.services.AuthenticationService
+import com.ggetters.app.core.utils.CredentialValidator
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.ui.shared.models.UiState
 import com.ggetters.app.ui.shared.models.UiState.Failure
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val authService: AuthService
+    private val authService: AuthenticationService
 ) : ViewModel() {
     companion object {
         private const val TAG = "SignUpViewModel"
@@ -39,9 +39,9 @@ class SignUpViewModel @Inject constructor(
         email: String, defaultPassword: String, confirmPassword: String
     ) = viewModelScope.launch {
         try { // Validate input
-            require(AuthValidator.isValidEAddress(email))
-            require(AuthValidator.isValidPassword(defaultPassword))
-            require(AuthValidator.isValidPassword(confirmPassword))
+            require(CredentialValidator.isValidEAddress(email))
+            require(CredentialValidator.isValidPassword(defaultPassword))
+            require(CredentialValidator.isValidPassword(confirmPassword))
             require( // Confirm that passwords match
                 (defaultPassword == confirmPassword)
             )

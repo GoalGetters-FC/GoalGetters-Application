@@ -13,22 +13,20 @@ import javax.inject.Inject
  * stable connection to the internet. Checks should be conducted beforehand, and
  * such edge-cases should be accounted for in failure conditions.
  *
- * TODO: Implement functionality for SSO accounts.
- *
  * @see FirebaseAuth
- * @see AuthService.signUpAsync
- * @see AuthService.signInAsync
- * @see AuthService.sendCredentialChangeEmailAsync
- * @see AuthService.deleteCurrentUserAsync
- * @see AuthService.isUserSignedIn
- * @see AuthService.getCurrentUser
- * @see AuthService.logout
+ * @see AuthenticationService.signUpAsync
+ * @see AuthenticationService.signInAsync
+ * @see AuthenticationService.sendCredentialChangeEmailAsync
+ * @see AuthenticationService.deleteCurrentUserAsync
+ * @see AuthenticationService.isUserSignedIn
+ * @see AuthenticationService.getCurrentUser
+ * @see AuthenticationService.logout
  */
-class AuthService @Inject constructor(
+class AuthenticationService @Inject constructor(
     private val server: FirebaseAuth
 ) {
     companion object {
-        private const val TAG = "AuthService"
+        private const val TAG = "AuthenticationService"
     }
 
 
@@ -257,8 +255,6 @@ class AuthService @Inject constructor(
      * **Note:** This method will not automatically refresh authentication and
      * authorization guards. It is the responsibility of the caller to enforce
      * manual rerouting and re-authentication if required.
-     *
-     * TODO: Implement functionality for SSO accounts.
      *
      * **Usage:**
      *

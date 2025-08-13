@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ggetters.app.core.services.AuthService
-import com.ggetters.app.core.utils.AuthValidator
+import com.ggetters.app.core.services.AuthenticationService
+import com.ggetters.app.core.utils.CredentialValidator
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.ui.shared.models.UiState
 import com.ggetters.app.ui.shared.models.UiState.Failure
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ForgotPasswordViewModel @Inject constructor(
-    private val authService: AuthService
+    private val authService: AuthenticationService
 ) : ViewModel() {
     companion object {
         private const val TAG = "ForgotPasswordViewModel"
@@ -39,7 +39,7 @@ class ForgotPasswordViewModel @Inject constructor(
         emailAddress: String
     ) = viewModelScope.launch {
         try { // Validate input
-            require(AuthValidator.isValidEAddress(emailAddress))
+            require(CredentialValidator.isValidEAddress(emailAddress))
         } catch (e: IllegalArgumentException) {
             Clogger.d(
                 TAG, "Caught validation errors"

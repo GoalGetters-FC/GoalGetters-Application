@@ -18,15 +18,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class GoogleAuthClient @Inject constructor(
+class GoogleAuthenticationClient @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val server: FirebaseAuth,
-    private val authService: AuthService,
+    private val authService: AuthenticationService,
     private val credentialManager: CredentialManager
 ) {
     companion object {
-        private const val TAG = "GoogleAuthClient"
+        private const val TAG = "GoogleAuthenticationClient"
     }
 
 
