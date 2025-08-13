@@ -140,4 +140,16 @@
         <item name="android:fontFamily">@font/variable_inter</item>
     </style>
 
+    <!-- Circle Image View Style -->
+    <style name="CircleImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- Dialog Animation Style -->
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/scale_in</item>
+        <item name="android:windowExitAnimation">@anim/scale_out</item>
+    </style>
+
 </resources> 
