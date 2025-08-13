@@ -2,10 +2,11 @@ name: Tests
 
 # - About ----------------------------------------------------------------------
 # CI/CD GitHub Action to ensure that unit tests pass successfully.
-#
 # The workflow will automate the execution of unit tests in the repository when
 # code is pushed to the agreed upon conventional branches or pull requests have
 # been submitted on the remote to the aforementioned branches.
+# CI/CD GitHub Action to ensure that unit, integration, and UI tests pass.
+# Runs on push and PRs to main, staging, and conventional branches.
 # ------------------------------------------------------------------------------
 
 on:
@@ -26,7 +27,7 @@ on:
 
 jobs:
   execute:    
-    name: Unit Tests
+    name: Unit & Integration Tests
     runs-on: ubuntu-latest
     permissions: write-all
     
@@ -40,7 +41,7 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Cache dependencies
+      - name: Cache Gradle dependencies
         uses: actions/cache@v3
         with:
           path: |
@@ -58,5 +59,17 @@ jobs:
           mkdir -p app
           echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > app/google-services.json
 
-      - name: Execute tests
-        run: ./gradlew test
+
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Set up Android SDK
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          script: ./gradlew connectedDebugAndroidTest
+
+        
