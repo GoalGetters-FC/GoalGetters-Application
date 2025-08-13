@@ -7,6 +7,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Team
@@ -14,6 +17,8 @@ import com.ggetters.app.databinding.ActivityTeamDetailBinding
 import com.ggetters.app.ui.central.dialogs.EditTeamDialog
 import com.ggetters.app.ui.management.viewmodels.TeamDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogListener {
@@ -92,17 +97,17 @@ class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogLis
     }
 
     private fun setupTeamInfoSection() {
-        // TODO: Backend - Load team information from backend
-        // TODO: Backend - Implement team info editing functionality
-        // TODO: Backend - Add team info validation and permissions
-        // TODO: Backend - Implement team info synchronization
-        // TODO: Backend - Add team info analytics and tracking
-
-        val teamName = intent.getStringExtra(EXTRA_TEAM_NAME) ?: "U15a Football"
-        binds.teamNameText.text = teamName
-        binds.teamDescriptionText.text = "Under 15 football team"
-        binds.teamCompositionText.text = "Unisex (Male)"
-        binds.teamAgeGroupText.text = "All U15"
+//        // TODO: Backend - Load team information from backend
+//        // TODO: Backend - Implement team info editing functionality
+//        // TODO: Backend - Add team info validation and permissions
+//        // TODO: Backend - Implement team info synchronization
+//        // TODO: Backend - Add team info analytics and tracking
+//
+//        val teamName = intent.getStringExtra(EXTRA_TEAM_NAME) ?: "U15a Football"
+//        binds.teamNameText.text = teamName
+//        binds.teamDescriptionText.text = "Under 15 football team"
+//        binds.teamCompositionText.text = "Unisex (Male)"
+//        binds.teamAgeGroupText.text = "All U15"
     }
 
     private fun setupTeamStatsSection() {
@@ -159,12 +164,26 @@ class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogLis
     }
 
     private fun observe() {
-        // TODO: Observe view-model data changes
-        // TODO: Backend - Implement real-time team data updates
-        // TODO: Backend - Add team data change notifications
-        // TODO: Backend - Implement team data conflict resolution
-        // TODO: Backend - Add team data analytics and tracking
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.team.collectLatest { team ->
+                    if (team == null) {
+                        supportActionBar?.title = intent.getStringExtra(EXTRA_TEAM_NAME) ?: "Team Details"
+                        return@collectLatest
+                    }
+                    supportActionBar?.title = team.name
+                    binds.teamNameText.text = team.name
+                    binds.teamDescriptionText.text = team.description ?: "—"
+                    binds.teamCompositionText.text =
+                        team.composition.name.replace('_',' ')
+                            .lowercase().replaceFirstChar { it.uppercase() }
+                    binds.teamAgeGroupText.text = team.denomination.name.replace('_',' ')
+                }
+            }
+        }
     }
+
+
 
     private fun navigateToEditTeam() {
         val editDialog = EditTeamDialog.newInstance(
@@ -187,6 +206,8 @@ class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogLis
         // Refresh team data after successful edit
         binds.teamNameText.text = updatedTeam.name
         binds.teamDescriptionText.text = updatedTeam.description ?: "No description"
+
+        model.save(updatedTeam)
         // TODO: Update other fields when backend integration is complete
         Clogger.d(TAG, "Team updated: ${updatedTeam.name}")
     }
