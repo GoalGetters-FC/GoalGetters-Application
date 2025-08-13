@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.room.RoomDatabase
 import com.ggetters.app.core.services.AuthService
+import com.ggetters.app.core.services.ConfigurationService
 import com.ggetters.app.core.services.GoogleAuthClient
 import com.ggetters.app.data.local.AppDatabase
 import com.ggetters.app.data.local.dao.AttendanceDao
@@ -62,6 +63,13 @@ object DataModule {
     @Provides
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+    
+    
+    @Provides
+    @Singleton
+    fun provideConfigurationService(
+        @ApplicationContext ctx: Context
+    ): ConfigurationService = ConfigurationService(ctx)
     
     
     @Provides
