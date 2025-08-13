@@ -11,7 +11,7 @@ data class NotificationItem(
     val sender: String = "",
     val data: Map<String, Any> = emptyMap(), // Additional data for specific notification types
     var isPinned: Boolean = false,
-    var rsvpStatus: RSVPStatus? = null, // For RSVP notifications
+
     val eventId: String? = null, // For event-linked notifications
     val venue: String? = null,
     val eventDate: Long? = null,
@@ -25,7 +25,7 @@ data class NotificationItem(
     // Helper methods for notification behavior
     fun isActionable(): Boolean {
         return when (type) {
-            NotificationType.GAME_RSVP, NotificationType.PRACTICE_RSVP -> true
+            NotificationType.GAME_NOTIFICATION, NotificationType.PRACTICE_NOTIFICATION -> true
             NotificationType.GAME_REMINDER, NotificationType.PRACTICE_REMINDER -> true
             NotificationType.ANNOUNCEMENT -> true
             NotificationType.POST_MATCH_SUMMARY -> true
@@ -33,9 +33,7 @@ data class NotificationItem(
         }
     }
     
-    fun hasRSVPButtons(): Boolean {
-        return type == NotificationType.GAME_RSVP || type == NotificationType.PRACTICE_RSVP
-    }
+
     
     fun getLinkedEventTitle(): String {
         return when (linkedEventType) {
@@ -49,16 +47,16 @@ data class NotificationItem(
 }
 
 enum class NotificationType {
-    GAME_RSVP,      // Game RSVP request with inline buttons
-    GAME_REMINDER,  // Game reminder (countdown)
-    PRACTICE_RSVP,  // Practice RSVP request with inline buttons
-    PRACTICE_REMINDER, // Practice reminder
-    ANNOUNCEMENT,   // Admin announcement
-    SCHEDULE_CHANGE, // Schedule change notification
-    PLAYER_UPDATE,  // Player joined/left team
-    ADMIN_MESSAGE,  // Direct message from admin
+    GAME_NOTIFICATION,  // Game-related notification
+    GAME_REMINDER,      // Game reminder (countdown)
+    PRACTICE_NOTIFICATION, // Practice-related notification
+    PRACTICE_REMINDER,  // Practice reminder
+    ANNOUNCEMENT,       // Admin announcement
+    SCHEDULE_CHANGE,    // Schedule change notification
+    PLAYER_UPDATE,      // Player joined/left team
+    ADMIN_MESSAGE,      // Direct message from admin
     POST_MATCH_SUMMARY, // Match results and summary
-    SYSTEM          // System notification
+    SYSTEM              // System notification
 }
 
 enum class RSVPStatus {
@@ -87,20 +85,8 @@ data class AttendanceCounts(
 }
 
 // Extension functions for easier data access
-fun NotificationItem.isRSVPNotification(): Boolean {
-    return type == NotificationType.GAME_RSVP || type == NotificationType.PRACTICE_RSVP
-}
-
 fun NotificationItem.isReminderNotification(): Boolean {
     return type == NotificationType.GAME_REMINDER || type == NotificationType.PRACTICE_REMINDER
-}
-
-fun NotificationItem.getRSVPButtons(): List<RSVPStatus> {
-    return if (isRSVPNotification()) {
-        listOf(RSVPStatus.AVAILABLE, RSVPStatus.MAYBE, RSVPStatus.UNAVAILABLE)
-    } else {
-        emptyList()
-    }
 }
 
 fun NotificationItem.getAccentColor(): String {

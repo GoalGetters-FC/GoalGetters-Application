@@ -3,6 +3,8 @@ package com.ggetters.app.ui.central.views
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -11,6 +13,7 @@ import com.ggetters.app.ui.central.models.*
 import com.ggetters.app.ui.central.viewmodels.MatchDetailsViewModel
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
@@ -36,16 +39,20 @@ class MatchDetailsActivity : AppCompatActivity() {
     private lateinit var dateTimeText: android.widget.TextView
     private lateinit var homeTeamText: android.widget.TextView
     private lateinit var awayTeamText: android.widget.TextView
-    private lateinit var scoreDisplay: android.widget.TextView
-    private lateinit var rsvpStatsCard: MaterialCardView
+    private lateinit var scoreDisplay: android.view.View
+    private lateinit var rsvpStatsCard: android.view.View
     private lateinit var availableCountText: android.widget.TextView
     private lateinit var maybeCountText: android.widget.TextView
     private lateinit var unavailableCountText: android.widget.TextView
-    private lateinit var notRespondedCountText: android.widget.TextView
-    private lateinit var rsvpSummaryText: android.widget.TextView
+    private var rsvpSummaryText: android.widget.TextView? = null
     private lateinit var buildLineupButton: MaterialButton
     private lateinit var viewRosterButton: MaterialButton
     private lateinit var editMatchButton: MaterialButton
+    
+    // RSVP Chips
+    private lateinit var rsvpGoingChip: Chip
+    private lateinit var rsvpMaybeChip: Chip
+    private lateinit var rsvpNotGoingChip: Chip
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,21 +73,30 @@ class MatchDetailsActivity : AppCompatActivity() {
     }
 
     private fun initializeViews() {
+        // Header back button
+        findViewById<ImageButton>(R.id.backButton).setOnClickListener {
+            finish()
+        }
+        
         matchTitleText = findViewById(R.id.matchTitle)
         venueText = findViewById(R.id.venue)
         dateTimeText = findViewById(R.id.dateTime)
-        homeTeamText = findViewById(R.id.homeTeam)
-        awayTeamText = findViewById(R.id.awayTeam)
-        scoreDisplay = findViewById(R.id.scoreDisplay)
-        rsvpStatsCard = findViewById(R.id.rsvpStatsCard)
+        homeTeamText = findViewById(R.id.homeTeamName)
+        awayTeamText = findViewById(R.id.awayTeamName)
+        scoreDisplay = findViewById(R.id.scoreSection)
+        rsvpStatsCard = findViewById(R.id.rsvpChipGroup) // Using chip group as RSVP container
         availableCountText = findViewById(R.id.availableCount)
         maybeCountText = findViewById(R.id.maybeCount)
         unavailableCountText = findViewById(R.id.unavailableCount)
-        notRespondedCountText = findViewById(R.id.notRespondedCount)
-        rsvpSummaryText = findViewById(R.id.rsvpSummary)
+        rsvpSummaryText = null // Not in new layout
         buildLineupButton = findViewById(R.id.buildLineupButton)
         viewRosterButton = findViewById(R.id.viewRosterButton)
         editMatchButton = findViewById(R.id.editMatchButton)
+        
+        // RSVP chip elements
+        rsvpGoingChip = findViewById(R.id.rsvpGoingChip)
+        rsvpMaybeChip = findViewById(R.id.rsvpMaybeChip)
+        rsvpNotGoingChip = findViewById(R.id.rsvpNotGoingChip)
     }
 
     private fun loadMatchData() {
@@ -161,8 +177,24 @@ class MatchDetailsActivity : AppCompatActivity() {
         homeTeamText.text = matchDetails.homeTeam
         awayTeamText.text = matchDetails.awayTeam
 
-        // Score display
-        scoreDisplay.text = matchDetails.getFormattedScore()
+        // Score display - show/hide based on match status
+        if (matchDetails.isMatchStarted()) {
+            scoreDisplay.visibility = View.VISIBLE
+            findViewById<TextView>(R.id.homeScore).text = matchDetails.homeScore.toString()
+            findViewById<TextView>(R.id.awayScore).text = matchDetails.awayScore.toString()
+        } else {
+            scoreDisplay.visibility = View.GONE
+        }
+        
+        // Update match status
+        findViewById<TextView>(R.id.matchStatus).text = when (matchDetails.status) {
+            MatchStatus.SCHEDULED -> "Upcoming"
+            MatchStatus.IN_PROGRESS -> "Live"
+            MatchStatus.PAUSED -> "Paused"
+            MatchStatus.HALF_TIME -> "Half Time"
+            MatchStatus.FULL_TIME -> "Full Time"
+            MatchStatus.CANCELLED -> "Cancelled"
+        }
         
         // RSVP Statistics
         updateRSVPStats()
@@ -177,18 +209,9 @@ class MatchDetailsActivity : AppCompatActivity() {
         availableCountText.text = stats.available.toString()
         maybeCountText.text = stats.maybe.toString()
         unavailableCountText.text = stats.unavailable.toString()
-        notRespondedCountText.text = stats.notResponded.toString()
         
-        rsvpSummaryText.text = stats.getFormattedSummary()
-
-        // Update card background color based on availability
-        val availabilityPercentage = stats.getAvailabilityPercentage()
-        val cardColor = when {
-            availabilityPercentage >= 75 -> ContextCompat.getColor(this, R.color.success_light)
-            availabilityPercentage >= 50 -> ContextCompat.getColor(this, R.color.warning_light)
-            else -> ContextCompat.getColor(this, R.color.error_light)
-        }
-        rsvpStatsCard.setCardBackgroundColor(cardColor)
+        // Show RSVP card (always visible in new layout)
+        rsvpStatsCard.visibility = View.VISIBLE
     }
 
     private fun updateButtonStates() {
@@ -222,23 +245,28 @@ class MatchDetailsActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         buildLineupButton.setOnClickListener {
-            when (matchDetails.status) {
-                MatchStatus.SCHEDULED -> {
-                    if (matchDetails.canStartMatch()) {
-                        navigateToRoster()
-                    } else {
-                        showInsufficientPlayersMessage()
+            if (::matchDetails.isInitialized) {
+                when (matchDetails.status) {
+                    MatchStatus.SCHEDULED -> {
+                        if (matchDetails.canStartMatch()) {
+                            navigateToRoster()
+                        } else {
+                            showInsufficientPlayersMessage()
+                        }
+                    }
+                    MatchStatus.IN_PROGRESS, MatchStatus.PAUSED, MatchStatus.HALF_TIME -> {
+                        navigateToMatchControl()
+                    }
+                    MatchStatus.FULL_TIME -> {
+                        navigateToPostMatch()
+                    }
+                    else -> {
+                        // Handle other states
                     }
                 }
-                MatchStatus.IN_PROGRESS, MatchStatus.PAUSED, MatchStatus.HALF_TIME -> {
-                    navigateToMatchControl()
-                }
-                MatchStatus.FULL_TIME -> {
-                    navigateToPostMatch()
-                }
-                else -> {
-                    // Handle other states
-                }
+            } else {
+                Snackbar.make(findViewById(android.R.id.content), 
+                    "Match data not loaded yet", Snackbar.LENGTH_SHORT).show()
             }
         }
 
@@ -250,10 +278,54 @@ class MatchDetailsActivity : AppCompatActivity() {
             editMatch()
         }
 
+        // RSVP chip listeners
+        rsvpGoingChip.setOnClickListener {
+            handleRSVPResponse(RSVPStatus.AVAILABLE)
+        }
+        
+        rsvpMaybeChip.setOnClickListener {
+            handleRSVPResponse(RSVPStatus.MAYBE)
+        }
+        
+        rsvpNotGoingChip.setOnClickListener {
+            handleRSVPResponse(RSVPStatus.UNAVAILABLE)
+        }
+
         scoreDisplay.setOnClickListener {
-            if (matchDetails.isMatchStarted()) {
+            if (::matchDetails.isInitialized && matchDetails.isMatchStarted()) {
                 navigateToMatchControl()
             }
+        }
+    }
+
+    private fun handleRSVPResponse(status: RSVPStatus) {
+        // TODO: Backend - Update RSVP status for current user
+        val statusText = when (status) {
+            RSVPStatus.AVAILABLE -> "available"
+            RSVPStatus.UNAVAILABLE -> "unavailable"
+            RSVPStatus.MAYBE -> "maybe"
+            RSVPStatus.NOT_RESPONDED -> "no response"
+        }
+        
+        Snackbar.make(findViewById(android.R.id.content), 
+            "RSVP status set to: $statusText", Snackbar.LENGTH_SHORT).show()
+        
+        // Update chip selection states
+        highlightRSVPChip(rsvpGoingChip, status == RSVPStatus.AVAILABLE)
+        highlightRSVPChip(rsvpMaybeChip, status == RSVPStatus.MAYBE)
+        highlightRSVPChip(rsvpNotGoingChip, status == RSVPStatus.UNAVAILABLE)
+        
+        // Update match data and UI
+        // TODO: Backend - Update actual match data with new RSVP
+    }
+
+    private fun highlightRSVPChip(chip: Chip, isSelected: Boolean) {
+        if (isSelected) {
+            chip.setChipBackgroundColorResource(R.color.primary)
+            chip.setTextColor(ContextCompat.getColor(this, R.color.text_on_accent))
+        } else {
+            chip.setChipBackgroundColorResource(R.color.surface_variant)
+            chip.setTextColor(ContextCompat.getColor(this, R.color.on_surface))
         }
     }
 

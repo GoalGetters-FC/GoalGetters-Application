@@ -46,10 +46,6 @@
                 android:exported="false"
                 android:theme="@style/AppTheme" />
         <activity
-                android:name=".ui.startup.views.WelcomeBackActivity"
-                android:exported="false"
-                android:theme="@style/AppTheme" />
-        <activity
                 android:name=".ui.central.views.HomeActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme"
@@ -86,6 +82,12 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.central.views.PostMatchActionsActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.central.views.MatchActivity"
             android:exported="false"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize" />

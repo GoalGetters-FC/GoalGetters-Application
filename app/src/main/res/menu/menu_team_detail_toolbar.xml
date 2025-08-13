@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/action_edit_team"
-        android:icon="@drawable/ic_unicons_plus_24"
+        android:icon="@drawable/ic_unicons_settings_24"
         android:title="Edit Team"
         app:showAsAction="ifRoom" />
 

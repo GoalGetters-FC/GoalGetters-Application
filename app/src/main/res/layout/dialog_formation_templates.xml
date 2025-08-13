@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Formation Templates"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/on_surface"
+        android:fontFamily="@font/variable_inter"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Formation Grid -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/formationTemplatesRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="400dp"
+        tools:itemCount="5"
+        tools:listitem="@layout/item_formation_template" />
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="16dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_marginEnd="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveTemplate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save Current"
+            style="@style/Widget.Material3.Button.UnelevatedButton" />
+
+    </LinearLayout>
+
+</LinearLayout>

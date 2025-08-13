@@ -72,39 +72,7 @@
         <item name="rippleColor">@color/primary</item>
     </style>
 
-    <!-- RSVP Button Styles -->
-    <style name="Widget.GoalGetters.Button.RSVP.Available" parent="Widget.MaterialComponents.Button">
-        <item name="cornerRadius">8dp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="backgroundTint">@color/success</item>
-        <item name="android:fontFamily">@font/variable_inter</item>
-        <item name="android:textSize">12sp</item>
-        <item name="elevation">0dp</item>
-        <item name="android:minHeight">36dp</item>
-    </style>
 
-    <style name="Widget.GoalGetters.Button.RSVP.Maybe" parent="Widget.MaterialComponents.Button">
-        <item name="cornerRadius">8dp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="backgroundTint">@color/warning</item>
-        <item name="android:fontFamily">@font/variable_inter</item>
-        <item name="android:textSize">12sp</item>
-        <item name="elevation">0dp</item>
-        <item name="android:minHeight">36dp</item>
-    </style>
-
-    <style name="Widget.GoalGetters.Button.RSVP.Unavailable" parent="Widget.MaterialComponents.Button">
-        <item name="cornerRadius">8dp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="backgroundTint">@color/error</item>
-        <item name="android:fontFamily">@font/variable_inter</item>
-        <item name="android:textSize">12sp</item>
-        <item name="elevation">0dp</item>
-        <item name="android:minHeight">36dp</item>
-    </style>
 
     <!-- Match Control Button Styles -->
     <style name="Widget.GoalGetters.Button.MatchControl.Primary" parent="Widget.MaterialComponents.Button">
@@ -170,6 +138,18 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">@font/variable_inter</item>
+    </style>
+
+    <!-- Circle Image View Style -->
+    <style name="CircleImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- Dialog Animation Style -->
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/scale_in</item>
+        <item name="android:windowExitAnimation">@anim/scale_out</item>
     </style>
 
 </resources> 

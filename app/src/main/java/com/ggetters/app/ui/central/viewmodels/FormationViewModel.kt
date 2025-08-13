@@ -248,3 +248,4 @@ class FormationViewModel @Inject constructor(
         )
     }
 }
+

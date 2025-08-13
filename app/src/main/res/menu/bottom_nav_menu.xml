@@ -6,7 +6,7 @@
         android:title="Events" />
     <item
         android:id="@+id/nav_team_players"
-        android:icon="@drawable/ic_unicons_folder_open"
+        android:icon="@drawable/ic_unicons_users_24"
         android:title="Team" />
     <item
         android:id="@+id/nav_player_profile"
