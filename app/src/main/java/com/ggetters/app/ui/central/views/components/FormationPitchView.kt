@@ -452,19 +452,126 @@ class FormationPitchView @JvmOverloads constructor(
     }
 
     private fun calculate442Positions() {
-        // TODO: Implement 4-4-2 formation positions
+        val pitchWidth = pitchRect.width()
+        val pitchHeight = pitchRect.height()
+        
+        // Goalkeeper
+        playerPositions["GK"] = PointF(
+            pitchRect.centerX(),
+            pitchRect.bottom - pitchHeight * 0.08f
+        )
+        
+        // Defense (4 players)
+        val defenseY = pitchRect.bottom - pitchHeight * 0.25f
+        playerPositions["LB"] = PointF(pitchRect.left + pitchWidth * 0.15f, defenseY)
+        playerPositions["CB1"] = PointF(pitchRect.left + pitchWidth * 0.35f, defenseY)
+        playerPositions["CB2"] = PointF(pitchRect.left + pitchWidth * 0.65f, defenseY)
+        playerPositions["RB"] = PointF(pitchRect.left + pitchWidth * 0.85f, defenseY)
+        
+        // Midfield (4 players)
+        val midfieldY = pitchRect.bottom - pitchHeight * 0.55f
+        playerPositions["LM"] = PointF(pitchRect.left + pitchWidth * 0.1f, midfieldY)
+        playerPositions["CM1"] = PointF(pitchRect.left + pitchWidth * 0.35f, midfieldY)
+        playerPositions["CM2"] = PointF(pitchRect.left + pitchWidth * 0.65f, midfieldY)
+        playerPositions["RM"] = PointF(pitchRect.left + pitchWidth * 0.9f, midfieldY)
+        
+        // Attack (2 players)
+        val attackY = pitchRect.bottom - pitchHeight * 0.8f
+        playerPositions["ST1"] = PointF(pitchRect.left + pitchWidth * 0.35f, attackY)
+        playerPositions["ST2"] = PointF(pitchRect.left + pitchWidth * 0.65f, attackY)
     }
 
     private fun calculate352Positions() {
-        // TODO: Implement 3-5-2 formation positions
+        val pitchWidth = pitchRect.width()
+        val pitchHeight = pitchRect.height()
+        
+        // Goalkeeper
+        playerPositions["GK"] = PointF(
+            pitchRect.centerX(),
+            pitchRect.bottom - pitchHeight * 0.08f
+        )
+        
+        // Defense (3 players)
+        val defenseY = pitchRect.bottom - pitchHeight * 0.25f
+        playerPositions["CB1"] = PointF(pitchRect.left + pitchWidth * 0.25f, defenseY)
+        playerPositions["CB2"] = PointF(pitchRect.centerX(), defenseY)
+        playerPositions["CB3"] = PointF(pitchRect.left + pitchWidth * 0.75f, defenseY)
+        
+        // Wing-backs and Midfield (5 players)
+        val midfieldY = pitchRect.bottom - pitchHeight * 0.55f
+        playerPositions["LWB"] = PointF(pitchRect.left + pitchWidth * 0.05f, midfieldY)
+        playerPositions["CM1"] = PointF(pitchRect.left + pitchWidth * 0.3f, midfieldY)
+        playerPositions["CM2"] = PointF(pitchRect.centerX(), midfieldY)
+        playerPositions["CM3"] = PointF(pitchRect.left + pitchWidth * 0.7f, midfieldY)
+        playerPositions["RWB"] = PointF(pitchRect.left + pitchWidth * 0.95f, midfieldY)
+        
+        // Attack (2 players)
+        val attackY = pitchRect.bottom - pitchHeight * 0.8f
+        playerPositions["ST1"] = PointF(pitchRect.left + pitchWidth * 0.35f, attackY)
+        playerPositions["ST2"] = PointF(pitchRect.left + pitchWidth * 0.65f, attackY)
     }
 
     private fun calculate4231Positions() {
-        // TODO: Implement 4-2-3-1 formation positions
+        val pitchWidth = pitchRect.width()
+        val pitchHeight = pitchRect.height()
+        
+        // Goalkeeper
+        playerPositions["GK"] = PointF(
+            pitchRect.centerX(),
+            pitchRect.bottom - pitchHeight * 0.08f
+        )
+        
+        // Defense (4 players)
+        val defenseY = pitchRect.bottom - pitchHeight * 0.25f
+        playerPositions["LB"] = PointF(pitchRect.left + pitchWidth * 0.15f, defenseY)
+        playerPositions["CB1"] = PointF(pitchRect.left + pitchWidth * 0.35f, defenseY)
+        playerPositions["CB2"] = PointF(pitchRect.left + pitchWidth * 0.65f, defenseY)
+        playerPositions["RB"] = PointF(pitchRect.left + pitchWidth * 0.85f, defenseY)
+        
+        // Defensive Midfield (2 players)
+        val dmY = pitchRect.bottom - pitchHeight * 0.45f
+        playerPositions["CDM1"] = PointF(pitchRect.left + pitchWidth * 0.35f, dmY)
+        playerPositions["CDM2"] = PointF(pitchRect.left + pitchWidth * 0.65f, dmY)
+        
+        // Attacking Midfield (3 players)
+        val amY = pitchRect.bottom - pitchHeight * 0.65f
+        playerPositions["LW"] = PointF(pitchRect.left + pitchWidth * 0.15f, amY)
+        playerPositions["CAM"] = PointF(pitchRect.centerX(), amY)
+        playerPositions["RW"] = PointF(pitchRect.left + pitchWidth * 0.85f, amY)
+        
+        // Attack (1 player)
+        val attackY = pitchRect.bottom - pitchHeight * 0.8f
+        playerPositions["ST"] = PointF(pitchRect.centerX(), attackY)
     }
 
     private fun calculate532Positions() {
-        // TODO: Implement 5-3-2 formation positions
+        val pitchWidth = pitchRect.width()
+        val pitchHeight = pitchRect.height()
+        
+        // Goalkeeper
+        playerPositions["GK"] = PointF(
+            pitchRect.centerX(),
+            pitchRect.bottom - pitchHeight * 0.08f
+        )
+        
+        // Defense (5 players)
+        val defenseY = pitchRect.bottom - pitchHeight * 0.25f
+        playerPositions["LB"] = PointF(pitchRect.left + pitchWidth * 0.1f, defenseY)
+        playerPositions["CB1"] = PointF(pitchRect.left + pitchWidth * 0.3f, defenseY)
+        playerPositions["CB2"] = PointF(pitchRect.centerX(), defenseY)
+        playerPositions["CB3"] = PointF(pitchRect.left + pitchWidth * 0.7f, defenseY)
+        playerPositions["RB"] = PointF(pitchRect.left + pitchWidth * 0.9f, defenseY)
+        
+        // Midfield (3 players)
+        val midfieldY = pitchRect.bottom - pitchHeight * 0.55f
+        playerPositions["CM1"] = PointF(pitchRect.left + pitchWidth * 0.25f, midfieldY)
+        playerPositions["CM2"] = PointF(pitchRect.centerX(), midfieldY)
+        playerPositions["CM3"] = PointF(pitchRect.left + pitchWidth * 0.75f, midfieldY)
+        
+        // Attack (2 players)
+        val attackY = pitchRect.bottom - pitchHeight * 0.8f
+        playerPositions["ST1"] = PointF(pitchRect.left + pitchWidth * 0.35f, attackY)
+        playerPositions["ST2"] = PointF(pitchRect.left + pitchWidth * 0.65f, attackY)
     }
 
     // Touch handling properties
@@ -618,5 +725,15 @@ class FormationPitchView @JvmOverloads constructor(
     // Check if a position is occupied
     fun isPositionOccupied(position: String): Boolean {
         return positionedPlayers.containsKey(position) && positionedPlayers[position] != null
+    }
+
+    // Get the position coordinates for a given position name
+    fun getPositionCoordinates(position: String): PointF? {
+        return playerPositions[position]
+    }
+
+    // Get all position coordinates
+    fun getAllPositionCoordinates(): Map<String, PointF> {
+        return playerPositions.toMap()
     }
 }
