@@ -9,17 +9,15 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.data.model.Team
 import com.ggetters.app.databinding.ActivityTeamDetailBinding
+import com.ggetters.app.ui.central.dialogs.EditTeamDialog
 import com.ggetters.app.ui.management.viewmodels.TeamDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class TeamDetailActivity : AppCompatActivity() {
-    companion object {
-        private const val TAG = "TeamDetailActivity"
-        const val EXTRA_TEAM_ID = "team_id"
-        const val EXTRA_TEAM_NAME = "team_name"
-    }
+class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogListener {
+
 
     private lateinit var binds: ActivityTeamDetailBinding
     private val model: TeamDetailViewModel by viewModels()
@@ -65,8 +63,7 @@ class TeamDetailActivity : AppCompatActivity() {
         binds.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.action_edit_team -> {
-                    // TODO: Navigate to edit team screen
-                    Clogger.d(TAG, "Edit team clicked")
+                    navigateToEditTeam()
                     true
                 }
                 R.id.action_share_team -> {
@@ -134,8 +131,7 @@ class TeamDetailActivity : AppCompatActivity() {
         }
 
         binds.editTeamButton.setOnClickListener {
-            // TODO: Navigate to team editing
-            Clogger.d(TAG, "Edit team clicked")
+            navigateToEditTeam()
         }
 
         binds.viewStatsButton.setOnClickListener {
@@ -168,5 +164,36 @@ class TeamDetailActivity : AppCompatActivity() {
         // TODO: Backend - Add team data change notifications
         // TODO: Backend - Implement team data conflict resolution
         // TODO: Backend - Add team data analytics and tracking
+    }
+
+    private fun navigateToEditTeam() {
+        val editDialog = EditTeamDialog.newInstance(
+            teamId = intent.getStringExtra(EXTRA_TEAM_ID),
+            teamName = binds.teamNameText.text.toString(),
+            teamCode = "TES", // TODO: Get from backend
+            teamAlias = "Test", // TODO: Get from backend
+            teamDescription = binds.teamDescriptionText.text.toString(),
+            teamComposition = "UNISEX_MALE", // TODO: Get from backend
+            teamDenomination = "OPEN", // TODO: Get from backend
+            yearFormed = "2025", // TODO: Get from backend
+            contactCell = "", // TODO: Get from backend
+            contactMail = "", // TODO: Get from backend
+            clubAddress = "" // TODO: Get from backend
+        )
+        editDialog.show(supportFragmentManager, EditTeamDialog.TAG)
+    }
+
+    override fun onTeamUpdated(updatedTeam: Team) {
+        // Refresh team data after successful edit
+        binds.teamNameText.text = updatedTeam.name
+        binds.teamDescriptionText.text = updatedTeam.description ?: "No description"
+        // TODO: Update other fields when backend integration is complete
+        Clogger.d(TAG, "Team updated: ${updatedTeam.name}")
+    }
+
+    companion object {
+        private const val TAG = "TeamDetailActivity"
+        const val EXTRA_TEAM_ID = "team_id"
+        const val EXTRA_TEAM_NAME = "team_name"
     }
 } 

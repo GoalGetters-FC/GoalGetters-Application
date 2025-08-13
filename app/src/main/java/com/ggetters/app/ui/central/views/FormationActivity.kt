@@ -310,6 +310,7 @@ class FormationActivity : AppCompatActivity() {
             // TODO: Pass formation data
         }
         startActivity(intent)
+        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
         
         Snackbar.make(findViewById(android.R.id.content), 
             "Starting match with $selectedFormation formation!", Snackbar.LENGTH_SHORT).show()
@@ -371,3 +372,4 @@ class FormationActivity : AppCompatActivity() {
         updateFormationStats()
     }
 }
+

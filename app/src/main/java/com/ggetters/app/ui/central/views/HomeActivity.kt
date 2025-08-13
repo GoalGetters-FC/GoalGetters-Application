@@ -5,6 +5,7 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -135,47 +136,75 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
-        // Add custom touch listener for long press functionality
-        var longPressHandler: android.os.Handler? = null
-        var longPressRunnable: Runnable? = null
-        
-        bottomNav.setOnTouchListener { _, event ->
-            when (event.action) {
-                android.view.MotionEvent.ACTION_DOWN -> {
-                    val touchedItem = getBottomNavItemAtLocation(bottomNav, event.x, event.y)
-                    if (touchedItem == R.id.nav_player_profile || touchedItem == R.id.nav_profile) {
-                        // Start a timer for long press - both player profile and options should show account switcher
-                        longPressRunnable = Runnable {
-                            showAccountSwitcher()
-                        }
-                        longPressHandler = android.os.Handler(android.os.Looper.getMainLooper())
-                        longPressHandler?.postDelayed(longPressRunnable!!, 500) // 500ms for long press
-                    }
-                }
-                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
-                    // Cancel long press if touch is released
-                    longPressHandler?.removeCallbacksAndMessages(null)
-                    longPressHandler = null
-                    longPressRunnable = null
-                }
-            }
-            false // Don't consume the event
-        }
+        // Setup long click listener for Options tab specifically
+        setupOptionsLongClick(bottomNav)
+
+
         
         switchFragment(HomeCalendarFragment()) // Set default fragment
     }
 
-    private fun getBottomNavItemAtLocation(bottomNav: BottomNavigationView, x: Float, y: Float): Int? {
-        // Simple implementation - you might need to refine this based on your needs
-        val menu = bottomNav.menu
-        val itemCount = menu.size()
-        val itemWidth = bottomNav.width / itemCount
-        
-        val itemIndex = (x / itemWidth).toInt()
-        return if (itemIndex in 0 until itemCount) {
-            menu.getItem(itemIndex).itemId
-        } else null
+    private fun setupOptionsLongClick(bottomNav: BottomNavigationView) {
+        // Post to ensure the bottom navigation is fully laid out
+        bottomNav.post {
+            try {
+                // Find the Options tab view using reflection (similar to profile avatar approach)
+                val menuView = bottomNav.getChildAt(0) as? ViewGroup
+                if (menuView != null) {
+                    // The Options tab is the 4th item (index 3)
+                    val optionsItemView = menuView.getChildAt(3)
+                    
+                    if (optionsItemView != null) {
+                        // Set long click listener directly on the Options tab view
+                        optionsItemView.setOnLongClickListener { view ->
+                            Clogger.d(TAG, "Options tab long-press detected!")
+                            android.util.Log.d(TAG, "🎯 Options long press working!")
+                            
+                            // Add haptic feedback (same as profile avatar)
+                            view.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                            
+                            // Show account switcher
+                            showAccountSwitcher()
+                            true // Consume the event
+                        }
+                        
+                        Clogger.d(TAG, "Successfully set long click listener on Options tab")
+                    } else {
+                        Clogger.e(TAG, "Could not find Options tab view")
+                    }
+                } else {
+                    Clogger.e(TAG, "Could not find bottom navigation menu view")
+                }
+            } catch (e: Exception) {
+                Clogger.e(TAG, "Error setting up Options long click: ${e.message}")
+                
+                // Fallback: Try alternative approach
+                setupOptionsLongClickFallback(bottomNav)
+            }
+        }
     }
+    
+    private fun setupOptionsLongClickFallback(bottomNav: BottomNavigationView) {
+        // Alternative approach: Use touch listener but only for Options tab area
+        bottomNav.setOnTouchListener { view, event ->
+            if (event.action == android.view.MotionEvent.ACTION_DOWN) {
+                // Calculate if touch is in Options tab area (rightmost 25% of bottom nav)
+                val optionsAreaStart = view.width * 0.75f
+                if (event.x >= optionsAreaStart) {
+                    // Schedule long press check
+                    view.postDelayed({
+                        if (view.isPressed) {
+                            Clogger.d(TAG, "Options area long press detected (fallback)")
+                            view.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                            showAccountSwitcher()
+                        }
+                    }, 600)
+                }
+            }
+            false // Don't consume normal events
+        }
+    }
+
     
     private fun showTeamSwitcher() {
         // TODO: Backend - Implement team switching with proper authentication
@@ -233,19 +262,60 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun showAccountSwitcher() {
-        Clogger.d(
-            TAG, "Showing account switcher from HomeActivity"
+        Clogger.d(TAG, "🔄 Account Switcher: Starting to show account switcher")
+        
+        // Also log to system for debugging
+        android.util.Log.d(TAG, "🔄 Account Switcher: Method called")
+
+        // Show account switcher directly from HomeActivity - works from any tab
+        val availableAccounts = listOf(
+            com.ggetters.app.ui.central.models.UserAccount(
+                "1", 
+                "Matthew Pieterse", 
+                "matthew@example.com",
+                null, 
+                "U15a Football", 
+                "Coach", 
+                true
+            ),
+            com.ggetters.app.ui.central.models.UserAccount(
+                "2", 
+                "Matthew Pieterse", 
+                "matthew@example.com",
+                null, 
+                "City FC", 
+                "Coach", 
+                false
+            ),
+            com.ggetters.app.ui.central.models.UserAccount(
+                "3", 
+                "John Smith", 
+                "john@example.com",
+                null, 
+                "United FC", 
+                "Player", 
+                false
+            )
         )
 
-        // Get the current ProfileFragment to show the account switcher
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-        if (currentFragment is ProfileFragment) {
-            currentFragment.showAccountSwitcher()
-        } else {
-            Clogger.e(
-                TAG, "Current fragment is not ProfileFragment"
-            )
-        }
+        com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
+            .newInstance(availableAccounts) { selectedAccount ->
+                // TODO: Backend - Call backend to switch active team
+                // teamRepo.switchActiveTeam(selectedAccount.id)
+                com.google.android.material.snackbar.Snackbar.make(
+                    findViewById(android.R.id.content), 
+                    "Switched to ${selectedAccount.teamName}", 
+                    com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                ).show()
+                
+                // Refresh current fragment if it's ProfileFragment
+                val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+                if (currentFragment is ProfileFragment) {
+                    // Refresh profile with new team data
+                    currentFragment.onResume()
+                }
+            }
+            .show(supportFragmentManager, "AccountSwitcher")
     }
 
 

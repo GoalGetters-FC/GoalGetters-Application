@@ -594,6 +594,7 @@ class MatchControlActivity : AppCompatActivity() {
             putExtra("away_score", matchState.awayScore)
         }
         startActivity(intent)
+        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
         finish() // Close match control activity
     }
     

@@ -111,4 +111,8 @@
     <color name="surface_container_highest">#E8E9EA</color>
     <color name="surface_bright">#FFFFFF</color>
     <color name="surface_dim">#F5F5F5</color>
+    
+    <!-- Football pitch color -->
+    <color name="pitch_green">#2E7D32</color>
+    
 </resources>

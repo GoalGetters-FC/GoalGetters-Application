@@ -1,34 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface"
-    tools:context=".ui.central.views.MatchDetailsActivity">
+    android:orientation="vertical"
+    android:background="@color/surface">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <!-- Header with back button -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:background="@color/surface">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="Match Details"
-            app:titleTextColor="@color/on_primary"
-            android:background="@color/primary" />
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_unicons_arrow_left"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            app:tint="@color/text_secondary" />
 
-    </com.google.android.material.appbar.AppBarLayout>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Match Details"
+            android:textColor="@color/on_surface"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/variable_inter"
+            android:gravity="center" />
 
-    <androidx.core.widget.NestedScrollView
+        <View
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
+
+    </LinearLayout>
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:paddingBottom="88dp"
-        android:clipToPadding="false">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -36,13 +55,206 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Match Header Card -->
+            <!-- Match Info Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/surface_container">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- Match Title -->
+                    <TextView
+                        android:id="@+id/matchTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Match vs Eagles FC"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/on_surface"
+                        android:gravity="center"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- Date & Time -->
+                    <TextView
+                        android:id="@+id/dateTime"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Saturday, Dec 22 • 2:00 PM"
+                        android:textSize="14sp"
+                        android:textColor="@color/on_surface_variant"
+                        android:gravity="center"
+                        android:layout_marginBottom="4dp" />
+
+                    <!-- Venue -->
+                    <TextView
+                        android:id="@+id/venue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Main Stadium"
+                        android:textSize="14sp"
+                        android:textColor="@color/on_surface_variant"
+                        android:gravity="center"
+                        android:layout_marginBottom="20dp" />
+
+                    <!-- Teams Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="20dp">
+
+                        <!-- Home Team -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <!-- Home Team Logo -->
+                            <ImageView
+                                android:id="@+id/homeTeamLogo"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:src="@drawable/ic_unicons_soccer_24"
+                                android:background="@drawable/team_logo_background"
+                                android:scaleType="centerInside"
+                                android:layout_marginBottom="8dp" />
+
+                            <TextView
+                                android:id="@+id/homeTeamName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Goal Getters FC"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/on_surface"
+                                android:gravity="center" />
+
+                        </LinearLayout>
+
+                        <!-- VS Text -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="VS"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/on_surface_variant"
+                            android:layout_marginHorizontal="16dp" />
+
+                        <!-- Away Team -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <!-- Away Team Logo -->
+                            <ImageView
+                                android:id="@+id/awayTeamLogo"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:src="@drawable/ic_unicons_soccer_24"
+                                android:background="@drawable/team_logo_background"
+                                android:scaleType="centerInside"
+                                android:layout_marginBottom="8dp" />
+
+                            <TextView
+                                android:id="@+id/awayTeamName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Eagles FC"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/on_surface"
+                                android:gravity="center" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Score Section -->
+                    <LinearLayout
+                        android:id="@+id/scoreSection"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:visibility="gone"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:id="@+id/homeScore"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/on_surface"
+                            android:background="@drawable/score_background"
+                            android:padding="12dp"
+                            android:minWidth="48dp"
+                            android:gravity="center" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" - "
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/on_surface"
+                            android:layout_marginHorizontal="8dp" />
+
+                        <TextView
+                            android:id="@+id/awayScore"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/on_surface"
+                            android:background="@drawable/score_background"
+                            android:padding="12dp"
+                            android:minWidth="48dp"
+                            android:gravity="center" />
+
+                    </LinearLayout>
+
+                    <!-- Match Status -->
+                    <TextView
+                        android:id="@+id/matchStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Upcoming"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_on_accent"
+                        android:background="@drawable/status_background"
+                        android:padding="6dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="16dp" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- RSVP Section -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
                 app:cardBackgroundColor="@color/surface_container">
 
                 <LinearLayout
@@ -52,138 +264,84 @@
                     android:padding="20dp">
 
                     <TextView
-                        android:id="@+id/matchTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="MATCH vs Eagles FC"
-                        android:textSize="24sp"
+                        android:text="Your Availability"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/on_surface"
-                        android:gravity="center"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="12dp" />
 
-                    <TextView
-                        android:id="@+id/venue"
+                    <!-- RSVP Chips -->
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/rsvpChipGroup"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Main Stadium"
-                        android:textSize="16sp"
-                        android:textColor="@color/on_surface_variant"
-                        android:gravity="center"
-                        android:layout_marginBottom="4dp" />
+                        app:singleSelection="true"
+                        android:layout_marginBottom="16dp">
 
-                    <TextView
-                        android:id="@+id/dateTime"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Dec 22, 2024 at 14:00"
-                        android:textSize="14sp"
-                        android:textColor="@color/on_surface_variant"
-                        android:gravity="center"
-                        android:layout_marginBottom="16dp" />
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/rsvpGoingChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Available"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:textColor="@color/on_surface"
+                            app:chipBackgroundColor="@color/surface_variant" />
 
-                    <!-- Teams and Score Section -->
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/rsvpMaybeChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Maybe"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:textColor="@color/on_surface"
+                            app:chipBackgroundColor="@color/surface_variant" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/rsvpNotGoingChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Unavailable"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:textColor="@color/on_surface"
+                            app:chipBackgroundColor="@color/surface_variant" />
+
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <!-- RSVP Stats -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical">
 
-                        <TextView
-                            android:id="@+id/homeTeam"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:text="Goal Getters FC"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/on_surface"
-                            android:gravity="center" />
-
-                        <TextView
-                            android:id="@+id/scoreDisplay"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="0 - 0"
-                            android:textSize="28sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/primary"
-                            android:gravity="center"
-                            android:background="@drawable/score_background"
-                            android:padding="8dp"
-                            android:clickable="true"
-                            android:focusable="true" />
-
-                        <TextView
-                            android:id="@+id/awayTeam"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:text="Eagles FC"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/on_surface"
-                            android:gravity="center" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- RSVP Stats Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/rsvpStatsCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/surface_container">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Player Availability"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/on_surface"
-                        android:layout_marginBottom="16dp" />
-
-                    <!-- RSVP Stats Grid -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
-
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <View
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:background="@drawable/indicator_available"
+                                android:layout_marginEnd="4dp" />
 
                             <TextView
                                 android:id="@+id/availableCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="12"
-                                android:textSize="24sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/success" />
+                                android:textColor="@color/on_surface" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Available"
+                                android:text=" Available"
                                 android:textSize="12sp"
                                 android:textColor="@color/on_surface_variant" />
 
@@ -193,22 +351,28 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <View
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:background="@drawable/indicator_maybe"
+                                android:layout_marginEnd="4dp" />
 
                             <TextView
                                 android:id="@+id/maybeCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="2"
-                                android:textSize="24sp"
+                                android:text="3"
+                                android:textSize="12sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/warning" />
+                                android:textColor="@color/on_surface" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Maybe"
+                                android:text=" Maybe"
                                 android:textSize="12sp"
                                 android:textColor="@color/on_surface_variant" />
 
@@ -218,62 +382,34 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <View
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:background="@drawable/indicator_unavailable"
+                                android:layout_marginEnd="4dp" />
 
                             <TextView
                                 android:id="@+id/unavailableCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="1"
-                                android:textSize="24sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/error" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Unavailable"
-                                android:textSize="12sp"
-                                android:textColor="@color/on_surface_variant" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
-                            <TextView
-                                android:id="@+id/notRespondedCount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
                                 android:text="2"
-                                android:textSize="24sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/on_surface_variant" />
+                                android:textColor="@color/on_surface" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="No Response"
+                                android:text=" Unavailable"
                                 android:textSize="12sp"
                                 android:textColor="@color/on_surface_variant" />
 
                         </LinearLayout>
 
                     </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/rsvpSummary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="12 available, 2 maybe, 1 unavailable"
-                        android:textSize="14sp"
-                        android:textColor="@color/on_surface_variant"
-                        android:gravity="center" />
 
                 </LinearLayout>
 
@@ -289,46 +425,44 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/viewRosterButton"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="View Roster"
                     android:textSize="14sp"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     app:strokeColor="@color/primary"
-                    app:strokeWidth="2dp" />
+                    app:cornerRadius="8dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/editMatchButton"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
                     android:text="Edit Match"
                     android:textSize="14sp"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     app:strokeColor="@color/outline"
-                    app:strokeWidth="1dp" />
+                    app:cornerRadius="8dp" />
 
             </LinearLayout>
 
         </LinearLayout>
 
-    </androidx.core.widget.NestedScrollView>
+    </ScrollView>
 
     <!-- Bottom Action Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buildLineupButton"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
-        android:layout_gravity="bottom"
+        android:layout_height="56dp"
         android:layout_margin="16dp"
         android:text="Build Lineup"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         style="@style/Widget.Material3.Button"
         app:backgroundTint="@color/primary"
-        app:cornerRadius="12dp"
-        app:elevation="8dp" />
+        app:cornerRadius="12dp" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>
