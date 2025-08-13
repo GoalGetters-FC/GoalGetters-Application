@@ -333,15 +333,7 @@ class ProfileFragment : Fragment() {
         // TODO: Backend - Add logout confirmation and data backup
 
         try {
-            // Clear local storage and preferences
-            // TODO: Clear user session data
-            // TODO: Clear cached data
-            // TODO: Clear preferences
-            
-            // Navigate to login screen
             model.logout()
-            startActivity(Intent(requireContext(), StartActivity::class.java))
-            requireActivity().finishAffinity()
         } catch (e: Exception) {
             Log.e("ProfileFragment", "Error during logout", e)
             Snackbar.make(
