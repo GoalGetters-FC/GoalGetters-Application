@@ -1,48 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GoalGetters</string>
 
     <!-- SignUpActivity -->
-
-    <string name="sign_up_input_identity_hint">
-        Enter your email
-    </string>
-    <string name="sign_up_input_password_default_hint">
-        Enter a strong password
-    </string>
-    <string name="sign_up_input_password_confirm_hint">
-        Confirm your password
-    </string>
-    <string name="sign_up_button_sign_in">
-        Already have an account? Login
-    </string>
-    <string name="sign_up_button_sign_up">
-        Create and continue
-    </string>
-    <string name="sign_up_text_faq">
-        <![CDATA[Help & FAQ]]>
-    </string>
+    <string name="sign_up_input_identity_hint">Enter your email</string>
+    <string name="sign_up_input_password_default_hint">Enter a strong password</string>
+    <string name="sign_up_input_password_confirm_hint">Confirm your password</string>
+    <string name="sign_up_button_sign_in">Already have an account? Login</string>
+    <string name="sign_up_button_sign_up">Create and continue</string>
+    <string name="sign_up_text_faq"><![CDATA[Help & FAQ]]></string>
 
     <!-- SignInActivity -->
-
-    <string name="sign_in_input_identity_hint">
-        Email address
-    </string>
-    <string name="sign_in_input_password_hint">
-        Password
-    </string>
-    <string name="sign_in_button_sso_description">
-        Sign-in with Google
-    </string>
-    <string name="sign_in_button_sign_in">
-        Continue
-    </string>
-    <string name="sign_in_text_view_forgot_password">
-        Forgot password?
-    </string>
-    <string name="sign_in_divider_text">
-        OR
-    </string>
+    <string name="sign_in_input_identity_hint">Email address</string>
+    <string name="sign_in_input_password_hint">Password</string>
+    <string name="sign_in_button_sso_description">Sign-in with Google</string>
+    <string name="sign_in_button_sign_in">Continue</string>
+    <string name="sign_in_text_view_forgot_password">Forgot password?</string>
+    <string name="sign_in_divider_text">OR</string>
     <string name="sign_in_header_text">Sign In</string>
+
     <string name="join_the_field">Join the Field</string>
     <string name="account">Account</string>
     <string name="security">Security</string>
