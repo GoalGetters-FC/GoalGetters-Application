@@ -18,12 +18,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import java.time.format.DateTimeParseException
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Singleton
 class TeamFirestore @Inject constructor(
     private val paths: FirestorePathProvider
 ) {
     private val teamsCol = paths.teamCollection()
+    private val db = FirebaseFirestore.getInstance()
 
     // ---------- Public API ----------
 
@@ -73,6 +75,30 @@ class TeamFirestore @Inject constructor(
             .await()
 
         Clogger.i("TeamFirestore", "User $uid joined team $teamId as $role")
+    }
+
+    /** Remove the current user from a team's membership (safe for all roles). */
+    suspend fun leaveOrDelete(teamId: String) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+            ?: throw IllegalStateException("No logged-in user")
+
+        // 1) Remove membership under the team
+        paths.usersCollection(teamId)               // /teams/{teamId}/users
+            .document(uid)
+            .delete()
+            .await()
+
+        // 2) Remove mirrored membership under the user (if you keep this mirror)
+        runCatching {
+            db.collection("users")                  // /users/{uid}/memberships/{teamId}
+                .document(uid)
+                .collection("memberships")
+                .document(teamId)
+                .delete()
+                .await()
+        }
+
+        Clogger.i("TeamFirestore", "User $uid left team $teamId")
     }
 
     /**
@@ -233,4 +259,6 @@ class TeamFirestore @Inject constructor(
 
     private inline fun <reified T : Enum<T>> safeEnum(value: String, default: T): T =
         runCatching { enumValueOf<T>(value) }.getOrDefault(default)
+
+
 }

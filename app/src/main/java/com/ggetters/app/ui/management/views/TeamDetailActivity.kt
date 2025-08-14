@@ -2,6 +2,7 @@ package com.ggetters.app.ui.management.views
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -186,21 +187,28 @@ class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogLis
 
 
     private fun navigateToEditTeam() {
-        val editDialog = EditTeamDialog.newInstance(
-            teamId = intent.getStringExtra(EXTRA_TEAM_ID),
-            teamName = binds.teamNameText.text.toString(),
-            teamCode = "TES", // TODO: Get from backend
-            teamAlias = "Test", // TODO: Get from backend
-            teamDescription = binds.teamDescriptionText.text.toString(),
-            teamComposition = "UNISEX_MALE", // TODO: Get from backend
-            teamDenomination = "OPEN", // TODO: Get from backend
-            yearFormed = "2025", // TODO: Get from backend
-            contactCell = "", // TODO: Get from backend
-            contactMail = "", // TODO: Get from backend
-            clubAddress = "" // TODO: Get from backend
-        )
-        editDialog.show(supportFragmentManager, EditTeamDialog.TAG)
+        val t = model.team.value
+        if (t == null) {
+            Toast.makeText(this, "Team still loading…", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        EditTeamDialog.newInstance(
+            teamId          = t.id,
+            teamName        = t.name,
+            teamCode        = t.code ?: "",
+            teamAlias       = t.alias ?: "",
+            teamDescription = t.description ?: "",
+            // dialog expects enum names (e.g., "UNISEX_MALE", "OPEN")
+            teamComposition = t.composition.name,
+            teamDenomination= t.denomination.name,
+            yearFormed      = t.yearFormed?.toString() ?: "",
+            contactCell     = t.contactCell ?: "",
+            contactMail     = t.contactMail ?: "",
+            clubAddress     = t.clubAddress ?: ""
+        ).show(supportFragmentManager, EditTeamDialog.TAG)
     }
+
 
     override fun onTeamUpdated(updatedTeam: Team) {
         // Refresh team data after successful edit

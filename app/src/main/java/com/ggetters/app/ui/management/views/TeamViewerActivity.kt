@@ -22,6 +22,8 @@ import com.ggetters.app.ui.shared.modals.JoinTeamBottomSheet
 import com.ggetters.app.ui.shared.models.Clickable
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -85,9 +87,17 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
     }
 
     private fun onItemOptionDeleteClicked(entity: Team) {
-        Toast.makeText(this, "Delete: ${entity.name}", Toast.LENGTH_SHORT).show()
-        // TODO: Implement deletion logic
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Delete ${entity.name}?")
+            .setMessage("This removes it locally right away. Online cleanup happens during sync.")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Delete") { _, _ ->
+                model.deleteTeam(entity)
+                Snackbar.make(binds.root, "Deleted ${entity.name}", Snackbar.LENGTH_SHORT).show()
+            }
+            .show()
     }
+
 
     private fun onCreateTeamSheetSubmitted(teamName: String) {
         // ---- NEW ----
@@ -176,38 +186,5 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
 
         binds.rvAccounts.layoutManager = LinearLayoutManager(this)
         binds.rvAccounts.adapter = adapter
-    }
-
-    // --- Temporary
-
-    private fun seed() {
-        adapter.update(
-            listOf(
-                Team(
-                    code = "U15A",
-                    name = "U15a Football",
-                    alias = "U15A",
-                    description = "Under 15 Football Team",
-                    composition = TeamComposition.UNISEX_MALE,
-                    denomination = TeamDenomination.OPEN,
-                    yearFormed = "2024",
-                    contactCell = "+27123456789",
-                    contactMail = "u15a@goalgetters.app",
-                    clubAddress = "Goal Getters FC"
-                ),
-                Team(
-                    code = "SEN",
-                    name = "Seniors League",
-                    alias = "SEN",
-                    description = "Senior League Team",
-                    composition = TeamComposition.UNISEX_MALE,
-                    denomination = TeamDenomination.OPEN,
-                    yearFormed = "2023",
-                    contactCell = "+27123456789",
-                    contactMail = "seniors@goalgetters.app",
-                    clubAddress = "Goal Getters FC"
-                )
-            )
-        )
     }
 }

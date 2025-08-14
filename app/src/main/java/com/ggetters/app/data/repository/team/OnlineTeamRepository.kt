@@ -70,4 +70,13 @@ class OnlineTeamRepository @Inject constructor(
      */
     suspend fun fetchTeamsForCurrentUser(): List<Team> =
         fs.fetchTeamsForCurrentUser()
+
+
+    suspend fun leaveOrDelete(teamId: String) {
+        fs.leaveOrDelete(teamId)
+    }
+
 }
+
+
+

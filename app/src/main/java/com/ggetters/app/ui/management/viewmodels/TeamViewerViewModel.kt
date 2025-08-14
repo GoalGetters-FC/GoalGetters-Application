@@ -30,12 +30,18 @@ class TeamViewerViewModel @Inject constructor(
     val teams: StateFlow<List<Team>> = repo.getTeamsForCurrentUser()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+
+
     // ---- NEW: Lightweight UI signals ----
     private val _busy = MutableStateFlow(false)
     val busy: StateFlow<Boolean> get() = _busy
 
     private val _toast = MutableSharedFlow<String>()
     val toast: MutableSharedFlow<String> get() = _toast
+
+    sealed interface DeleteState { object Idle : DeleteState; object Deleting : DeleteState; data class Error(val msg:String): DeleteState }
+    private val _delete = MutableStateFlow<DeleteState>(DeleteState.Idle)
+    val delete: StateFlow<DeleteState> = _delete
 
     // TeamViewerViewModel.kt
     fun syncTeams() {
@@ -49,6 +55,17 @@ class TeamViewerViewModel @Inject constructor(
             } catch (e: Throwable) {
                 Clogger.e("TeamViewerVM", "sync() failed", e)
             }
+        }
+    }
+
+    fun deleteTeam(team: Team) = viewModelScope.launch {
+        _delete.value = DeleteState.Deleting
+        runCatching {
+            repo.delete(team); repo.sync()
+        }.onSuccess {
+            _delete.value = DeleteState.Idle
+        }.onFailure {
+            _delete.value = DeleteState.Error(it.message ?: "Failed to delete")
         }
     }
 

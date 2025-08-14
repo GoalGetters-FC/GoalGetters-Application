@@ -25,9 +25,13 @@ class CombinedTeamRepository @Inject constructor(
         offline.upsert(entity) // stains
     }
 
+    // combined repo
     override suspend fun delete(entity: Team) {
         offline.delete(entity)
         // deletion propagation handled by sync() if you add tombstones later
+
+        // Best-effort remote (leave team or delete, depending on role)
+        runCatching { online.leaveOrDelete(entity.id) }
     }
 
     override suspend fun deleteAll() {
