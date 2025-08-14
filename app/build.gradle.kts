@@ -21,6 +21,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    tasks.withType<Test> {
+        useJUnitPlatform()
+    }
 
     buildTypes {
         debug {
@@ -101,6 +104,18 @@ android {
         debugImplementation(libs.androidx.ui.tooling)
         debugImplementation(libs.androidx.ui.test.manifest)
         implementation(libs.androidx.core.splashscreen)
+
+        //  Mockito for Kotlin
+        testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
+        testImplementation("org.mockito:mockito-core:5.12.0")
+        testImplementation("org.mockito:mockito-inline:5.2.0")
+        testImplementation("io.mockk:mockk:1.13.12")
+
+        //  Coroutines test support
+        testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+
+        // AndroidX test core
+        testImplementation("androidx.test:core:1.5.0")
 
         // Firebase
 
