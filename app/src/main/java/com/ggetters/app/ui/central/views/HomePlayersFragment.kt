@@ -27,6 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.widget.AutoCompleteTextView
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 
 // TODO: Backend - Implement real-time player data synchronization
@@ -74,7 +75,7 @@ class HomePlayersFragment : Fragment() {
         setupViews(view)
         setHasOptionsMenu(true)
         setupRecyclerView()
-        loadPlayers()
+        observeActiveTeam()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -92,16 +93,53 @@ class HomePlayersFragment : Fragment() {
         }
     }
 
+    // ✅ NEW: react to active team changes
+    private fun observeActiveTeam() {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            activeModel.activeTeam.collect { team ->
+                if (team == null) {
+                    teamNameText.text = getString(R.string.no_active_team)
+                    teamSportText.text = ""
+                    updatePlayersList(emptyList())
+                    addPlayerFab.isEnabled = false
+                    return@collect
+                }
+
+                // Header
+                teamNameText.text = team.name
+                teamSportText.text = "Football (Soccer)" // or derive from team if you add a field
+
+                addPlayerFab.isEnabled = true
+
+                // TODO: replace with real repo call:
+                // playerRepo.observeByTeamId(team.id).collect { updatePlayersList(it) }
+                // For now keep your demo list:
+                loadPlayers()
+            }
+        }
+    }
+
+    // Small shim: pass teamId into your add-player flow
+    private fun showAddPlayerDialogForTeam(teamId: String) {
+        // your existing dialog UI, but when saving:
+        // playerRepo.add(Player(..., teamId = teamId))
+        showAddPlayerDialog() // keep existing for now; wire to repo when ready
+    }
+
     private fun setupViews(view: View) {
         teamNameText = view.findViewById(R.id.teamNameText)
         teamSportText = view.findViewById(R.id.teamSportText)
         playersRecyclerView = view.findViewById(R.id.playersRecyclerView)
         emptyStateText = view.findViewById(R.id.emptyStateText)
         addPlayerFab = view.findViewById(R.id.addPlayerFab)
-        
-        // Setup FAB click listener
+
         addPlayerFab.setOnClickListener {
-            showAddPlayerDialog()
+            val t = activeModel.activeTeam.value
+            if (t == null) {
+                Snackbar.make(requireView(), "Select an active team first", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            showAddPlayerDialogForTeam(t.id)   // ✅ pass active team id
         }
     }
 
@@ -406,4 +444,6 @@ class HomePlayersFragment : Fragment() {
         emptyStateText.visibility = if (isEmpty) View.VISIBLE else View.GONE
         playersRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
+
+
 } 

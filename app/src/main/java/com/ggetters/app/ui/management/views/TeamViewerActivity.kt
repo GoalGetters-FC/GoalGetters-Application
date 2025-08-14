@@ -1,5 +1,6 @@
 package com.ggetters.app.ui.management.views
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -79,12 +80,21 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
     // --- Delegates
 
     private fun onItemOptionSelectClicked(entity: Team) {
-        // Navigate to TeamDetailActivity
-        val intent = android.content.Intent(this, TeamDetailActivity::class.java)
-        intent.putExtra(TeamDetailActivity.EXTRA_TEAM_ID, entity.code)
-        intent.putExtra(TeamDetailActivity.EXTRA_TEAM_NAME, entity.name)
+        // 1) switch active team (local-first, then sync in VM)
+        model.switchTo(entity)
+
+        // 2) quick feedback
+        Toast.makeText(this, "Switched to ${entity.name}", Toast.LENGTH_SHORT).show()
+
+        // 3) (optional) open details for the now-active team
+        val intent = Intent(this, TeamDetailActivity::class.java).apply {
+            putExtra(TeamDetailActivity.EXTRA_TEAM_ID, entity.id)
+            putExtra(TeamDetailActivity.EXTRA_TEAM_NAME, entity.name)
+        }
         startActivity(intent)
     }
+
+
 
     private fun onItemOptionDeleteClicked(entity: Team) {
         MaterialAlertDialogBuilder(this)

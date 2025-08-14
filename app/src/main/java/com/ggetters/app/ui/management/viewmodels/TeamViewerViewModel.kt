@@ -105,6 +105,13 @@ class TeamViewerViewModel @Inject constructor(
         }
     }
 
+    /** Make this the active team app-wide (local-first), then try to sync. */
+    fun switchTo(team: Team) = viewModelScope.launch {
+        repo.setActiveTeam(team)
+        // optional: mirror to remote immediately
+        runCatching { repo.sync() }
+    }
+
     // ---- NEW: small helper so we can construct a valid Team quickly ----
     private fun buildTeam(name: String): Team {
         val now = Instant.now()

@@ -77,7 +77,9 @@ class CombinedTeamRepository @Inject constructor(
     }
 
     override suspend fun setActiveTeam(team: Team) = offline.setActiveTeam(team)
+
     override fun getActiveTeam() = offline.getActiveTeam()
+
 
     override suspend fun getByCode(code: String): Team? =
         offline.getByCode(code) ?: online.getByCode(code)

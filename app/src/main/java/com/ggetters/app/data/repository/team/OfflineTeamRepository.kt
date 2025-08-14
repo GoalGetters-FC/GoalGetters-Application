@@ -40,8 +40,7 @@ class OfflineTeamRepository @Inject constructor(
     }
 
     override suspend fun setActiveTeam(team: Team) {
-        dao.clearActive()
-        dao.upsert(team.copy(isActive = true))
+        dao.setActiveAtomic(team.id)           // local: instant UI
     }
 
     override fun getActiveTeam(): Flow<Team?> =
