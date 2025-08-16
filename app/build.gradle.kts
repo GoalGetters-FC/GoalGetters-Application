@@ -144,3 +144,7 @@ android {
         implementation("com.google.code.gson:gson:2.10.1")
     }
 }
+dependencies {
+    testImplementation(libs.androidx.core.testing)
+    testImplementation(libs.androidx.core.testing)
+}

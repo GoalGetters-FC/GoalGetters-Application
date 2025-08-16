@@ -21,6 +21,7 @@ navigationCompose = "2.9.2"
 room = "2.7.2"
 roomRuntime = "2.7.2"
 roomKtx = "2.7.2"
+coreTesting = "2.2.0"
 
 [libraries]
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
@@ -53,6 +54,7 @@ firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-fires
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "coreTesting" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
