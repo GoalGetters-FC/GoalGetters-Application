@@ -1,4 +1,4 @@
-// app/src/test/java/com/ggetters/app/core/utils/DevClassTest.kt
+
 package com.ggetters.app.core.utils
 
 import android.app.Application

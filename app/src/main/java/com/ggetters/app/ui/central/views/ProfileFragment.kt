@@ -9,7 +9,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.ggetters.app.R
 import com.ggetters.app.data.model.User
@@ -17,8 +16,6 @@ import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.ui.central.models.UserAccount
 import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
-import com.ggetters.app.ui.central.viewmodels.HomePlayersViewModel
-import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.central.viewmodels.ProfileViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
@@ -75,23 +72,23 @@ class ProfileFragment : Fragment() {
     private fun loadUserProfile() {
         // TODO: Replace with real UserRepository call
         val sampleUser = User(
-            id           = "fake-id-123",
-            createdAt    = Instant.now(),
-            updatedAt    = Instant.now(),
-            stainedAt    = null,
-            code         = null,
-            authId       = "auth123",
-            teamId       = "team1",
-            annexedAt    = null,
-            role         = UserRole.FULL_TIME_PLAYER,
-            name         = "John",
-            surname      = "Doe",
-            alias        = "JohnDoe",
-            dateOfBirth  = LocalDate.of(1990, 1, 1),
-            email        = "john.doe@example.com",
-            position     = null,
-            number       = null,
-            status       = UserStatus.ACTIVE,
+            id = "fake-id-123",
+            createdAt = Instant.now(),
+            updatedAt = Instant.now(),
+            stainedAt = null,
+            code = null,
+            authId = "auth123",
+            teamId = "team1",
+            annexedAt = null,
+            role = UserRole.FULL_TIME_PLAYER,
+            name = "John",
+            surname = "Doe",
+            alias = "JohnDoe",
+            dateOfBirth = LocalDate.of(1990, 1, 1),
+            email = "john.doe@example.com",
+            position = null,
+            number = null,
+            status = UserStatus.ACTIVE,
             healthWeight = null,
             healthHeight = null
         )

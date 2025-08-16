@@ -2,7 +2,6 @@
 package com.ggetters.app.core.utils
 
 import android.app.Application
-import android.content.pm.ApplicationInfo
 import com.ggetters.app.data.model.*
 import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.broadcast.BroadcastRepository
@@ -12,10 +11,7 @@ import com.ggetters.app.data.repository.lineup.LineupRepository
 import com.ggetters.app.data.repository.team.TeamRepository
 import com.ggetters.app.data.repository.user.UserRepository
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
