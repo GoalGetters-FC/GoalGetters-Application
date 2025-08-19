@@ -165,7 +165,8 @@ class LineupFragment : Fragment() {
     private fun setupPlayersGrid() {
         playersAdapter = LineupPlayerGridAdapter(
             onPlayerClick = { player -> handlePlayerSelection(player) },
-            onAddPlayerClick = { showAddPlayer() }
+            onAddPlayerClick = { showAddPlayer() },
+            onPlayerDragStart = { player -> handlePlayerDragStart(player) }
         )
         
         // Grid layout with 4 columns as shown in sketch
@@ -353,6 +354,11 @@ class LineupFragment : Fragment() {
             .setNegativeButton("Cancel", null)
             .show()
     }
+    
+    private fun handlePlayerDragStart(player: PlayerAvailability) {
+        // Player drag started - could add visual feedback here
+        // The actual drop handling is done in FormationPitchView's drag listener
+    }
 
     private fun showAddPlayer() {
         // TODO: Implement add player functionality
@@ -513,44 +519,60 @@ class LineupFragment : Fragment() {
         // Find the closest valid position to the drop point
         val closestPosition = findClosestPosition(dropPoint)
         
-        if (closestPosition != null && closestPosition != position) {
-            // Get the player being dragged
+        if (closestPosition != null) {
+            // Get the player being dragged from the drop event
             val draggedPlayer = pitchView.getPositionedPlayers()[position]
-            val targetPlayer = pitchView.getPositionedPlayers()[closestPosition]
             
             if (draggedPlayer != null) {
-                val currentPositions = pitchView.getPositionedPlayers().toMutableMap()
+                // Player is already on the pitch - handle movement/swapping
+                handlePlayerMovement(position, closestPosition, draggedPlayer)
+            } else {
+                // Player is being dropped from the grid - the FormationPitchView already handled it
+                // Just update the available players grid
+                updateAvailablePlayersGrid()
                 
-                if (targetPlayer != null) {
-                    // Swap players
-                    currentPositions[position] = targetPlayer
-                    currentPositions[closestPosition] = draggedPlayer
-                    pitchView.setPlayers(currentPositions)
-                    
+                // Show success message
+                val player = pitchView.getPositionedPlayers()[closestPosition]
+                player?.let {
                     Snackbar.make(requireView(), 
-                        "Players swapped: ${draggedPlayer.playerName} ↔ ${targetPlayer.playerName}", 
-                        Snackbar.LENGTH_SHORT).show()
-                } else {
-                    // Move player to empty position
-                    currentPositions.remove(position)
-                    currentPositions[closestPosition] = draggedPlayer
-                    pitchView.setPlayers(currentPositions)
-                    
-                    Snackbar.make(requireView(), 
-                        "${draggedPlayer.playerName} moved to $closestPosition", 
+                        "${it.playerName} positioned at $closestPosition", 
                         Snackbar.LENGTH_SHORT).show()
                 }
-                
-                // Update the available players grid
-                updateAvailablePlayersGrid()
-                return
             }
+        } else {
+            // Invalid drop - snap back to original position
+            Snackbar.make(requireView(), 
+                "Invalid position - player returned", 
+                Snackbar.LENGTH_SHORT).show()
+        }
+    }
+    
+    private fun handlePlayerMovement(fromPosition: String, toPosition: String, player: PlayerAvailability) {
+        val currentPositions = pitchView.getPositionedPlayers().toMutableMap()
+        val targetPlayer = currentPositions[toPosition]
+        
+        if (targetPlayer != null) {
+            // Swap players
+            currentPositions[fromPosition] = targetPlayer
+            currentPositions[toPosition] = player
+            pitchView.setPlayers(currentPositions)
+            
+            Snackbar.make(requireView(), 
+                "Players swapped: ${player.playerName} ↔ ${targetPlayer.playerName}", 
+                Snackbar.LENGTH_SHORT).show()
+        } else {
+            // Move player to empty position
+            currentPositions.remove(fromPosition)
+            currentPositions[toPosition] = player
+            pitchView.setPlayers(currentPositions)
+            
+            Snackbar.make(requireView(), 
+                "${player.playerName} moved to $toPosition", 
+                Snackbar.LENGTH_SHORT).show()
         }
         
-        // Invalid drop - snap back to original position
-        Snackbar.make(requireView(), 
-            "Invalid position - player returned", 
-            Snackbar.LENGTH_SHORT).show()
+        // Update the available players grid
+        updateAvailablePlayersGrid()
     }
 
     private fun findClosestPosition(dropPoint: PointF): String? {

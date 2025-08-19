@@ -1,5 +1,6 @@
 package com.ggetters.app.ui.central.views.components
 
+import android.content.ClipDescription
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
@@ -43,6 +44,7 @@ class FormationPitchView @JvmOverloads constructor(
 
     init {
         setupPaints()
+        setupDragListener()
     }
 
     private fun setupPaints() {
@@ -75,6 +77,71 @@ class FormationPitchView @JvmOverloads constructor(
         // Enhanced shadow for player circles
         shadowPaint.color = Color.argb(50, 0, 0, 0)
         shadowPaint.style = Paint.Style.FILL
+    }
+
+    private fun setupDragListener() {
+        setOnDragListener { _, event ->
+            when (event.action) {
+                android.view.DragEvent.ACTION_DRAG_STARTED -> {
+                    // Accept the drag if it's a player
+                    event.clipDescription?.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN) == true
+                }
+                
+                android.view.DragEvent.ACTION_DRAG_ENTERED -> {
+                    // Highlight drop zones when drag enters
+                    invalidate()
+                    true
+                }
+                
+                android.view.DragEvent.ACTION_DRAG_LOCATION -> {
+                    // Update visual feedback based on drag location
+                    val dropPosition = getPositionAtPoint(event.x, event.y)
+                    if (dropPosition != null) {
+                        // Could add visual feedback here
+                    }
+                    true
+                }
+                
+                android.view.DragEvent.ACTION_DROP -> {
+                    val player = event.localState as? PlayerAvailability
+                    if (player != null) {
+                        val position = getPositionAtPoint(event.x, event.y)
+                        if (position != null) {
+                            // Check if the position is already occupied
+                            val currentPlayer = positionedPlayers[position]
+                            if (currentPlayer != null) {
+                                // Position is occupied - this will be handled by the fragment
+                                onPlayerDroppedListener?.invoke(position, PointF(event.x, event.y))
+                            } else {
+                                // Position is empty - add the player directly
+                                val updatedPositions = positionedPlayers.toMutableMap()
+                                updatedPositions[position] = player
+                                positionedPlayers = updatedPositions
+                                invalidate()
+                                
+                                // Notify the fragment about the drop
+                                onPlayerDroppedListener?.invoke(position, PointF(event.x, event.y))
+                            }
+                        }
+                    }
+                    true
+                }
+                
+                android.view.DragEvent.ACTION_DRAG_EXITED -> {
+                    // Remove visual feedback
+                    invalidate()
+                    true
+                }
+                
+                android.view.DragEvent.ACTION_DRAG_ENDED -> {
+                    // Reset any visual feedback
+                    invalidate()
+                    true
+                }
+                
+                else -> true
+            }
+        }
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {

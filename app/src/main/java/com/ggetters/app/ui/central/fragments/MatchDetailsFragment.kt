@@ -8,7 +8,10 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
+import com.ggetters.app.ui.central.adapters.MatchEventAdapter
 import com.ggetters.app.ui.central.models.*
 import com.ggetters.app.ui.central.viewmodels.MatchDetailsViewModel
 import com.google.android.material.card.MaterialCardView
@@ -45,9 +48,16 @@ class MatchDetailsFragment : Fragment() {
     private lateinit var awayScoreText: TextView
     private lateinit var scoreCard: MaterialCardView
     private lateinit var matchStatusText: TextView
+    private lateinit var eventsRecyclerView: RecyclerView
+    private lateinit var emptyEventsState: View
+    private lateinit var eventsCard: MaterialCardView
+    
+    // Adapters
+    private lateinit var eventsAdapter: MatchEventAdapter
     
     // Match data
     private lateinit var matchDetails: MatchDetails
+    private var matchEvents = listOf<MatchEvent>()
 
     companion object {
         fun newInstance(
@@ -96,6 +106,7 @@ class MatchDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         initializeViews(view)
+        setupEventsRecyclerView()
         loadMatchData()
         observeViewModel()
     }
@@ -118,6 +129,23 @@ class MatchDetailsFragment : Fragment() {
         
         // Status
         matchStatusText = view.findViewById(R.id.matchStatus)
+        
+        // Events
+        eventsRecyclerView = view.findViewById(R.id.eventsRecyclerView)
+        emptyEventsState = view.findViewById(R.id.emptyEventsState)
+        eventsCard = view.findViewById(R.id.eventsCard)
+    }
+    
+    private fun setupEventsRecyclerView() {
+        eventsAdapter = MatchEventAdapter(
+            onEventClick = { event -> handleEventClick(event) },
+            onEventLongClick = { event -> handleEventLongClick(event) }
+        )
+        
+        eventsRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = eventsAdapter
+        }
     }
 
     private fun loadMatchData() {
@@ -138,12 +166,15 @@ class MatchDetailsFragment : Fragment() {
             date = date,
             time = timeFormatter.format(date),
             homeScore = 2, // Sample score - will be 0 for upcoming matches
-            awayScore = 1,
+            awayScore = 2,
             status = MatchStatus.FULL_TIME, // Sample status
             rsvpStats = RSVPStats(12, 3, 2, 1),
             playerAvailability = emptyList(),
             createdBy = "Coach"
         )
+        
+        // Load sample match events
+        loadSampleMatchEvents()
         
         updateUI()
     }
@@ -165,6 +196,7 @@ class MatchDetailsFragment : Fragment() {
         // Score and status
         updateScoreDisplay()
         updateMatchStatus()
+        updateEventsDisplay()
     }
 
     private fun updateScoreDisplay() {
@@ -221,6 +253,131 @@ class MatchDetailsFragment : Fragment() {
         }
         
         matchStatusText.setTextColor(statusColor)
+    }
+    
+    private fun loadSampleMatchEvents() {
+        // Sample match events based on the image
+        matchEvents = listOf(
+            // Match start
+            MatchEvent(
+                matchId = matchId,
+                eventType = MatchEventType.MATCH_START,
+                minute = 0,
+                createdBy = "Referee"
+            ),
+            // First goal by Julian Robertson (13)
+            MatchEvent(
+                matchId = matchId,
+                eventType = MatchEventType.GOAL,
+                minute = 13,
+                playerId = "13",
+                playerName = "Julian Robertson",
+                teamId = "home",
+                teamName = homeTeam,
+                createdBy = "Coach"
+            ),
+            // Half time
+            MatchEvent(
+                matchId = matchId,
+                eventType = MatchEventType.HALF_TIME,
+                minute = 45,
+                createdBy = "Referee"
+            ),
+            // Opponent red card
+            MatchEvent(
+                matchId = matchId,
+                eventType = MatchEventType.RED_CARD,
+                minute = 52,
+                playerId = "opponent1",
+                playerName = "Opponent",
+                teamId = "away",
+                teamName = awayTeam,
+                createdBy = "Referee"
+            ),
+            // Opponent red card (second)
+            MatchEvent(
+                matchId = matchId,
+                eventType = MatchEventType.RED_CARD,
+                minute = 58,
+                playerId = "opponent2",
+                playerName = "Opponent",
+                teamId = "away",
+                teamName = awayTeam,
+                createdBy = "Referee"
+            ),
+            // Opponent yellow card
+            MatchEvent(
+                matchId = matchId,
+                eventType = MatchEventType.YELLOW_CARD,
+                minute = 65,
+                playerId = "opponent3",
+                playerName = "Opponent",
+                teamId = "away",
+                teamName = awayTeam,
+                createdBy = "Referee"
+            ),
+            // Substitution: Robertson -> Messi
+            MatchEvent(
+                matchId = matchId,
+                eventType = MatchEventType.SUBSTITUTION,
+                minute = 72,
+                playerId = "9",
+                playerName = "Robertson",
+                teamId = "home",
+                teamName = homeTeam,
+                details = mapOf(
+                    "playerOut" to "Robertson",
+                    "playerIn" to "Messi"
+                ),
+                createdBy = "Coach"
+            ),
+            // Goal by Messi
+            MatchEvent(
+                matchId = matchId,
+                eventType = MatchEventType.GOAL,
+                minute = 78,
+                playerId = "12",
+                playerName = "Lionardo Messi",
+                teamId = "home",
+                teamName = homeTeam,
+                createdBy = "Coach"
+            ),
+            // Match end
+            MatchEvent(
+                matchId = matchId,
+                eventType = MatchEventType.MATCH_END,
+                minute = 90,
+                createdBy = "Referee"
+            )
+        )
+    }
+    
+    private fun updateEventsDisplay() {
+        if (matchEvents.isEmpty()) {
+            eventsCard.visibility = View.GONE
+        } else {
+            eventsCard.visibility = View.VISIBLE
+            eventsAdapter.updateEvents(matchEvents)
+            
+            // Show/hide empty state
+            if (matchEvents.isEmpty()) {
+                emptyEventsState.visibility = View.VISIBLE
+                eventsRecyclerView.visibility = View.GONE
+            } else {
+                emptyEventsState.visibility = View.GONE
+                eventsRecyclerView.visibility = View.VISIBLE
+            }
+        }
+    }
+    
+    private fun handleEventClick(event: MatchEvent) {
+        // TODO: Show event details
+        // Could show a bottom sheet with more details about the event
+    }
+    
+    private fun handleEventLongClick(event: MatchEvent) {
+        // TODO: Show event actions (edit/delete for coaches)
+        // Could show a context menu with options
     }
 
     private fun observeViewModel() {

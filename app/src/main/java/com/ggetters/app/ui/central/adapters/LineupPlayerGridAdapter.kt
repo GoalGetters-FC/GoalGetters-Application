@@ -1,5 +1,7 @@
 package com.ggetters.app.ui.central.adapters
 
+import android.content.ClipData
+import android.content.ClipDescription
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +12,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.PlayerAvailability
+import com.ggetters.app.ui.central.models.RSVPStatus
 
 class LineupPlayerGridAdapter(
     private val onPlayerClick: (PlayerAvailability) -> Unit,
-    private val onAddPlayerClick: () -> Unit
+    private val onAddPlayerClick: () -> Unit,
+    private val onPlayerDragStart: (PlayerAvailability) -> Unit = {}
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var players = listOf<PlayerAvailability>()
@@ -80,14 +84,40 @@ class LineupPlayerGridAdapter(
                 onPlayerClick(player)
             }
             
+            // Setup drag and drop for available players
+            setupDragAndDrop(player)
+            
             // Styling based on availability (could be used for visual feedback)
             when (player.status) {
-                com.ggetters.app.ui.central.models.RSVPStatus.AVAILABLE -> {
+                RSVPStatus.AVAILABLE -> {
                     itemView.alpha = 1.0f
                 }
                 else -> {
                     itemView.alpha = 0.7f
                 }
+            }
+        }
+        
+        private fun setupDragAndDrop(player: PlayerAvailability) {
+            if (player.status == RSVPStatus.UNAVAILABLE) return
+            
+            itemView.setOnLongClickListener { view ->
+                onPlayerDragStart(player)
+                
+                val item = ClipData.Item(player.playerId)
+                val dragData = ClipData(
+                    "Player",
+                    arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
+                    item
+                )
+                
+                val shadowBuilder = View.DragShadowBuilder(view)
+                view.startDragAndDrop(dragData, shadowBuilder, player, 0)
+                
+                // Hide the original view during drag
+                view.alpha = 0.5f
+                
+                true
             }
         }
     }
