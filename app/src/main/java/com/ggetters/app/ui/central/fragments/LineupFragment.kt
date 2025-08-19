@@ -9,6 +9,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import android.widget.Spinner
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
@@ -19,6 +20,7 @@ import com.ggetters.app.ui.central.models.PlayerAvailability
 import com.ggetters.app.ui.central.models.RSVPStatus
 import com.ggetters.app.ui.central.viewmodels.LineupViewModel
 import com.ggetters.app.ui.central.views.components.FormationPitchView
+import com.ggetters.app.ui.central.sheets.MatchEventsBottomSheet
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -43,6 +45,7 @@ class LineupFragment : Fragment() {
     private lateinit var searchButton: ImageButton
     private lateinit var pitchView: FormationPitchView
     private lateinit var playersRecyclerView: RecyclerView
+    private lateinit var fabMatchEvents: FloatingActionButton
     
     // Adapters
     private lateinit var playersAdapter: LineupPlayerGridAdapter
@@ -99,10 +102,16 @@ class LineupFragment : Fragment() {
         searchButton = view.findViewById(R.id.searchButton)
         pitchView = view.findViewById(R.id.pitchView)
         playersRecyclerView = view.findViewById(R.id.playersRecyclerView)
+        fabMatchEvents = view.findViewById(R.id.fabMatchEvents)
         
         // Search button click
         searchButton.setOnClickListener {
             showPlayerSearch()
+        }
+        
+        // FAB click - track match events
+        fabMatchEvents.setOnClickListener {
+            showMatchEventsBottomSheet()
         }
         
         // Setup pitch interactions
@@ -156,7 +165,8 @@ class LineupFragment : Fragment() {
     private fun setupPlayersGrid() {
         playersAdapter = LineupPlayerGridAdapter(
             onPlayerClick = { player -> handlePlayerSelection(player) },
-            onAddPlayerClick = { showAddPlayer() }
+            onAddPlayerClick = { showAddPlayer() },
+            onPlayerDragStart = { player -> handlePlayerDragStart(player) }
         )
         
         // Grid layout with 4 columns as shown in sketch
@@ -193,16 +203,19 @@ class LineupFragment : Fragment() {
             PlayerAvailability("20", "Nick Allen", "SUB", 20, RSVPStatus.AVAILABLE)
         )
         
-        // Update players grid
-        playersAdapter.updatePlayers(availablePlayers)
-        
         // Set initial formation on pitch
         updatePitchFormation()
+        
+        // Update players grid (exclude players on pitch)
+        updateAvailablePlayersGrid()
     }
 
     private fun changeFormation(newFormation: String) {
         currentFormation = newFormation
         updatePitchFormation()
+        
+        // Update available players grid after formation change
+        updateAvailablePlayersGrid()
         
         Snackbar.make(requireView(), 
             "Formation changed to $newFormation", 
@@ -230,7 +243,7 @@ class LineupFragment : Fragment() {
             "GK" to availablePlayers.find { it.position == "GK" },
             "LB" to availablePlayers.find { it.position == "LB" },
             "CB1" to availablePlayers.find { it.position == "CB" },
-            "CB2" to availablePlayers.getOrNull(1),
+            "CB2" to availablePlayers.filter { it.position == "CB" }.getOrNull(1),
             "RB" to availablePlayers.find { it.position == "RB" },
             "CM1" to availablePlayers.find { it.position == "CM" },
             "CM2" to availablePlayers.filter { it.position == "CM" }.getOrNull(1),
@@ -244,23 +257,79 @@ class LineupFragment : Fragment() {
     }
 
     private fun setup442Formation() {
-        // TODO: Implement 4-4-2 formation setup
-        pitchView.setPlayers(emptyMap())
+        // 4-4-2 formation setup
+        val formationPlayers = mapOf(
+            "GK" to availablePlayers.find { it.position == "GK" },
+            "LB" to availablePlayers.find { it.position == "LB" },
+            "CB1" to availablePlayers.find { it.position == "CB" },
+            "CB2" to availablePlayers.filter { it.position == "CB" }.getOrNull(1),
+            "RB" to availablePlayers.find { it.position == "RB" },
+            "LM" to availablePlayers.find { it.position == "CM" },
+            "CM1" to availablePlayers.filter { it.position == "CM" }.getOrNull(1),
+            "CM2" to availablePlayers.filter { it.position == "CM" }.getOrNull(2),
+            "RM" to availablePlayers.filter { it.position == "CM" }.getOrNull(3),
+            "ST1" to availablePlayers.find { it.position == "ST" },
+            "ST2" to (availablePlayers.filter { it.position == "ST" }.getOrNull(1) ?: availablePlayers.find { it.position == "FW" })
+        )
+        
+        pitchView.setPlayers(formationPlayers)
     }
 
     private fun setup352Formation() {
-        // TODO: Implement 3-5-2 formation setup
-        pitchView.setPlayers(emptyMap())
+        // 3-5-2 formation setup
+        val formationPlayers = mapOf(
+            "GK" to availablePlayers.find { it.position == "GK" },
+            "CB1" to availablePlayers.find { it.position == "CB" },
+            "CB2" to availablePlayers.filter { it.position == "CB" }.getOrNull(1),
+            "CB3" to availablePlayers.filter { it.position == "CB" }.getOrNull(2),
+            "LWB" to availablePlayers.find { it.position == "LB" },
+            "CM1" to availablePlayers.find { it.position == "CM" },
+            "CM2" to availablePlayers.filter { it.position == "CM" }.getOrNull(1),
+            "CM3" to availablePlayers.filter { it.position == "CM" }.getOrNull(2),
+            "RWB" to availablePlayers.find { it.position == "RB" },
+            "ST1" to availablePlayers.find { it.position == "ST" },
+            "ST2" to (availablePlayers.filter { it.position == "ST" }.getOrNull(1) ?: availablePlayers.find { it.position == "FW" })
+        )
+        
+        pitchView.setPlayers(formationPlayers)
     }
 
     private fun setup4231Formation() {
-        // TODO: Implement 4-2-3-1 formation setup
-        pitchView.setPlayers(emptyMap())
+        // 4-2-3-1 formation setup
+        val formationPlayers = mapOf(
+            "GK" to availablePlayers.find { it.position == "GK" },
+            "LB" to availablePlayers.find { it.position == "LB" },
+            "CB1" to availablePlayers.find { it.position == "CB" },
+            "CB2" to availablePlayers.filter { it.position == "CB" }.getOrNull(1),
+            "RB" to availablePlayers.find { it.position == "RB" },
+            "CDM1" to availablePlayers.find { it.position == "CM" },
+            "CDM2" to availablePlayers.filter { it.position == "CM" }.getOrNull(1),
+            "LW" to availablePlayers.find { it.position == "FW" },
+            "CAM" to availablePlayers.filter { it.position == "CM" }.getOrNull(2),
+            "RW" to availablePlayers.filter { it.position == "FW" }.getOrNull(1),
+            "ST" to availablePlayers.find { it.position == "ST" }
+        )
+        
+        pitchView.setPlayers(formationPlayers)
     }
 
     private fun setup532Formation() {
-        // TODO: Implement 5-3-2 formation setup
-        pitchView.setPlayers(emptyMap())
+        // 5-3-2 formation setup
+        val formationPlayers = mapOf(
+            "GK" to availablePlayers.find { it.position == "GK" },
+            "LB" to availablePlayers.find { it.position == "LB" },
+            "CB1" to availablePlayers.find { it.position == "CB" },
+            "CB2" to availablePlayers.filter { it.position == "CB" }.getOrNull(1),
+            "CB3" to availablePlayers.filter { it.position == "CB" }.getOrNull(2),
+            "RB" to availablePlayers.find { it.position == "RB" },
+            "CM1" to availablePlayers.find { it.position == "CM" },
+            "CM2" to availablePlayers.filter { it.position == "CM" }.getOrNull(1),
+            "CM3" to availablePlayers.filter { it.position == "CM" }.getOrNull(2),
+            "ST1" to availablePlayers.find { it.position == "ST" },
+            "ST2" to (availablePlayers.filter { it.position == "ST" }.getOrNull(1) ?: availablePlayers.find { it.position == "FW" })
+        )
+        
+        pitchView.setPlayers(formationPlayers)
     }
 
     private fun handlePlayerSelection(player: PlayerAvailability) {
@@ -284,6 +353,11 @@ class LineupFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+    
+    private fun handlePlayerDragStart(player: PlayerAvailability) {
+        // Player drag started - could add visual feedback here
+        // The actual drop handling is done in FormationPitchView's drag listener
     }
 
     private fun showAddPlayer() {
@@ -382,11 +456,31 @@ class LineupFragment : Fragment() {
             .show()
     }
 
+    private fun updateAvailablePlayersGrid() {
+        // Filter out players who are already positioned on the pitch
+        val positionedPlayers = pitchView.getPositionedPlayers().values.filterNotNull()
+        val availableForBench = availablePlayers.filter { player ->
+            !positionedPlayers.contains(player)
+        }
+        
+        // Update the grid adapter with only available players
+        playersAdapter.updatePlayers(availableForBench)
+        
+        // Update squad count display
+        val totalSquad = availablePlayers.size
+        val onPitch = positionedPlayers.size
+        val squadCountText = "Squad (${totalSquad - onPitch}/$totalSquad)"
+        // Note: We'll need to update the header text in the layout if there's a reference to it
+    }
+
     private fun positionPlayer(player: PlayerAvailability, position: String) {
         // TODO: Backend - Update player position
         val currentPositions = pitchView.getPositionedPlayers().toMutableMap()
         currentPositions[position] = player
         pitchView.setPlayers(currentPositions)
+        
+        // Update the available players grid to exclude this player
+        updateAvailablePlayersGrid()
         
         Snackbar.make(requireView(), 
             "${player.playerName} positioned at $position", 
@@ -398,6 +492,9 @@ class LineupFragment : Fragment() {
         val currentPositions = pitchView.getPositionedPlayers().toMutableMap()
         currentPositions.remove(position)
         pitchView.setPlayers(currentPositions)
+        
+        // Update the available players grid to include the removed player
+        updateAvailablePlayersGrid()
         
         Snackbar.make(requireView(), 
             "Player removed from $position", 
@@ -419,16 +516,95 @@ class LineupFragment : Fragment() {
     }
 
     private fun handlePlayerDrop(position: String, dropPoint: PointF) {
-        // TODO: Handle drag and drop repositioning
-        // For now, just validate the drop
-        if (pitchView.isValidDropPosition(position, dropPoint)) {
-            Snackbar.make(requireView(), 
-                "Player repositioned", 
-                Snackbar.LENGTH_SHORT).show()
+        // Find the closest valid position to the drop point
+        val closestPosition = findClosestPosition(dropPoint)
+        
+        if (closestPosition != null) {
+            // Get the player being dragged from the drop event
+            val draggedPlayer = pitchView.getPositionedPlayers()[position]
+            
+            if (draggedPlayer != null) {
+                // Player is already on the pitch - handle movement/swapping
+                handlePlayerMovement(position, closestPosition, draggedPlayer)
+            } else {
+                // Player is being dropped from the grid - the FormationPitchView already handled it
+                // Just update the available players grid
+                updateAvailablePlayersGrid()
+                
+                // Show success message
+                val player = pitchView.getPositionedPlayers()[closestPosition]
+                player?.let {
+                    Snackbar.make(requireView(), 
+                        "${it.playerName} positioned at $closestPosition", 
+                        Snackbar.LENGTH_SHORT).show()
+                }
+            }
         } else {
+            // Invalid drop - snap back to original position
             Snackbar.make(requireView(), 
-                "Invalid position", 
+                "Invalid position - player returned", 
                 Snackbar.LENGTH_SHORT).show()
         }
+    }
+    
+    private fun handlePlayerMovement(fromPosition: String, toPosition: String, player: PlayerAvailability) {
+        val currentPositions = pitchView.getPositionedPlayers().toMutableMap()
+        val targetPlayer = currentPositions[toPosition]
+        
+        if (targetPlayer != null) {
+            // Swap players
+            currentPositions[fromPosition] = targetPlayer
+            currentPositions[toPosition] = player
+            pitchView.setPlayers(currentPositions)
+            
+            Snackbar.make(requireView(), 
+                "Players swapped: ${player.playerName} ↔ ${targetPlayer.playerName}", 
+                Snackbar.LENGTH_SHORT).show()
+        } else {
+            // Move player to empty position
+            currentPositions.remove(fromPosition)
+            currentPositions[toPosition] = player
+            pitchView.setPlayers(currentPositions)
+            
+            Snackbar.make(requireView(), 
+                "${player.playerName} moved to $toPosition", 
+                Snackbar.LENGTH_SHORT).show()
+        }
+        
+        // Update the available players grid
+        updateAvailablePlayersGrid()
+    }
+
+    private fun findClosestPosition(dropPoint: PointF): String? {
+        val availablePositions = pitchView.getAvailablePositions()
+        var closestPosition: String? = null
+        var minDistance = Float.MAX_VALUE
+        val maxSnapDistance = 80f // Maximum distance for snapping
+        
+        for (position in availablePositions) {
+            val positionPoint = getPositionPoint(position)
+            if (positionPoint != null) {
+                val distance = kotlin.math.sqrt(
+                    ((dropPoint.x - positionPoint.x) * (dropPoint.x - positionPoint.x) + 
+                     (dropPoint.y - positionPoint.y) * (dropPoint.y - positionPoint.y)).toDouble()
+                ).toFloat()
+                
+                if (distance < minDistance && distance <= maxSnapDistance) {
+                    minDistance = distance
+                    closestPosition = position
+                }
+            }
+        }
+        
+        return closestPosition
+    }
+
+    private fun getPositionPoint(position: String): PointF? {
+        return pitchView.getPositionCoordinates(position)
+    }
+
+    private fun showMatchEventsBottomSheet() {
+        val bottomSheet = MatchEventsBottomSheet.newInstance()
+        bottomSheet.show(parentFragmentManager, "MatchEventsBottomSheet")
     }
 }
