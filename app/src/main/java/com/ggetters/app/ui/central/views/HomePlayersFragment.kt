@@ -46,7 +46,7 @@ class HomePlayersFragment : Fragment() {
 	private val sharedModel: HomeViewModel by activityViewModels()
 
 	private lateinit var playersRecyclerView: RecyclerView
-	private lateinit var emptyStateText: TextView
+	private lateinit var emptyStateText: View
 	private lateinit var teamNameText: TextView
 	private lateinit var teamSportText: TextView
 	private lateinit var addPlayerFab: FloatingActionButton

@@ -11,27 +11,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="20dp"
-        android:gravity="center_vertical"
-        android:background="@color/white"
-        android:elevation="2dp">
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="12dp"
+        android:gravity="center_vertical">
 
-        <!-- Team Avatar -->
-        <FrameLayout
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_marginEnd="16dp">
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:src="@drawable/ic_unicons_soccer_24"
-                android:background="@drawable/circle_background"
-                android:scaleType="centerCrop" />
-
-        </FrameLayout>
-
-        <!-- Team Info -->
+        <!-- Team Info (left) -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -42,7 +28,7 @@
                 android:id="@+id/teamNameText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="U15a Football"
+                android:text="U18 Johannesburg"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"
@@ -60,7 +46,7 @@
 
         </LinearLayout>
 
-        <!-- Action Icons -->
+        <!-- Action Icons (right) -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -72,14 +58,14 @@
                 android:src="@drawable/ic_unicons_bell_24"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:layout_marginEnd="16dp"
-                app:tint="@color/text_secondary" />
+                app:tint="@color/black" />
 
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_unicons_settings_24"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                app:tint="@color/text_secondary" />
+                app:tint="@color/black" />
 
         </LinearLayout>
 
@@ -102,16 +88,42 @@
             android:paddingEnd="16dp" />
 
         <!-- Empty State -->
-        <TextView
+        <LinearLayout
             android:id="@+id/emptyStateText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No players found"
-            android:textColor="@color/text_secondary"
-            android:textSize="16sp"
-            android:visibility="gone"
+            android:orientation="vertical"
+            android:gravity="center"
             android:layout_gravity="center"
-            android:fontFamily="@font/variable_inter" />
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_unicons_bell_24"
+                app:tint="@color/text_secondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Get Started"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/text_secondary"
+                android:fontFamily="@font/variable_inter"
+                android:layout_marginTop="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="We couldn't find players in your team.\nCheck your internet connection to refresh or\nadd players to start scoring!"
+                android:textSize="13sp"
+                android:textColor="@color/text_secondary"
+                android:fontFamily="@font/variable_inter"
+                android:gravity="center"
+                android:layout_marginTop="8dp" />
+
+        </LinearLayout>
 
         <!-- Add Player FAB -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton

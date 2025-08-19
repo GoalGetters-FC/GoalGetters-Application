@@ -250,6 +250,10 @@ class PlayerProfileFragment : Fragment() {
             setEditing(false)
             Snackbar.make(requireView(), "Profile updated", Snackbar.LENGTH_SHORT).show()
         }
+
+        view?.findViewById<MaterialButton>(R.id.btnDeleteProfile)?.setOnClickListener {
+            confirmDelete()
+        }
     }
     
     private fun showEditProfileDialog() {
@@ -302,6 +306,25 @@ class PlayerProfileFragment : Fragment() {
             dateOfBirth = playerDateOfBirthInput.text?.toString()?.trim(),
             joinedDate = existing?.joinedDate
         )
+    }
+
+    private fun confirmDelete() {
+        val name = currentPlayer?.name ?: "this player"
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Delete Player")
+            .setMessage("Are you sure you want to delete $name? This action cannot be undone.")
+            .setPositiveButton("Delete") { _, _ ->
+                deletePlayer()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deletePlayer() {
+        // TODO: Backend - Remove player from repository
+        // e.g., playerRepo.delete(currentPlayer.id)
+        Snackbar.make(requireView(), "Player deleted", Snackbar.LENGTH_SHORT).show()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
     
     private fun showSendMessageDialog() {
