@@ -10,7 +10,8 @@ import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.Player
 
 class PlayerAdapter(
-    private val onPlayerClick: (Player) -> Unit
+    private val onPlayerClick: (Player) -> Unit,
+    private val onPlayerLongPress: (Player) -> Unit = {}
 ) : RecyclerView.Adapter<PlayerAdapter.PlayerViewHolder>() {
     
     private var players: List<Player> = emptyList()
@@ -43,6 +44,16 @@ class PlayerAdapter(
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onPlayerClick(players[position])
+                }
+            }
+
+            itemView.setOnLongClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onPlayerLongPress(players[position])
+                    true
+                } else {
+                    false
                 }
             }
         }
