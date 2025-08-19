@@ -129,6 +129,9 @@ class PlayerProfileFragment : Fragment() {
         val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, roleOptions)
         playerStatusDropdown.setAdapter(statusAdapter)
         playerRoleDropdown.setAdapter(roleAdapter)
+        
+        // Setup date picker for date of birth
+        setupDatePicker()
     }
     
     private fun loadPlayerProfile() {
@@ -164,7 +167,7 @@ class PlayerProfileFragment : Fragment() {
     
     private fun displayPlayerInfo(player: Player) {
         playerName.text = player.name
-        playerAge.text = "16 yo" // Calculate age from dateOfBirth
+        playerAge.text = calculateAge(player.dateOfBirth) + " yo"
         
         // Populate form fields
         playerNameInput.setText(player.name)
@@ -175,7 +178,7 @@ class PlayerProfileFragment : Fragment() {
         
         // Set dropdown values
         playerStatusDropdown.setText("Fulltime Player")
-        playerRoleDropdown.setText("Center Striker")
+        playerRoleDropdown.setText(player.position)
         
         // Display statistics
         statsGoals.text = player.stats.goals.toString()
@@ -187,6 +190,30 @@ class PlayerProfileFragment : Fragment() {
         
         // TODO: Load player avatar using Glide/Coil
         // Glide.with(this).load(player.avatar).into(playerAvatar)
+    }
+    
+    private fun calculateAge(dateOfBirth: String?): String {
+        if (dateOfBirth.isNullOrEmpty()) return "Unknown"
+        
+        return try {
+            val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+            val birthDate = dateFormat.parse(dateOfBirth)
+            if (birthDate != null) {
+                val today = java.util.Calendar.getInstance()
+                val birthCalendar = java.util.Calendar.getInstance()
+                birthCalendar.time = birthDate
+                
+                var age = today.get(java.util.Calendar.YEAR) - birthCalendar.get(java.util.Calendar.YEAR)
+                if (today.get(java.util.Calendar.DAY_OF_YEAR) < birthCalendar.get(java.util.Calendar.DAY_OF_YEAR)) {
+                    age--
+                }
+                age.toString()
+            } else {
+                "Unknown"
+            }
+        } catch (e: Exception) {
+            "Unknown"
+        }
     }
     
     private fun setupRoleVisibility() {
@@ -225,7 +252,14 @@ class PlayerProfileFragment : Fragment() {
     
     private fun setupActions() {
         btnEditProfile.setOnClickListener {
-            setEditing(true)
+            if (isEditing) {
+                // Cancel edit mode
+                currentPlayer?.let { displayPlayerInfo(it) }
+                setEditing(false)
+            } else {
+                // Enter edit mode
+                setEditing(true)
+            }
         }
         
         btnSendMessage.setOnClickListener {
@@ -243,12 +277,14 @@ class PlayerProfileFragment : Fragment() {
         }
 
         view?.findViewById<MaterialButton>(R.id.btnSaveProfile)?.setOnClickListener {
-            val updated = collectPlayerFromInputs()
-            // TODO: Persist via repository (e.g., UserRepository.upsert)
-            currentPlayer = updated
-            displayPlayerInfo(updated)
-            setEditing(false)
-            Snackbar.make(requireView(), "Profile updated", Snackbar.LENGTH_SHORT).show()
+            if (validateInputs()) {
+                val updated = collectPlayerFromInputs()
+                // TODO: Persist via repository (e.g., UserRepository.upsert)
+                currentPlayer = updated
+                displayPlayerInfo(updated)
+                setEditing(false)
+                Snackbar.make(requireView(), "Profile updated successfully", Snackbar.LENGTH_SHORT).show()
+            }
         }
 
         view?.findViewById<MaterialButton>(R.id.btnDeleteProfile)?.setOnClickListener {
@@ -263,26 +299,85 @@ class PlayerProfileFragment : Fragment() {
 
     private fun setEditing(enabled: Boolean) {
         isEditing = enabled
-        // Toggle input states
-        playerNameInput.isEnabled = enabled
-        playerNumberInput.isEnabled = enabled
-        playerEmailInput.isEnabled = enabled
-        playerDateOfBirthInput.isEnabled = enabled
-        playerContactInput.isEnabled = enabled
-        playerStatusDropdown.isEnabled = enabled
-        playerStatusDropdown.isClickable = enabled
-        playerStatusDropdown.isFocusable = enabled
-        playerRoleDropdown.isEnabled = enabled
-        playerRoleDropdown.isClickable = enabled
-        playerRoleDropdown.isFocusable = enabled
+        
+        // Toggle input states with visual feedback
+        val inputFields = listOf(
+            playerNameInput, playerNumberInput, playerEmailInput, 
+            playerDateOfBirthInput, playerContactInput
+        )
+        
+        inputFields.forEach { field ->
+            field.isEnabled = enabled
+            field.alpha = if (enabled) 1.0f else 0.6f
+        }
+        
+        // Toggle dropdown states
+        val dropdowns = listOf(playerStatusDropdown, playerRoleDropdown)
+        dropdowns.forEach { dropdown ->
+            dropdown.isEnabled = enabled
+            dropdown.isClickable = enabled
+            dropdown.isFocusable = enabled
+            dropdown.alpha = if (enabled) 1.0f else 0.6f
+        }
 
         // Toggle action rows
         actionButtonsRow?.visibility = if (enabled) View.GONE else View.VISIBLE
         editActionsRow.visibility = if (enabled) View.VISIBLE else View.GONE
 
+        // Update button text and icon
+        btnEditProfile.text = if (enabled) "Cancel Edit" else "Edit Profile"
+        
         if (enabled) {
             playerNameInput.requestFocus()
+            // Show keyboard
+            val imm = requireActivity().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            imm.showSoftInput(playerNameInput, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+        } else {
+            // Hide keyboard
+            val imm = requireActivity().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            imm.hideSoftInputFromWindow(requireView().windowToken, 0)
         }
+    }
+
+    private fun validateInputs(): Boolean {
+        val name = playerNameInput.text?.toString()?.trim().orEmpty()
+        val number = playerNumberInput.text?.toString()?.trim().orEmpty()
+        val email = playerEmailInput.text?.toString()?.trim().orEmpty()
+        val contact = playerContactInput.text?.toString()?.trim().orEmpty()
+        val role = playerRoleDropdown.text?.toString()?.trim().orEmpty()
+        val status = playerStatusDropdown.text?.toString()?.trim().orEmpty()
+        
+        if (name.isEmpty()) {
+            playerNameInput.error = "Name is required"
+            return false
+        }
+        
+        if (number.isEmpty()) {
+            playerNumberInput.error = "Player number is required"
+            return false
+        }
+        
+        if (email.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            playerEmailInput.error = "Invalid email format"
+            return false
+        }
+        
+        if (contact.isNotEmpty() && contact.length < 10) {
+            playerContactInput.error = "Contact number too short"
+            return false
+        }
+        
+        if (role.isEmpty()) {
+            playerRoleDropdown.error = "Player role is required"
+            return false
+        }
+        
+        if (status.isEmpty()) {
+            playerStatusDropdown.error = "Player status is required"
+            return false
+        }
+        
+        return true
     }
 
     private fun collectPlayerFromInputs(): Player {
@@ -330,6 +425,47 @@ class PlayerProfileFragment : Fragment() {
     private fun showSendMessageDialog() {
         // TODO: Backend - Implement messaging functionality
         Snackbar.make(requireView(), "Messaging functionality coming soon", Snackbar.LENGTH_SHORT).show()
+    }
+    
+    private fun setupDatePicker() {
+        playerDateOfBirthInput.setOnClickListener {
+            if (isEditing) {
+                showDatePicker()
+            }
+        }
+    }
+    
+    private fun showDatePicker() {
+        val calendar = java.util.Calendar.getInstance()
+        
+        // Try to parse existing date
+        val existingDate = playerDateOfBirthInput.text?.toString()
+        if (!existingDate.isNullOrEmpty()) {
+            try {
+                val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                val date = dateFormat.parse(existingDate)
+                if (date != null) {
+                    calendar.time = date
+                }
+            } catch (e: Exception) {
+                // Use current date if parsing fails
+            }
+        }
+        
+        val datePickerDialog = android.app.DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val selectedDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                playerDateOfBirthInput.setText(selectedDate)
+            },
+            calendar.get(java.util.Calendar.YEAR),
+            calendar.get(java.util.Calendar.MONTH),
+            calendar.get(java.util.Calendar.DAY_OF_MONTH)
+        )
+        
+        // Set max date to today (no future dates for date of birth)
+        datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
+        datePickerDialog.show()
     }
     
     private fun showPlayerHistory() {
