@@ -1,6 +1,5 @@
 package com.ggetters.app.ui.central.views
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,20 +11,22 @@ import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.Player
 import com.ggetters.app.ui.central.models.PlayerStats
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import android.widget.AutoCompleteTextView
+import android.widget.ArrayAdapter
 
 class PlayerProfileFragment : Fragment() {
     
     companion object {
         private const val ARG_PLAYER_ID = "player_id"
+        private const val ARG_START_EDITING = "start_editing"
         
-        fun newInstance(playerId: String): PlayerProfileFragment {
+        fun newInstance(playerId: String, startEditing: Boolean = false): PlayerProfileFragment {
             val fragment = PlayerProfileFragment()
             val args = Bundle()
             args.putString(ARG_PLAYER_ID, playerId)
+            args.putBoolean(ARG_START_EDITING, startEditing)
             fragment.arguments = args
             return fragment
         }
@@ -57,14 +58,20 @@ class PlayerProfileFragment : Fragment() {
     private lateinit var btnEditProfile: MaterialButton
     private lateinit var btnSendMessage: MaterialButton
     private lateinit var btnViewHistory: MaterialButton
+    private lateinit var editActionsRow: View
+    private var actionButtonsRow: ViewGroup? = null
     
     // TODO: Backend - Get user role from backend/UserRepository
     private val userRole = "coach"
+
+    private var isEditing: Boolean = false
+    private var currentPlayer: Player? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             playerId = it.getString(ARG_PLAYER_ID)
+            isEditing = it.getBoolean(ARG_START_EDITING, false)
         }
     }
     
@@ -82,6 +89,8 @@ class PlayerProfileFragment : Fragment() {
         loadPlayerProfile()
         setupRoleVisibility()
         setupActions()
+        // If launched to edit directly
+        if (isEditing) setEditing(true)
     }
     
     private fun setupViews(view: View) {
@@ -110,6 +119,16 @@ class PlayerProfileFragment : Fragment() {
         btnEditProfile = view.findViewById(R.id.btnEditProfile)
         btnSendMessage = view.findViewById(R.id.btnSendMessage)
         btnViewHistory = view.findViewById(R.id.btnViewHistory)
+        editActionsRow = view.findViewById(R.id.editActionsRow)
+        actionButtonsRow = btnEditProfile.parent as? ViewGroup
+
+        // Setup dropdown adapters
+        val statusOptions = listOf("Fulltime Player", "Part-time Player", "Trialist", "Injured")
+        val roleOptions = listOf("Goalkeeper", "Defender", "Midfielder", "Forward", "Center Striker")
+        val statusAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, statusOptions)
+        val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, roleOptions)
+        playerStatusDropdown.setAdapter(statusAdapter)
+        playerRoleDropdown.setAdapter(roleAdapter)
     }
     
     private fun loadPlayerProfile() {
@@ -139,6 +158,7 @@ class PlayerProfileFragment : Fragment() {
             joinedDate = "2024-01-15"
         )
         
+        currentPlayer = player
         displayPlayerInfo(player)
     }
     
@@ -205,7 +225,7 @@ class PlayerProfileFragment : Fragment() {
     
     private fun setupActions() {
         btnEditProfile.setOnClickListener {
-            showEditProfileDialog()
+            setEditing(true)
         }
         
         btnSendMessage.setOnClickListener {
@@ -215,11 +235,73 @@ class PlayerProfileFragment : Fragment() {
         btnViewHistory.setOnClickListener {
             showPlayerHistory()
         }
+
+        view?.findViewById<MaterialButton>(R.id.btnCancelEdit)?.setOnClickListener {
+            // Revert edits
+            currentPlayer?.let { displayPlayerInfo(it) }
+            setEditing(false)
+        }
+
+        view?.findViewById<MaterialButton>(R.id.btnSaveProfile)?.setOnClickListener {
+            val updated = collectPlayerFromInputs()
+            // TODO: Persist via repository (e.g., UserRepository.upsert)
+            currentPlayer = updated
+            displayPlayerInfo(updated)
+            setEditing(false)
+            Snackbar.make(requireView(), "Profile updated", Snackbar.LENGTH_SHORT).show()
+        }
     }
     
     private fun showEditProfileDialog() {
         // TODO: Backend - Show edit profile dialog/screen
         Snackbar.make(requireView(), "Edit profile functionality coming soon", Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun setEditing(enabled: Boolean) {
+        isEditing = enabled
+        // Toggle input states
+        playerNameInput.isEnabled = enabled
+        playerNumberInput.isEnabled = enabled
+        playerEmailInput.isEnabled = enabled
+        playerDateOfBirthInput.isEnabled = enabled
+        playerContactInput.isEnabled = enabled
+        playerStatusDropdown.isEnabled = enabled
+        playerStatusDropdown.isClickable = enabled
+        playerStatusDropdown.isFocusable = enabled
+        playerRoleDropdown.isEnabled = enabled
+        playerRoleDropdown.isClickable = enabled
+        playerRoleDropdown.isFocusable = enabled
+
+        // Toggle action rows
+        actionButtonsRow?.visibility = if (enabled) View.GONE else View.VISIBLE
+        editActionsRow.visibility = if (enabled) View.VISIBLE else View.GONE
+
+        if (enabled) {
+            playerNameInput.requestFocus()
+        }
+    }
+
+    private fun collectPlayerFromInputs(): Player {
+        val existing = currentPlayer
+        val fullName = playerNameInput.text?.toString()?.trim().orEmpty()
+        val nameParts = fullName.split(' ', limit = 2)
+        val firstName = nameParts.getOrNull(0) ?: ""
+        val lastName = nameParts.getOrNull(1) ?: ""
+
+        return Player(
+            id = existing?.id ?: (playerId ?: "1"),
+            firstName = firstName,
+            lastName = lastName,
+            position = playerRoleDropdown.text?.toString()?.trim().orEmpty(),
+            jerseyNumber = playerNumberInput.text?.toString()?.trim().orEmpty(),
+            avatar = existing?.avatar,
+            isActive = existing?.isActive ?: true,
+            stats = existing?.stats ?: PlayerStats(0,0,0,0,0,0),
+            email = playerEmailInput.text?.toString()?.trim(),
+            phone = playerContactInput.text?.toString()?.trim(),
+            dateOfBirth = playerDateOfBirthInput.text?.toString()?.trim(),
+            joinedDate = existing?.joinedDate
+        )
     }
     
     private fun showSendMessageDialog() {

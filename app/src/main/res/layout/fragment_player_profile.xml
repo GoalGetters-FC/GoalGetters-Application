@@ -103,7 +103,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Fulltime Player"
-                    android:inputType="none" />
+                    android:inputType="none"
+                    android:enabled="false"
+                    android:clickable="false"
+                    android:focusable="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -120,7 +123,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Center Striker"
-                    android:inputType="none" />
+                    android:inputType="none"
+                    android:enabled="false"
+                    android:clickable="false"
+                    android:focusable="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -148,7 +154,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Matthew Pieterse"
-                    android:inputType="textPersonName" />
+                    android:inputType="textPersonName"
+                    android:enabled="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -165,7 +172,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="10"
-                    android:inputType="number" />
+                    android:inputType="number"
+                    android:enabled="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -182,7 +190,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="matthew@example.com"
-                    android:inputType="textEmailAddress" />
+                    android:inputType="textEmailAddress"
+                    android:enabled="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -199,7 +208,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="2008-05-15"
-                    android:inputType="date" />
+                    android:inputType="date"
+                    android:enabled="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -216,7 +226,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="+27 82 123 4567"
-                    android:inputType="phone" />
+                    android:inputType="phone"
+                    android:enabled="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -553,6 +564,35 @@
                 android:text="View History"
                 android:icon="@drawable/ic_unicons_chart_24"
                 android:iconTint="#007AFF" />
+
+        </LinearLayout>
+
+        <!-- Edit mode actions -->
+        <LinearLayout
+            android:id="@+id/editActionsRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="20dp"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelEdit"
+                style="@style/Widget.GoalGetters.Button.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel"
+                android:layout_marginEnd="8dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveProfile"
+                style="@style/Widget.GoalGetters.Button.Filled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save Changes"
+                />
 
         </LinearLayout>
 

@@ -45,8 +45,12 @@ class PlayerDetailsFragment : Fragment() {
         
         // Setup other UI elements
         binding.editPlayerButton.setOnClickListener {
-            // TODO: Navigate to edit player screen
             Clogger.d(TAG, "Edit player clicked")
+            val playerId = "1" // TODO: Use real player id
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, PlayerProfileFragment.newInstance(playerId, startEditing = true))
+                .addToBackStack("player_details_to_profile_edit")
+                .commit()
         }
         
         binding.playerStatsButton.setOnClickListener {
