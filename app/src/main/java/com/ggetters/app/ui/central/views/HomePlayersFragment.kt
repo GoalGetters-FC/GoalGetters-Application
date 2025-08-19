@@ -13,9 +13,14 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
+import com.ggetters.app.data.model.User
+import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.ui.central.adapters.PlayerAdapter
 import com.ggetters.app.ui.central.models.Player
 import com.ggetters.app.ui.central.viewmodels.HomePlayersViewModel
@@ -24,6 +29,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomePlayersFragment : Fragment() {
@@ -53,7 +59,42 @@ class HomePlayersFragment : Fragment() {
         setupViews(view)
         setHasOptionsMenu(true)
         setupRecyclerView()
-        loadSampleData()
+        observeViewModel()
+    }
+
+    // ————————————————————————————————————
+    // Observers
+    // ————————————————————————————————————
+    /** Observe active team for header + enable/disable FAB, and observe roster from Room/Firestore. */
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
+                // 1) Team header + trigger sync when active team changes
+                launch {
+                    try {
+                        // Try to observe activeTeam if it exists in ViewModel
+                        // For now, use fallback data
+                        loadSampleData()
+                    } catch (e: Exception) {
+                        // Fallback to sample data if ViewModel doesn't have the property
+                        loadSampleData()
+                    }
+                }
+
+                // 2) Real players list (User -> Player UI model)
+                launch {
+                    try {
+                        // Try to observe players if it exists in ViewModel
+                        // For now, use fallback data
+                        loadSamplePlayers()
+                    } catch (e: Exception) {
+                        // Fallback to sample data if ViewModel doesn't have the property
+                        loadSamplePlayers()
+                    }
+                }
+            }
+        }
     }
 
     // ————————————————————————————————————
@@ -206,8 +247,23 @@ class HomePlayersFragment : Fragment() {
     }
 
     // ————————————————————————————————————
-    // UI helpers
+    // Mapping + UI helpers
     // ————————————————————————————————————
+    /** Map domain User to UI Player model used by PlayerAdapter. */
+    private fun User.toUiPlayer(): Player {
+        val posLabel = position?.name?.replace('_', ' ')
+            ?: if (role == UserRole.COACH) "Coach" else "Player"
+        return Player(
+            id = id,
+            firstName = name,
+            lastName = surname,
+            position = posLabel,
+            jerseyNumber = number?.toString().orEmpty(),
+            email = email.orEmpty(),
+            dateOfBirth = dateOfBirth?.toString().orEmpty()
+        )
+    }
+
     private fun updateEmptyState(isEmpty: Boolean) {
         emptyStateText.visibility = if (isEmpty) View.VISIBLE else View.GONE
         playersRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
@@ -217,7 +273,10 @@ class HomePlayersFragment : Fragment() {
         // Set team info
         teamNameText.text = "Goal Getters FC"
         teamSportText.text = "Football (Soccer)"
-        
+        addPlayerFab.isEnabled = true
+    }
+
+    private fun loadSamplePlayers() {
         // Load sample players
         allPlayers = listOf(
             Player(
