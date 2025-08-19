@@ -1,11 +1,21 @@
 package com.ggetters.app.data.remote.firestore
 
 import com.ggetters.app.data.model.User
+import com.ggetters.app.data.model.UserPosition
+import com.ggetters.app.data.model.UserRole
+import com.ggetters.app.data.model.UserStatus
+import com.ggetters.app.data.remote.FirestorePathProvider
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Date
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+
+import com.google.firebase.Timestamp
+import java.time.Instant
+import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,100 +25,94 @@ import javax.inject.Singleton
  * Provides real-time streams and suspend functions for CRUD operations
  * against the "users" collection in Firestore.
  */
+// app/src/main/java/com/ggetters/app/data/remote/firestore/UserFirestore.kt
 @Singleton
 class UserFirestore @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val paths: FirestorePathProvider
 ) {
+    // callers MUST pass teamId explicitly (or inject active team upstream)
 
-    // Reference to the "users" collection in Firestore
-    private val usersCol = firestore.collection("user")
-
-    /**
-     * Observe all users in real time.
-     * Emits the full list whenever any document in the collection changes.
-     *
-     * @return a [Flow] emitting the current list of [User] objects
-     */
-    fun observeAll(): Flow<List<User>> = callbackFlow {
-        val subscription = usersCol.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                // Close the flow if an error occurs
-                close(error)
-            } else {
-                // Convert documents to User objects and emit
-                val users = snapshot?.toObjects(User::class.java).orEmpty()
-                trySend(users).isSuccess
-            }
+    fun observeForTeam(teamId: String): Flow<List<User>> = callbackFlow {
+        val col = paths.usersCollection(teamId) // /teams/{teamId}/users
+        val sub = col.addSnapshotListener { snap, err ->
+            if (err != null) { close(err); return@addSnapshotListener }
+            val list = snap?.documents.orEmpty().mapNotNull { it.toUser(teamId) }
+            trySend(list).isSuccess
         }
-        // Remove the listener when the flow collector is cancelled
-        awaitClose { subscription.remove() }
+        awaitClose { sub.remove() }
     }
 
-    /**
-     * Fetch a single [User] by its document ID.
-     *
-     * @param id the UUID of the user document
-     * @return the [User] object, or null if not found
-     */
-    suspend fun getById(id: String): User? =
-        usersCol
-            .document(id.toString())
-            .get()
-            .await()
-            .toObject(User::class.java)
+    suspend fun getById(teamId: String, id: String): User? =
+        paths.usersCollection(teamId).document(id).get().await().toUser(teamId)
 
-    /**
-     * Save or overwrite a [User] in Firestore.
-     * Creates the document if it does not exist.
-     *
-     * @param user the [User] object to save
-     */
-    suspend fun save(user: User) {
-        usersCol
-            .document(user.id.toString())
-            .set(user)
-            .await()
+    suspend fun upsert(teamId: String, u: User) {
+        paths.usersCollection(teamId).document(u.id).set(u.toFirestoreMap()).await()
     }
 
-    /**
-     * Delete a user document by its UUID.
-     *
-     * @param id the UUID of the user document to delete
-     */
-    suspend fun delete(id: String) {
-        usersCol
-            .document(id.toString())
-            .delete()
-            .await()
+    suspend fun delete(teamId: String, id: String) {
+        paths.usersCollection(teamId).document(id).delete().await()
     }
 
-    /*
-    Delete all users in the collection.
-     */
-    suspend fun deleteAll() {
-        usersCol
-            .get()
-            .await()
-            .documents
-            .forEach { document ->
-                document.reference.delete().await()
-            }
+    suspend fun fetchAll(teamId: String): List<User> =
+        paths.usersCollection(teamId).get().await().documents.mapNotNull { it.toUser(teamId) }
+
+    // ---- mapping helpers ----
+    private fun DocumentSnapshot.toUser(teamId: String): User? {
+        val id = id
+        val authId = getString("authId") ?: id
+        val role = getString("role")?.let { runCatching { UserRole.valueOf(it) }.getOrNull() }
+            ?: UserRole.FULL_TIME_PLAYER
+
+        val dobIso = getString("dateOfBirth")
+        return User(
+            id = id,
+            authId = authId,
+            teamId = teamId,
+            createdAt = readInstant("createdAt") ?: Instant.now(),
+            updatedAt = readInstant("updatedAt") ?: Instant.now(),
+            joinedAt = readInstant("joinedAt"),
+            role = role,
+            name = getString("name") ?: "",
+            surname = getString("surname") ?: "",
+            alias = getString("alias") ?: "",
+            dateOfBirth = dobIso?.let(LocalDate::parse),
+            email = getString("email"),
+            position = getString("position")?.let { runCatching { UserPosition.valueOf(it) }.getOrNull() },
+            number = (get("number") as? Number)?.toInt(),
+            status = getString("status")?.let { runCatching { UserStatus.valueOf(it) }.getOrNull() } ?: UserStatus.ACTIVE,
+            healthWeight = (get("healthWeight") as? Number)?.toDouble(),
+            healthHeight = (get("healthHeight") as? Number)?.toDouble()
+        )
     }
 
+    private fun User.toFirestoreMap(): Map<String, Any?> = mapOf(
+        "id" to id,
+        "authId" to authId,
+        "teamId" to teamId,
+        "createdAt" to Timestamp(Date.from(createdAt)),
+        "updatedAt" to Timestamp(Date.from(updatedAt)),
+        "joinedAt" to joinedAt?.let { Timestamp(Date.from(it)) },
+        "role" to role.name,
+        "name" to name,
+        "surname" to surname,
+        "alias" to alias,
+        "dateOfBirth" to dateOfBirth?.toString(), // ISO
+        "email" to email,
+        "position" to position?.name,
+        "number" to number,
+        "status" to status?.name,
+        "healthWeight" to healthWeight,
+        "healthHeight" to healthHeight
+    )
 
-    /**
-     * Fetch a single [User] by their authentication ID.
-     *
-     * @param authId the authentication ID to search for
-     * @return the [User] object, or null if not found
-     */
-    suspend fun getByAuthId(authId: String): User? =
-        usersCol
-            .whereEqualTo("authId", authId)
-            .limit(1)  // We only need one result
-            .get()
-            .await()
-            .documents
-            .firstOrNull()
-            ?.toObject(User::class.java)
+    private fun DocumentSnapshot.readInstant(vararg keys: String): Instant? {
+        for (k in keys) when (val v = get(k)) {
+            is Timestamp -> return v.toDate().toInstant()
+            is Date -> return v.toInstant()
+            is Number -> return Instant.ofEpochMilli(v.toLong())
+            is String -> runCatching { Instant.parse(v) }.getOrNull()?.let { return it }
+        }
+        return null
+    }
 }
+

@@ -103,6 +103,10 @@ class CombinedEventRepository @Inject constructor(
     override fun getEventsByCreator(creatorId: String): Flow<List<Event>> =
         offline.getEventsByCreator(creatorId)
 
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun deleteAll() {
         try {
             offline.deleteAll()

@@ -59,6 +59,10 @@ class OnlineEventRepository @Inject constructor(
         throw NotImplementedError("Remote creator filtering not yet implemented")
     }
 
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun deleteAll() {
         Clogger.i("DevClass", "NEED-TO-DO-Deleting all events from remote Firestore")
 

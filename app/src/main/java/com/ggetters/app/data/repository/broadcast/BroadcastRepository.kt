@@ -6,6 +6,7 @@ import com.ggetters.app.data.repository.CrudRepository
 
 interface BroadcastRepository : CrudRepository<Broadcast>
 {
+    fun hydrateForTeam(id: String)
 
 
 }

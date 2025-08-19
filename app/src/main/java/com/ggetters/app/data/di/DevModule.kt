@@ -1,6 +1,7 @@
 package com.ggetters.app.data.di
 
 import android.app.Application
+import com.ggetters.app.core.usecases.ResetAndRehydrate   // ← import
 import com.ggetters.app.core.utils.DevClass
 import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.broadcast.BroadcastRepository
@@ -9,7 +10,6 @@ import com.ggetters.app.data.repository.event.EventRepository
 import com.ggetters.app.data.repository.lineup.LineupRepository
 import com.ggetters.app.data.repository.team.TeamRepository
 import com.ggetters.app.data.repository.user.UserRepository
-
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,7 +30,8 @@ object DevModule {
         eventRepo: EventRepository,
         broadcastRepo: BroadcastRepository,
         broadcastStatusRepo: BroadcastStatusRepository,
-        lineupRepo: LineupRepository
+        lineupRepo: LineupRepository,
+        resetAndRehydrate: ResetAndRehydrate
     ): DevClass = DevClass(
         app = app,
         teamRepo = teamRepo,
@@ -39,6 +40,7 @@ object DevModule {
         eventRepo = eventRepo,
         broadcastRepo = broadcastRepo,
         broadcastStatusRepo = broadcastStatusRepo,
-        lineupRepo = lineupRepo
+        lineupRepo = lineupRepo,
+        resetAndRehydrate = resetAndRehydrate
     )
 }

@@ -1,5 +1,6 @@
 package com.ggetters.app.ui.management.views
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -22,6 +23,8 @@ import com.ggetters.app.ui.shared.modals.JoinTeamBottomSheet
 import com.ggetters.app.ui.shared.models.Clickable
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -46,8 +49,6 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         setupTouchListeners()
         setupRecyclerView()
 
-
-
         observe()
     }
 
@@ -59,30 +60,63 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
                 adapter.update(teams)
             }
         }
+
+        // ---- NEW: toast + busy collectors ----
+        lifecycleScope.launch {
+            model.toast.collectLatest { msg ->
+                Toast.makeText(this@TeamViewerActivity, msg, Toast.LENGTH_SHORT).show()
+            }
+        }
+        lifecycleScope.launch {
+            model.busy.collectLatest { isBusy ->
+                // If you don't have a progress view yet, add a small ProgressBar with id "progress"
+                val progress = binds.root.findViewById<View?>(R.id.progress)
+                progress?.visibility = if (isBusy) View.VISIBLE else View.GONE
+            }
+        }
     }
 
 
     // --- Delegates
 
     private fun onItemOptionSelectClicked(entity: Team) {
-        // Navigate to TeamDetailActivity
-        val intent = android.content.Intent(this, TeamDetailActivity::class.java)
-        intent.putExtra(TeamDetailActivity.EXTRA_TEAM_ID, entity.code)
-        intent.putExtra(TeamDetailActivity.EXTRA_TEAM_NAME, entity.name)
+        // 1) switch active team (local-first, then sync in VM)
+        model.switchTo(entity)
+
+        // 2) quick feedback
+        Toast.makeText(this, "Switched to ${entity.name}", Toast.LENGTH_SHORT).show()
+
+        // 3) (optional) open details for the now-active team
+        val intent = Intent(this, TeamDetailActivity::class.java).apply {
+            putExtra(TeamDetailActivity.EXTRA_TEAM_ID, entity.id)
+            putExtra(TeamDetailActivity.EXTRA_TEAM_NAME, entity.name)
+        }
         startActivity(intent)
     }
 
+
+
     private fun onItemOptionDeleteClicked(entity: Team) {
-        Toast.makeText(this, "Delete: ${entity.name}", Toast.LENGTH_SHORT).show()
-        // TODO: Implement deletion logic
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Delete ${entity.name}?")
+            .setMessage("This removes it locally right away. Online cleanup happens during sync.")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Delete") { _, _ ->
+                model.deleteTeam(entity)
+                Snackbar.make(binds.root, "Deleted ${entity.name}", Snackbar.LENGTH_SHORT).show()
+            }
+            .show()
     }
 
+
     private fun onCreateTeamSheetSubmitted(teamName: String) {
-        // TODO
+        // ---- NEW ----
+        model.createTeamFromName(teamName)
     }
 
     private fun onJoinTeamSheetSubmitted(teamCode: String, userCode: String) {
-        // TODO
+        // ---- NEW ----
+        model.joinByCode(teamCode, userCode)
     }
 
     // --- Event Handlers
@@ -162,38 +196,5 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
 
         binds.rvAccounts.layoutManager = LinearLayoutManager(this)
         binds.rvAccounts.adapter = adapter
-    }
-
-    // --- Temporary
-
-    private fun seed() {
-        adapter.update(
-            listOf(
-                Team(
-                    code = "U15A",
-                    name = "U15a Football",
-                    alias = "U15A",
-                    description = "Under 15 Football Team",
-                    composition = TeamComposition.UNISEX_MALE,
-                    denomination = TeamDenomination.OPEN,
-                    yearFormed = "2024",
-                    contactCell = "+27123456789",
-                    contactMail = "u15a@goalgetters.app",
-                    clubAddress = "Goal Getters FC"
-                ),
-                Team(
-                    code = "SEN",
-                    name = "Seniors League",
-                    alias = "SEN",
-                    description = "Senior League Team",
-                    composition = TeamComposition.UNISEX_MALE,
-                    denomination = TeamDenomination.OPEN,
-                    yearFormed = "2023",
-                    contactCell = "+27123456789",
-                    contactMail = "seniors@goalgetters.app",
-                    clubAddress = "Goal Getters FC"
-                )
-            )
-        )
     }
 }

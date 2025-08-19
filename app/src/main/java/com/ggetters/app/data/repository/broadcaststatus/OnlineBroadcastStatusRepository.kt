@@ -28,4 +28,8 @@ class OnlineBroadcastStatusRepository @Inject constructor(
     override suspend fun deleteAll() {
         Clogger.i("DevClass", "deleteAll called")
     }
+
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
 }

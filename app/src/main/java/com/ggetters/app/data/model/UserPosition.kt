@@ -6,7 +6,11 @@ enum class UserPosition {
     FORWARD,
     DEFENDER,
     GOALKEEPER,
-    UNKNOWN
+    UNKNOWN,
+    CENTER_BACK,
+    FULL_BACK,
+    WINGER,
+    STRIKER
 }
 
 // FOR NOW

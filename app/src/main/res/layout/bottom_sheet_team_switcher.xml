@@ -32,7 +32,6 @@
             android:src="@drawable/ic_unicons_close_24"
             android:background="?attr/selectableItemBackgroundBorderless"
             app:tint="@color/text_secondary" />
-
     </LinearLayout>
 
     <!-- Subtitle -->
@@ -42,147 +41,24 @@
         android:text="Select a team to switch to from the list"
         android:textSize="14sp"
         android:textColor="@color/text_secondary"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="16dp"
         android:fontFamily="@font/variable_inter" />
 
-    <!-- Team List -->
-    <LinearLayout
+    <!-- Team list (dynamic) -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginBottom="24dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="16dp">
 
-        <!-- Current Team Option -->
-        <LinearLayout
-            android:id="@+id/currentTeamOption"
+        <RadioGroup
+            android:id="@+id/teamRadioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="16dp"
-            android:background="?attr/selectableItemBackground"
-            android:layout_marginBottom="8dp">
-
-            <RadioButton
-                android:id="@+id/currentTeamRadio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:layout_marginEnd="12dp"
-                android:buttonTint="@color/yellow" />
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_unicons_soccer_24"
-                android:background="@drawable/circle_background"
-                android:layout_marginEnd="12dp"
-                app:tint="@color/yellow" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="U15a Football"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:fontFamily="@font/variable_inter" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Coach • 15 members"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary"
-                    android:fontFamily="@font/variable_inter" />
-
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="(45)"
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary"
-                android:background="@drawable/notification_badge"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:fontFamily="@font/variable_inter" />
-
-        </LinearLayout>
-
-        <!-- Other Team Option -->
-        <LinearLayout
-            android:id="@+id/otherTeamOption"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="16dp"
-            android:background="?attr/selectableItemBackground"
-            android:layout_marginBottom="8dp">
-
-            <RadioButton
-                android:id="@+id/otherTeamRadio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:layout_marginEnd="12dp"
-                android:buttonTint="@color/text_secondary" />
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_unicons_soccer_24"
-                android:background="@drawable/circle_background"
-                android:layout_marginEnd="12dp"
-                app:tint="@color/info" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Seniors League"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:fontFamily="@font/variable_inter" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="F-P • 10 members"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary"
-                    android:fontFamily="@font/variable_inter" />
-
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="(2)"
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary"
-                android:background="@drawable/notification_badge"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:fontFamily="@font/variable_inter" />
-
-        </LinearLayout>
-
-    </LinearLayout>
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp" />
+    </ScrollView>
 
     <!-- Default Team Section -->
     <LinearLayout
@@ -190,7 +66,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="24dp">
+        android:layout_marginBottom="16dp">
 
         <TextView
             android:layout_width="0dp"
@@ -206,7 +82,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true" />
-
     </LinearLayout>
 
     <!-- Action Buttons -->
@@ -217,11 +92,11 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/switchTeamButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Switch to Selected Team"
-            android:layout_marginBottom="8dp"
-            style="@style/Widget.MaterialComponents.Button" />
+            android:layout_marginBottom="8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/manageTeamsButton"
@@ -233,7 +108,6 @@
             android:textColor="@color/black"
             app:strokeColor="@color/text_secondary"
             app:strokeWidth="1dp" />
-
     </LinearLayout>
 
-</LinearLayout> 
+</LinearLayout>
