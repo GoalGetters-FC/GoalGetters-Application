@@ -2,17 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:background="?android:attr/selectableItemBackground"
         android:orientation="vertical"
         android:layout_marginBottom="12dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent">
 
     <com.google.android.material.card.MaterialCardView
+            android:id="@+id/container"
             app:cardCornerRadius="24dp"
             app:strokeWidth="0dp"
             app:cardBackgroundColor="#FFFFFF"
             app:contentPadding="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"
             android:layout_height="wrap_content"
             android:layout_width="match_parent">
 
@@ -73,16 +76,52 @@
                     android:layout_height="wrap_content"
                     android:layout_width="0dp">
 
-                <TextView
-                        android:id="@+id/tv_user_name"
-                        android:text="Fortune Martinez"
-                        android:textColor="#161620"
-                        android:textSize="16sp"
-                        android:textFontWeight="500"
-                        android:fontFamily="@font/variable_inter"
+                <LinearLayout
+                        android:orientation="horizontal"
                         android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        tools:ignore="HardcodedText" />
+                        android:layout_width="match_parent">
+
+                    <TextView
+                            android:id="@+id/tv_user_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Fortune Martinez"
+                            android:textColor="#161620"
+                            android:textSize="16sp"
+                            android:textFontWeight="500"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:fontFamily="@font/variable_inter"
+                            tools:ignore="HardcodedText" />
+
+                    <Space
+                            android:layout_height="0dp"
+                            android:layout_width="8dp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cv_chip"
+                            app:cardBackgroundColor="#F2F2F2"
+                            app:cardCornerRadius="8dp"
+                            app:strokeWidth="0dp"
+                            app:contentPadding="2dp"
+                            app:contentPaddingRight="6dp"
+                            app:contentPaddingLeft="6dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content">
+
+                        <TextView
+                                android:id="@+id/tv_chip"
+                                android:text="You"
+                                android:textColor="#4B4D4F"
+                                android:textSize="11sp"
+                                android:textFontWeight="600"
+                                android:fontFamily="@font/variable_inter"
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                tools:ignore="HardcodedText" />
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
 
                 <Space
                         android:layout_height="4dp"
@@ -105,16 +144,30 @@
                     android:layout_height="0dp"
                     android:layout_width="16dp" />
 
-            <ImageView
-                    android:id="@+id/iv_icon_menu"
-                    android:src="@drawable/xic_x24_uic_line_ellipsis_v"
-                    android:importantForAccessibility="no"
-                    app:tint="#161620"
+            <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cv_icon_menu"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:background="?android:attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="24dp"
+                    app:strokeWidth="0dp"
+                    android:padding="4dp"
+                    app:contentPadding="4dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_height="24dp"
-                    android:layout_width="24dp" />
+                    android:layout_height="48dp"
+                    android:layout_width="48dp">
 
+                <ImageView
+                        android:id="@+id/iv_icon_menu"
+                        android:src="@drawable/xic_x24_uic_line_ellipsis_v"
+                        android:importantForAccessibility="no"
+                        app:tint="#161620"
+                        android:layout_gravity="center"
+                        android:layout_height="24dp"
+                        android:layout_width="24dp" />
+
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>
