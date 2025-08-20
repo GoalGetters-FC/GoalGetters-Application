@@ -14,14 +14,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.data.model.CalendarDayItem
 import com.ggetters.app.data.model.Event
 import com.ggetters.app.data.model.EventCategory
 import com.ggetters.app.databinding.FragmentCalendarBinding
 import com.ggetters.app.ui.central.adapters.CalendarAdapter
 import com.ggetters.app.ui.central.adapters.EventAdapter
 import com.ggetters.app.ui.central.models.AppbarTheme
-import com.ggetters.app.data.model.CalendarDayItem
-import com.ggetters.app.ui.central.sheets.AddEventBottomSheet
+import com.ggetters.app.ui.central.models.HomeUiConfiguration
 import com.ggetters.app.ui.central.sheets.EventDetailsBottomSheet
 import com.ggetters.app.ui.central.sheets.EventListBottomSheet
 import com.ggetters.app.ui.central.viewmodels.HomeCalendarViewModel
@@ -30,8 +30,6 @@ import com.ggetters.app.ui.shared.models.Clickable
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 import kotlin.math.abs
@@ -419,177 +417,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
         updateCalendarView()
     }
 
-
-    private fun seed() {
-        // TODO: Backend - Remove sample data and fetch real events from backend
-        // TODO: Backend - Implement proper event data models and API integration
-        // TODO: Backend - Add event synchronization with server
-        // TODO: Backend - Implement event caching and offline support
-        val calendar = Calendar.getInstance()
-
-        // Sample practice event
-        calendar.set(2024, 11, 15) // December 15, 2024
-        events.add(
-            Event(
-                id = "1",
-                title = "Team Practice",
-                type = EventType.PRACTICE,
-                date = calendar.time,
-                time = "15:00",
-                venue = "Main Field",
-                createdBy = "Coach"
-            )
-        )
-
-        // Add MULTIPLE EVENTS on December 15th to test sorting
-        events.add(
-            Event(
-                id = "1b",
-                title = "Warm-up Session",
-                type = EventType.PRACTICE,
-                date = calendar.time, // Same day as above
-                time = "09:00", // Earlier time - should appear first
-                venue = "Training Ground",
-                createdBy = "Assistant Coach"
-            )
-        )
-
-        events.add(
-            Event(
-                id = "1c",
-                title = "Team Meeting",
-                type = EventType.OTHER,
-                date = calendar.time, // Same day as above
-                time = "18:30", // Later time - should appear last
-                venue = "Club House",
-                createdBy = "Manager"
-            )
-        )
-
-        events.add(
-            Event(
-                id = "1d",
-                title = "Tactical Review",
-                type = EventType.OTHER,
-                date = calendar.time, // Same day as above
-                time = "11:30", // Middle time - should appear second
-                venue = "Conference Room",
-                createdBy = "Coach"
-            )
-        )
-
-        // Sample game event
-        calendar.set(2024, 11, 22) // December 22, 2024
-        events.add(
-            Event(
-                id = "2",
-                title = "MATCH vs Eagles",
-                type = EventType.MATCH,
-                date = calendar.time,
-                time = "14:00",
-                venue = "Stadium",
-                opponent = "Eagles FC",
-                createdBy = "Coach"
-            )
-        )
-
-        // Add MULTIPLE EVENTS on December 22nd (match day)
-        events.add(
-            Event(
-                id = "2b",
-                title = "Pre-Match Warm-up",
-                type = EventType.PRACTICE,
-                date = calendar.time, // Same day as match
-                time = "12:00", // Before match
-                venue = "Stadium Warm-up Area",
-                createdBy = "Coach"
-            )
-        )
-
-        events.add(
-            Event(
-                id = "2c",
-                title = "Post-Match Analysis",
-                type = EventType.OTHER,
-                date = calendar.time, // Same day as match
-                time = "16:30", // After match
-                venue = "Club House",
-                createdBy = "Coach"
-            )
-        )
-
-        // Sample general event
-        calendar.set(2024, 11, 10) // December 10, 2024
-        events.add(
-            Event(
-                id = "3",
-                title = "Team Meeting",
-                type = EventType.OTHER,
-                date = calendar.time,
-                time = "18:00",
-                venue = "Club House",
-                createdBy = "Manager"
-            )
-        )
-
-        // Add some events for current month
-        val currentCalendar = Calendar.getInstance()
-        currentCalendar.add(Calendar.DAY_OF_MONTH, 2) // 2 days from now
-        events.add(
-            Event(
-                id = "4",
-                title = "Training Session",
-                type = EventType.PRACTICE,
-                date = currentCalendar.time,
-                time = "16:00",
-                venue = "Training Ground",
-                createdBy = "Coach"
-            )
-        )
-
-        // Add MULTIPLE EVENTS 2 days from now
-        events.add(
-            Event(
-                id = "4b",
-                title = "Fitness Test",
-                type = EventType.OTHER,
-                date = currentCalendar.time, // Same day
-                time = "08:00", // Early morning - should appear first
-                venue = "Gym",
-                createdBy = "Fitness Coach"
-            )
-        )
-
-        events.add(
-            Event(
-                id = "4c",
-                title = "Recovery Session",
-                type = EventType.PRACTICE,
-                date = currentCalendar.time, // Same day
-                time = "19:00", // Evening - should appear last
-                venue = "Recovery Center",
-                createdBy = "Physio"
-            )
-        )
-
-        currentCalendar.add(Calendar.DAY_OF_MONTH, 5) // 7 days from now
-        events.add(
-            Event(
-                id = "5",
-                title = "Friendly MATCH",
-                type = EventType.MATCH,
-                date = currentCalendar.time,
-                time = "15:30",
-                venue = "Local Stadium",
-                opponent = "City Rovers",
-                createdBy = "Coach"
-            )
-        )
-
-        // Apply changes
-        updateCalendarView()
-    }
-
+    
     private fun updateMonthYearDisplay() {
         val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
         sharedModel.useViewConfiguration(
