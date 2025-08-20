@@ -100,3 +100,96 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
         """.trimIndent())
     }
 }
+
+// create new migration for event, eventcategory, and eventstyle
+
+/** DB v3 -> v4: migrate Event.category/style from Int -> String (Enum). */
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // 1) Add temporary new string columns
+        db.execSQL("ALTER TABLE event ADD COLUMN category_tmp TEXT")
+        db.execSQL("ALTER TABLE event ADD COLUMN style_tmp TEXT")
+
+        // 2) Copy + map old numeric values into new string columns
+        db.execSQL(
+            """
+            UPDATE event
+            SET category_tmp = CASE category
+                WHEN 0 THEN 'PRACTICE'
+                WHEN 1 THEN 'MATCH'
+                ELSE 'OTHER'
+            END
+            """.trimIndent()
+        )
+
+        db.execSQL(
+            """
+            UPDATE event
+            SET style_tmp = CASE style
+                WHEN 0 THEN 'STANDARD'
+                WHEN 1 THEN 'FRIENDLY'
+                WHEN 2 THEN 'TOURNAMENT'
+                ELSE 'TRAINING'
+            END
+            """.trimIndent()
+        )
+
+        // 3) Create new table schema (with TEXT instead of INT for category/style)
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS event_new (
+                id TEXT NOT NULL PRIMARY KEY,
+                created_at INTEGER NOT NULL,
+                updated_at INTEGER NOT NULL,
+                stained_at INTEGER,
+                
+                team_id TEXT NOT NULL,
+                creator_id TEXT,
+                
+                name TEXT NOT NULL,
+                description TEXT,
+                
+                category TEXT NOT NULL,
+                style TEXT NOT NULL,
+                
+                start_at TEXT NOT NULL,
+                end_at TEXT,
+                location TEXT,
+                
+                FOREIGN KEY(team_id) REFERENCES team(id)
+                  ON UPDATE CASCADE ON DELETE CASCADE,
+                FOREIGN KEY(creator_id) REFERENCES user(id)
+                  ON UPDATE CASCADE ON DELETE SET NULL
+            )
+            """.trimIndent()
+        )
+
+        // 4) Copy across values into new schema
+        db.execSQL(
+            """
+            INSERT INTO event_new (
+                id, created_at, updated_at, stained_at,
+                team_id, creator_id,
+                name, description,
+                category, style,
+                start_at, end_at, location
+            )
+            SELECT
+                id, created_at, updated_at, stained_at,
+                team_id, creator_id,
+                name, description,
+                category_tmp, style_tmp,
+                start_at, end_at, location
+            FROM event
+            """.trimIndent()
+        )
+
+        // 5) Drop old table and rename new one
+        db.execSQL("DROP TABLE event")
+        db.execSQL("ALTER TABLE event_new RENAME TO event")
+
+        // 6) Recreate indices (Room expects these)
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_event_creator_id ON event(creator_id)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_event_team_id ON event(team_id)")
+    }
+}

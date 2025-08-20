@@ -1,4 +1,3 @@
-// app/src/main/java/com/ggetters/app/data/local/dao/EventDao.kt
 package com.ggetters.app.data.local.dao
 
 import androidx.room.Dao
@@ -6,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.ggetters.app.data.model.Event
+import com.ggetters.app.data.model.EventCategory
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -43,7 +43,6 @@ interface EventDao {
     suspend fun upsertAll(events: List<Event>)
 
     // ----- filters -----
-    // If start_at is stored as ISO-8601 TEXT, this works; otherwise compare epoch millis.
     @Query("""
         SELECT * FROM event
         WHERE team_id = :teamId
@@ -53,7 +52,7 @@ interface EventDao {
     """)
     suspend fun getEventsByDateRange(
         teamId: String,
-        startDate: String,  // e.g. "2025-08-20" or "2025-08-20T00:00:00"
+        startDate: String,
         endDate: String
     ): List<Event>
 
@@ -62,7 +61,10 @@ interface EventDao {
         WHERE team_id = :teamId AND category = :category
         ORDER BY start_at ASC
     """)
-    fun getEventsByType(teamId: String, category: Int): Flow<List<Event>>
+    fun getEventsByType(
+        teamId: String,
+        category: EventCategory
+    ): Flow<List<Event>>
 
     @Query("""
         SELECT * FROM event

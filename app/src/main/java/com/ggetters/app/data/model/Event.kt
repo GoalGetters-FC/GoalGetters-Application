@@ -5,6 +5,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.ggetters.app.data.local.converters.DateConverter
+import com.ggetters.app.data.local.converters.UuidConverter
 import com.ggetters.app.data.model.supers.AuditableEntity
 import com.ggetters.app.data.model.supers.KeyedEntity
 import com.ggetters.app.data.model.supers.StainableEntity
@@ -12,7 +15,6 @@ import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.Exclude
 import java.time.Instant
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.util.UUID
 
 @Entity(
@@ -38,6 +40,7 @@ import java.util.UUID
         Index(value = ["creator_id"])
     ]
 )
+
 data class Event(
     @PrimaryKey
     @DocumentId
@@ -69,10 +72,10 @@ data class Event(
     val description: String? = null,
 
     @ColumnInfo(name = "category")
-    val category: Int,   // e.g. 0=Practice, 1=Match, 2=Other
+    val category: EventCategory,   // PRACTICE, MATCH, OTHER
 
     @ColumnInfo(name = "style")
-    val style: Int,      // e.g. 0=Standard, 1=Friendly, 2=Tournament
+    val style: EventStyle,         // STANDARD, FRIENDLY, TOURNAMENT, TRAINING
 
     @ColumnInfo(name = "start_at")
     val startAt: LocalDateTime,

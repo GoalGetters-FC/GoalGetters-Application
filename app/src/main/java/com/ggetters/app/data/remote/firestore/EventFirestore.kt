@@ -2,6 +2,8 @@
 package com.ggetters.app.data.remote.firestore
 
 import com.ggetters.app.data.model.Event
+import com.ggetters.app.data.model.EventCategory
+import com.ggetters.app.data.model.EventStyle
 import com.ggetters.app.data.remote.FirestorePathProvider
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -65,13 +67,14 @@ class EventFirestore @Inject constructor(
             creatorId = getString("creatorId") ?: getString("creator_id"),
             name = name,
             description = getString("description"),
-            category = (get("category") as? Number)?.toInt() ?: 0,
-            style = (get("style") as? Number)?.toInt() ?: 0,
+            category = parseCategory(get("category")),
+            style = parseStyle(get("style")),
             startAt = startAt,
             endAt = endAt,
             location = getString("location")
         )
     }
+
 
     private fun Event.toFirestoreMap(): Map<String, Any?> = mapOf(
         "id" to id,
@@ -79,14 +82,16 @@ class EventFirestore @Inject constructor(
         "creatorId" to creatorId,
         "name" to name,
         "description" to description,
-        "category" to category,
-        "style" to style,
+        "category" to category.name, // save as String
+        "style" to style.name,       // save as String
         "startAt" to Timestamp(Date.from(startAt.atZone(ZoneId.systemDefault()).toInstant())),
         "endAt" to endAt?.let { Timestamp(Date.from(it.atZone(ZoneId.systemDefault()).toInstant())) },
         "location" to location,
         "createdAt" to Timestamp(Date.from(createdAt)),
         "updatedAt" to Timestamp(Date.from(updatedAt))
     )
+
+
 
     private fun DocumentSnapshot.readInstant(vararg keys: String): Instant? {
         for (k in keys) when (val v = get(k)) {
@@ -109,4 +114,19 @@ class EventFirestore @Inject constructor(
         }
         return null
     }
+
+    private fun parseCategory(value: Any?): EventCategory =
+        when (value) {
+            is String -> runCatching { EventCategory.valueOf(value.uppercase()) }.getOrDefault(EventCategory.OTHER)
+            is Number -> EventCategory.values().getOrNull(value.toInt()) ?: EventCategory.OTHER
+            else      -> EventCategory.OTHER
+        }
+
+    private fun parseStyle(value: Any?): EventStyle =
+        when (value) {
+            is String -> runCatching { EventStyle.valueOf(value.uppercase()) }.getOrDefault(EventStyle.STANDARD)
+            is Number -> EventStyle.values().getOrNull(value.toInt()) ?: EventStyle.STANDARD
+            else      -> EventStyle.STANDARD
+        }
+
 }
