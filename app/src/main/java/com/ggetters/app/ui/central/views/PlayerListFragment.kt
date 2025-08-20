@@ -1,6 +1,7 @@
 package com.ggetters.app.ui.central.views
 
 import android.os.Bundle
+import com.ggetters.app.core.extensions.navigateTo
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -99,9 +100,11 @@ class PlayerListFragment : Fragment() {
     private fun navigateToPlayerProfile(playerId: String) {
         // TODO: Backend - Navigate to player profile with player data
         val playerProfileFragment = PlayerProfileFragment()
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, playerProfileFragment)
-            .addToBackStack("player_list_to_player_profile")
-            .commit()
+        navigateTo(
+            destination = playerProfileFragment,
+            isForward = true,
+            addToBackStack = true,
+            backStackName = "player_list_to_player_profile"
+        )
     }
 } 

@@ -3,6 +3,7 @@ package com.ggetters.app.ui.central.views
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -48,6 +49,9 @@ class HomeActivity : AppCompatActivity() {
 
     private var currentFragment: Fragment? = null
     private var longPressStartTime: Long = 0
+    private var lastNavItemId: Int = R.id.nav_calendar
+    private var lastNavClickAtMs: Long = 0L
+    private var isNavigating: Boolean = false
 
 
 // --- Lifecycle
@@ -112,27 +116,58 @@ class HomeActivity : AppCompatActivity() {
     private fun setupBottomNavigation() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNav.labelVisibilityMode = BottomNavigationView.LABEL_VISIBILITY_LABELED // Ensure labels are always visible
+        bottomNav.setOnItemReselectedListener { /* ignore to avoid jitter */ }
 
         bottomNav.setOnItemSelectedListener { menuItem ->
+            val now = SystemClock.elapsedRealtime()
+            if (menuItem.itemId == lastNavItemId && now - lastNavClickAtMs < 500) {
+                return@setOnItemSelectedListener true
+            }
+            if (isNavigating) return@setOnItemSelectedListener true
+
+            val targetClass = when (menuItem.itemId) {
+                R.id.nav_calendar -> HomeCalendarFragment::class.java
+                R.id.nav_team_players -> HomePlayersFragment::class.java
+                R.id.nav_player_profile -> PlayerDetailsFragment::class.java
+                R.id.nav_profile -> ProfileFragment::class.java
+                else -> null
+            }
+            if (targetClass != null && currentFragment?.javaClass == targetClass) {
+                lastNavItemId = menuItem.itemId
+                lastNavClickAtMs = now
+                return@setOnItemSelectedListener true
+            }
+
+            val newIndex = navIndexFor(menuItem.itemId)
+            val oldIndex = navIndexFor(lastNavItemId)
+            val isForward = newIndex > oldIndex
+
             when (menuItem.itemId) {
                 R.id.nav_calendar -> {
-                    switchFragment(HomeCalendarFragment())
+                    isNavigating = true
+                    switchFragment(HomeCalendarFragment(), isForward)
                     true
                 }
                 R.id.nav_team_players -> { // Corrected ID
-                    switchFragment(HomePlayersFragment())
+                    isNavigating = true
+                    switchFragment(HomePlayersFragment(), isForward)
                     true
                 }
                 R.id.nav_player_profile -> { // Player Profile - Show player details
-                    switchFragment(PlayerDetailsFragment())
+                    isNavigating = true
+                    switchFragment(PlayerDetailsFragment(), isForward)
                     true
                 }
                 R.id.nav_profile -> {
                     // Options tab - Show account switcher on long press, regular click shows profile
-                    switchFragment(ProfileFragment())
+                    isNavigating = true
+                    switchFragment(ProfileFragment(), isForward)
                     true
                 }
                 else -> false
+            }.also {
+                lastNavItemId = menuItem.itemId
+                lastNavClickAtMs = now
             }
         }
 
@@ -242,21 +277,27 @@ class HomeActivity : AppCompatActivity() {
         Snackbar.make(findViewById(android.R.id.content), "Default team updated", Snackbar.LENGTH_SHORT).show()
     }
 
-    private fun switchFragment(fragment: Fragment) {
+    private fun switchFragment(fragment: Fragment, isForward: Boolean = true) {
         val transaction = supportFragmentManager.beginTransaction()
-
-        // Add smooth transitions with better timing
-        transaction.setCustomAnimations(
-            R.anim.slide_in_right,
-            R.anim.slide_out_left,
-            R.anim.slide_in_left,
-            R.anim.slide_out_right
-        )
-
-        // Add to back stack for proper navigation
+        transaction.setReorderingAllowed(true)
+        if (isForward) {
+            transaction.setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left,
+                R.anim.slide_in_left,
+                R.anim.slide_out_right
+            )
+        } else {
+            transaction.setCustomAnimations(
+                R.anim.slide_in_left,
+                R.anim.slide_out_right,
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+            )
+        }
         transaction.replace(R.id.fragmentContainer, fragment)
-        transaction.addToBackStack(null)
-
+        // Do not add to back stack for bottom navigation primary destinations
+        transaction.runOnCommit { isNavigating = false }
         transaction.commit()
         currentFragment = fragment
     }
@@ -344,6 +385,15 @@ class HomeActivity : AppCompatActivity() {
         val viewRect = Rect()
         view.getGlobalVisibleRect(viewRect)
         return viewRect.contains(event.rawX.toInt(), event.rawY.toInt())
+    }
+
+
+    private fun navIndexFor(itemId: Int): Int = when (itemId) {
+        R.id.nav_calendar -> 0
+        R.id.nav_team_players -> 1
+        R.id.nav_player_profile -> 2
+        R.id.nav_profile -> 3
+        else -> 0
     }
 
 

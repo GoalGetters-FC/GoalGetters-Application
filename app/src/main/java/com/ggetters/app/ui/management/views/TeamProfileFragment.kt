@@ -1,6 +1,7 @@
 package com.ggetters.app.ui.management.views
 
 import android.app.AlertDialog
+import com.ggetters.app.core.extensions.navigateTo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -191,10 +192,12 @@ class TeamProfileFragment : Fragment() {
         // TODO: Backend - Add team players permissions and role validation
         
         val playersFragment = com.ggetters.app.ui.central.views.HomePlayersFragment()
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, playersFragment)
-            .addToBackStack("team_profile_to_players")
-            .commit()
+        navigateTo(
+            destination = playersFragment,
+            isForward = false,
+            addToBackStack = true,
+            backStackName = "team_profile_to_players"
+        )
     }
 
     private fun navigateToTeamStatistics() {
