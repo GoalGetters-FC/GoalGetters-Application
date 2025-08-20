@@ -13,6 +13,7 @@ import com.ggetters.app.data.model.supers.KeyedEntity
 import com.ggetters.app.data.model.supers.StainableEntity
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.Exclude
+import java.io.Serializable
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -86,6 +87,6 @@ data class Event(
     @ColumnInfo(name = "location")
     val location: String? = null
 
-) : KeyedEntity, AuditableEntity, StainableEntity {
+) : KeyedEntity, AuditableEntity, StainableEntity, Serializable {
     companion object { const val TAG = "Event" }
 }

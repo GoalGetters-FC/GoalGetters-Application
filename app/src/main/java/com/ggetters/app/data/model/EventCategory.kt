@@ -6,5 +6,6 @@ package com.ggetters.app.data.model
 enum class EventCategory {
     PRACTICE,
     MATCH,
-    OTHER
+    OTHER,
+    TRAINING
 }

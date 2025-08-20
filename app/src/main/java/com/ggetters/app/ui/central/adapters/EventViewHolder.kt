@@ -18,26 +18,26 @@ class EventViewHolder(
         private const val TAG = "EventViewHolder"
         private const val DEV_VERBOSE_LOGGER = true
         private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-        private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     }
-    
-    // --- Functions
 
     fun bind(item: Event) {
         if (DEV_VERBOSE_LOGGER) Clogger.d(TAG, "<bind>: id=[${item.id}]")
 
+        // Title
         binding.eventTitle.text = item.name
-        binding.eventTime.text = item.startAt.format(timeFormatter)
-        binding.eventVenue.text = item.location ?: "TBD"
 
-        // Example: simple icon/color decision based on category
+        // Time & Venue
+        binding.eventTime.text = item.startAt.format(timeFormatter)
+        binding.eventVenue.text = item.location ?: "No venue"
+
+        // Category icon
         binding.eventTypeIcon.text = when (item.category) {
             EventCategory.MATCH -> "⚽"
             EventCategory.PRACTICE -> "🏋️"
-            EventCategory.OTHER -> "📌"
+            else -> "📌" // Default for OTHER or any new categories
         }
 
-        // Example: show description if available
+        // Opponent line → repurposed to show description if available
         if (!item.description.isNullOrBlank()) {
             binding.eventOpponent.visibility = View.VISIBLE
             binding.eventOpponent.text = item.description
@@ -45,7 +45,9 @@ class EventViewHolder(
             binding.eventOpponent.visibility = View.GONE
         }
 
+        // Click listeners
         binding.eventContainer.setOnClickListener { onClick(item) }
         binding.eventContainer.setOnLongClickListener { onLongClick(item); true }
     }
+
 }
