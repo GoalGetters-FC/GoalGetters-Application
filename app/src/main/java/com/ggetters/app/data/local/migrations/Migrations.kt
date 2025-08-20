@@ -78,3 +78,25 @@ val MIGRATION_1_2 = object : Migration(OLD_VERSION, NEW_VERSION) {
         db.execSQL("""CREATE INDEX IF NOT EXISTS `index_user_team_id` ON `user` (`team_id`)""")
     }
 }
+
+
+/** DB v2 -> v3: align Event table indexes with @Entity expectations. */
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Defensive cleanup: remove any indices not declared on the entity
+        db.execSQL("DROP INDEX IF EXISTS index_event_team_id_start_at")
+        db.execSQL("DROP INDEX IF EXISTS index_event_team_id_category")
+        db.execSQL("DROP INDEX IF EXISTS index_event_team_id_stained")
+
+        // Ensure ONLY the indices Room expects are present
+        db.execSQL("""
+            CREATE INDEX IF NOT EXISTS index_event_creator_id
+            ON event(creator_id)
+        """.trimIndent())
+
+        db.execSQL("""
+            CREATE INDEX IF NOT EXISTS index_event_team_id
+            ON event(team_id)
+        """.trimIndent())
+    }
+}
