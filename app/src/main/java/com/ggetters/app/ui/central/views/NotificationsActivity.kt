@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
+import com.ggetters.app.core.extensions.navigateBack
 import com.ggetters.app.ui.central.adapters.NotificationAdapter
 import com.ggetters.app.ui.central.models.NotificationItem
 import com.ggetters.app.ui.central.models.NotificationType
@@ -55,7 +56,7 @@ class NotificationsActivity : AppCompatActivity() {
 
     private fun setupHeader() {
         findViewById<ImageButton>(R.id.backButton).setOnClickListener {
-            finish()
+            navigateBack()
         }
     }
 

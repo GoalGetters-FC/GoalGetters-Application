@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.ggetters.app.R
+import com.ggetters.app.core.extensions.navigateBack
 import com.ggetters.app.ui.central.models.Event
 import com.ggetters.app.ui.central.models.EventType
 import com.ggetters.app.ui.central.fragments.GameEventFragment
@@ -86,14 +87,14 @@ class AddEventActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         closeButton.setOnClickListener {
-            finish()
+            navigateBack()
         }
 
         scheduleButton.setOnClickListener {
             if (validateForm()) {
                 val event = createEvent()
                 onEventCreatedListener?.invoke(event)
-                finish()
+                navigateBack()
             }
         }
     }

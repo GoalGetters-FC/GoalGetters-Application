@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.ggetters.app.core.extensions.navigateToActivity
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivitySignUpBinding
 import com.ggetters.app.ui.shared.models.Clickable
@@ -64,8 +65,7 @@ class SignUpActivity : AppCompatActivity(), Clickable {
                     TAG, "Success..."
                 )
 
-                startActivity(Intent(this, OnboardingActivity::class.java))
-                finishAffinity()
+                navigateToActivity(Intent(this, OnboardingActivity::class.java), finishCurrent = true)
             }
 
             is Failure -> {
@@ -122,8 +122,7 @@ class SignUpActivity : AppCompatActivity(), Clickable {
 
     override fun onClick(view: View?) = when (view?.id) {
         binds.tvSignIn.id -> {
-            startActivity(Intent(this, SignInActivity::class.java))
-            finish()
+            navigateToActivity(Intent(this, SignInActivity::class.java), finishCurrent = true)
         }
 
         binds.btSignUp.id -> {

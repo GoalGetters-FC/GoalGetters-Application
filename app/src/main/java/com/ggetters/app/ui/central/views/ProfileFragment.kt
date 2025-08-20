@@ -2,6 +2,7 @@ package com.ggetters.app.ui.central.views
 
 import android.app.AlertDialog
 import com.ggetters.app.core.extensions.navigateTo
+import com.ggetters.app.core.extensions.navigateToActivity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -101,7 +102,7 @@ class ProfileFragment : Fragment() {
         
         // TODO: Temporary bypass - remove once proper implementation is done
         logoutButton.setOnLongClickListener {
-            startActivity(Intent(requireContext(), TeamViewerActivity::class.java))
+            requireActivity().navigateToActivity(Intent(requireContext(), TeamViewerActivity::class.java))
             true
         }
         
@@ -339,8 +340,7 @@ class ProfileFragment : Fragment() {
             
             // Navigate to login screen
             model.logout()
-            startActivity(Intent(requireContext(), OnboardingActivity::class.java))
-            requireActivity().finishAffinity()
+            requireActivity().navigateToActivity(Intent(requireContext(), OnboardingActivity::class.java), finishCurrent = true)
         } catch (e: Exception) {
             Log.e("ProfileFragment", "Error during logout", e)
             Snackbar.make(requireView(), "Error during logout. Please try again.", Snackbar.LENGTH_LONG).show()

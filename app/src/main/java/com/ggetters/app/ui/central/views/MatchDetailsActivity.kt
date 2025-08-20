@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.ggetters.app.R
+import com.ggetters.app.core.extensions.navigateBack
 import com.ggetters.app.ui.central.models.*
 import com.ggetters.app.ui.central.viewmodels.MatchDetailsViewModel
 import com.google.android.material.button.MaterialButton
@@ -75,7 +76,7 @@ class MatchDetailsActivity : AppCompatActivity() {
     private fun initializeViews() {
         // Header back button
         findViewById<ImageButton>(R.id.backButton).setOnClickListener {
-            finish()
+            navigateBack()
         }
         
         matchTitleText = findViewById(R.id.matchTitle)

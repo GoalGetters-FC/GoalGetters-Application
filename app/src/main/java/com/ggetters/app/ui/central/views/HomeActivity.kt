@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.ggetters.app.R
+import com.ggetters.app.core.extensions.navigateToActivity
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivityHomeBinding
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
@@ -108,7 +109,7 @@ class HomeActivity : AppCompatActivity() {
             
             // Launch NotificationsActivity
             val intent = Intent(this, NotificationsActivity::class.java)
-            startActivity(intent)
+            navigateToActivity(intent)
         }
     }
 

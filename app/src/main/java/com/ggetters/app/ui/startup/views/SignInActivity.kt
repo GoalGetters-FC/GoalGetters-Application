@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.ggetters.app.core.extensions.navigateToActivity
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivitySignInBinding
 import com.ggetters.app.ui.shared.models.Clickable
@@ -65,8 +66,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
                     TAG, "Success..."
                 )
 
-                startActivity(Intent(this, OnboardingActivity::class.java))
-                finishAffinity()
+                navigateToActivity(Intent(this, OnboardingActivity::class.java), finishCurrent = true)
             }
 
             is Failure -> {
@@ -142,7 +142,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
         }
 
         binds.tvForgotPassword.id -> {
-            startActivity(Intent(this, ForgotPasswordActivity::class.java))
+            navigateToActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
 
         else -> {
