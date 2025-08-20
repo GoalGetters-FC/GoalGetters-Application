@@ -19,6 +19,7 @@ import com.ggetters.app.data.model.EventCategory
 import com.ggetters.app.databinding.FragmentCalendarBinding
 import com.ggetters.app.ui.central.adapters.CalendarAdapter
 import com.ggetters.app.ui.central.adapters.EventAdapter
+import com.ggetters.app.ui.central.models.AppbarTheme
 import com.ggetters.app.data.model.CalendarDayItem
 import com.ggetters.app.ui.central.sheets.AddEventBottomSheet
 import com.ggetters.app.ui.central.sheets.EventDetailsBottomSheet
@@ -54,7 +55,9 @@ class HomeCalendarFragment : Fragment(), Clickable {
     private var selectedDay: Int? = null
     private var selectedDayEvents: List<Event> = emptyList()
 
-    // --- Lifecycle
+
+// --- Lifecycle
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -74,18 +77,48 @@ class HomeCalendarFragment : Fragment(), Clickable {
         autoSelectToday()
     }
 
-    // --- Internals
 
+// --- Internals
+
+
+    /**
+     * Increments or decrements the calendar preview by a number of months.
+     *
+     * - (+): Increment
+     * - (-): Decrement
+     *
+     * @param months the number of months to increment or decrement.
+     *
+     * @throws UnsupportedOperationException when the value of [months] is
+     *         zero, as this method should not be called in such cases and
+     *         should be guarded against.
+     */
     private fun offsetCalendarView(months: Int) {
         require(months != 0)
-        currentDate.add(Calendar.MONTH, months)
+        currentDate.add(
+            Calendar.MONTH, months
+        )
+
         updateCalendarView()
         animateCalendarTransition()
     }
 
-    private fun incrementCalendarView() = offsetCalendarView(-1)
-    private fun decrementCalendarView() = offsetCalendarView(+1)
 
+    /**
+     * Convenience method for [offsetCalendarView].
+     */
+    private fun incrementCalendarView() = offsetCalendarView(months = -1)
+
+
+    /**
+     * Convenience method for [offsetCalendarView].
+     */
+    private fun decrementCalendarView() = offsetCalendarView(months = +1)
+
+
+    /**
+     * Animate the calendar view transition when switching months.
+     */
     private fun animateCalendarTransition() {
         binds.rvCalendar.alpha = 0.5f
         binds.rvCalendar.animate().apply {
@@ -93,6 +126,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             duration = 150
         }.start()
     }
+
 
     private fun autoSelectToday() {
         val today = Calendar.getInstance()
@@ -119,6 +153,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
         adapter.update(calendarDays)
         updateMonthYearDisplay()
     }
+
 
     private fun generateCalendarDays(): List<CalendarDayItem> {
         val days = mutableListOf<CalendarDayItem>()
@@ -158,7 +193,10 @@ class HomeCalendarFragment : Fragment(), Clickable {
         return days
     }
 
-    private fun isSameDay(oldCalendar: Calendar, newCalendar: Calendar): Boolean {
+
+    private fun isSameDay(
+        oldCalendar: Calendar, newCalendar: Calendar
+    ): Boolean {
         val oldDate = LocalDate.of(
             oldCalendar.get(Calendar.YEAR),
             oldCalendar.get(Calendar.MONTH) + 1,
@@ -200,9 +238,11 @@ class HomeCalendarFragment : Fragment(), Clickable {
         showSelectedDayEvents(dayOfMonth, selectedDayEvents)
     }
 
+
     private fun onDayLongClickedCallback(dayOfMonth: Int) {
         showAddEventBottomSheet(dayOfMonth)
     }
+
 
     private fun showSelectedDayEvents(dayOfMonth: Int, events: List<Event>) {
         val calendar = currentDate.clone() as Calendar
@@ -222,10 +262,12 @@ class HomeCalendarFragment : Fragment(), Clickable {
         binds.selectedDayEventsSection.visibility = View.VISIBLE
     }
 
+
     private fun hideSelectedDayEvents() {
         binds.rvSelectedDayEvents.visibility = View.GONE
         binds.noEventsLayout.visibility = View.GONE
     }
+
 
     private fun showEventDetails(event: Event) {
         if (event.category == EventCategory.MATCH) {
@@ -240,6 +282,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             startActivity(intent)
             requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
         } else {
+            // For other events, show the bottom sheet
             val eventDetailsSheet = EventDetailsBottomSheet.newInstance(event)
             eventDetailsSheet.show(childFragmentManager, "EventDetailsBottomSheet")
         }
@@ -249,10 +292,12 @@ class HomeCalendarFragment : Fragment(), Clickable {
         showEventDetails(event)
     }
 
+
     private fun showEventsForDay(day: Int, events: List<Event>) {
         val eventListBottomSheet = EventListBottomSheet.newInstance(day, events)
         eventListBottomSheet.show(childFragmentManager, "EventListBottomSheet")
     }
+
 
     private fun showAddEventBottomSheet(selectedDay: Int? = null) {
         val intent = Intent(requireContext(), AddEventActivity::class.java)
@@ -264,24 +309,27 @@ class HomeCalendarFragment : Fragment(), Clickable {
         startActivityForResult(intent, REQUEST_ADD_EVENT)
     }
 
-    // --- Event Handlers
+
+// --- Event Handlers
+
 
     override fun setupTouchListeners() {
-        binds.btIncrementCalendar.setOnClickListener(this)
-        binds.btDecrementCalendar.setOnClickListener(this)
         binds.fab.setOnClickListener(this)
     }
 
+
     override fun onClick(view: View?) = when (view?.id) {
-        binds.btIncrementCalendar.id -> decrementCalendarView()
-        binds.btDecrementCalendar.id -> incrementCalendarView()
         binds.fab.id -> showAddEventBottomSheet()
         else -> {
-            Clogger.w(TAG, "Unhandled on-click for: ${view?.id}")
+            Clogger.w(
+                "TAG", "Unhandled on-click for: ${view?.id}"
+            )
         }
     }
 
-    // --- UI Configuration
+
+// --- UI Configuration
+
 
     private fun setupCalendar() {
         binds.rvCalendar.apply {
@@ -304,6 +352,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
         setupSwipeGestures()
     }
 
+
     private fun setupSwipeGestures() {
         binds.rvCalendar.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
             private var startX = 0f
@@ -316,9 +365,11 @@ class HomeCalendarFragment : Fragment(), Clickable {
                         startX = e.x
                         startY = e.y
                     }
+
                     MotionEvent.ACTION_UP -> {
                         val deltaX = e.x - startX
                         val deltaY = e.y - startY
+
                         if (abs(deltaX) > abs(deltaY) && abs(deltaX) > SWIPE_THRESHOLD) {
                             if (deltaX > 0) incrementCalendarView() else decrementCalendarView()
                             return true
@@ -328,30 +379,225 @@ class HomeCalendarFragment : Fragment(), Clickable {
                 return false
             }
 
+            // Contracted overrides that were not needed
+
             override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
             override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
         })
     }
 
-    private fun createBindings(inflater: LayoutInflater, container: ViewGroup?): View {
+
+// --- UI Registrations
+
+
+    /**
+     * Construct the view binding for this fragment.
+     *
+     * @return the root [View] of this fragment within the same context as every
+     *         other invocation of the binding instance. This is crucial because
+     *         otherwise they would exist in different contexts.
+     */
+    private fun createBindings(
+        inflater: LayoutInflater, container: ViewGroup?
+    ): View {
         binds = FragmentCalendarBinding.inflate(inflater, container, false)
         return binds.root
     }
 
-    // --- Temporary
+
+// --- Temporary
+
 
     fun insert(event: Event) {
         events.add(event)
         updateCalendarView()
     }
 
+
     fun delete(eventId: String) {
         events.removeAll { it.id == eventId }
         updateCalendarView()
     }
 
+
+    private fun seed() {
+        // TODO: Backend - Remove sample data and fetch real events from backend
+        // TODO: Backend - Implement proper event data models and API integration
+        // TODO: Backend - Add event synchronization with server
+        // TODO: Backend - Implement event caching and offline support
+        val calendar = Calendar.getInstance()
+
+        // Sample practice event
+        calendar.set(2024, 11, 15) // December 15, 2024
+        events.add(
+            Event(
+                id = "1",
+                title = "Team Practice",
+                type = EventType.PRACTICE,
+                date = calendar.time,
+                time = "15:00",
+                venue = "Main Field",
+                createdBy = "Coach"
+            )
+        )
+
+        // Add MULTIPLE EVENTS on December 15th to test sorting
+        events.add(
+            Event(
+                id = "1b",
+                title = "Warm-up Session",
+                type = EventType.PRACTICE,
+                date = calendar.time, // Same day as above
+                time = "09:00", // Earlier time - should appear first
+                venue = "Training Ground",
+                createdBy = "Assistant Coach"
+            )
+        )
+
+        events.add(
+            Event(
+                id = "1c",
+                title = "Team Meeting",
+                type = EventType.OTHER,
+                date = calendar.time, // Same day as above
+                time = "18:30", // Later time - should appear last
+                venue = "Club House",
+                createdBy = "Manager"
+            )
+        )
+
+        events.add(
+            Event(
+                id = "1d",
+                title = "Tactical Review",
+                type = EventType.OTHER,
+                date = calendar.time, // Same day as above
+                time = "11:30", // Middle time - should appear second
+                venue = "Conference Room",
+                createdBy = "Coach"
+            )
+        )
+
+        // Sample game event
+        calendar.set(2024, 11, 22) // December 22, 2024
+        events.add(
+            Event(
+                id = "2",
+                title = "MATCH vs Eagles",
+                type = EventType.MATCH,
+                date = calendar.time,
+                time = "14:00",
+                venue = "Stadium",
+                opponent = "Eagles FC",
+                createdBy = "Coach"
+            )
+        )
+
+        // Add MULTIPLE EVENTS on December 22nd (match day)
+        events.add(
+            Event(
+                id = "2b",
+                title = "Pre-Match Warm-up",
+                type = EventType.PRACTICE,
+                date = calendar.time, // Same day as match
+                time = "12:00", // Before match
+                venue = "Stadium Warm-up Area",
+                createdBy = "Coach"
+            )
+        )
+
+        events.add(
+            Event(
+                id = "2c",
+                title = "Post-Match Analysis",
+                type = EventType.OTHER,
+                date = calendar.time, // Same day as match
+                time = "16:30", // After match
+                venue = "Club House",
+                createdBy = "Coach"
+            )
+        )
+
+        // Sample general event
+        calendar.set(2024, 11, 10) // December 10, 2024
+        events.add(
+            Event(
+                id = "3",
+                title = "Team Meeting",
+                type = EventType.OTHER,
+                date = calendar.time,
+                time = "18:00",
+                venue = "Club House",
+                createdBy = "Manager"
+            )
+        )
+
+        // Add some events for current month
+        val currentCalendar = Calendar.getInstance()
+        currentCalendar.add(Calendar.DAY_OF_MONTH, 2) // 2 days from now
+        events.add(
+            Event(
+                id = "4",
+                title = "Training Session",
+                type = EventType.PRACTICE,
+                date = currentCalendar.time,
+                time = "16:00",
+                venue = "Training Ground",
+                createdBy = "Coach"
+            )
+        )
+
+        // Add MULTIPLE EVENTS 2 days from now
+        events.add(
+            Event(
+                id = "4b",
+                title = "Fitness Test",
+                type = EventType.OTHER,
+                date = currentCalendar.time, // Same day
+                time = "08:00", // Early morning - should appear first
+                venue = "Gym",
+                createdBy = "Fitness Coach"
+            )
+        )
+
+        events.add(
+            Event(
+                id = "4c",
+                title = "Recovery Session",
+                type = EventType.PRACTICE,
+                date = currentCalendar.time, // Same day
+                time = "19:00", // Evening - should appear last
+                venue = "Recovery Center",
+                createdBy = "Physio"
+            )
+        )
+
+        currentCalendar.add(Calendar.DAY_OF_MONTH, 5) // 7 days from now
+        events.add(
+            Event(
+                id = "5",
+                title = "Friendly MATCH",
+                type = EventType.MATCH,
+                date = currentCalendar.time,
+                time = "15:30",
+                venue = "Local Stadium",
+                opponent = "City Rovers",
+                createdBy = "Coach"
+            )
+        )
+
+        // Apply changes
+        updateCalendarView()
+    }
+
     private fun updateMonthYearDisplay() {
         val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-        binds.monthYearText.text = dateFormat.format(currentDate.time)
+        sharedModel.useViewConfiguration(
+            HomeUiConfiguration(
+                appBarColor = AppbarTheme.WHITE,
+                appBarTitle = dateFormat.format(currentDate.time),
+                appBarShown = true,
+            )
+        )
     }
-}
+} 
