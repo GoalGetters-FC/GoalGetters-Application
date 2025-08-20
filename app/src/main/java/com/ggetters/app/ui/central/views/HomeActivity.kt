@@ -18,12 +18,11 @@ import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivityHomeBinding
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
-import dagger.hilt.android.AndroidEntryPoint
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.snackbar.Snackbar
-import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
 import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.management.views.TeamsFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 
 // TODO: Backend - Fetch data for each tab (Notifications, Calendar, Players, Team Profile)
 // TODO: Backend - Log analytics for tab navigation
@@ -120,7 +119,7 @@ class HomeActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_team_players -> { // Corrected ID
-                    switchFragment(HomePlayersFragment())
+                    switchFragment(HomeTeamFragment())
                     true
                 }
                 R.id.nav_player_profile -> { // Player Profile - Show player details
