@@ -1,8 +1,8 @@
-// app/src/main/java/com/ggetters/app/ui/central/viewmodels/HomePlayersViewModel.kt
 package com.ggetters.app.ui.central.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ggetters.app.core.services.AuthenticationService
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.model.UserPosition
@@ -21,29 +21,33 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
-class HomePlayersViewModel @Inject constructor(
-    private val teamRepo: TeamRepository,
-    private val userRepo: UserRepository   // Combined repo
+class HomeTeamViewModel @Inject constructor(
+    private val authService: AuthenticationService,
+    private val teamDataService: TeamRepository,
+    private val userDataService: UserRepository,
 ) : ViewModel() {
+    companion object {
+        private const val TAG = "HomeTeamViewModel"
+    }
 
-    /** App-wide active team (Room source-of-truth). */
+
+// --- Fields
+
+
     val activeTeam: StateFlow<Team?> =
-        teamRepo.getActiveTeam()
+        teamDataService.getActiveTeam()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    /** Team-scoped members from local Room, auto-updated by sync. */
-    val players: StateFlow<List<User>> =
-        userRepo.all()
+
+    val teamUsers: StateFlow<List<User>> =
+        userDataService.all()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    /** Pull remote -> local & push dirty local -> remote for the active team. */
-    fun refresh() = viewModelScope.launch { userRepo.sync() }
 
-    /**
-     * Creates a roster member for the active team.
-     * TODO (Invites): replace generated id with Auth UID after invite/accept flow.
-     */
-    fun addPlayer(
+// --- Contracts
+
+
+    fun insertUser(
         firstName: String,
         lastName: String,
         email: String,
@@ -60,17 +64,17 @@ class HomePlayersViewModel @Inject constructor(
         }
 
         val now = Instant.now()
-        val tempId = UUID.randomUUID().toString() // TODO (Invites): use auth UID when player joins
+        val tempId = UUID.randomUUID().toString()
 
         val user = User(
             id = tempId,
-            authId = tempId,               // keep same for now (local placeholder)
+            authId = tempId,               
             teamId = teamId,
             joinedAt = now,
             role = UserRole.FULL_TIME_PLAYER,
             name = firstName,
             surname = lastName,
-            alias = "",                    // optional
+            alias = "",            
             dateOfBirth = dob,
             email = email,
             position = position,
@@ -80,10 +84,11 @@ class HomePlayersViewModel @Inject constructor(
             updatedAt = now
         )
 
-        userRepo.upsert(user)  // writes to Room (marks dirty)
-        userRepo.sync()        // push to Firestore & pull latest
+        userDataService.upsert(user)  
+        userDataService.sync()    
     }
 
+    
     private fun toUserPosition(label: String): UserPosition? =
         when (label.trim().lowercase()) {
             "striker"       -> UserPosition.STRIKER
@@ -97,4 +102,7 @@ class HomePlayersViewModel @Inject constructor(
             "full back"     -> UserPosition.FULL_BACK
             else            -> null
         }
+
+    
+    fun getCurrentUserAuthId() = authService.getCurrentUser()!!.uid
 }
