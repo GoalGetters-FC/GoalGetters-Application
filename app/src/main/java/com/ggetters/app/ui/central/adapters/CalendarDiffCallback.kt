@@ -2,7 +2,7 @@ package com.ggetters.app.ui.central.adapters
 
 import androidx.recyclerview.widget.DiffUtil
 import com.ggetters.app.core.utils.Clogger
-import com.ggetters.app.ui.central.models.CalendarDayItem
+import com.ggetters.app.data.model.CalendarDayItem   // ✅ now from data.model
 
 class CalendarDiffCallback : DiffUtil.ItemCallback<CalendarDayItem>() {
     companion object {
@@ -10,32 +10,19 @@ class CalendarDiffCallback : DiffUtil.ItemCallback<CalendarDayItem>() {
         private const val DEV_VERBOSE_LOGGER = true
     }
 
-
-    // --- Functions
-
-
-    override fun areItemsTheSame(
-        oldItem: CalendarDayItem, newItem: CalendarDayItem
-    ): Boolean {
+    override fun areItemsTheSame(oldItem: CalendarDayItem, newItem: CalendarDayItem): Boolean {
         val result = (oldItem.id == newItem.id)
-        if (DEV_VERBOSE_LOGGER) Clogger.d(
-            TAG,
-            "<areItemsTheSame>: oldItem.id=[${oldItem.id}], newItem.id=[${newItem.id}], result=[${result}]"
-        )
-
+        if (DEV_VERBOSE_LOGGER) {
+            Clogger.d(TAG, "<areItemsTheSame>: oldId=[${oldItem.id}], newId=[${newItem.id}], result=[$result]")
+        }
         return result
     }
 
-
-    override fun areContentsTheSame(
-        oldItem: CalendarDayItem, newItem: CalendarDayItem
-    ): Boolean {
+    override fun areContentsTheSame(oldItem: CalendarDayItem, newItem: CalendarDayItem): Boolean {
         val result = (oldItem == newItem)
-        if (DEV_VERBOSE_LOGGER) Clogger.d(
-            TAG,
-            "<areContentsTheSame>: oldItem.id=[${oldItem.id}], newItem.id=[${newItem.id}], result=[${result}]"
-        )
-
+        if (DEV_VERBOSE_LOGGER) {
+            Clogger.d(TAG, "<areContentsTheSame>: oldId=[${oldItem.id}], newId=[${newItem.id}], result=[$result]")
+        }
         return result
     }
 }

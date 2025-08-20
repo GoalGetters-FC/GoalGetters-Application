@@ -5,101 +5,67 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.data.model.CalendarDayItem   // ✅ from data.model
+import com.ggetters.app.data.model.EventCategory     // ✅ use EventCategory instead of EventType
 import com.ggetters.app.databinding.ItemCalendarDayBinding
-import com.ggetters.app.ui.central.models.CalendarDayItem
-import com.ggetters.app.ui.central.models.EventType
 
 class CalendarViewHolder(
     private val binding: ItemCalendarDayBinding,
     private val onClick: (Int) -> Unit,
     private val onLongClick: (Int) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
+
     companion object {
         private const val TAG = "CalendarViewHolder"
         private const val DEV_VERBOSE_LOGGER = true
     }
 
-
-    // --- Functions
-
-
-    /**
-     * Binds the data to the view.
-     */
-    fun bind(
-        item: CalendarDayItem
-    ) {
-        if (DEV_VERBOSE_LOGGER) Clogger.d(
-            TAG, "<bind>: id=[${item.id}]"
-        )
-
+    fun bind(item: CalendarDayItem) {
+        if (DEV_VERBOSE_LOGGER) Clogger.d(TAG, "<bind>: id=[${item.id}]")
         setupNumberedDay(item)
     }
 
-
-    /**
-     * Sets up the day number based on the calendar day item.
-     */
-    private fun setupNumberedDay(
-        calendarDay: CalendarDayItem
-    ) = when (calendarDay.dayNumber == null) {
-        true -> {
+    private fun setupNumberedDay(calendarDay: CalendarDayItem) {
+        if (calendarDay.dayNumber == null) {
             binding.dayNumber.text = ""
-            binding.dayNumber.isClickable = false
             binding.dayContainer.isClickable = false
             binding.dayContainer.isFocusable = false
             binding.eventDot1.visibility = View.GONE
             binding.eventDot2.visibility = View.GONE
             binding.eventDot3.visibility = View.GONE
             binding.dayContainer.alpha = 0.3f // Dim
-        }
-
-        else -> {
+        } else {
             binding.dayNumber.text = calendarDay.dayNumber.toString()
             binding.dayContainer.isClickable = true
             binding.dayContainer.isFocusable = true
 
             binding.dayContainer.setOnClickListener {
-                if (calendarDay.isCurrentMonth) {
-                    onClick(calendarDay.dayNumber)
-                }
+                if (calendarDay.isCurrentMonth) onClick(calendarDay.dayNumber)
             }
 
             binding.dayContainer.setOnLongClickListener {
                 if (calendarDay.isCurrentMonth) {
                     onLongClick(calendarDay.dayNumber)
                     true
-                } else {
-                    false
-                }
+                } else false
             }
 
             renderEventBackground(calendarDay)
             renderEventDots(calendarDay)
 
-            // Add ripple effect for current month days
             if (calendarDay.isCurrentMonth) {
                 binding.dayContainer.background = AppCompatResources.getDrawable(
                     itemView.context, R.drawable.day_ripple_background
                 )
-            } else {
             }
         }
     }
 
-
-    /**
-     * Draws the background resource based on the calendar day item.
-     */
-    private fun renderEventBackground(
-        calendarDay: CalendarDayItem
-    ) {
-        // Priority order: Selected > Today > Current Month > Other Month
+    private fun renderEventBackground(calendarDay: CalendarDayItem) {
         when {
             calendarDay.isSelected -> {
                 binding.dayContainer.setBackgroundResource(R.drawable.selected_day_background)
                 binding.dayNumber.setTextColor(itemView.context.getColor(R.color.black))
-                // Add subtle elevation for selected state
                 binding.dayContainer.elevation = 4f
             }
             calendarDay.isToday -> {
@@ -120,31 +86,19 @@ class CalendarViewHolder(
         }
     }
 
+    private fun renderEventDots(calendarDay: CalendarDayItem) {
+        val eventCategories = calendarDay.events.map { it.category }.toSet()
 
-    /**
-     * Draws the event dots based on the event types.
-     */
-    private fun renderEventDots(
-        calendarDay: CalendarDayItem
-    ) {
-        val eventTypes = calendarDay.events.map {
-            it.type
-        }.toSet()
-
-        updateEventDotVisibility(binding.eventDot1, EventType.PRACTICE, eventTypes)
-        updateEventDotVisibility(binding.eventDot2, EventType.MATCH, eventTypes)
-        updateEventDotVisibility(binding.eventDot3, EventType.OTHER, eventTypes)
+        updateEventDotVisibility(binding.eventDot1, EventCategory.TRAINING, eventCategories)
+        updateEventDotVisibility(binding.eventDot2, EventCategory.MATCH, eventCategories)
+        updateEventDotVisibility(binding.eventDot3, EventCategory.OTHER, eventCategories)
     }
 
-
-    /**
-     * Updates the visibility of the event dot based on the event type.
-     */
     private fun updateEventDotVisibility(
-        eventDot: View, eventType: EventType, eventTypes: Set<EventType>
+        eventDot: View,
+        eventCategory: EventCategory,
+        eventCategories: Set<EventCategory>
     ) {
-        eventDot.visibility = if (eventType in eventTypes) {
-            View.VISIBLE
-        } else View.GONE
+        eventDot.visibility = if (eventCategory in eventCategories) View.VISIBLE else View.GONE
     }
 }

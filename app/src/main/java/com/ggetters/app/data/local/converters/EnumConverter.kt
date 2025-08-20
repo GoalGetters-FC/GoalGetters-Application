@@ -1,103 +1,67 @@
 package com.ggetters.app.data.local.converters
 
-import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
-import com.ggetters.app.data.model.TeamComposition
-import com.ggetters.app.data.model.TeamDenomination
-import com.ggetters.app.data.model.UserPosition
-import com.ggetters.app.data.model.UserRole
-import com.ggetters.app.data.model.UserStatus
+import com.ggetters.app.data.model.*
 
 /**
  * Type converter for Enum values.
- * 
- * **Note:** The private methods are used to convert any generic Enum into its
- * equivalent string representation. As RoomDB does not support generics and the
- * reified parameter type, each Enum will need its own converter.
  *
- * @see TypeConverter
- * @see RoomDatabase
+ * Room requires concrete converter methods per enum type.
+ * Generic helpers are fine, but they cannot be annotated with @TypeConverter.
  */
 class EnumConverter {
 
-    
+    // --- Generic helpers (not annotated) ---
     private fun <T : Enum<T>> fromEnum(value: T?): String? = value?.name
-    private inline fun <reified T : Enum<T>> toEnum(value: String?): T? {
-        return value?.let { 
-            enumValueOf<T>(it) 
-        }
-    }
-    
-    
-    // --- Implementations of TypeConverters
+    private inline fun <reified T : Enum<T>> toEnum(value: String?): T? =
+        value?.let { enumValueOf<T>(it) }
 
-    
-    /**
-     * Convert from [UserPosition] to [String].
-     */
+    // --- UserPosition ---
     @TypeConverter
     fun fromUserPosition(value: UserPosition?): String? = fromEnum(value)
 
-
-    /**
-     * Convert from [String] to [UserPosition].
-     */
     @TypeConverter
-    fun toUserPosition(value: String?): UserPosition? = toEnum<UserPosition>(value) 
+    fun toUserPosition(value: String?): UserPosition? = toEnum<UserPosition>(value)
 
-
-    /**
-     * Convert from [UserRole] to [String].
-     */
+    // --- UserRole ---
     @TypeConverter
     fun fromUserRole(value: UserRole?): String? = fromEnum(value)
 
-
-    /**
-     * Convert from [String] to [UserRole].
-     */
     @TypeConverter
     fun toUserRole(value: String?): UserRole? = toEnum<UserRole>(value)
 
-
-    /**
-     * Convert from [UserStatus] to [String].
-     */
+    // --- UserStatus ---
     @TypeConverter
     fun fromUserStatus(value: UserStatus?): String? = fromEnum(value)
 
-
-    /**
-     * Convert from [String] to [UserStatus].
-     */
     @TypeConverter
     fun toUserStatus(value: String?): UserStatus? = toEnum<UserStatus>(value)
 
-
-    /**
-     * Convert from [TeamComposition] to [String].
-     */
+    // --- TeamComposition ---
     @TypeConverter
     fun fromTeamComposition(value: TeamComposition?): String? = fromEnum(value)
 
-
-    /**
-     * Convert from [String] to [TeamComposition].
-     */
     @TypeConverter
     fun toTeamComposition(value: String?): TeamComposition? = toEnum<TeamComposition>(value)
 
-
-    /**
-     * Convert from [TeamDenomination] to [String].
-     */
+    // --- TeamDenomination ---
     @TypeConverter
     fun fromTeamDenomination(value: TeamDenomination?): String? = fromEnum(value)
 
-
-    /**
-     * Convert from [String] to [TeamDenomination].
-     */
     @TypeConverter
     fun toTeamDenomination(value: String?): TeamDenomination? = toEnum<TeamDenomination>(value)
+
+    // --- EventCategory ---
+    @TypeConverter
+    fun fromCategory(value: EventCategory?): String? = fromEnum(value)
+
+    @TypeConverter
+    fun toCategory(value: String?): EventCategory? = toEnum<EventCategory>(value)
+
+    // --- EventStyle ---
+    @TypeConverter
+    fun fromStyle(value: EventStyle?): String? = fromEnum(value)
+
+    @TypeConverter
+    fun toStyle(value: String?): EventStyle? = toEnum<EventStyle>(value)
 }

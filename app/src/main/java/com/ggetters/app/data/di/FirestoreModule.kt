@@ -59,8 +59,8 @@ object FirestoreModule {
     fun provideBroadcastStatusFirestore(firestore: FirebaseFirestore): BroadcastStatusFirestore =
         BroadcastStatusFirestore(firestore)
 
-    /** Your wrapper for the "Event" collection */
     @Provides @Singleton
-    fun provideEventFirestore(firestore: FirebaseFirestore): EventFirestore =
-        EventFirestore(firestore)
+    fun provideEventFirestore(paths: FirestorePathProvider): EventFirestore =
+        EventFirestore(paths)
+
 }
