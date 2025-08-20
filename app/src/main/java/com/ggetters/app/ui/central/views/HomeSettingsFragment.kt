@@ -18,6 +18,9 @@ class HomeSettingsFragment : Fragment() {
 
     private val activeModel: HomeSettingsViewModel by viewModels()
     private val sharedModel: HomeViewModel by activityViewModels()
+    
+    
+// --- Lifecycle
 
 
     override fun onCreateView(

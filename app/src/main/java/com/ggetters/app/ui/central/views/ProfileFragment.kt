@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -19,22 +20,26 @@ import com.ggetters.app.R
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
+import com.ggetters.app.ui.central.models.AppbarTheme
+import com.ggetters.app.ui.central.models.HomeUiConfiguration
 import com.ggetters.app.ui.central.models.UserAccount
 import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
+import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.central.viewmodels.ProfileViewModel
 import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.management.views.TeamViewerActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
 
-    private val model: ProfileViewModel by viewModels()
+    private val activeModel: ProfileViewModel by viewModels()
+    private val sharedModel: HomeViewModel by activityViewModels()
 
     private lateinit var profileAvatar: ImageView
     private lateinit var userNameText: TextView
@@ -62,6 +67,14 @@ class ProfileFragment : Fragment() {
         setupClickListeners()
         observeActiveTeam()   // ← keep team name live
         loadUserProfile()
+
+        sharedModel.useViewConfiguration(
+            HomeUiConfiguration(
+                appBarColor = AppbarTheme.WHITE,
+                appBarTitle = "Settings",
+                appBarShown = true,
+            )
+        )
     }
 
     private fun setupViews(view: View) {
@@ -106,7 +119,7 @@ class ProfileFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    model.activeTeam.collect { team ->
+                    activeModel.activeTeam.collect { team ->
                         teamNameText.text = team?.name ?: getString(R.string.no_active_team)
                     }
                 }
@@ -214,7 +227,7 @@ class ProfileFragment : Fragment() {
 
     private fun performLogout() {
         try {
-            model.logout()
+            activeModel.logout()
         } catch (e: Exception) {
             Log.e("ProfileFragment", "Error during logout", e)
             Snackbar.make(requireView(), "Error during logout. Please try again.", Snackbar.LENGTH_LONG).show()

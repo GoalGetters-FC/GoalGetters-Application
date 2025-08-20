@@ -18,6 +18,8 @@ import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.databinding.FragmentHomeTeamBinding
 import com.ggetters.app.ui.central.adapters.TeamUserListAdapter
+import com.ggetters.app.ui.central.models.AppbarTheme
+import com.ggetters.app.ui.central.models.HomeUiConfiguration
 import com.ggetters.app.ui.central.viewmodels.HomeTeamViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.shared.models.Clickable
@@ -59,6 +61,14 @@ class HomeTeamFragment : Fragment(), Clickable {
         super.onViewCreated(view, savedInstanceState)
         Clogger.d(
             TAG, "Created a new instance of HomeTeamFragment"
+        )
+        
+        sharedModel.useViewConfiguration(
+            HomeUiConfiguration(
+                appBarColor = AppbarTheme.NIGHT,
+                appBarTitle = "",
+                appBarShown = true,
+            )
         )
 
         val seed = listOf(

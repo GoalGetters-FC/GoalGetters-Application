@@ -17,10 +17,11 @@ import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.FragmentCalendarBinding
 import com.ggetters.app.ui.central.adapters.CalendarAdapter
 import com.ggetters.app.ui.central.adapters.EventAdapter
+import com.ggetters.app.ui.central.models.AppbarTheme
 import com.ggetters.app.ui.central.models.CalendarDayItem
 import com.ggetters.app.ui.central.models.Event
 import com.ggetters.app.ui.central.models.EventType
-import com.ggetters.app.ui.central.sheets.AddEventBottomSheet
+import com.ggetters.app.ui.central.models.HomeUiConfiguration
 import com.ggetters.app.ui.central.sheets.EventDetailsBottomSheet
 import com.ggetters.app.ui.central.sheets.EventListBottomSheet
 import com.ggetters.app.ui.central.viewmodels.HomeCalendarViewModel
@@ -89,6 +90,14 @@ class HomeCalendarFragment : Fragment(), Clickable {
         hideSelectedDayEvents()
         updateMonthYearDisplay()
         autoSelectToday()
+
+        sharedModel.useViewConfiguration(
+            HomeUiConfiguration(
+                appBarColor = AppbarTheme.WHITE,
+                appBarTitle = "August 2025",
+                appBarShown = true,
+            )
+        )
     }
 
 
@@ -385,15 +394,11 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
 
     override fun setupTouchListeners() {
-        binds.btIncrementCalendar.setOnClickListener(this)
-        binds.btDecrementCalendar.setOnClickListener(this)
         binds.fab.setOnClickListener(this)
     }
 
 
     override fun onClick(view: View?) = when (view?.id) {
-        binds.btIncrementCalendar.id -> decrementCalendarView()
-        binds.btDecrementCalendar.id -> incrementCalendarView()
         binds.fab.id -> showAddEventBottomSheet()
         else -> {
             Clogger.w(
@@ -680,6 +685,12 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
     private fun updateMonthYearDisplay() {
         val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-        binds.monthYearText.text = dateFormat.format(currentDate.time)
+        sharedModel.useViewConfiguration(
+            HomeUiConfiguration(
+                appBarColor = AppbarTheme.WHITE,
+                appBarTitle = dateFormat.format(currentDate.time),
+                appBarShown = true,
+            )
+        )
     }
 } 
