@@ -10,6 +10,7 @@ import com.ggetters.app.core.extensions.navigateTo
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.FragmentPlayerDetailsBinding
 
+@Deprecated("Use PlayerProfileFragment instead")
 class PlayerDetailsFragment : Fragment() {
     
     private var _binding: FragmentPlayerDetailsBinding? = null

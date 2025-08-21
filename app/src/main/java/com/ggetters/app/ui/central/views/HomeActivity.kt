@@ -119,7 +119,7 @@ class HomeActivity : AppCompatActivity() {
             val currentId = when (currentFragment) {
                 is HomeCalendarFragment -> R.id.nav_calendar
                 is HomeTeamFragment -> R.id.nav_team_players
-                is PlayerDetailsFragment -> R.id.nav_player_profile
+                is PlayerProfileFragment -> R.id.nav_player_profile
                 is ProfileFragment -> R.id.nav_profile
                 else -> R.id.nav_calendar
             }
@@ -131,7 +131,10 @@ class HomeActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.nav_calendar -> switchFragment(HomeCalendarFragment(), isForward)
                 R.id.nav_team_players -> switchFragment(HomeTeamFragment(), isForward)
-                R.id.nav_player_profile -> switchFragment(PlayerDetailsFragment(), isForward)
+                R.id.nav_player_profile -> switchFragment(
+                    PlayerProfileFragment.newInstance("current_user_id"),
+                    isForward
+                )
                 R.id.nav_profile -> switchFragment(ProfileFragment(), isForward)
                 else -> false
             }.let { handled -> handled }
@@ -274,6 +277,12 @@ class HomeActivity : AppCompatActivity() {
         R.id.nav_player_profile -> 2
         R.id.nav_profile -> 3
         else -> 0
+    }
+
+    // Allow fragments to switch tabs without triggering back press exits
+    fun navigateToTab(itemId: Int) {
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        bottomNav.selectedItemId = itemId
     }
 
     fun showAccountSwitcher() {

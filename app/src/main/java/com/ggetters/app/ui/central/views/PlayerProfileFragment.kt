@@ -89,6 +89,7 @@ class PlayerProfileFragment : Fragment() {
         loadPlayerProfile()
         setupRoleVisibility()
         setupActions()
+        setupToolbarNavigation(view)
         // If launched to edit directly
         if (isEditing) setEditing(true)
     }
@@ -132,6 +133,26 @@ class PlayerProfileFragment : Fragment() {
         
         // Setup date picker for date of birth
         setupDatePicker()
+    }
+
+    private fun setupToolbarNavigation(view: View) {
+        view.findViewById<com.google.android.material.appbar.MaterialToolbar?>(R.id.toolbar)?.apply {
+            // If hosted by PlayerProfileActivity, hide this in-fragment toolbar to avoid double toolbars
+            if (requireActivity() is PlayerProfileActivity) {
+                this.visibility = View.GONE
+            } else {
+                // When hosted inside HomeActivity/Profile tab, show nav icon and switch to previous tab instead of exiting
+                this.navigationIcon = resources.getDrawable(R.drawable.ic_unicons_arrow_left, requireContext().theme)
+                setNavigationOnClickListener {
+                    (requireActivity() as? HomeActivity)?.let { home ->
+                        // Navigate back to Players tab (or Calendar if you prefer)
+                        home.navigateToTab(R.id.nav_team_players)
+                    } ?: run {
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
+                    }
+                }
+            }
+        }
     }
     
     private fun loadPlayerProfile() {

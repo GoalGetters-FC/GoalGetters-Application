@@ -7,11 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
+import android.content.Intent
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ggetters.app.R
 import com.ggetters.app.core.extensions.navigateTo
+import com.ggetters.app.core.extensions.navigateToActivity
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.model.UserPosition
@@ -111,13 +113,10 @@ class HomeTeamFragment : Fragment(), Clickable {
 
 
     private fun onListItemClickedCallback(selected: User) {
-        val navigationIntent = PlayerProfileFragment.newInstance(selected.id)
-        navigateTo(
-            destination = navigationIntent,
-            isForward = true,
-            addToBackStack = true,
-            backStackName = "players_to_player_profile"
-        )
+        val intent = Intent(requireContext(), PlayerProfileActivity::class.java).apply {
+            putExtra(PlayerProfileActivity.EXTRA_PLAYER_ID, selected.id)
+        }
+        requireActivity().navigateToActivity(intent)
     }
     
     
