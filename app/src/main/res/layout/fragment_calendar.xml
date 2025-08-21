@@ -224,14 +224,12 @@
     <!-- Floating Action Button for adding events -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/Widget.Local.FloatingActionButton"
+            android:src="@drawable/xic_x24_uic_line_plus"
+            android:importantForAccessibility="no"
             android:layout_gravity="bottom|end"
-            android:layout_margin="20dp"
-            android:src="@drawable/ic_unicons_plus_24"
-            app:backgroundTint="#FFD400"
-            app:tint="@color/black"
-            app:elevation="8dp"
-            app:pressedTranslationZ="12dp" />
+            android:layout_margin="16dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout> 

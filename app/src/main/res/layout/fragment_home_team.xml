@@ -77,16 +77,12 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
-            app:fabCustomSize="64dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/Widget.Local.FloatingActionButton"
+            android:src="@drawable/xic_x24_uic_line_plus"
+            android:importantForAccessibility="no"
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
-            android:importantForAccessibility="no"
-            android:src="@drawable/xic_x24_uic_line_plus"
-            app:backgroundTint="#FF9500"
-            app:tint="#FFFFFF"
-            app:elevation="2dp"
-            app:pressedTranslationZ="3dp" />
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
