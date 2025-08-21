@@ -23,8 +23,6 @@
     <string name="account">Account</string>
     <string name="security">Security</string>
     <string name="no_active_team">No active team</string>
-<<<<<<< HEAD
-=======
+
     <string name="help_faq"><![CDATA[Help & FAQ]]></string>
->>>>>>> origin/staging
 </resources>

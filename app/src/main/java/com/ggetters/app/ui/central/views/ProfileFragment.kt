@@ -15,41 +15,28 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-<<<<<<< HEAD
 import com.ggetters.app.core.extensions.navigateTo
-=======
->>>>>>> origin/staging
+import com.ggetters.app.core.extensions.navigateToActivity
 import com.ggetters.app.R
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
-import com.ggetters.app.ui.central.models.AppbarTheme
-import com.ggetters.app.ui.central.models.HomeUiConfiguration
 import com.ggetters.app.ui.central.models.UserAccount
 import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
-<<<<<<< HEAD
-=======
-import com.ggetters.app.ui.central.viewmodels.HomeViewModel
->>>>>>> origin/staging
 import com.ggetters.app.ui.central.viewmodels.ProfileViewModel
 import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.management.views.TeamViewerActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
-<<<<<<< HEAD
 import kotlinx.coroutines.launch
-=======
->>>>>>> origin/staging
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
 
-    private val activeModel: ProfileViewModel by viewModels()
-    private val sharedModel: HomeViewModel by activityViewModels()
+    private val model: ProfileViewModel by viewModels()
 
     private lateinit var profileAvatar: ImageView
     private lateinit var userNameText: TextView
@@ -77,14 +64,14 @@ class ProfileFragment : Fragment() {
         setupClickListeners()
         observeActiveTeam()   // ← keep team name live
         loadUserProfile()
+        setupToolbarVisibility(view)
+    }
 
-        sharedModel.useViewConfiguration(
-            HomeUiConfiguration(
-                appBarColor = AppbarTheme.WHITE,
-                appBarTitle = "Settings",
-                appBarShown = true,
-            )
-        )
+    private fun setupToolbarVisibility(view: View) {
+        // Hide toolbar when hosted by UserProfileActivity to avoid double toolbars
+        if (requireActivity() is UserProfileActivity) {
+            // No toolbar in this fragment layout, but we could hide other elements if needed
+        }
     }
 
     private fun setupViews(view: View) {
@@ -129,11 +116,7 @@ class ProfileFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-<<<<<<< HEAD
                     model.activeTeam.collect { team ->
-=======
-                    activeModel.activeTeam.collect { team ->
->>>>>>> origin/staging
                         teamNameText.text = team?.name ?: getString(R.string.no_active_team)
                     }
                 }
@@ -203,13 +186,10 @@ class ProfileFragment : Fragment() {
     }
 
     private fun navigateToTeamProfile() {
-        val teamProfileFragment = com.ggetters.app.ui.management.views.TeamProfileFragment()
-        navigateTo(
-            destination = teamProfileFragment,
-            isForward = true,
-            addToBackStack = true,
-            backStackName = "profile_to_team_profile"
-        )
+        val intent = android.content.Intent(requireContext(), UserProfileActivity::class.java).apply {
+            putExtra(UserProfileActivity.EXTRA_PROFILE_TYPE, UserProfileActivity.PROFILE_TYPE_TEAM)
+        }
+        requireActivity().navigateToActivity(intent)
     }
 
     private fun navigateToTeamManagement() {
@@ -243,11 +223,7 @@ class ProfileFragment : Fragment() {
 
     private fun performLogout() {
         try {
-<<<<<<< HEAD
             model.logout()
-=======
-            activeModel.logout()
->>>>>>> origin/staging
         } catch (e: Exception) {
             Log.e("ProfileFragment", "Error during logout", e)
             Snackbar.make(requireView(), "Error during logout. Please try again.", Snackbar.LENGTH_LONG).show()

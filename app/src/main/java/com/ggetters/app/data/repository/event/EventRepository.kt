@@ -22,17 +22,6 @@ interface EventRepository : CrudRepository<Event> {
     ): Flow<List<Event>>
 
     fun getEventsByCreator(creatorId: String): Flow<List<Event>>
-<<<<<<< HEAD
-    fun hydrateForTeam(id: String)
-
-    // TODO: Backend - Add RSVP management methods
-    // TODO: Backend - Add event template methods
-    // TODO: Backend - Add recurring event methods
-    // TODO: Backend - Add event conflict detection methods
-    // TODO: Backend - Add event notification methods
-    // TODO: Backend - Add event analytics methods
-=======
->>>>>>> origin/staging
 
     fun hydrateForTeam(id: String)
 }

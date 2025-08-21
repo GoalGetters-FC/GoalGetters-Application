@@ -7,19 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
-<<<<<<< HEAD
 import android.content.Intent
-=======
->>>>>>> origin/staging
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ggetters.app.R
-<<<<<<< HEAD
 import com.ggetters.app.core.extensions.navigateTo
 import com.ggetters.app.core.extensions.navigateToActivity
-=======
->>>>>>> origin/staging
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.model.UserPosition
@@ -27,11 +21,6 @@ import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.databinding.FragmentHomeTeamBinding
 import com.ggetters.app.ui.central.adapters.TeamUserListAdapter
-<<<<<<< HEAD
-=======
-import com.ggetters.app.ui.central.models.AppbarTheme
-import com.ggetters.app.ui.central.models.HomeUiConfiguration
->>>>>>> origin/staging
 import com.ggetters.app.ui.central.viewmodels.HomeTeamViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.shared.models.Clickable
@@ -74,17 +63,6 @@ class HomeTeamFragment : Fragment(), Clickable {
         Clogger.d(
             TAG, "Created a new instance of HomeTeamFragment"
         )
-<<<<<<< HEAD
-=======
-        
-        sharedModel.useViewConfiguration(
-            HomeUiConfiguration(
-                appBarColor = AppbarTheme.NIGHT,
-                appBarTitle = "",
-                appBarShown = true,
-            )
-        )
->>>>>>> origin/staging
 
         val seed = listOf(
             User(
@@ -135,18 +113,11 @@ class HomeTeamFragment : Fragment(), Clickable {
 
 
     private fun onListItemClickedCallback(selected: User) {
-<<<<<<< HEAD
-        val intent = Intent(requireContext(), PlayerProfileActivity::class.java).apply {
-            putExtra(PlayerProfileActivity.EXTRA_PLAYER_ID, selected.id)
+        val intent = Intent(requireContext(), UserProfileActivity::class.java).apply {
+            putExtra(UserProfileActivity.EXTRA_PROFILE_TYPE, UserProfileActivity.PROFILE_TYPE_PLAYER)
+            putExtra(UserProfileActivity.EXTRA_PROFILE_ID, selected.id)
         }
         requireActivity().navigateToActivity(intent)
-=======
-        val navigationIntent = PlayerProfileFragment.newInstance(selected.id)
-        parentFragmentManager.beginTransaction().apply {
-            replace(R.id.fragmentContainer, navigationIntent)
-            addToBackStack("players_to_player_profile")
-        }.commit()
->>>>>>> origin/staging
     }
     
     

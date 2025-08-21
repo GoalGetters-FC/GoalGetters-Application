@@ -49,22 +49,5 @@ class OnlineEventRepository @Inject constructor(
         creatorId: String
     ): Flow<List<Event>> = throw NotImplementedError()
 
-<<<<<<< HEAD
-    override fun hydrateForTeam(id: String) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun deleteAll() {
-        Clogger.i("DevClass", "NEED-TO-DO-Deleting all events from remote Firestore")
-
-//        runBlocking {
-//            val allEvents = fs.getAll()
-//            allEvents.forEach { event ->
-//                fs.delete(event.id)
-//            }
-//        }
-    }
-=======
     override fun hydrateForTeam(id: String) { /* no-op */ }
->>>>>>> origin/staging
 }

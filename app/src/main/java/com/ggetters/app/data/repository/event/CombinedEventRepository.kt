@@ -65,26 +65,5 @@ class CombinedEventRepository @Inject constructor(
     override fun getEventsByCreator(creatorId: String) =
         offline.getEventsByCreator(creatorId)
 
-<<<<<<< HEAD
-    override fun hydrateForTeam(id: String) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun deleteAll() {
-        try {
-            offline.deleteAll()
-            online.deleteAll()
-        } catch (e: Exception) {
-            Clogger.e("DevClass", "Failed to delete all events: ${e.message}")
-        }
-    }
-    // TODO: Backend - Implement combined RSVP management
-    // TODO: Backend - Add combined event analytics
-    // TODO: Backend - Implement combined conflict detection
-    // TODO: Backend - Add combined search functionality
-    // TODO: Backend - Implement combined recurring event support
-} 
-=======
     override fun hydrateForTeam(id: String) { /* optional no-op */ }
 }
->>>>>>> origin/staging

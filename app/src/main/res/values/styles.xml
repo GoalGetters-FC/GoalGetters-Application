@@ -2,8 +2,6 @@
 <resources>
     <!-- AppTheme style removed to resolve duplicate resource error. -->
 
-<<<<<<< HEAD
-=======
     <style name="Widget.Local.FloatingActionButton"
             parent="Widget.Material3.FloatingActionButton.Primary">
         <item name="fabCustomSize">64dp</item>

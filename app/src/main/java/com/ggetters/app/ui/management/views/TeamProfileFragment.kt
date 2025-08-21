@@ -60,8 +60,8 @@ class TeamProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupViews(view)
         setupClickListeners()
-        setupDropdowns()
         loadTeamData()
+        setupToolbarVisibility(view)
     }
 
     private fun setupViews(view: View) {
@@ -192,19 +192,12 @@ class TeamProfileFragment : Fragment() {
         // TODO: Backend - Add team players permissions and role validation
         
         val playersFragment = HomeTeamFragment()
-<<<<<<< HEAD
         navigateTo(
             destination = playersFragment,
             isForward = true,
             addToBackStack = true,
             backStackName = "team_profile_to_players"
         )
-=======
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, playersFragment)
-            .addToBackStack("team_profile_to_players")
-            .commit()
->>>>>>> origin/staging
     }
 
     private fun navigateToTeamStatistics() {
@@ -247,5 +240,14 @@ class TeamProfileFragment : Fragment() {
         
         Snackbar.make(requireView(), "Team deleted", Snackbar.LENGTH_SHORT).show()
         parentFragmentManager.popBackStack()
+    }
+
+    private fun setupToolbarVisibility(view: View) {
+        // Hide toolbar when hosted by UserProfileActivity to avoid double toolbars
+        if (requireActivity() is com.ggetters.app.ui.central.views.UserProfileActivity) {
+            view.findViewById<com.google.android.material.appbar.MaterialToolbar?>(R.id.toolbar)?.apply {
+                this.visibility = View.GONE
+            }
+        }
     }
 } 
