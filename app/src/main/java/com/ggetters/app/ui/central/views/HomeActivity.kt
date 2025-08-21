@@ -79,7 +79,7 @@ class HomeActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.menu_home, menu)
         val notificationOption = menu?.findItem(R.id.menu_home_notifications)
         val notificationAction = notificationOption?.actionView
-        val notificationBadge = notificationAction?.findViewById<ImageView>(R.id.iv_badge)
+        notificationBadge = notificationAction?.findViewById<ImageView>(R.id.iv_badge)
         notificationAction?.setOnClickListener {
             onOptionsItemSelected(notificationOption)
         }
@@ -181,7 +181,7 @@ class HomeActivity : AppCompatActivity() {
 
                 R.id.nav_profile -> {
                     // Options tab - Show account switcher on long press, regular click shows profile
-                    switchFragment(ProfileFragment())
+                    switchFragment(HomeSettingsFragment())
                     true
                 }
 
