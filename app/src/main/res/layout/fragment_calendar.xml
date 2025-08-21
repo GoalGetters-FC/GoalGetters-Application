@@ -12,49 +12,6 @@
             android:orientation="vertical">
 
         <!-- Header with month navigation -->
-        <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="8dp"
-                android:gravity="center_vertical"
-                android:elevation="2dp"
-                android:background="@color/white">
-
-            <ImageButton
-                    android:id="@+id/bt_decrement_calendar"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/ic_unicons_arrow_left"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Previous month"
-                    android:layout_marginEnd="8dp"
-                    app:tint="@color/text_secondary" />
-
-            <TextView
-                    android:id="@+id/monthYearText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="December 2024"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:gravity="center"
-                    android:fontFamily="@font/variable_inter" />
-
-            <ImageButton
-                    android:id="@+id/bt_increment_calendar"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/ic_unicons_arrow_right_24"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Next month"
-                    android:layout_marginStart="8dp"
-                    app:tint="@color/text_secondary" />
-
-        </LinearLayout>
 
         <!-- Calendar section (60% of available height) -->
         <LinearLayout
@@ -267,14 +224,12 @@
     <!-- Floating Action Button for adding events -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/Widget.Local.FloatingActionButton"
+            android:src="@drawable/xic_x24_uic_line_plus"
+            android:importantForAccessibility="no"
             android:layout_gravity="bottom|end"
-            android:layout_margin="20dp"
-            android:src="@drawable/ic_unicons_plus_24"
-            app:backgroundTint="#FFD400"
-            app:tint="@color/black"
-            app:elevation="8dp"
-            app:pressedTranslationZ="12dp" />
+            android:layout_margin="16dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout> 

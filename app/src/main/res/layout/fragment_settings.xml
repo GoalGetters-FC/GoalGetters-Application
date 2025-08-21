@@ -1,30 +1,425 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="32dp">
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:background="#161620"
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
 
-    <ImageView
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:src="@drawable/ic_unicons_settings_24"
-        android:tint="@color/black" />
+    <!-- UI -->
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Settings"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp" />
+    <LinearLayout
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="32dp"
+            android:paddingHorizontal="28dp"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="App settings will appear here."
-        android:textSize="16sp"
-        android:layout_marginTop="8dp" />
+        <TextView
+                android:id="@+id/tv_head"
+                android:text="U18 Johannesburg"
+                android:textColor="#FFFFFF"
+                android:textSize="24sp"
+                android:textFontWeight="600"
+                android:fontFamily="@font/variable_inter"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                tools:ignore="HardcodedText" />
 
-</LinearLayout> 
+        <Space
+                android:layout_height="8dp"
+                android:layout_width="0dp" />
+
+        <TextView
+                android:id="@+id/tv_text"
+                android:text="Football (Soccer)"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textFontWeight="500"
+                android:fontFamily="@font/variable_inter"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
+    <com.google.android.material.card.MaterialCardView
+            app:contentPadding="16dp"
+            app:contentPaddingBottom="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardPreventCornerOverlap="false"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.TopCorner40"
+            app:strokeWidth="0dp"
+            app:cardElevation="6dp"
+            android:elevation="6dp"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent">
+
+        <ScrollView
+                android:layout_height="match_parent"
+                android:layout_width="match_parent">
+
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent">
+
+                <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cv_option_account"
+                        app:cardCornerRadius="24dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        app:contentPadding="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent">
+
+                    <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_height="match_parent"
+                            android:layout_width="match_parent">
+
+                        <androidx.coordinatorlayout.widget.CoordinatorLayout
+                                android:background="@drawable/circle_background"
+                                android:backgroundTint="#F5F6F7"
+                                android:layout_height="48dp"
+                                android:layout_width="48dp">
+
+                            <ImageView
+                                    android:src="@drawable/xic_x36_uic_line_user"
+                                    android:importantForAccessibility="no"
+                                    app:tint="#161620"
+                                    android:layout_gravity="center"
+                                    android:layout_height="24dp"
+                                    android:layout_width="24dp" />
+
+                        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+                        <Space
+                                android:layout_height="0dp"
+                                android:layout_width="16dp" />
+
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Account"
+                                android:textColor="#161620"
+                                android:textSize="16sp"
+                                android:textFontWeight="500"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:layout_gravity="center_vertical"
+                                android:fontFamily="@font/variable_inter"
+                                tools:ignore="HardcodedText" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <Space
+                        android:layout_height="12dp"
+                        android:layout_width="0dp" />
+
+                <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cv_option_settings"
+                        app:cardCornerRadius="24dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        app:contentPadding="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent">
+
+                    <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_height="match_parent"
+                            android:layout_width="match_parent">
+
+                        <androidx.coordinatorlayout.widget.CoordinatorLayout
+                                android:background="@drawable/circle_background"
+                                android:backgroundTint="#F5F6F7"
+                                android:layout_height="48dp"
+                                android:layout_width="48dp">
+
+                            <ImageView
+                                    android:src="@drawable/xic_x36_uic_line_cog"
+                                    android:importantForAccessibility="no"
+                                    app:tint="#161620"
+                                    android:layout_gravity="center"
+                                    android:layout_height="24dp"
+                                    android:layout_width="24dp" />
+
+                        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+                        <Space
+                                android:layout_height="0dp"
+                                android:layout_width="16dp" />
+
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Settings"
+                                android:textColor="#161620"
+                                android:textSize="16sp"
+                                android:textFontWeight="500"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:layout_gravity="center_vertical"
+                                android:fontFamily="@font/variable_inter"
+                                tools:ignore="HardcodedText" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <Space
+                        android:layout_height="12dp"
+                        android:layout_width="0dp" />
+
+                <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cv_option_notifications"
+                        app:cardCornerRadius="24dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        app:contentPadding="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent">
+
+                    <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_height="match_parent"
+                            android:layout_width="match_parent">
+
+                        <androidx.coordinatorlayout.widget.CoordinatorLayout
+                                android:background="@drawable/circle_background"
+                                android:backgroundTint="#F5F6F7"
+                                android:layout_height="48dp"
+                                android:layout_width="48dp">
+
+                            <ImageView
+                                    android:src="@drawable/xic_x36_uic_line_bell"
+                                    android:importantForAccessibility="no"
+                                    app:tint="#161620"
+                                    android:layout_gravity="center"
+                                    android:layout_height="24dp"
+                                    android:layout_width="24dp" />
+
+                        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+                        <Space
+                                android:layout_height="0dp"
+                                android:layout_width="16dp" />
+
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Notifications"
+                                android:textColor="#161620"
+                                android:textSize="16sp"
+                                android:textFontWeight="500"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:layout_gravity="center_vertical"
+                                android:fontFamily="@font/variable_inter"
+                                tools:ignore="HardcodedText" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <Space
+                        android:layout_height="32dp"
+                        android:layout_width="0dp" />
+
+                <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cv_option_privacy"
+                        app:cardCornerRadius="24dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        app:contentPadding="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent">
+
+                    <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_height="match_parent"
+                            android:layout_width="match_parent">
+
+                        <androidx.coordinatorlayout.widget.CoordinatorLayout
+                                android:background="@drawable/circle_background"
+                                android:backgroundTint="#F5F6F7"
+                                android:layout_height="48dp"
+                                android:layout_width="48dp">
+
+                            <ImageView
+                                    android:src="@drawable/xic_x36_uic_line_shield_check"
+                                    android:importantForAccessibility="no"
+                                    app:tint="#161620"
+                                    android:layout_gravity="center"
+                                    android:layout_height="24dp"
+                                    android:layout_width="24dp" />
+
+                        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+                        <Space
+                                android:layout_height="0dp"
+                                android:layout_width="16dp" />
+
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Privacy policy"
+                                android:textColor="#161620"
+                                android:textSize="16sp"
+                                android:textFontWeight="500"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:layout_gravity="center_vertical"
+                                android:fontFamily="@font/variable_inter"
+                                tools:ignore="HardcodedText" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <Space
+                        android:layout_height="12dp"
+                        android:layout_width="0dp" />
+
+                <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cv_option_contact"
+                        app:cardCornerRadius="24dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        app:contentPadding="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent">
+
+                    <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_height="match_parent"
+                            android:layout_width="match_parent">
+
+                        <androidx.coordinatorlayout.widget.CoordinatorLayout
+                                android:background="@drawable/circle_background"
+                                android:backgroundTint="#F5F6F7"
+                                android:layout_height="48dp"
+                                android:layout_width="48dp">
+
+                            <ImageView
+                                    android:src="@drawable/xic_x36_uic_line_comment_alt_lines"
+                                    android:importantForAccessibility="no"
+                                    app:tint="#161620"
+                                    android:layout_gravity="center"
+                                    android:layout_height="24dp"
+                                    android:layout_width="24dp" />
+
+                        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+                        <Space
+                                android:layout_height="0dp"
+                                android:layout_width="16dp" />
+
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Contact the developers"
+                                android:textColor="#161620"
+                                android:textSize="16sp"
+                                android:textFontWeight="500"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:layout_gravity="center_vertical"
+                                android:fontFamily="@font/variable_inter"
+                                tools:ignore="HardcodedText" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <Space
+                        android:layout_height="12dp"
+                        android:layout_width="0dp" />
+
+                <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cv_option_faq"
+                        app:cardCornerRadius="24dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        app:contentPadding="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent">
+
+                    <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_height="match_parent"
+                            android:layout_width="match_parent">
+
+                        <androidx.coordinatorlayout.widget.CoordinatorLayout
+                                android:background="@drawable/circle_background"
+                                android:backgroundTint="#F5F6F7"
+                                android:layout_height="48dp"
+                                android:layout_width="48dp">
+
+                            <ImageView
+                                    android:src="@drawable/xic_x36_uic_line_question_circle"
+                                    android:importantForAccessibility="no"
+                                    app:tint="#161620"
+                                    android:layout_gravity="center"
+                                    android:layout_height="24dp"
+                                    android:layout_width="24dp" />
+
+                        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+                        <Space
+                                android:layout_height="0dp"
+                                android:layout_width="16dp" />
+
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/help_faq"
+                                android:textColor="#161620"
+                                android:textSize="16sp"
+                                android:textFontWeight="500"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:layout_gravity="center_vertical"
+                                android:fontFamily="@font/variable_inter" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <Space
+                        android:layout_height="32dp"
+                        android:layout_width="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                        android:id="@+id/bt_logout"
+                        android:text="Logout"
+                        android:textColor="#FFFFFF"
+                        android:paddingHorizontal="24dp"
+                        android:backgroundTint="#FF9500"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+        </ScrollView>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

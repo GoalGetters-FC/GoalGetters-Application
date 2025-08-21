@@ -26,6 +26,11 @@ import com.ggetters.app.data.model.PerformanceLog
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.local.migrations.MIGRATION_1_2
+<<<<<<< HEAD
+=======
+import com.ggetters.app.data.local.migrations.MIGRATION_2_3
+import com.ggetters.app.data.local.migrations.MIGRATION_3_4
+>>>>>>> origin/staging
 
 /**
  * Fresh baseline schema (v1). No migrations registered.
@@ -41,7 +46,11 @@ import com.ggetters.app.data.local.migrations.MIGRATION_1_2
         Lineup::class,
         PerformanceLog::class
     ],
+<<<<<<< HEAD
     version = 2,
+=======
+    version = 4,
+>>>>>>> origin/staging
     exportSchema = true
 )
 @TypeConverters(
@@ -71,7 +80,11 @@ abstract class AppDatabase : RoomDatabase() {
             return INSTANCE ?: synchronized(this) {
                 val instance =
                     Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, DATABASE_NAME)
+<<<<<<< HEAD
                         .addMigrations(MIGRATION_1_2)
+=======
+                        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+>>>>>>> origin/staging
                         .apply {
                             if (BuildConfig.DEBUG) {
                                 // Dev safety nets; keep if you like

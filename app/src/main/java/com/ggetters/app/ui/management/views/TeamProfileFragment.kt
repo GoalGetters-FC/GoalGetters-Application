@@ -192,12 +192,19 @@ class TeamProfileFragment : Fragment() {
         // TODO: Backend - Add team players permissions and role validation
         
         val playersFragment = HomeTeamFragment()
+<<<<<<< HEAD
         navigateTo(
             destination = playersFragment,
             isForward = true,
             addToBackStack = true,
             backStackName = "team_profile_to_players"
         )
+=======
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, playersFragment)
+            .addToBackStack("team_profile_to_players")
+            .commit()
+>>>>>>> origin/staging
     }
 
     private fun navigateToTeamStatistics() {

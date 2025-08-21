@@ -234,8 +234,8 @@ class DevClass @Inject constructor(
                 creatorId = userId,
                 name = "Test Match",
                 description = "Seeded match event",
-                category = 1,
-                style = 0,
+                category = EventCategory.PRACTICE,
+                style = EventStyle.FRIENDLY,
                 startAt = now,
                 endAt = now.plusHours(2),
                 location = "Training Grounds"

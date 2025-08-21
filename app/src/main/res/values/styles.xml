@@ -2,6 +2,28 @@
 <resources>
     <!-- AppTheme style removed to resolve duplicate resource error. -->
 
+<<<<<<< HEAD
+=======
+    <style name="Widget.Local.FloatingActionButton"
+            parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="fabCustomSize">64dp</item>
+        <item name="backgroundTint">#FF9500</item>
+        <item name="tint">#FFFFFF</item>
+        <item name="elevation">2dp</item>
+        <item name="pressedTranslationZ">3dp</item>
+    </style>
+
+
+    <style name="Widget.Local.BottomNavigationView"
+            parent="Widget.Material3.BottomNavigationView">
+        <item name="labelVisibilityMode">unlabeled</item>
+        <item name="itemActiveIndicatorStyle">@drawable/circle_background</item>
+        <item name="itemRippleColor">@color/light</item>
+        <item name="itemTextColor">@color/selector_nav_text</item>
+        <item name="itemIconTint">@color/selector_nav_icon</item>
+    </style>
+
+>>>>>>> origin/staging
     <style name="ShapeAppearance.TopEndRounded48Dp"
             parent="ShapeAppearance.MaterialComponents.SmallComponent">
         <item name="cornerFamily">rounded</item>
@@ -83,7 +105,6 @@
         <item name="android:fontFamily">@font/variable_inter</item>
         <item name="android:textSize">14sp</item>
         <item name="elevation">0dp</item>
-        <item name="chipBackgroundColor">@color/surface_variant</item>
         <item name="rippleColor">@color/primary</item>
     </style>
 

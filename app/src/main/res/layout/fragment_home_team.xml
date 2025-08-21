@@ -12,8 +12,12 @@
     <LinearLayout
             android:orientation="vertical"
             android:layout_height="match_parent"
+<<<<<<< HEAD
             android:layout_width="match_parent"
             tools:ignore="UselessParent">
+=======
+            android:layout_width="match_parent">
+>>>>>>> origin/staging
 
         <LinearLayout
                 android:orientation="vertical"
@@ -78,6 +82,7 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
+<<<<<<< HEAD
             app:fabCustomSize="64dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -89,5 +94,14 @@
             app:tint="#FFFFFF"
             app:elevation="2dp"
             app:pressedTranslationZ="3dp" />
+=======
+            style="@style/Widget.Local.FloatingActionButton"
+            android:src="@drawable/xic_x24_uic_line_plus"
+            android:importantForAccessibility="no"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
+>>>>>>> origin/staging
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
