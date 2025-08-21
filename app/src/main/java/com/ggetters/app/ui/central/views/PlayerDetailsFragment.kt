@@ -48,7 +48,6 @@ class PlayerDetailsFragment : Fragment() {
         binding.editPlayerButton.setOnClickListener {
             Clogger.d(TAG, "Edit player clicked")
             val playerId = "1" // TODO: Use real player id
-            // details -> edit profile is forward
             navigateTo(
                 destination = PlayerProfileFragment.newInstance(playerId, startEditing = true),
                 isForward = true,

@@ -86,9 +86,7 @@ class AddEventActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        closeButton.setOnClickListener {
-            navigateBack()
-        }
+        closeButton.setOnClickListener { navigateBack() }
 
         scheduleButton.setOnClickListener {
             if (validateForm()) {

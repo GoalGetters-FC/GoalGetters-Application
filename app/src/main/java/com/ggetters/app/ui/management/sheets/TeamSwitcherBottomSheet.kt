@@ -1,29 +1,36 @@
 package com.ggetters.app.ui.management.sheets
 
 import android.os.Bundle
+import android.transition.Fade
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Switch
+import android.widget.Toast
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.radiobutton.MaterialRadioButton
 import com.google.android.material.snackbar.Snackbar
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.UserAccount
-
-// TODO: Backend - Implement team switching with proper authentication
-// TODO: Backend - Add team switching analytics and tracking
-// TODO: Backend - Implement team switching notifications and confirmations
-// TODO: Backend - Add team switching validation and permissions
-// TODO: Backend - Implement team switching data synchronization
+import com.ggetters.app.ui.management.viewmodels.TeamViewerViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class TeamSwitcherBottomSheet : BottomSheetDialogFragment() {
 
     private var onTeamSelected: ((UserAccount) -> Unit)? = null
     private var onManageTeams: (() -> Unit)? = null
     private var onSetDefaultTeam: ((String) -> Unit)? = null
+
+    // Share the same VM as TeamViewerActivity (or the host screen)
+    private val model: TeamViewerViewModel by activityViewModels()
+
+    private var selectedTeamId: String? = null
 
     companion object {
         const val TAG = "TeamSwitcherBottomSheet"
@@ -44,41 +51,84 @@ class TeamSwitcherBottomSheet : BottomSheetDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.BottomSheetDialogFragment)
-        
-        // Enable smooth bottom sheet transitions
-        setEnterTransition(android.transition.Fade())
-        setExitTransition(android.transition.Fade())
+        setEnterTransition(Fade())
+        setExitTransition(Fade())
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.bottom_sheet_team_switcher, container, false)
-    }
+    ): View? = inflater.inflate(R.layout.bottom_sheet_team_switcher, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupViews(view)
         setupClickListeners()
+        observeTeamsAndActive(view)
     }
 
-    private fun setupViews(view: View) {
-        // TODO: Backend - Load user's teams from backend
-        // TODO: Backend - Implement team data caching for offline access
-        // TODO: Backend - Add team data synchronization across devices
-        // TODO: Backend - Implement team data validation and integrity checks
-        // TODO: Backend - Add team data analytics and usage tracking
+    // Build the radio list from DB + pre-check current active team
+    private fun observeTeamsAndActive(root: View) {
+        val group = root.findViewById<RadioGroup>(R.id.teamRadioGroup)
+            ?: error("Layout must contain a RadioGroup with id @id/teamRadioGroup")
+
+        val switchBtn = root.findViewById<com.google.android.material.button.MaterialButton>(R.id.switchTeamButton)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            model.teams.collectLatest { teams ->
+                val activeId = teams.firstOrNull { it.isActive }?.id
+
+                group.setOnCheckedChangeListener(null)
+                group.removeAllViews()
+                selectedTeamId = null
+
+                if (teams.isEmpty()) {
+                    // Empty state: disabled radio with a friendly label
+                    val empty = com.google.android.material.radiobutton.MaterialRadioButton(requireContext()).apply {
+                        id = View.generateViewId()
+                        text = getString(R.string.no_active_team)
+                        isEnabled = false
+                    }
+                    group.addView(empty)
+                    switchBtn?.isEnabled = false
+                } else {
+                    // Build radios from real teams
+                    teams.forEach { team ->
+                        val rb = com.google.android.material.radiobutton.MaterialRadioButton(requireContext()).apply {
+                            id = View.generateViewId()
+                            text = team.name
+                            tag = team.id
+                            isChecked = team.id == activeId
+                        }
+                        group.addView(rb)
+                    }
+
+                    // default selection: active team if present, otherwise first team
+                    val defaultId = activeId ?: teams.first().id
+                    selectedTeamId = defaultId
+
+                    // Check the matching radio
+                    val radioToCheck = (0 until group.childCount)
+                        .map { group.getChildAt(it) as? RadioButton }
+                        .firstOrNull { it?.tag == defaultId }
+                    radioToCheck?.let { group.check(it.id) }
+
+                    switchBtn?.isEnabled = true
+                }
+
+                // Update selectedTeamId on user change
+                group.setOnCheckedChangeListener { g, checkedId ->
+                    selectedTeamId = g.findViewById<RadioButton>(checkedId)?.tag as? String
+                    switchBtn?.isEnabled = selectedTeamId != null
+                }
+            }
+        }
     }
+
 
     private fun setupClickListeners() {
-        // Close button
-        view?.findViewById<View>(R.id.closeButton)?.setOnClickListener {
-            dismiss()
-        }
+        view?.findViewById<View>(R.id.closeButton)?.setOnClickListener { dismiss() }
 
-        // Switch team button
         view?.findViewById<MaterialButton>(R.id.switchTeamButton)?.setOnClickListener {
             handleTeamSwitch()
         }
@@ -87,97 +137,52 @@ class TeamSwitcherBottomSheet : BottomSheetDialogFragment() {
             handleManageTeams()
         }
 
-        // Setup radio button listeners
-        view?.findViewById<RadioButton>(R.id.currentTeamRadio)?.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                view?.findViewById<RadioButton>(R.id.otherTeamRadio)?.isChecked = false
-            }
-        }
-
-        view?.findViewById<RadioButton>(R.id.otherTeamRadio)?.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                view?.findViewById<RadioButton>(R.id.currentTeamRadio)?.isChecked = false
-            }
-        }
-
-        // Default team switch
+        // If your layout has a toggle to set default team, keep it wired
         view?.findViewById<Switch>(R.id.defaultTeamSwitch)?.setOnCheckedChangeListener { _, isChecked ->
             handleDefaultTeamToggle(isChecked)
         }
     }
 
     private fun handleTeamSwitch() {
-        // TODO: Backend - Implement team switching with proper validation
-        // TODO: Backend - Add team switching analytics and tracking
-        // TODO: Backend - Implement team switching notifications and confirmations
-        // TODO: Backend - Add team switching audit logging
-        // TODO: Backend - Implement team switching data synchronization
-
-        val selectedTeam = when {
-            view?.findViewById<RadioButton>(R.id.currentTeamRadio)?.isChecked == true -> {
-                // Current team (U15a Football)
-                UserAccount(
-                    "1",
-                    "Matthew Pieterse",
-                    "matthew@example.com",
-                    null,
-                    "U15a Football",
-                    "Coach",
-                    true
-                )
-            }
-            view?.findViewById<RadioButton>(R.id.otherTeamRadio)?.isChecked == true -> {
-                // Other team (Seniors League)
-                UserAccount(
-                    "2",
-                    "Matthew Pieterse",
-                    "matthew@example.com",
-                    null,
-                    "Seniors League",
-                    "F-P",
-                    false
-                )
-            }
-            else -> null
-        }
-
-        selectedTeam?.let { team ->
-            onTeamSelected?.invoke(team)
-            Snackbar.make(requireView(), "Switched to ${team.teamName}", Snackbar.LENGTH_SHORT).show()
-            dismiss()
-        } ?: run {
+        val id = selectedTeamId ?: run {
             Snackbar.make(requireView(), "Please select a team", Snackbar.LENGTH_SHORT).show()
+            return
         }
+
+        val team = model.teams.value.firstOrNull { it.id == id } ?: run {
+            Snackbar.make(requireView(), "Team not found", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+
+        model.switchTo(team)
+        Toast.makeText(requireContext(), "Switched to ${team.name}", Toast.LENGTH_SHORT).show()
+
+        onTeamSelected?.invoke(
+            UserAccount(
+                id = "N/A",
+                name = "N/A",
+                email = "N/A",
+                avatar = null,      // <- correct param name
+                teamName = team.name,
+                role = "N/A",
+                isActive = true
+            )
+        )
+
+        dismiss()
     }
 
+
     private fun handleDefaultTeamToggle(isDefault: Boolean) {
-        // TODO: Backend - Save default team preference
-        // TODO: Backend - Implement default team validation
-        // TODO: Backend - Add default team analytics
-        // TODO: Backend - Implement default team notifications
-        
-        val teamId = when {
-            view?.findViewById<RadioButton>(R.id.currentTeamRadio)?.isChecked == true -> "1"
-            view?.findViewById<RadioButton>(R.id.otherTeamRadio)?.isChecked == true -> "2"
-            else -> null
-        }
-        
-        teamId?.let { id ->
-            onSetDefaultTeam?.invoke(id)
-            if (isDefault) {
-                Snackbar.make(requireView(), "Default team updated", Snackbar.LENGTH_SHORT).show()
-            }
+        val id = selectedTeamId ?: model.teams.value.firstOrNull { it.isActive }?.id ?: return
+        onSetDefaultTeam?.invoke(id)
+        if (isDefault) {
+            Snackbar.make(requireView(), "Default team updated", Snackbar.LENGTH_SHORT).show()
         }
     }
 
     private fun handleManageTeams() {
-        // TODO: Backend - Navigate to team management screen
-        // TODO: Backend - Add team management analytics and tracking
-        // TODO: Backend - Implement team management permissions and validation
-        // TODO: Backend - Add team management audit logging
-        // TODO: Backend - Implement team management data synchronization
-
         onManageTeams?.invoke()
         dismiss()
     }
-} 
+}

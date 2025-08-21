@@ -98,9 +98,7 @@ class MatchControlActivity : AppCompatActivity() {
 
     private fun setupViews() {
         // Header
-        findViewById<ImageButton>(R.id.backButton).setOnClickListener {
-            navigateBack()
-        }
+        findViewById<ImageButton>(R.id.backButton).setOnClickListener { navigateBack() }
 
         // Score and timer elements
         homeTeamName = findViewById(R.id.homeTeamName)

@@ -2,11 +2,15 @@ package com.ggetters.app.ui.management.views
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Team
@@ -14,6 +18,8 @@ import com.ggetters.app.databinding.ActivityTeamDetailBinding
 import com.ggetters.app.ui.central.dialogs.EditTeamDialog
 import com.ggetters.app.ui.management.viewmodels.TeamDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogListener {
@@ -92,17 +98,17 @@ class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogLis
     }
 
     private fun setupTeamInfoSection() {
-        // TODO: Backend - Load team information from backend
-        // TODO: Backend - Implement team info editing functionality
-        // TODO: Backend - Add team info validation and permissions
-        // TODO: Backend - Implement team info synchronization
-        // TODO: Backend - Add team info analytics and tracking
-
-        val teamName = intent.getStringExtra(EXTRA_TEAM_NAME) ?: "U15a Football"
-        binds.teamNameText.text = teamName
-        binds.teamDescriptionText.text = "Under 15 football team"
-        binds.teamCompositionText.text = "Unisex (Male)"
-        binds.teamAgeGroupText.text = "All U15"
+//        // TODO: Backend - Load team information from backend
+//        // TODO: Backend - Implement team info editing functionality
+//        // TODO: Backend - Add team info validation and permissions
+//        // TODO: Backend - Implement team info synchronization
+//        // TODO: Backend - Add team info analytics and tracking
+//
+//        val teamName = intent.getStringExtra(EXTRA_TEAM_NAME) ?: "U15a Football"
+//        binds.teamNameText.text = teamName
+//        binds.teamDescriptionText.text = "Under 15 football team"
+//        binds.teamCompositionText.text = "Unisex (Male)"
+//        binds.teamAgeGroupText.text = "All U15"
     }
 
     private fun setupTeamStatsSection() {
@@ -159,34 +165,57 @@ class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogLis
     }
 
     private fun observe() {
-        // TODO: Observe view-model data changes
-        // TODO: Backend - Implement real-time team data updates
-        // TODO: Backend - Add team data change notifications
-        // TODO: Backend - Implement team data conflict resolution
-        // TODO: Backend - Add team data analytics and tracking
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.team.collectLatest { team ->
+                    if (team == null) {
+                        supportActionBar?.title = intent.getStringExtra(EXTRA_TEAM_NAME) ?: "Team Details"
+                        return@collectLatest
+                    }
+                    supportActionBar?.title = team.name
+                    binds.teamNameText.text = team.name
+                    binds.teamDescriptionText.text = team.description ?: "—"
+                    binds.teamCompositionText.text =
+                        team.composition.name.replace('_',' ')
+                            .lowercase().replaceFirstChar { it.uppercase() }
+                    binds.teamAgeGroupText.text = team.denomination.name.replace('_',' ')
+                }
+            }
+        }
     }
 
+
+
     private fun navigateToEditTeam() {
-        val editDialog = EditTeamDialog.newInstance(
-            teamId = intent.getStringExtra(EXTRA_TEAM_ID),
-            teamName = binds.teamNameText.text.toString(),
-            teamCode = "TES", // TODO: Get from backend
-            teamAlias = "Test", // TODO: Get from backend
-            teamDescription = binds.teamDescriptionText.text.toString(),
-            teamComposition = "UNISEX_MALE", // TODO: Get from backend
-            teamDenomination = "OPEN", // TODO: Get from backend
-            yearFormed = "2025", // TODO: Get from backend
-            contactCell = "", // TODO: Get from backend
-            contactMail = "", // TODO: Get from backend
-            clubAddress = "" // TODO: Get from backend
-        )
-        editDialog.show(supportFragmentManager, EditTeamDialog.TAG)
+        val t = model.team.value
+        if (t == null) {
+            Toast.makeText(this, "Team still loading…", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        EditTeamDialog.newInstance(
+            teamId          = t.id,
+            teamName        = t.name,
+            teamCode        = t.code ?: "",
+            teamAlias       = t.alias ?: "",
+            teamDescription = t.description ?: "",
+            // dialog expects enum names (e.g., "UNISEX_MALE", "OPEN")
+            teamComposition = t.composition.name,
+            teamDenomination= t.denomination.name,
+            yearFormed      = t.yearFormed?.toString() ?: "",
+            contactCell     = t.contactCell ?: "",
+            contactMail     = t.contactMail ?: "",
+            clubAddress     = t.clubAddress ?: ""
+        ).show(supportFragmentManager, EditTeamDialog.TAG)
     }
+
 
     override fun onTeamUpdated(updatedTeam: Team) {
         // Refresh team data after successful edit
         binds.teamNameText.text = updatedTeam.name
         binds.teamDescriptionText.text = updatedTeam.description ?: "No description"
+
+        model.save(updatedTeam)
         // TODO: Update other fields when backend integration is complete
         Clogger.d(TAG, "Team updated: ${updatedTeam.name}")
     }

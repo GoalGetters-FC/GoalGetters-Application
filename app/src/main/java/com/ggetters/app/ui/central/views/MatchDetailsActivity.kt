@@ -75,9 +75,7 @@ class MatchDetailsActivity : AppCompatActivity() {
 
     private fun initializeViews() {
         // Header back button
-        findViewById<ImageButton>(R.id.backButton).setOnClickListener {
-            navigateBack()
-        }
+        findViewById<ImageButton>(R.id.backButton).setOnClickListener { navigateBack() }
         
         matchTitleText = findViewById(R.id.matchTitle)
         venueText = findViewById(R.id.venue)

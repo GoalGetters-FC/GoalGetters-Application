@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.ggetters.app.R
-import com.ggetters.app.core.extensions.navigateBack
 import com.ggetters.app.ui.central.fragments.AttendanceFragment
 import com.ggetters.app.ui.central.fragments.LineupFragment
 import com.ggetters.app.ui.central.fragments.MatchDetailsFragment
@@ -63,7 +62,8 @@ class MatchActivity : AppCompatActivity() {
     private fun setupViews() {
         // Header setup
         findViewById<ImageButton>(R.id.backButton).setOnClickListener {
-            navigateBack()
+            finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
         
         headerDate = findViewById(R.id.headerDate)

@@ -65,7 +65,7 @@ class SignUpActivity : AppCompatActivity(), Clickable {
                     TAG, "Success..."
                 )
 
-                navigateToActivity(Intent(this, OnboardingActivity::class.java), finishCurrent = true)
+                navigateToActivity(Intent(this, OnboardingActivity::class.java), clearTask = true)
             }
 
             is Failure -> {

@@ -46,8 +46,8 @@ object FirestoreModule {
     /** Your wrapper for the "user" collection */
     @Provides
     @Singleton
-    fun provideUserFirestore(firestore: FirebaseFirestore): UserFirestore =
-        UserFirestore(firestore)
+    fun provideUserFirestore(paths: FirestorePathProvider): UserFirestore =
+        UserFirestore(paths)
 
     /** Your wrapper for the "Broadcast" collection */
     @Provides @Singleton

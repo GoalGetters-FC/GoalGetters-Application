@@ -35,6 +35,10 @@ class CombinedLineupRepository @Inject constructor(
     override fun getByEventId(eventId: String): Flow<List<Lineup>> =
         offline.getByEventId(eventId)
 
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun deleteAll() {
         runBlocking {
             offline.deleteAll()

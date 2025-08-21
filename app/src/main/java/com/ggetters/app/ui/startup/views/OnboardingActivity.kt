@@ -48,7 +48,7 @@ class OnboardingActivity : AppCompatActivity(), Clickable {
     
     
     private fun navigateToHome() {
-                    navigateToActivity(Intent(this, HomeActivity::class.java), finishCurrent = true)
+        navigateToActivity(Intent(this, HomeActivity::class.java), clearTask = true)
     }
 
 

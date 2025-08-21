@@ -1,20 +1,20 @@
 package com.ggetters.app.ui.management.views
 
 import android.app.AlertDialog
-import com.ggetters.app.core.extensions.navigateTo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.ggetters.app.R
+import com.ggetters.app.core.extensions.navigateTo
 import com.ggetters.app.ui.central.viewmodels.HomeProfileViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
+import com.ggetters.app.ui.central.views.HomeTeamFragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
@@ -191,10 +191,10 @@ class TeamProfileFragment : Fragment() {
         // TODO: Backend - Implement team players filtering and search
         // TODO: Backend - Add team players permissions and role validation
         
-        val playersFragment = com.ggetters.app.ui.central.views.HomePlayersFragment()
+        val playersFragment = HomeTeamFragment()
         navigateTo(
             destination = playersFragment,
-            isForward = false,
+            isForward = true,
             addToBackStack = true,
             backStackName = "team_profile_to_players"
         )

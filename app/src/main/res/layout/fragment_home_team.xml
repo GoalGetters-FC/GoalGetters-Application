@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        tools:context=".ui.central.views.HomeTeamFragment"
+        android:background="#161620"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+    <!-- UI -->
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            tools:ignore="UselessParent">
+
+        <LinearLayout
+                android:orientation="vertical"
+                android:paddingTop="16dp"
+                android:paddingBottom="32dp"
+                android:paddingHorizontal="28dp"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+
+            <TextView
+                    android:id="@+id/tv_team_alias"
+                    android:text="U18 Johannesburg"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    tools:ignore="HardcodedText" />
+
+            <Space
+                    android:layout_height="8dp"
+                    android:layout_width="0dp" />
+
+            <TextView
+                    android:id="@+id/tv_team_sport"
+                    android:text="Football (Soccer)"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textFontWeight="500"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+                app:contentPadding="0dp"
+                app:contentPaddingTop="16dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardPreventCornerOverlap="false"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.TopCorner40"
+                app:strokeWidth="0dp"
+                app:cardElevation="6dp"
+                android:elevation="6dp"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_users"
+                    tools:listitem="@layout/item_user"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                    android:paddingHorizontal="16dp"
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent" />
+
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
+    <!-- FAB -->
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            app:fabCustomSize="64dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/xic_x24_uic_line_plus"
+            app:backgroundTint="#FF9500"
+            app:tint="#FFFFFF"
+            app:elevation="2dp"
+            app:pressedTranslationZ="3dp" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

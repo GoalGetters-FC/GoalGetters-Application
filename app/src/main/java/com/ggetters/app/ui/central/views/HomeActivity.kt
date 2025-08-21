@@ -3,7 +3,6 @@ package com.ggetters.app.ui.central.views
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
-import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -16,16 +15,14 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.ggetters.app.R
-import com.ggetters.app.core.extensions.navigateToActivity
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivityHomeBinding
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
-import dagger.hilt.android.AndroidEntryPoint
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.snackbar.Snackbar
-import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
 import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.management.views.TeamsFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 
 // TODO: Backend - Fetch data for each tab (Notifications, Calendar, Players, Team Profile)
 // TODO: Backend - Log analytics for tab navigation
@@ -50,9 +47,6 @@ class HomeActivity : AppCompatActivity() {
 
     private var currentFragment: Fragment? = null
     private var longPressStartTime: Long = 0
-    private var lastNavItemId: Int = R.id.nav_calendar
-    private var lastNavClickAtMs: Long = 0L
-    private var isNavigating: Boolean = false
 
 
 // --- Lifecycle
@@ -109,7 +103,7 @@ class HomeActivity : AppCompatActivity() {
             
             // Launch NotificationsActivity
             val intent = Intent(this, NotificationsActivity::class.java)
-            navigateToActivity(intent)
+            startActivity(intent)
         }
     }
 
@@ -117,59 +111,30 @@ class HomeActivity : AppCompatActivity() {
     private fun setupBottomNavigation() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNav.labelVisibilityMode = BottomNavigationView.LABEL_VISIBILITY_LABELED // Ensure labels are always visible
-        bottomNav.setOnItemReselectedListener { /* ignore to avoid jitter */ }
+
+        // Ignore re-selections to avoid jitter
+        bottomNav.setOnItemReselectedListener { /* no-op */ }
 
         bottomNav.setOnItemSelectedListener { menuItem ->
-            val now = SystemClock.elapsedRealtime()
-            if (menuItem.itemId == lastNavItemId && now - lastNavClickAtMs < 500) {
-                return@setOnItemSelectedListener true
-            }
-            if (isNavigating) return@setOnItemSelectedListener true
-
-            val targetClass = when (menuItem.itemId) {
-                R.id.nav_calendar -> HomeCalendarFragment::class.java
-                R.id.nav_team_players -> HomePlayersFragment::class.java
-                R.id.nav_player_profile -> PlayerDetailsFragment::class.java
-                R.id.nav_profile -> ProfileFragment::class.java
-                else -> null
-            }
-            if (targetClass != null && currentFragment?.javaClass == targetClass) {
-                lastNavItemId = menuItem.itemId
-                lastNavClickAtMs = now
-                return@setOnItemSelectedListener true
+            val currentId = when (currentFragment) {
+                is HomeCalendarFragment -> R.id.nav_calendar
+                is HomeTeamFragment -> R.id.nav_team_players
+                is PlayerDetailsFragment -> R.id.nav_player_profile
+                is ProfileFragment -> R.id.nav_profile
+                else -> R.id.nav_calendar
             }
 
             val newIndex = navIndexFor(menuItem.itemId)
-            val oldIndex = navIndexFor(lastNavItemId)
-            val isForward = newIndex > oldIndex
+            val oldIndex = navIndexFor(currentId)
+            val isForward = newIndex >= oldIndex
 
             when (menuItem.itemId) {
-                R.id.nav_calendar -> {
-                    isNavigating = true
-                    switchFragment(HomeCalendarFragment(), isForward)
-                    true
-                }
-                R.id.nav_team_players -> { // Corrected ID
-                    isNavigating = true
-                    switchFragment(HomePlayersFragment(), isForward)
-                    true
-                }
-                R.id.nav_player_profile -> { // Player Profile - Show player details
-                    isNavigating = true
-                    switchFragment(PlayerDetailsFragment(), isForward)
-                    true
-                }
-                R.id.nav_profile -> {
-                    // Options tab - Show account switcher on long press, regular click shows profile
-                    isNavigating = true
-                    switchFragment(ProfileFragment(), isForward)
-                    true
-                }
+                R.id.nav_calendar -> switchFragment(HomeCalendarFragment(), isForward)
+                R.id.nav_team_players -> switchFragment(HomeTeamFragment(), isForward)
+                R.id.nav_player_profile -> switchFragment(PlayerDetailsFragment(), isForward)
+                R.id.nav_profile -> switchFragment(ProfileFragment(), isForward)
                 else -> false
-            }.also {
-                lastNavItemId = menuItem.itemId
-                lastNavClickAtMs = now
-            }
+            }.let { handled -> handled }
         }
 
         // Setup long click listener for Options tab specifically
@@ -278,7 +243,7 @@ class HomeActivity : AppCompatActivity() {
         Snackbar.make(findViewById(android.R.id.content), "Default team updated", Snackbar.LENGTH_SHORT).show()
     }
 
-    private fun switchFragment(fragment: Fragment, isForward: Boolean = true) {
+    private fun switchFragment(fragment: Fragment, isForward: Boolean = true): Boolean {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.setReorderingAllowed(true)
         if (isForward) {
@@ -297,10 +262,18 @@ class HomeActivity : AppCompatActivity() {
             )
         }
         transaction.replace(R.id.fragmentContainer, fragment)
-        // Do not add to back stack for bottom navigation primary destinations
-        transaction.runOnCommit { isNavigating = false }
+        // Do not add to back stack for primary tabs to prevent deep stacks
         transaction.commit()
         currentFragment = fragment
+        return true
+    }
+
+    private fun navIndexFor(itemId: Int): Int = when (itemId) {
+        R.id.nav_calendar -> 0
+        R.id.nav_team_players -> 1
+        R.id.nav_player_profile -> 2
+        R.id.nav_profile -> 3
+        else -> 0
     }
 
     fun showAccountSwitcher() {
@@ -386,15 +359,6 @@ class HomeActivity : AppCompatActivity() {
         val viewRect = Rect()
         view.getGlobalVisibleRect(viewRect)
         return viewRect.contains(event.rawX.toInt(), event.rawY.toInt())
-    }
-
-
-    private fun navIndexFor(itemId: Int): Int = when (itemId) {
-        R.id.nav_calendar -> 0
-        R.id.nav_team_players -> 1
-        R.id.nav_player_profile -> 2
-        R.id.nav_profile -> 3
-        else -> 0
     }
 
 

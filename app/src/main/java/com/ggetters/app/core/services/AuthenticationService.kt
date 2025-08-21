@@ -1,9 +1,15 @@
 package com.ggetters.app.core.services
 
+import com.ggetters.app.core.models.results.Final
 import com.ggetters.app.core.utils.Clogger
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 
 /**
@@ -13,26 +19,24 @@ import javax.inject.Inject
  * stable connection to the internet. Checks should be conducted beforehand, and
  * such edge-cases should be accounted for in failure conditions.
  *
- * TODO: Implement functionality for SSO accounts.
- *
  * @see FirebaseAuth
- * @see AuthService.signUpAsync
- * @see AuthService.signInAsync
- * @see AuthService.sendCredentialChangeEmailAsync
- * @see AuthService.deleteCurrentUserAsync
- * @see AuthService.isUserSignedIn
- * @see AuthService.getCurrentUser
- * @see AuthService.logout
+ * @see AuthenticationService.signUpAsync
+ * @see AuthenticationService.signInAsync
+ * @see AuthenticationService.sendCredentialChangeEmailAsync
+ * @see AuthenticationService.deleteCurrentUserAsync
+ * @see AuthenticationService.isUserSignedIn
+ * @see AuthenticationService.getCurrentUser
+ * @see AuthenticationService.logout
  */
-class AuthService @Inject constructor(
+class AuthenticationService @Inject constructor(
     private val server: FirebaseAuth
 ) {
     companion object {
-        private const val TAG = "AuthService"
+        private const val TAG = "AuthenticationService"
     }
 
 
-    // --- Functions
+// --- Functions
 
 
     /**
@@ -157,7 +161,143 @@ class AuthService @Inject constructor(
     }
 
 
-    // --- Accessory
+    /**
+     * Sign-up a [FirebaseUser] with the provided [Credential].
+     *
+     * **Usage:**
+     *
+     * ```
+     * // Standard
+     * val result = authService.signUpV2Async(...)
+     * when (result) {
+     *     is Final.Success -> { ... }
+     *     is Final.Failure -> { ... }
+     * }
+     * ```
+     *
+     *
+     * ```
+     * // Fluent
+     * authService.signUpV2Async(...)
+     *     .onSuccess { user -> ... }
+     *     .onFailure { 
+     *         when (it) {
+     *             ...
+     *         }
+     *     }
+     * ```
+     *
+     * @return [FirebaseUser] if the operation succeeds. [AuthenticationError]
+     *         specifying the mappable problem that occurred if the operation is
+     *         unsuccessful.
+     *
+     * @see Credential
+     * @see Final
+     */
+    suspend fun signUpV2Async(
+        credential: Credential
+    ): Final<FirebaseUser, AuthenticationError> {
+        Clogger.d(
+            TAG, "Signing-up using credentials"
+        )
+
+        return runCatching {
+            val milliseconds = 5_000L
+            withTimeout(milliseconds) {
+                val result = server.createUserWithEmailAndPassword(
+                    credential.email, credential.token
+                ).await()
+                result.user ?: throw IllegalStateException()
+            }
+        }.fold(
+            onSuccess = { user ->
+                Final.Success(user)
+            },
+
+            onFailure = { error ->
+                Clogger.e(TAG, error.message.orEmpty(), error)
+                Final.Failure(mapToAuthenticationError(error))
+            }
+        )
+    }
+
+
+    /**
+     * Sign-in a [FirebaseUser] with the provided [Credential].
+     *
+     * **Usage:**
+     *
+     * ```
+     * // Standard
+     * val result = authService.signInV2Async(...)
+     * when (result) {
+     *     is Final.Success -> { ... }
+     *     is Final.Failure -> { ... }
+     * }
+     * ```
+     *
+     *
+     * ```
+     * // Fluent
+     * authService.signInV2Async(...)
+     *     .onSuccess { user -> ... }
+     *     .onFailure {
+     *         when (it) {
+     *             ...
+     *         }
+     *     }
+     * ```
+     *
+     * @return [FirebaseUser] if the operation succeeds. [AuthenticationError]
+     *         specifying the mappable problem that occurred if the operation is
+     *         unsuccessful.
+     *
+     * @see Credential
+     * @see Final
+     */
+    suspend fun signInV2Async(
+        credential: Credential
+    ): Final<FirebaseUser, AuthenticationError> {
+        Clogger.d(
+            TAG, "Signing-in using credentials"
+        )
+
+        return runCatching {
+            val milliseconds = 5_000L
+            withTimeout(milliseconds) {
+                val result = server.signInWithEmailAndPassword(
+                    credential.email, credential.token
+                ).await()
+                result.user ?: throw IllegalStateException()
+            }
+        }.fold(
+            onSuccess = { user ->
+                Final.Success(user)
+            },
+
+            onFailure = { error ->
+                Clogger.e(TAG, error.message.orEmpty(), error)
+                Final.Failure(mapToAuthenticationError(error))
+            }
+        )
+    }
+
+
+    /**
+     * Maps a [Throwable] to an [AuthenticationError].
+     */
+    private fun mapToAuthenticationError(
+        error: Throwable
+    ): AuthenticationError = when (error) {
+        is CancellationException -> AuthenticationError.TIMEOUT
+        is FirebaseNetworkException -> AuthenticationError.NETWORK
+        is FirebaseAuthInvalidUserException -> AuthenticationError.INVALID_USER_STATUS
+        is FirebaseAuthInvalidCredentialsException -> AuthenticationError.INVALID_CREDENTIALS
+        else -> AuthenticationError.UNKNOWN
+    }
+
+
+// --- Accessory
 
 
     /**
@@ -257,8 +397,6 @@ class AuthService @Inject constructor(
      * **Note:** This method will not automatically refresh authentication and
      * authorization guards. It is the responsibility of the caller to enforce
      * manual rerouting and re-authentication if required.
-     *
-     * TODO: Implement functionality for SSO accounts.
      *
      * **Usage:**
      *

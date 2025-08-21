@@ -54,4 +54,11 @@ interface TeamDao {
     // 2️⃣ new: mark a team as clean after it’s been pushed
     @Query("UPDATE team SET stained_at = NULL WHERE id = :teamId")
     suspend fun markClean(teamId: String)
+
+    // ✅ Atomic: ensures exactly one active team
+    @Transaction
+    suspend fun setActiveAtomic(teamId: String) {
+        clearActive()
+        setActiveTeam(teamId)
+    }
 }

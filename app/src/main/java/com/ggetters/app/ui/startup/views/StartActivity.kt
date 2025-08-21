@@ -60,7 +60,7 @@ class StartActivity : AppCompatActivity(), Clickable {
         when (state) {
             is Authenticated -> {
                 authenticating = false
-                navigateToActivity(Intent(this, HomeActivity::class.java), finishCurrent = true)
+                navigateToActivity(Intent(this, HomeActivity::class.java), clearTask = true)
             }
 
             is SignedOut -> {

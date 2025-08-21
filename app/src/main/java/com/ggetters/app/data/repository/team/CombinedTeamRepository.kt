@@ -18,169 +18,103 @@ class CombinedTeamRepository @Inject constructor(
     override fun all() = offline.all()
 
     override suspend fun getById(id: String): Team? =
-        offline.getById(id) ?: online.getById(id)
+        offline.getById(id) ?: online.getById(id) // ok to keep this fallback
 
+    // 🔧 local-only upsert (no online call here)
     override suspend fun upsert(entity: Team) {
-        offline.upsert(entity)
-        try {
-            online.upsert(entity)
-        } catch (e: Exception) {
-            // TODO: Handle online upsert failure, e.g., log it or retry later
-            // For now, we just log the error
-            Clogger.e("DevClass", "failed to upsert team online: ${e.message}")
-        }
+        offline.upsert(entity) // stains
     }
 
+    // combined repo
     override suspend fun delete(entity: Team) {
         offline.delete(entity)
-        try {
-            online.delete(entity)
-        } catch (e: Exception) {
-            Clogger.e("DevClass", "failed to delete team online: ${e.message}")
-        }
+        // deletion propagation handled by sync() if you add tombstones later
+
+        // Best-effort remote (leave team or delete, depending on role)
+        runCatching { online.leaveOrDelete(entity.id) }
     }
 
     override suspend fun deleteAll() {
         offline.deleteAll()
-        try {
-            online.deleteAll()
-        } catch (e: Exception) {
-            Clogger.e("DevClass", "failed to delete all teams online: ${e.message}")
-        }
     }
 
-    // CombinedTeamRepository.kt
+    // ✅ periodic sync handles push/pull/membership/merge, preserving isActive
     override suspend fun sync() = withContext(Dispatchers.IO) {
-        // 1) PUSH local changes
+        val localSnapshot = offline.getAllLocal().associateBy { it.id }
+
+        val pushedIds = mutableSetOf<String>()
         offline.getDirtyTeams().first().forEach { team ->
             try {
                 online.upsert(team)
+                try { online.joinTeam(team.id) } catch (_: Exception) {}
                 offline.markClean(team.id)
+                pushedIds += team.id
             } catch (e: Exception) {
                 Clogger.e("Sync", "Failed to push team ${team.id}", e)
             }
         }
 
-        // 2) PULL remote teams for this user (one‐shot)
         val remote = online.fetchTeamsForCurrentUser()
         val remoteIds = remote.map { it.id }.toSet()
         Clogger.i("Sync", "Pulled ${remote.size} remote teams")
 
-        // 3) CLEAN UP stale locals
-        val localAll = offline.getAllLocal()
-        localAll
-            .filter { it.id !in remoteIds && !it.isStained() }
-            .forEach { offline.deleteByIdLocal(it.id) }
-        Clogger.i("Sync", "Dropped ${localAll.size - remoteIds.size} stale locals")
+        val toDelete = offline.getAllLocal()
+            .filter { it.id !in remoteIds && !it.isStained() && it.id !in pushedIds }
+        toDelete.forEach { offline.deleteByIdLocal(it.id) }
+        Clogger.i("Sync", "Dropped ${toDelete.size} stale locals")
 
-        // 4) MERGE down
-        offline.upsertAllLocal(remote)
-        Clogger.i("Sync", "Merged ${remote.size} remote into local")
+        val merged = remote.map { r ->
+            localSnapshot[r.id]?.let { r.copy(isActive = it.isActive) } ?: r
+        }
+        offline.upsertAllLocal(merged)
+
+        val activeNow = offline.getActiveTeam().first()
+        if (activeNow == null && merged.isNotEmpty()) {
+            val prevActive = localSnapshot.values.firstOrNull { it.isActive && it.id in remoteIds }
+            offline.setActiveTeam(prevActive ?: merged.first())
+        }
+        Clogger.i("Sync", "Merged ${merged.size} remote into local")
     }
 
+    override suspend fun setActiveTeam(team: Team) = offline.setActiveTeam(team)
 
+    override fun getActiveTeam() = offline.getActiveTeam()
 
-
-
-    override suspend fun setActiveTeam(team: Team) {
-        offline.setActiveTeam(team)
-    }
-
-    override fun getActiveTeam(): Flow<Team?> =
-        offline.getActiveTeam()
 
     override suspend fun getByCode(code: String): Team? =
-        offline.getByCode(code)
-        ?: online.getByCode(code) // needs to work online
+        offline.getByCode(code) ?: online.getByCode(code)
 
-    override suspend fun joinOrCreateTeam(code: String): Team {
-        var team = offline.getByCode(code)
-
-        if (team == null) {
-            team = try {
-                online.getByCode(code)?.also {
-                    offline.upsert(it)
-                }
-            } catch (e: Exception) {
-                null
-            }
-        }
-
-        if (team == null) {
-            team = Team(
-                code = code,
-                name = "New Team", // ← replace this with real UI flow later
-                alias = null,
-                description = null,
-                composition = TeamComposition.UNISEX_MALE,
-                denomination = TeamDenomination.OPEN,
-            )
-            offline.upsert(team)
-            try {
-                online.upsert(team)
-            } catch (e: Exception) {
-                // Firestore save failed — log or retry later
-            }
-        }
-
-        try {
-            online.joinTeam(team.id)
-        } catch (e: Exception) {
-            // Log join failure but proceed offline
-        }
-
+    // 🔧 create local-only; joining happens on sync()
+    override suspend fun createTeam(team: Team): Team {
+        offline.upsert(team)
         offline.setActiveTeam(team)
-
         return team
     }
 
     override suspend fun joinTeam(teamId: String) {
         val team = getById(teamId) ?: throw IllegalArgumentException("Team not found: $teamId")
-
-        try {
-            online.joinTeam(teamId)
-        } catch (e: Exception) {
+        try { online.joinTeam(teamId) } catch (e: Exception) {
             Clogger.e("DevClass", "Failed to join team online: ${e.message}")
         }
-
         offline.setActiveTeam(team)
     }
 
+    // ok to keep; UI may still rely on it
+    override suspend fun joinOrCreateTeam(code: String): Team {
+        var team = offline.getByCode(code)
+            ?: runCatching { online.getByCode(code) }.getOrNull()?.also { offline.upsert(it) }
+            ?: Team(code = code, name = "New Team")
 
-    override suspend fun createTeam(team: Team): Team {
-        // 1. Save locally
         offline.upsert(team)
-        Clogger.i("DevClass", "Team saved locally: ${team.id}, Code: ${team.code}")
-
-        // 2. Save remotely
-        try {
-            online.upsert(team)
-            Clogger.i("DevClass", "Team saved online: ${team.id}, Code: ${team.code}")
-
-        } catch (e: Exception) {
-            Clogger.i("DevClass", "Failed to create team online: ${e.message}")
-        }
-
-        // 3. Join user to team as COACH
-        try {
-            online.joinTeam(team.id, role = "COACH")
-        } catch (e: Exception) {
-            Clogger.i("DevClass", "Failed to join team online: ${e.message}")
-        }
-
-        // 4. Mark active locally
+        try { online.joinTeam(team.id) } catch (_: Exception) {}
         offline.setActiveTeam(team)
-
         return team
     }
 
-    override fun getTeamsForCurrentUser(): Flow<List<Team>> {
-        // Use online if available, otherwise offline
-        // This example just returns offline for now (replace with merge logic if needed)
-        return offline.getTeamsForCurrentUser()
-    }
-
+    override fun getTeamsForCurrentUser() = offline.getTeamsForCurrentUser()
 }
+
+
 
 
 

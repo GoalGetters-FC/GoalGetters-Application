@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.core.extensions.navigateBack
 import com.ggetters.app.ui.central.adapters.PlayerStatsAdapter
 import com.ggetters.app.ui.central.models.*
 import com.ggetters.app.ui.central.viewmodels.PostMatchViewModel
@@ -83,7 +82,7 @@ class PostMatchActionsActivity : AppCompatActivity() {
     private fun setupViews() {
         // Header back button
         findViewById<ImageButton>(R.id.backButton).setOnClickListener {
-            navigateBack()
+            finish()
         }
 
         // Match result elements

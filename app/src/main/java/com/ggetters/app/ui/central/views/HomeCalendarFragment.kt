@@ -377,8 +377,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
         }
         
         // Start activity for result
-                    startActivityForResult(intent, REQUEST_ADD_EVENT)
-            requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
+        startActivityForResult(intent, REQUEST_ADD_EVENT)
     }
 
 
