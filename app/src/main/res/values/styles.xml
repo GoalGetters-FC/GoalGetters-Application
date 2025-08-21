@@ -21,14 +21,15 @@
         <item name="itemIconTint">@color/selector_nav_icon</item>
     </style>
 
->>>>>>> origin/staging
-    <style name="ShapeAppearance.TopEndRounded48Dp"
-            parent="ShapeAppearance.MaterialComponents.SmallComponent">
+    
+    <style name="ShapeAppearance.Local.Curved.TopA40"
+            parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <!-- Style -->
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSizeTopRight">48dp</item>
-        <item name="cornerSizeTopLeft">0dp</item>
-        <item name="cornerSizeBottomRight">0dp</item>
-        <item name="cornerSizeBottomLeft">0dp</item>
+        <!-- Sizes -->
+        <item name="cornerSizeTopRight">40dp</item>
+        <item name="cornerSizeTopLeft">40dp</item>
+        <item name="cornerSize">0dp</item>
     </style>
 
     <style name="ShapeAppearance.TopCorner40"
