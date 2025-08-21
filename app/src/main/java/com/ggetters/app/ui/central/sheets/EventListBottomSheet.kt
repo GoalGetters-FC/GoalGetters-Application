@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ggetters.app.R
-import com.ggetters.app.data.model.Event
+import com.ggetters.app.ui.central.models.Event
 import com.ggetters.app.ui.central.adapters.EventAdapter
 import java.text.SimpleDateFormat
 import java.util.Calendar

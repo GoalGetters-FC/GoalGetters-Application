@@ -6,9 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.ggetters.app.R
+import com.ggetters.app.core.extensions.navigateTo
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.FragmentPlayerDetailsBinding
 
+@Deprecated("Use PlayerProfileFragment instead")
 class PlayerDetailsFragment : Fragment() {
     
     private var _binding: FragmentPlayerDetailsBinding? = null
@@ -47,10 +49,12 @@ class PlayerDetailsFragment : Fragment() {
         binding.editPlayerButton.setOnClickListener {
             Clogger.d(TAG, "Edit player clicked")
             val playerId = "1" // TODO: Use real player id
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, PlayerProfileFragment.newInstance(playerId, startEditing = true))
-                .addToBackStack("player_details_to_profile_edit")
-                .commit()
+            navigateTo(
+                destination = PlayerProfileFragment.newInstance(playerId, startEditing = true),
+                isForward = true,
+                addToBackStack = true,
+                backStackName = "player_details_to_profile_edit"
+            )
         }
         
         binding.playerStatsButton.setOnClickListener {
