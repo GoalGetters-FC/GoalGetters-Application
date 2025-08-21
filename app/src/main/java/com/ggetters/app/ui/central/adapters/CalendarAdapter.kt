@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.ggetters.app.core.utils.Clogger
-import com.ggetters.app.data.model.CalendarDayItem   // ✅ now from data.model
+import com.ggetters.app.ui.central.models.CalendarDayItem   // ✅ now from ui.central.models
 import com.ggetters.app.databinding.ItemCalendarDayBinding
 import com.ggetters.app.ui.shared.adapters.KeyedDiffCallback
 

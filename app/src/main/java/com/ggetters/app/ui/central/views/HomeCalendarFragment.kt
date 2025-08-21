@@ -19,8 +19,8 @@ import com.ggetters.app.databinding.FragmentCalendarBinding
 import com.ggetters.app.ui.central.adapters.CalendarAdapter
 import com.ggetters.app.ui.central.adapters.EventAdapter
 import com.ggetters.app.ui.central.models.CalendarDayItem
-import com.ggetters.app.data.model.Event
-import com.ggetters.app.data.model.EventCategory
+import com.ggetters.app.ui.central.models.Event
+import com.ggetters.app.ui.central.models.EventType
 import com.ggetters.app.ui.central.sheets.AddEventBottomSheet
 import com.ggetters.app.ui.central.sheets.EventDetailsBottomSheet
 import com.ggetters.app.ui.central.sheets.EventListBottomSheet
@@ -334,7 +334,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
     private fun showEventDetails(event: Event) {
         // For match events, navigate to MatchDetailsActivity
-        if (event.category == EventCategory.MATCH) {
+        if (event.type == EventType.MATCH) {
             val intent = Intent(requireContext(), MatchActivity::class.java).apply {
                 putExtra("event_id", event.id)
                 putExtra("event_title", event.title)
@@ -359,7 +359,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
 
     private fun showEventsForDay(day: Int, events: List<Event>) {
-        val eventListBottomSheet = EventListBottomSheet.Companion.newInstance(day, events)
+        val eventListBottomSheet = EventListBottomSheet.newInstance(day, events)
         eventListBottomSheet.show(childFragmentManager, "EventListBottomSheet")
     }
 
@@ -517,7 +517,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             Event(
                 id = "1",
                 title = "Team Practice",
-                category = EventCategory.PRACTICE,
+                type = EventType.PRACTICE,
                 date = calendar.time,
                 time = "15:00",
                 venue = "Main Field",
@@ -530,7 +530,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             Event(
                 id = "1b",
                 title = "Warm-up Session",
-                category = EventCategory.PRACTICE,
+                type = EventType.PRACTICE,
                 date = calendar.time, // Same day as above
                 time = "09:00", // Earlier time - should appear first
                 venue = "Training Ground",
@@ -542,7 +542,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             Event(
                 id = "1c",
                 title = "Team Meeting",
-                category = EventCategory.OTHER,
+                type = EventType.OTHER,
                 date = calendar.time, // Same day as above
                 time = "18:30", // Later time - should appear last
                 venue = "Club House",
@@ -554,7 +554,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             Event(
                 id = "1d",
                 title = "Tactical Review",
-                category = EventCategory.OTHER,
+                type = EventType.OTHER,
                 date = calendar.time, // Same day as above
                 time = "11:30", // Middle time - should appear second
                 venue = "Conference Room",
@@ -568,7 +568,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             Event(
                 id = "2",
                 title = "MATCH vs Eagles",
-                category = EventCategory.MATCH,
+                type = EventType.MATCH,
                 date = calendar.time,
                 time = "14:00",
                 venue = "Stadium",
@@ -582,7 +582,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             Event(
                 id = "2b",
                 title = "Pre-Match Warm-up",
-                category = EventCategory.PRACTICE,
+                type = EventType.PRACTICE,
                 date = calendar.time, // Same day as match
                 time = "12:00", // Before match
                 venue = "Stadium Warm-up Area",
@@ -594,7 +594,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             Event(
                 id = "2c",
                 title = "Post-Match Analysis",
-                category = EventCategory.OTHER,
+                type = EventType.OTHER,
                 date = calendar.time, // Same day as match
                 time = "16:30", // After match
                 venue = "Club House",
@@ -608,7 +608,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             Event(
                 id = "3",
                 title = "Team Meeting",
-                category = EventCategory.OTHER,
+                type = EventType.OTHER,
                 date = calendar.time,
                 time = "18:00",
                 venue = "Club House",
@@ -623,7 +623,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             Event(
                 id = "4",
                 title = "Training Session",
-                category = EventCategory.PRACTICE,
+                type = EventType.PRACTICE,
                 date = currentCalendar.time,
                 time = "16:00",
                 venue = "Training Ground",
@@ -636,7 +636,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             Event(
                 id = "4b",
                 title = "Fitness Test",
-                category = EventCategory.OTHER,
+                type = EventType.OTHER,
                 date = currentCalendar.time, // Same day
                 time = "08:00", // Early morning - should appear first
                 venue = "Gym",
@@ -648,7 +648,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             Event(
                 id = "4c",
                 title = "Recovery Session",
-                category = EventCategory.PRACTICE,
+                type = EventType.PRACTICE,
                 date = currentCalendar.time, // Same day
                 time = "19:00", // Evening - should appear last
                 venue = "Recovery Center",
@@ -661,7 +661,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             Event(
                 id = "5",
                 title = "Friendly MATCH",
-                category = EventCategory.MATCH,
+                type = EventType.MATCH,
                 date = currentCalendar.time,
                 time = "15:30",
                 venue = "Local Stadium",
