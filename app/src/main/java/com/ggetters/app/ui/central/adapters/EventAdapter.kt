@@ -6,11 +6,12 @@ import androidx.recyclerview.widget.ListAdapter
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Event
 import com.ggetters.app.databinding.ItemEventBinding
+import com.ggetters.app.ui.shared.adapters.KeyedDiffCallback
 
 class EventAdapter(
     private val onClick: (Event) -> Unit,
     private val onLongClick: (Event) -> Unit
-) : ListAdapter<Event, EventViewHolder>(EventDiffCallback()) {
+) : ListAdapter<Event, EventViewHolder>(KeyedDiffCallback<Event>()) {
 
     companion object {
         private const val TAG = "EventAdapter"

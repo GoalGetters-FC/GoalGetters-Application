@@ -6,11 +6,12 @@ import androidx.recyclerview.widget.ListAdapter
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.CalendarDayItem   // ✅ now from data.model
 import com.ggetters.app.databinding.ItemCalendarDayBinding
+import com.ggetters.app.ui.shared.adapters.KeyedDiffCallback
 
 class CalendarAdapter(
     private val onClick: (Int) -> Unit,
     private val onLongClick: (Int) -> Unit
-) : ListAdapter<CalendarDayItem, CalendarViewHolder>(CalendarDiffCallback()) {
+) : ListAdapter<CalendarDayItem, CalendarViewHolder>(KeyedDiffCallback<CalendarDayItem>()) {
 
     companion object {
         private const val TAG = "CalendarAdapter"
