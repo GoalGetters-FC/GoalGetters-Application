@@ -9,6 +9,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.ggetters.app.core.extensions.android.onTextUpdated
+import com.ggetters.app.core.extensions.android.setLayoutError
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivitySignUpBinding
 import com.ggetters.app.ui.shared.models.Clickable
@@ -18,6 +23,7 @@ import com.ggetters.app.ui.shared.models.UiState.Success
 import com.ggetters.app.ui.startup.dialogs.AgeVerificationBottomSheet
 import com.ggetters.app.ui.startup.viewmodels.SignUpViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SignUpActivity : AppCompatActivity(), Clickable {
@@ -42,6 +48,7 @@ class SignUpActivity : AppCompatActivity(), Clickable {
         setupBindings()
         setupLayoutUi()
         setupTouchListeners()
+        setupForm()
         observe()
     }
 
@@ -102,12 +109,12 @@ class SignUpActivity : AppCompatActivity(), Clickable {
 
 
     private fun load() {
-        // TODO: Display loading UI
+        // Display loading UI
     }
 
 
     private fun cast() {
-        // TODO: Hide loading UI
+        // Hide loading UI
     }
 
 
@@ -143,6 +150,32 @@ class SignUpActivity : AppCompatActivity(), Clickable {
 
 
 // --- UI
+
+
+    private fun setupForm() {
+        binds.etIdentity.onTextUpdated { text ->
+            model.form.onIdentityChanged(text)
+        }
+
+        binds.etPasswordDefault.onTextUpdated { text ->
+            model.form.onPasswordDefaultChanged(text)
+        }
+
+        binds.etPasswordConfirm.onTextUpdated { text ->
+            model.form.onPasswordConfirmChanged(text)
+        }
+
+        // Error UI
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.form.formState.collect { state ->
+                    binds.etIdentity.setLayoutError(state.identity.error?.toString())
+                    binds.etPasswordDefault.setLayoutError(state.passwordDefault.error?.toString())
+                    binds.etPasswordConfirm.setLayoutError(state.passwordConfirm.error?.toString())
+                }
+            }
+        }
+    }
 
 
     private fun setupBindings() {
