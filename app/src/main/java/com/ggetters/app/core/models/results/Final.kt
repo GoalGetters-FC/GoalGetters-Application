@@ -11,13 +11,13 @@ sealed interface Final<out D, out E : GenericError> {
     
 
     fun onSuccess(execute: (D) -> Unit): Final<D, E> {
-        if (this is Success) execute
+        if (this is Success) execute(product)
         return this
     }
 
 
     fun onFailure(execute: (E) -> Unit): Final<D, E> {
-        if (this is Failure) execute
+        if (this is Failure) execute(problem)
         return this
     }
 }

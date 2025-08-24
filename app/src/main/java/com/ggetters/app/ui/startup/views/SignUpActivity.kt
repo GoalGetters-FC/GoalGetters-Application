@@ -9,7 +9,13 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.ggetters.app.core.extensions.empty
 import com.ggetters.app.core.extensions.navigateToActivity
+import com.ggetters.app.core.extensions.onTextUpdated
+import com.ggetters.app.core.extensions.setLayoutError
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivitySignUpBinding
 import com.ggetters.app.ui.shared.models.Clickable
@@ -19,6 +25,7 @@ import com.ggetters.app.ui.shared.models.UiState.Success
 import com.ggetters.app.ui.startup.dialogs.AgeVerificationBottomSheet
 import com.ggetters.app.ui.startup.viewmodels.SignUpViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SignUpActivity : AppCompatActivity(), Clickable {
@@ -43,6 +50,16 @@ class SignUpActivity : AppCompatActivity(), Clickable {
         setupBindings()
         setupLayoutUi()
         setupTouchListeners()
+        setupForm()
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.signUpForm.formState.collect { isValid ->
+                    // Enable or disable the submit button based on combined validity
+                }
+            }
+        }
+
         observe()
     }
 
@@ -102,12 +119,12 @@ class SignUpActivity : AppCompatActivity(), Clickable {
 
 
     private fun load() {
-        // TODO: Display loading UI
+        // Display loading UI
     }
 
 
     private fun cast() {
-        // TODO: Hide loading UI
+        // Hide loading UI
     }
 
 
@@ -137,6 +154,43 @@ class SignUpActivity : AppCompatActivity(), Clickable {
             Clogger.w(
                 TAG, "Unhandled on-click for: ${view?.id}"
             )
+        }
+    }
+
+
+// --- Forms
+
+
+    private fun setupForm() {
+        binds.etIdentity.onTextUpdated { text ->
+            model.signUpForm.onIdentityChanged(text)
+        }
+
+        binds.etPasswordConfirm.onTextUpdated { text ->
+            model.signUpForm.onPasswordConfirmChanged(text)
+        }
+
+        binds.etPasswordDefault.onTextUpdated { text ->
+            model.signUpForm.onPasswordDefaultChanged(text)
+        }
+
+        // Error UI
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.signUpForm.formState.collect { state ->
+                    binds.etIdentity.setLayoutError(
+                        state.identity.error?.toString() ?: String.empty()
+                    )
+
+                    binds.etPasswordDefault.setLayoutError(
+                        state.passwordDefault.error?.toString() ?: String.empty()
+                    )
+
+                    binds.etPasswordConfirm.setLayoutError(
+                        state.passwordConfirm.error?.toString() ?: String.empty()
+                    )
+                }
+            }
         }
     }
 

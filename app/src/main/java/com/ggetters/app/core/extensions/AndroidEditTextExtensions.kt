@@ -2,7 +2,11 @@ package com.ggetters.app.core.extensions
 
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.ViewParent
 import android.widget.EditText
+import com.ggetters.app.core.models.results.Final
+import com.ggetters.app.core.validation.ValidationError
+import com.google.android.material.textfield.TextInputLayout
 
 
 // --- Extensions
@@ -10,16 +14,16 @@ import android.widget.EditText
 
 /**
  * Hijack the onTextChanged event from an EditText.
- * 
+ *
  * **Usage:**
- * 
+ *
  * ```
  * editText.onTextChanged { input ->
  *     ...
  * }
  * ```
  */
-fun EditText.onTextChanged(
+fun EditText.onTextUpdated(
     afterTextChanged: (String) -> Unit
 ) {
     this.addTextChangedListener(object : TextWatcher {
@@ -27,8 +31,8 @@ fun EditText.onTextChanged(
         /**
          * Called before the text is changed.
          *
-         * **Note:** The method body of this function has been intentionally 
-         * left blank as it is not needed and may reduce performance with 
+         * **Note:** The method body of this function has been intentionally
+         * left blank as it is not needed and may reduce performance with
          * unnecessary implementations.
          */
         @Deprecated(
@@ -65,4 +69,42 @@ fun EditText.onTextChanged(
             afterTextChanged.invoke(editable.toString())
         }
     })
+}
+
+
+fun EditText.addValidation(validator: (String) -> Final<Unit, ValidationError>) {
+    val textInputLayout = findTextInputLayout()
+
+    onTextUpdated { text ->
+        val result = validator(text)
+        when (result) {
+            is Final.Success -> {
+                textInputLayout?.isErrorEnabled = false
+                textInputLayout?.error = null
+            }
+
+            is Final.Failure -> {
+                textInputLayout?.isErrorEnabled = true
+                textInputLayout?.error = result.problem.toString()
+            }
+        }
+    }
+}
+
+
+fun EditText.setLayoutError(error: String) {
+    val textInputLayout = findTextInputLayout()
+    textInputLayout?.error = error
+}
+
+
+private fun EditText.findTextInputLayout(): TextInputLayout? {
+    var parent: ViewParent? = this.parent
+    while (parent != null) {
+        if (parent is TextInputLayout) {
+            return parent
+        }
+        parent = parent.parent
+    }
+    return null
 }

@@ -40,6 +40,7 @@
                 android:layout_width="match_parent">
 
             <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/cv_user_name"
                     style="@style/Widget.Local.Input.Layout"
                     android:hint="Name"
                     android:layout_height="wrap_content"
@@ -60,6 +61,7 @@
                     android:layout_width="0dp" />
 
             <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/cv_user_surname"
                     style="@style/Widget.Local.Input.Layout"
                     android:hint="Surname"
                     android:layout_height="wrap_content"
@@ -80,6 +82,7 @@
                     android:layout_width="0dp" />
 
             <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/cv_user_position"
                     style="@style/Widget.Local.Input.Layout.ExposedDropdownMenu"
                     android:hint="Position"
                     android:layout_height="wrap_content"
@@ -99,6 +102,7 @@
                     android:layout_width="0dp" />
 
             <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/cv_user_number"
                     style="@style/Widget.Local.Input.Layout"
                     android:hint="Number"
                     android:layout_height="wrap_content"
@@ -119,6 +123,7 @@
                     android:layout_width="0dp" />
 
             <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/cv_user_dob"
                     style="@style/Widget.Local.Input.Layout"
                     android:enabled="false"
                     android:hint="Date of Birth (DOB)"
