@@ -8,16 +8,22 @@ sealed interface Final<out D, out E : GenericError> {
 
 
 // --- Extensions
-    
 
+
+    /**
+     * Convenience method called when the operation is a [Final.Success].
+     */
     fun onSuccess(execute: (D) -> Unit): Final<D, E> {
-        if (this is Success) execute
+        if (this is Success) execute(product)
         return this
     }
 
 
+    /**
+     * Convenience method called when the operation is a [Final.Failure].
+     */
     fun onFailure(execute: (E) -> Unit): Final<D, E> {
-        if (this is Failure) execute
+        if (this is Failure) execute(problem)
         return this
     }
 }
