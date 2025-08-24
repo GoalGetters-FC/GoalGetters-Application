@@ -28,7 +28,6 @@
         <item name="boxStrokeColor">@color/text_input_layout_stroke</item>
         <item name="hintTextColor">@color/text_input_layout_text</item>
         <item name="helperTextTextColor">#4B4D4F</item>
-        <item name="errorTextColor">#FF2D55</item>
     </style>
 
     <style name="Widget.Local.Input.Layout.ExposedDropdownMenu"
@@ -47,7 +46,6 @@
         <item name="boxStrokeColor">@color/text_input_layout_stroke</item>
         <item name="hintTextColor">@color/text_input_layout_text</item>
         <item name="helperTextTextColor">#4B4D4F</item>
-        <item name="errorTextColor">#FF2D55</item>
     </style>
 
     <style name="Widget.Local.Input.Layout.EditText"
