@@ -1,4 +1,4 @@
-package com.ggetters.app.core.extensions
+package com.ggetters.app.core.extensions.android
 
 import android.text.Editable
 import android.text.TextWatcher
@@ -9,17 +9,17 @@ import android.widget.EditText
 
 
 /**
- * Hijack the onTextChanged event from an EditText.
+ * Hijack the `afterTextChanged()` event from an `EditText`.
  * 
  * **Usage:**
  * 
  * ```
- * editText.onTextChanged { input ->
+ * editText.onTextUpdated { text ->
  *     ...
  * }
  * ```
  */
-fun EditText.onTextChanged(
+fun EditText.onTextUpdated(
     afterTextChanged: (String) -> Unit
 ) {
     this.addTextChangedListener(object : TextWatcher {
@@ -31,16 +31,13 @@ fun EditText.onTextChanged(
          * left blank as it is not needed and may reduce performance with 
          * unnecessary implementations.
          */
-        @Deprecated(
-            message = "This method should not be implemented for performance.",
-            replaceWith = ReplaceWith("afterTextChanged"),
-            level = DeprecationLevel.ERROR
-        )
         override fun beforeTextChanged(
             s: CharSequence?, start: Int, count: Int, after: Int
         ) {
+            // Intentionally blank for performance.
         }
 
+        
         /**
          * Called while the text is being changed.
          *
@@ -48,20 +45,19 @@ fun EditText.onTextChanged(
          * left blank as it is not needed and may reduce performance with
          * unnecessary implementations.
          */
-        @Deprecated(
-            message = "This method should not be implemented for performance.",
-            replaceWith = ReplaceWith("afterTextChanged"),
-            level = DeprecationLevel.ERROR
-        )
         override fun onTextChanged(
             s: CharSequence?, start: Int, before: Int, count: Int
         ) {
+            // Intentionally blank for performance.
         }
 
+        
         /**
          * Called after the text has been changed.
          */
-        override fun afterTextChanged(editable: Editable?) {
+        override fun afterTextChanged(
+            editable: Editable?
+        ) {
             afterTextChanged.invoke(editable.toString())
         }
     })
