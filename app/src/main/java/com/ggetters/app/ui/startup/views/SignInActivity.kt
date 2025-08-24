@@ -11,6 +11,11 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.ggetters.app.core.extensions.android.onTextUpdated
+import com.ggetters.app.core.extensions.android.setLayoutError
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivitySignInBinding
 import com.ggetters.app.ui.shared.models.Clickable
@@ -19,6 +24,7 @@ import com.ggetters.app.ui.shared.models.UiState.Loading
 import com.ggetters.app.ui.shared.models.UiState.Success
 import com.ggetters.app.ui.startup.viewmodels.SignInViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SignInActivity : AppCompatActivity(), Clickable {
@@ -43,6 +49,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
         setupBindings()
         setupLayoutUi()
         setupTouchListeners()
+        setupForm()
         observe()
     }
 
@@ -108,12 +115,12 @@ class SignInActivity : AppCompatActivity(), Clickable {
 
 
     private fun load() {
-        // TODO: Display loading UI
+        // Display loading UI
     }
 
 
     private fun cast() {
-        // TODO: Hide loading UI
+        // Hide loading UI
     }
 
 
@@ -137,7 +144,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
             Clogger.d(
                 TAG, "Clicked Google SSO"
             )
-            
+
             tryAuthenticateGoogleLogin()
         }
 
@@ -154,6 +161,27 @@ class SignInActivity : AppCompatActivity(), Clickable {
 
 
 // --- UI
+
+
+    private fun setupForm() {
+        binds.etIdentity.onTextUpdated { text ->
+            model.form.onIdentityChanged(text)
+        }
+
+        binds.etPassword.onTextUpdated { text ->
+            model.form.onPasswordChanged(text)
+        }
+
+        // Error UI
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.form.formState.collect { state ->
+                    binds.etIdentity.setLayoutError(state.identity.error?.toString())
+                    binds.etPassword.setLayoutError(state.password.error?.toString())
+                }
+            }
+        }
+    }
 
 
     private fun setupBindings() {
