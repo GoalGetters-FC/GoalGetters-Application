@@ -1,4 +1,4 @@
-package com.ggetters.app.core.extensions
+package com.ggetters.app.core.extensions.android
 
 import android.text.Editable
 import android.text.TextWatcher
