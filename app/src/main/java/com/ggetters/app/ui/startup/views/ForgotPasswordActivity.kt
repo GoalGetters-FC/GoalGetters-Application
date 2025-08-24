@@ -8,6 +8,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.ggetters.app.core.extensions.android.onTextUpdated
+import com.ggetters.app.core.extensions.android.setLayoutError
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ForgotPasswordActivityBinding
 import com.ggetters.app.ui.shared.models.Clickable
@@ -15,6 +20,7 @@ import com.ggetters.app.ui.shared.models.UiState.Failure
 import com.ggetters.app.ui.shared.models.UiState.Success
 import com.ggetters.app.ui.startup.viewmodels.ForgotPasswordViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ForgotPasswordActivity : AppCompatActivity(), Clickable {
@@ -39,6 +45,7 @@ class ForgotPasswordActivity : AppCompatActivity(), Clickable {
         setupBindings()
         setupLayoutUi()
         setupTouchListeners()
+        setupForm()
         observe()
     }
 
@@ -107,6 +114,22 @@ class ForgotPasswordActivity : AppCompatActivity(), Clickable {
 
 
 // --- UI 
+
+
+    private fun setupForm() {
+        binds.etIdentity.onTextUpdated { text ->
+            model.form.onIdentityChanged(text)
+        }
+
+        // Error UI
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.form.formState.collect { state ->
+                    binds.etIdentity.setLayoutError(state.identity.error?.toString())
+                }
+            }
+        }
+    }
 
 
     private fun setupBindings() {

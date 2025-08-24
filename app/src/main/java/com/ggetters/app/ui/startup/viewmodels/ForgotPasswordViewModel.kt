@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ggetters.app.core.services.AuthenticationService
-import com.ggetters.app.core.utils.CredentialValidator
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.ui.shared.models.UiState
 import com.ggetters.app.ui.shared.models.UiState.Failure
@@ -28,6 +27,9 @@ class ForgotPasswordViewModel @Inject constructor(
 // --- Fields
 
 
+    val form = ForgotPasswordFormViewModel()
+
+
     private val _uiState = MutableLiveData<UiState>()
     val uiState: LiveData<UiState> = _uiState
 
@@ -38,14 +40,7 @@ class ForgotPasswordViewModel @Inject constructor(
     fun sendEmail(
         emailAddress: String
     ) = viewModelScope.launch {
-        try { // Validate input
-            require(CredentialValidator.isValidEAddress(emailAddress))
-        } catch (e: IllegalArgumentException) {
-            Clogger.d(
-                TAG, "Caught validation errors"
-            )
-
-            _uiState.value = Failure(e.message.toString())
+        if (!(form.isFormValid.value)) {
             return@launch
         }
 
