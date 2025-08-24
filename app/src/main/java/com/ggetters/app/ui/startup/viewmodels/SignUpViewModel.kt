@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ggetters.app.core.services.AuthenticationService
-import com.ggetters.app.core.utils.CredentialValidator
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.ui.shared.models.UiState
 import com.ggetters.app.ui.shared.models.UiState.Failure
@@ -28,6 +27,9 @@ class SignUpViewModel @Inject constructor(
     // --- Fields
 
 
+    val form = SignUpFormViewModel()
+
+
     private val _uiState = MutableLiveData<UiState>()
     val uiState: LiveData<UiState> = _uiState
 
@@ -38,10 +40,11 @@ class SignUpViewModel @Inject constructor(
     fun signUp(
         email: String, defaultPassword: String, confirmPassword: String
     ) = viewModelScope.launch {
+        if (!(form.isFormValid.value)) {
+            return@launch
+        }
+
         try { // Validate input
-            require(CredentialValidator.isValidEAddress(email))
-            require(CredentialValidator.isValidPassword(defaultPassword))
-            require(CredentialValidator.isValidPassword(confirmPassword))
             require( // Confirm that passwords match
                 (defaultPassword == confirmPassword)
             )
