@@ -64,56 +64,46 @@
                         android:layout_width="match_parent">
 
                     <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1.5dp"
-                            app:boxStrokeColor="@color/surface_tint_night"
-                            app:hintTextColor="@color/scheme_bold"
-                            app:cursorColor="@color/surface_tint_night"
-                            android:layout_marginBottom="12dp"
-                            app:boxCornerRadiusTopStart="16dp"
-                            app:boxCornerRadiusTopEnd="16dp"
-                            app:boxCornerRadiusBottomStart="16dp"
-                            app:boxCornerRadiusBottomEnd="16dp"
+                            style="@style/Widget.Local.Input.Layout"
+                            android:hint="@string/sign_in_input_identity_hint"
                             android:layout_height="wrap_content"
                             android:layout_width="match_parent">
 
                         <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/et_identity"
+                                style="@style/Widget.Local.Input.Layout.EditText"
                                 android:inputType="textEmailAddress"
-                                android:fontFamily="@font/variable_inter"
-                                android:hint="@string/sign_in_input_identity_hint"
-                                android:layout_width="match_parent"
-                                android:layout_height="52dp" />
+                                android:maxLines="1"
+                                android:layout_height="wrap_content"
+                                android:layout_width="match_parent" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <Space
+                            android:layout_height="12dp"
+                            android:layout_width="0dp" />
+
                     <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1.5dp"
-                            app:boxStrokeColor="@color/surface_tint_night"
-                            app:hintTextColor="@color/scheme_bold"
-                            app:cursorColor="@color/surface_tint_night"
+                            style="@style/Widget.Local.Input.Layout"
+                            android:hint="@string/sign_in_input_password_hint"
                             app:passwordToggleEnabled="true"
-                            app:passwordToggleTint="@color/scheme_bold"
-                            android:layout_marginBottom="12dp"
-                            app:boxCornerRadiusTopStart="16dp"
-                            app:boxCornerRadiusTopEnd="16dp"
-                            app:boxCornerRadiusBottomStart="16dp"
-                            app:boxCornerRadiusBottomEnd="16dp"
+                            app:passwordToggleTint="#161620"
                             android:layout_height="wrap_content"
                             android:layout_width="match_parent">
 
                         <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/et_password"
+                                style="@style/Widget.Local.Input.Layout.EditText"
                                 android:inputType="textPassword"
-                                android:fontFamily="@font/variable_inter"
-                                android:hint="@string/sign_in_input_password_hint"
-                                android:layout_width="match_parent"
-                                android:layout_height="52dp" />
+                                android:maxLines="1"
+                                android:layout_height="wrap_content"
+                                android:layout_width="match_parent" />
 
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <Space
+                            android:layout_height="12dp"
+                            android:layout_width="0dp" />
 
                     <!-- Hyperlinks -->
 

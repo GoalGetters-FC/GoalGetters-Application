@@ -51,6 +51,7 @@
     <style name="Widget.Local.Input.Layout.EditText"
             parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox">
         <item name="fontFamily">@font/variable_inter</item>
+        <item name="passwordToggleTint">#161620</item>
         <item name="android:textColor">#161620</item>
     </style>
 
