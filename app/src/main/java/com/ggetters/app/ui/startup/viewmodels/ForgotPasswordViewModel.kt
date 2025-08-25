@@ -37,42 +37,46 @@ class ForgotPasswordViewModel @Inject constructor(
 // --- Contracts
 
 
-    fun sendEmail(
-        emailAddress: String
-    ) = viewModelScope.launch {
-        if (!(form.isFormValid.value)) {
-            return@launch
-        }
-
-        _uiState.value = Loading
-        Clogger.i(
-            TAG, "Sending password reset instruction email to: $emailAddress"
-        )
-
-        // Communicate
-
-        runCatching {
-            val milliseconds = 3_000L
-            withTimeout(milliseconds) {
-                authService.sendCredentialChangeEmailAsync(emailAddress)
-            }
-        }.apply {
-            onSuccess { user ->
-                Clogger.d(
-                    TAG, "Attempt to send the email was a success!"
-                )
-
-                _uiState.value = Success
+    fun sendEmail() {
+        viewModelScope.launch {
+            form.validateForm()
+            if (!(form.isFormValid.value)) {
+                return@launch
             }
 
-            onFailure { exception ->
-                Clogger.d(
-                    TAG, "Attempt to send the email was a failure!"
-                )
+            _uiState.value = Loading
+            Clogger.i(
+                TAG,
+                "Sending password reset instruction email to: ${form.formState.value.identity.value}"
+            )
 
-                _uiState.value = Failure(
-                    exception.message.toString()
-                )
+            // Communicate
+
+            runCatching {
+                val milliseconds = 3_000L
+                withTimeout(milliseconds) {
+                    authService.sendCredentialChangeEmailAsync(
+                        form.formState.value.identity.value.trim()
+                    )
+                }
+            }.apply {
+                onSuccess {
+                    Clogger.d(
+                        TAG, "Attempt to send the email was a success!"
+                    )
+
+                    _uiState.value = Success
+                }
+
+                onFailure { exception ->
+                    Clogger.d(
+                        TAG, "Attempt to send the email was a failure!"
+                    )
+
+                    _uiState.value = Failure(
+                        exception.message.toString()
+                    )
+                }
             }
         }
     }

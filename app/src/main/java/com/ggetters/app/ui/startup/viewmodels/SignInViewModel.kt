@@ -44,46 +44,49 @@ class SignInViewModel @Inject constructor(
 // --- Contract
 
 
-    fun signIn(
-        email: String, password: String
-    ) = viewModelScope.launch {
-        if (!(form.isFormValid.value)) {
-            return@launch
-        }
-
-        _uiState.value = Loading
-        Clogger.i(
-            TAG, "Signing-in user with email: $email"
-        )
-
-        // Authenticate
-
-        runCatching {
-            val milliseconds = 3_000L
-            withTimeout(milliseconds) {
-                authService.signInAsync(email, password)
-            }
-        }.apply {
-            onSuccess { user ->
-                Clogger.d(
-                    TAG, "Attempt to authenticate was a success!"
-                )
-
-                _uiState.value = Success
+    fun signIn() {
+        viewModelScope.launch {
+            form.validateForm()
+            if (!(form.isFormValid.value)) {
+                return@launch
             }
 
-            onFailure { exception ->
-                Clogger.d(
-                    TAG, "Attempt to authenticate was a failure!"
-                )
+            _uiState.value = Loading
+            Clogger.i(
+                TAG, "Signing-in user with email: ${form.formState.value.identity.value}"
+            )
 
-                _uiState.value = Failure(
-                    exception.message.toString()
-                )
+            // Authenticate
+
+            runCatching {
+                val milliseconds = 3_000L
+                withTimeout(milliseconds) {
+                    authService.signInAsync(
+                        email = form.formState.value.identity.value.trim(),
+                        password = form.formState.value.identity.value.trim()
+                    )
+                }
+            }.apply {
+                onSuccess { user ->
+                    Clogger.d(
+                        TAG, "Attempt to authenticate was a success!"
+                    )
+
+                    _uiState.value = Success
+                }
+
+                onFailure { exception ->
+                    Clogger.d(
+                        TAG, "Attempt to authenticate was a failure!"
+                    )
+
+                    _uiState.value = Failure(
+                        exception.message.toString()
+                    )
+                }
             }
         }
     }
-
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun googleSignIn() = viewModelScope.launch {
@@ -98,7 +101,7 @@ class SignInViewModel @Inject constructor(
                 ssoClient.executeAuthenticationTransactionAsync()
             }
         }.apply {
-            onSuccess { user ->
+            onSuccess {
                 Clogger.d(
                     TAG, "Attempt to authenticate was a success!"
                 )
