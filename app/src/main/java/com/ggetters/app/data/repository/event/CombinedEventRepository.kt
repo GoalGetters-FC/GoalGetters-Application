@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class CombinedEventRepository @Inject constructor(
@@ -65,5 +66,16 @@ class CombinedEventRepository @Inject constructor(
     override fun getEventsByCreator(creatorId: String) =
         offline.getEventsByCreator(creatorId)
 
-    override fun hydrateForTeam(id: String) { /* optional no-op */ }
+    override fun hydrateForTeam(id: String) {
+        // Run sync in the background so it won't block UI
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            try {
+                Clogger.d("EventRepo", "Hydrating events for team $id …")
+                sync()
+            } catch (e: Exception) {
+                Clogger.e("EventRepo", "Hydrate failed for team $id", e)
+            }
+        }
+    }
+
 }

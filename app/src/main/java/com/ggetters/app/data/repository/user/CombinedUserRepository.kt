@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // app/src/main/java/com/ggetters/app/data/repository/user/CombinedUserRepository.kt
@@ -69,5 +70,17 @@ class CombinedUserRepository @Inject constructor(
     override suspend fun getLocalByAuthId(authId: String): User? = null
     override suspend fun insertLocal(user: User) = offline.insertLocal(user)
     override suspend fun insertRemote(user: User) = online.insertRemote(user)
-    override fun hydrateForTeam(id: String) {}
+
+    override fun hydrateForTeam(id: String) {
+        // Run sync in the background so it won't block UI
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            try {
+                Clogger.d("UserRepo", "Hydrating users for team $id …")
+                sync()
+            } catch (e: Exception) {
+                Clogger.e("UserRepo", "Hydrate failed for team $id", e)
+            }
+        }
+    }
+
 }

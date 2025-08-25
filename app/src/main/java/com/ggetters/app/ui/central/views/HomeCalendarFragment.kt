@@ -88,10 +88,14 @@ class HomeCalendarFragment : Fragment(), Clickable {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 activeModel.eventsThisMonth.collect { list ->
+                    Clogger.d(TAG, "Received ${list.size} events for this month")
                     monthEvents = list
+                    events.clear()
+                    events.addAll(list) // <<--- now events list has data
                     updateCalendarView()
-                    autoSelectToday() // selects if we’re on current month
+                    autoSelectToday()
                 }
+
             }
         }
 

@@ -14,8 +14,16 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.ggetters.app.R
+import com.ggetters.app.core.sync.SyncScheduler
 import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.data.repository.attendance.AttendanceRepository
+import com.ggetters.app.data.repository.event.EventRepository
+import com.ggetters.app.data.repository.team.TeamRepository
+import com.ggetters.app.data.repository.user.UserRepository
 import com.ggetters.app.databinding.ActivityHomeBinding
 import com.ggetters.app.ui.central.models.AppbarTheme
 import com.ggetters.app.ui.central.models.HomeUiConfiguration
@@ -25,6 +33,8 @@ import com.ggetters.app.ui.management.views.TeamsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
@@ -44,26 +54,32 @@ class HomeActivity : AppCompatActivity() {
 
     var notificationBadge: ImageView? = null
 
+    // Inject repositories (make sure they’re bound in Hilt)
+    @Inject lateinit var teamRepo: TeamRepository
+    @Inject lateinit var userRepo: UserRepository
+    @Inject lateinit var eventRepo: EventRepository
+    @Inject
+    lateinit var attendanceRepo: AttendanceRepository
+
+    private var syncScheduled = false
 
 // --- Lifecycle
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setupBindings()
         setupLayoutUi()
-
         setupStatusBar()
         setupViews()
         setupBottomNavigation()
 
-        // Load default fragment
         if (savedInstanceState == null) {
             switchFragment(HomeCalendarFragment())
         }
 
         observe()
+        observeActiveTeam() // <- safe version
 
         model.useViewConfiguration(
             HomeUiConfiguration(
@@ -72,6 +88,39 @@ class HomeActivity : AppCompatActivity() {
                 appBarShown = true,
             )
         )
+    }
+
+    // --- Observe active team safely
+    private fun observeActiveTeam() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                teamRepo.getActiveTeam().collect { team ->
+                    if (team == null) {
+                        Clogger.w(TAG, "⚠️ No active team found")
+                        // only show if UI is ready
+                        if (::binds.isInitialized) {
+                            Snackbar.make(
+                                binds.root,
+                                "Please create or join a team first",
+                                Snackbar.LENGTH_LONG
+                            ).show()
+                        }
+                    } else {
+                        Clogger.i(TAG, "✅ Active team: ${team.name} (${team.id})")
+
+                        // wrap in try-catch so no crash if not implemented
+                        runCatching { userRepo.hydrateForTeam(team.id) }
+                        runCatching { eventRepo.hydrateForTeam(team.id) }
+                        runCatching { attendanceRepo.hydrateForTeam(team.id) }
+
+                        if (!syncScheduled) {
+                            runCatching { SyncScheduler.schedule(this@HomeActivity) }
+                            syncScheduled = true
+                        }
+                    }
+                }
+            }
+        }
     }
 
 
