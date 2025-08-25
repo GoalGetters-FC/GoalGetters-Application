@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Status Options -->
+    <item
+        android:id="@+id/action_set_available"
+        android:title="Set as Available"
+        android:icon="@drawable/ic_unicons_check_24"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_set_maybe"
+        android:title="Set as Maybe"
+        android:icon="@drawable/ic_unicons_question_24"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_set_unavailable"
+        android:title="Set as Unavailable"
+        android:icon="@drawable/ic_unicons_times_24"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_set_not_responded"
+        android:title="Reset to Not Responded"
+        android:icon="@drawable/ic_unicons_clock_24"
+        app:showAsAction="never" />
+
+    <!-- Actions -->
+    <item
+        android:id="@+id/action_send_reminder"
+        android:title="Send Reminder"
+        android:icon="@drawable/ic_unicons_bell_24"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_view_profile"
+        android:title="View Profile"
+        android:icon="@drawable/ic_unicons_user_24"
+        app:showAsAction="never" />
+
+</menu>

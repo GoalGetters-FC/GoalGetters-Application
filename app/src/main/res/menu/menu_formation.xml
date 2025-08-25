@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_auto_fill"
+        android:title="Auto Fill"
+        android:icon="@drawable/ic_unicons_lightning_24"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_clear_all"
+        android:title="Clear All"
+        android:icon="@drawable/ic_unicons_trash_24"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_load_template"
+        android:title="Load Template"
+        android:icon="@drawable/ic_unicons_folder_open"
+        app:showAsAction="never" />
+
+</menu>
+

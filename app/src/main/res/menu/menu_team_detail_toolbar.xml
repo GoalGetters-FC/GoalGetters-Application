@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_edit_team"
+        android:icon="@drawable/ic_unicons_settings_24"
+        android:title="Edit Team"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_share_team"
+        android:icon="@drawable/ic_unicons_bell_24"
+        android:title="Share Team"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_team_settings"
+        android:icon="@drawable/ic_unicons_settings_24"
+        android:title="Team Settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_delete_team"
+        android:icon="@drawable/ic_unicons_close_24"
+        android:title="Delete Team"
+        app:showAsAction="never" />
+
+</menu> 

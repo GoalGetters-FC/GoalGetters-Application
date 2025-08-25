@@ -27,7 +27,8 @@ object UserRepositoryModule {
     @Provides @Singleton
     fun provideUserRepository(
         offline: OfflineUserRepository,
-        online: OnlineUserRepository
-    ): UserRepository =
-        CombinedUserRepository(offline, online)
+        online: OnlineUserRepository,
+        teamRepo: com.ggetters.app.data.repository.team.TeamRepository
+    ): UserRepository = CombinedUserRepository(offline, online, teamRepo)
+
 }

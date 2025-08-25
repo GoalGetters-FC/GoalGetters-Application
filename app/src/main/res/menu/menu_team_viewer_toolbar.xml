@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_link_team"
+        android:icon="@drawable/ic_unicons_link_24"
+        android:title="Link Team"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_join_team"
+        android:icon="@drawable/ic_unicons_plus_24"
+        android:title="Join Team"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/ic_unicons_bell_24"
+        android:title="Refresh"
+        app:showAsAction="ifRoom" />
+
+</menu> 

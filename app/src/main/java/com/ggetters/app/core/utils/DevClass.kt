@@ -3,17 +3,17 @@ package com.ggetters.app.core.utils
 
 import android.app.Application
 import android.content.pm.ApplicationInfo
+import com.ggetters.app.core.usecases.ResetAndRehydrate
 import com.ggetters.app.data.model.*
 import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.broadcast.BroadcastRepository
 import com.ggetters.app.data.repository.broadcaststatus.BroadcastStatusRepository
 import com.ggetters.app.data.repository.event.EventRepository
+import com.ggetters.app.data.repository.lineup.LineupRepository
 import com.ggetters.app.data.repository.team.TeamRepository
 import com.ggetters.app.data.repository.user.UserRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -21,10 +21,12 @@ import java.util.UUID
 import javax.inject.Inject
 
 /**
- * Development utility to seed sample data in debug builds.
- *
- * Runs suspending seed functions sequentially within an IO coroutine.
- * Guards against multiple invocations and non-debug installation.
+ * Development utility (debug builds).
+ * - Optional local clear
+ * - Optional seed
+ * - Optional rehydrate from Firestore
+ * - Optional counts log
+ * - Optional push/sync
  */
 class DevClass @Inject constructor(
     private val app: Application,
@@ -33,119 +35,166 @@ class DevClass @Inject constructor(
     private val eventRepo: EventRepository,
     private val attendanceRepo: AttendanceRepository,
     private val broadcastRepo: BroadcastRepository,
-    private val broadcastStatusRepo: BroadcastStatusRepository
+    private val broadcastStatusRepo: BroadcastStatusRepository,
+    private val lineupRepo: LineupRepository,
+    private val resetAndRehydrate: ResetAndRehydrate
 ) {
 
     private var isInitialized = false
 
     // Shared IDs for linking seeded entities
     private lateinit var teamId: String
+    private lateinit var code: String
     private lateinit var userId: String
     private lateinit var eventId: String
     private lateinit var broadcastId: String
 
-    /**
-     * Public entry point. Launches seeding in IO context if app is debuggable.
-     */
+    private data class DevFlags(
+        val clearLocal: Boolean = false,
+        val seed: Boolean = false,
+        val logCounts: Boolean = false,
+        val pushToRemote: Boolean = false,
+        val rehydrateFromRemote: Boolean = false
+    )
+
+    private val flags = DevFlags(
+        clearLocal = false,      // Reset step will clear for us
+        seed = false,            // Avoid seeding only to be wiped by rehydrate
+        logCounts = true,
+        pushToRemote = false,
+        rehydrateFromRemote = true
+    )
+
     suspend fun init() {
-        Clogger.i("DevClass", "$isInitialized")
-        if (isInitialized) return
+        if (!isDebuggable() || isInitialized) return
         isInitialized = true
 
-        Clogger.i("DevClass", "Pass 2: $isInitialized")
-
-        try {
-            clearAll()
-            Clogger.i("DevClass", "🧹 Database cleared 1")
-        } catch (
-            e: Exception
-        ) {
-            Clogger.e("DevClass", "Failed to clear database", e)
+        if (flags.clearLocal) clearLocalDb()
+        if (flags.seed) seedTestData()
+        if (flags.rehydrateFromRemote) {
+            runCatching { resetAndRehydrate() }
+                .onFailure { Clogger.e("DevClass", "rehydrate failed", it) }
         }
-
-        try {
-            seedTeam()
-            seedUser()
-            seedEvent()
-            seedAttendance()
-            seedBroadcast()
-            seedBroadcastStatus()
-        } catch (e: Exception) {
-            Clogger.e("DevClass", "Failed to seed dev data", e)
-        }
-
-        // 🔍 read-back checks
-        val teamCount       = teamRepo.all().first().size
-        val userCount       = userRepo.all().first().size
-        val eventCount      = eventRepo.all().first().size
-        val attendanceCount = attendanceRepo.getAll().first().size
-        val broadcastCount  = broadcastRepo.all().first().size
-        val statusCount     = broadcastStatusRepo.all().first().size
-
-        Clogger.i("DevClass", "📊 After seeding → teams=$teamCount, users=$userCount, " +
-                "events=$eventCount, attendance=$attendanceCount, " +
-                "broadcasts=$broadcastCount, statuses=$statusCount")
-
-        Clogger.i("DevClass", "🏁 Dev data seed completed")
+        if (flags.logCounts) logRoomCounts()
+        if (flags.pushToRemote) syncToFirestore()
     }
 
-    /** Deletes all rows from every table in child→parent order. */
-    private suspend fun clearAll() {
+    // ─────────────────────────────────────────────────────────────────────────────
+    // STEP 1: Clear Local DB
+    private suspend fun clearLocalDb() {
+        runCatching { clearAll() }
+            .onSuccess { Clogger.i("DevClass", "🧹 RoomDB cleared") }
+            .onFailure { Clogger.e("DevClass", "❌ Failed to clear RoomDB", it) }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // STEP 2: Seed Test Data
+    private suspend fun seedTestData() {
         runCatching {
-
-            teamRepo.deleteAll()
-
-            // child tables first
-//            broadcastStatusRepo.all().first().forEach { broadcastStatusRepo.delete(it) }
-//            broadcastRepo.all().first().forEach { broadcastRepo.delete(it) }
-//            attendanceRepo.deleteAll()
-
-            // then parents
-//            eventRepo.all().first().forEach { eventRepo.delete(it) }
-//            userRepo.all().first().forEach { userRepo.delete(it) }
-//            teamRepo.all().first().forEach { teamRepo.delete(it) }
-
-
-        }.onSuccess {
-            Clogger.i("DevClass", "🧹 Database cleared 2")
+            seedTeam()
+//            seedUser()
+//            seedEvent()
+//            seedAttendance()
+//            seedBroadcast()
+//            seedBroadcastStatus()
+//            seedLineup()
+//            seedLineupWithSpots()
         }.onFailure {
-            Clogger.e("DevClass", "🧹 Failed to clear database", it)
+            Clogger.e("DevClass", "❌ Dev data seeding failed", it)
         }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // STEP 3: Log RoomDB Counts
+    private suspend fun logRoomCounts() {
+        runCatching {
+            val teamCount = teamRepo.all().first().size
+            val userCount = userRepo.all().first().size
+            val eventCount = eventRepo.all().first().size
+            val attendanceCount = attendanceRepo.getAll().first().size
+            val broadcastCount = broadcastRepo.all().first().size
+            val statusCount = broadcastStatusRepo.all().first().size
+
+            Clogger.i(
+                "DevClass",
+                "📊 After init → teams=$teamCount, users=$userCount, " +
+                        "events=$eventCount, attendance=$attendanceCount, " +
+                        "broadcasts=$broadcastCount, statuses=$statusCount"
+            )
+        }.onFailure {
+            Clogger.i("DevClass", "⚠️ Failed read-back check")
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // STEP 4: Optional push/sync to Firestore (keep minimal to avoid interface mismatches)
+    private suspend fun syncToFirestore() {
+        runCatching {
+            // TeamRepository has sync(); others may not. Keep this minimal/safe.
+            teamRepo.sync()
+        }.onFailure {
+            Clogger.e("DevClass", "❌ Sync failed", it)
+        }
+    }
+
+    /** Only run on debug builds */
+    private fun isDebuggable(): Boolean {
+        return app.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
     }
 
     /**
-     * Creates and persists a Team.
+     * Deletes all local data from RoomDB (all tables).
+     * Firestore data is unaffected.
      */
+    private suspend fun clearAll() {
+        runCatching {
+            val beforeTeams = teamRepo.all().first().size
+            Clogger.i("DevClass", "Room check BEFORE deleteAll: $beforeTeams teams")
+            // Prefer using Room's clearAllTables via ResetAndRehydrate in future if needed.
+            teamRepo.deleteAll()
+            Clogger.i("DevClass", "🧹 Local DB (teams) cleared successfully")
+        }.onFailure {
+            throw it
+        }
+    }
+
     private suspend fun seedTeam() {
         runCatching {
+            code = (1000..9999).random().toString()
+
+            val existingTeam = teamRepo.getByCode(code)
+            if (existingTeam != null) {
+                Clogger.i("DevClass", "🚫 Team with code=$code already exists: ID=${existingTeam.id}")
+                teamRepo.setActiveTeam(existingTeam)
+                teamId = existingTeam.id
+                return@runCatching
+            }
+
             teamId = UUID.randomUUID().toString()
             val now = Instant.now()
             val team = Team(
                 id = teamId,
                 createdAt = now,
                 updatedAt = now,
-                code = "DEV",
-                name = "Dev Team",
-                alias = "DVT",
-                description = "Development Team",
+                code = code,
+                name = "Holywood Team",
+                alias = "GG",
+                description = "Hollywood Team",
                 composition = TeamComposition.UNISEX_MALE,
-                denomination = TeamDenomination.OPEN,
+                denomination = TeamDenomination.U18,
                 yearFormed = "2025",
                 contactCell = "+27123456789",
                 contactMail = "dev@goalgetters.app",
-                clubAddress = "Debug Street, Dev City"
+                clubAddress = "Debug Street, Dev City",
+                isActive = true
             )
-            teamRepo.upsert(team)
-        }.onSuccess {
-            Clogger.i("DevClass", "✅ Team seeded: $teamId")
+            teamRepo.createTeam(team)
+            Clogger.i("DevClass", "✅ Team seeded: $teamId, Code=$code")
         }.onFailure {
             Clogger.e("DevClass", "❌ Team seeding failed", it)
         }
     }
 
-    /**
-     * Creates and persists a User linked to the seeded Team.
-     */
     private suspend fun seedUser() {
         runCatching {
             userId = UUID.randomUUID().toString()
@@ -173,9 +222,6 @@ class DevClass @Inject constructor(
         }
     }
 
-    /**
-     * Creates and persists an Event linked to Team and User.
-     */
     private suspend fun seedEvent() {
         runCatching {
             eventId = UUID.randomUUID().toString()
@@ -188,8 +234,8 @@ class DevClass @Inject constructor(
                 creatorId = userId,
                 name = "Test Match",
                 description = "Seeded match event",
-                category = 1,
-                style = 0,
+                category = EventCategory.PRACTICE,
+                style = EventStyle.FRIENDLY,
                 startAt = now,
                 endAt = now.plusHours(2),
                 location = "Training Grounds"
@@ -202,9 +248,54 @@ class DevClass @Inject constructor(
         }
     }
 
-    /**
-     * Creates and persists an Attendance record for the Event and User.
-     */
+    private suspend fun seedLineup() {
+        runCatching {
+            val lineupId = UUID.randomUUID().toString()
+            val lineup = Lineup(
+                id = lineupId,
+                eventId = eventId,
+                createdBy = userId,
+                formation = "4-3-3",
+                spotsJson = "[]"
+            )
+            lineupRepo.upsert(lineup)
+        }.onSuccess {
+            Clogger.i("DevClass", "✅ Lineup seeded for event: $eventId")
+        }.onFailure {
+            Clogger.e("DevClass", "❌ Lineup seeding failed", it)
+        }
+    }
+
+    private suspend fun seedLineupWithSpots() {
+        runCatching {
+            val lineupId = UUID.randomUUID().toString()
+            val spots = listOf(
+                LineupSpot(userId = "p01", number = 1, position = "GK", role = SpotRole.STARTER),
+                LineupSpot(userId = "p02", number = 4, position = "CB", role = SpotRole.STARTER),
+                LineupSpot(userId = "p03", number = 5, position = "CB", role = SpotRole.STARTER),
+                LineupSpot(userId = "p04", number = 7, position = "CM", role = SpotRole.STARTER),
+                LineupSpot(userId = "p05", number = 10, position = "ST", role = SpotRole.STARTER),
+                LineupSpot(userId = "p06", number = 12, position = "", role = SpotRole.BENCH),
+                LineupSpot(userId = "p07", number = 14, position = "", role = SpotRole.BENCH),
+                LineupSpot(userId = "p08", number = 15, position = "", role = SpotRole.RESERVE),
+                LineupSpot(userId = "p09", number = 16, position = "", role = SpotRole.RESERVE)
+            )
+            val spotsJson = Gson().toJson(spots)
+            val lineup = Lineup(
+                id = lineupId,
+                eventId = eventId,
+                createdBy = userId,
+                formation = "4-3-3",
+                spotsJson = spotsJson
+            )
+            lineupRepo.upsert(lineup)
+        }.onSuccess {
+            Clogger.i("DevClass", "✅ Lineup with spots seeded for event: $eventId")
+        }.onFailure {
+            Clogger.e("DevClass", "❌ Failed to seed lineup with spots", it)
+        }
+    }
+
     private suspend fun seedAttendance() {
         runCatching {
             val attendance = Attendance(
@@ -222,9 +313,6 @@ class DevClass @Inject constructor(
         }
     }
 
-    /**
-     * Creates and persists a Broadcast message for the Team.
-     */
     private suspend fun seedBroadcast() {
         runCatching {
             broadcastId = UUID.randomUUID().toString()
@@ -246,9 +334,6 @@ class DevClass @Inject constructor(
         }
     }
 
-    /**
-     * Creates and persists a BroadcastStatus linking Broadcast and User.
-     */
     private suspend fun seedBroadcastStatus() {
         runCatching {
             val status = BroadcastStatus(

@@ -6,57 +6,45 @@
     android:orientation="vertical"
     android:background="@color/white">
 
-    <!-- Toolbar with Mark All as Read button -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/white"
-        android:elevation="4dp"
-        app:titleTextColor="@color/black"
-        app:title="Notifications"
-        app:menu="@menu/menu_notifications_toolbar" />
-
-    <!-- Filter Tabs -->
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/filterChipGroup"
+    <!-- Header -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp"
-        app:singleSelection="true"
-        app:selectionRequired="true">
+        android:paddingVertical="16dp"
+        android:background="@color/white"
+        android:elevation="2dp">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipAll"
-            android:layout_width="wrap_content"
+        <!-- Back Button -->
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_unicons_arrow_left"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            app:tint="@color/text_secondary" />
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="All"
-            android:checked="true"
-            style="@style/Widget.GoalGetters.Chip.Filter" />
+            android:layout_weight="1"
+            android:text="Notifications"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/variable_inter"
+            android:gravity="center" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipGames"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Games"
-            style="@style/Widget.GoalGetters.Chip.Filter" />
+        <!-- Spacer to balance the layout -->
+        <View
+            android:layout_width="48dp"
+            android:layout_height="48dp" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipPractices"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Practices"
-            style="@style/Widget.GoalGetters.Chip.Filter" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipAnnouncements"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Announcements"
-            style="@style/Widget.GoalGetters.Chip.Filter" />
-
-    </com.google.android.material.chip.ChipGroup>
+    </LinearLayout>
 
     <!-- Notifications List -->
     <androidx.recyclerview.widget.RecyclerView
@@ -64,7 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="16dp"
-        android:clipToPadding="false" />
+        android:clipToPadding="false"
+        android:paddingBottom="16dp" />
 
 </LinearLayout> 

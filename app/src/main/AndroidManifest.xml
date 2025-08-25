@@ -3,7 +3,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-            android:name=".YourApplication"
+            android:name=".LocalApplication"
             android:allowBackup="true"
             android:dataExtractionRules="@xml/data_extraction_rules"
             android:fullBackupContent="@xml/backup_rules"
@@ -12,48 +12,85 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-
-        <!-- Activities -->
-
+        <activity
+                android:name=".ui.startup.views.OnboardingActivity"
+                android:exported="false" />
+        <activity
+                android:name=".ui.management.views.TeamViewerActivity"
+                android:exported="false" /> <!-- Activities -->
+        <activity
+                android:name=".ui.management.views.TeamDetailActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
         <activity
                 android:name=".ui.startup.views.StartActivity"
                 android:exported="true"
                 android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
                 android:name=".ui.startup.views.SignInActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
-
         <activity
                 android:name=".ui.startup.views.SignUpActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
-
         <activity
                 android:name=".ui.startup.views.ForgotPasswordActivity"
                 android:exported="false"
                 android:theme="@style/AppTheme" />
-
-        <activity
-                android:name=".ui.startup.views.WelcomeBackActivity"
-                android:exported="false"
-                android:theme="@style/AppTheme" />
-
         <activity
                 android:name=".ui.central.views.HomeActivity"
                 android:exported="false"
-                android:theme="@style/AppTheme" />
-
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
         <activity
                 android:name=".ui.central.views.NotificationsActivity"
                 android:exported="false"
-                android:theme="@style/AppTheme" />
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
+        <activity
+                android:name=".ui.central.views.AddEventActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
+        <activity
+                android:name=".ui.central.views.MatchControlActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
+        <activity
+                android:name=".ui.central.views.MatchDetailsActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
+        <activity
+                android:name=".ui.central.views.MatchRosterActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="adjustResize" />
+                <activity
+            android:name=".ui.central.views.FormationActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.central.views.PostMatchActionsActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".ui.central.views.MatchActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize" />
     </application>
+
 </manifest>

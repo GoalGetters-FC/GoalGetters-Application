@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_mark_seen"
+        android:title="Mark update as seen"
+        android:icon="@drawable/ic_unicons_eye_24" />
+    <item
+        android:id="@+id/action_pin"
+        android:title="Pin notification"
+        android:icon="@drawable/ic_unicons_pin_16" />
+    <item
+        android:id="@+id/action_view_event"
+        android:title="View linked event"
+        android:icon="@drawable/ic_unicons_calender_24" />
+    <item
+        android:id="@+id/action_delete"
+        android:title="Delete"
+        android:icon="@drawable/ic_unicons_trash_24" />
+</menu> 

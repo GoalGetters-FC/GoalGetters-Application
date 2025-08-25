@@ -20,7 +20,7 @@
             app:title="Player Profile"
             app:titleTextColor="@color/black"
             app:titleCentered="true"
-            app:navigationIcon="@drawable/ic_arrow_left"
+            app:navigationIcon="@drawable/ic_unicons_arrow_left"
             app:navigationIconTint="@color/black" />
 
         <!-- Player Header Section -->
@@ -55,14 +55,14 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/playerAvatar" />
 
-            <!-- Player Position -->
+            <!-- Player Age -->
             <TextView
-                android:id="@+id/playerPosition"
+                android:id="@+id/playerAge"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="4dp"
-                android:text="Forward"
+                android:text="30 yo"
                 android:textColor="@color/text_secondary"
                 android:textSize="16sp"
                 android:fontFamily="@font/variable_inter"
@@ -70,23 +70,161 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/playerName" />
 
-            <!-- Jersey Number -->
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Player Details Form -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- General Section -->
             <TextView
-                android:id="@+id/playerJerseyNumber"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:text="#10"
-                android:textColor="@color/primary"
+                android:text="General"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:fontFamily="@font/variable_inter"
-                app:layout_constraintStart_toEndOf="@id/playerAvatar"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/playerPosition" />
+                android:textColor="@color/black"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/variable_inter" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- Player Status Dropdown -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="Player Status"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                <AutoCompleteTextView
+                    android:id="@+id/playerStatusDropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Fulltime Player"
+                    android:inputType="none"
+                    android:enabled="false"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Player Role Dropdown -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="Player Role"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                <AutoCompleteTextView
+                    android:id="@+id/playerRoleDropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Forward"
+                    android:inputType="none"
+                    android:enabled="false"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Player Details Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Player Details"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/variable_inter" />
+
+            <!-- Player Name Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="Player Name"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/playerNameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="John Doe"
+                    android:inputType="textPersonName"
+                    android:enabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Player Number Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="Player Number"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/playerNumberInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="10"
+                    android:inputType="number"
+                    android:enabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Player Email Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="Player Email"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/playerEmailInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="john.doe@example.com"
+                    android:inputType="textEmailAddress"
+                    android:enabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Date of Birth Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="Date of Birth"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/playerDateOfBirthInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1995-03-15"
+                    android:inputType="date"
+                    android:enabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Player Contact Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="Player Contact"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/playerContactInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="+1 234 567 8900"
+                    android:inputType="phone"
+                    android:enabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
 
         <!-- Status Chips -->
         <HorizontalScrollView
@@ -224,9 +362,9 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="Season Statistics"
                     android:textColor="@color/black"
                     android:textSize="18sp"
@@ -371,10 +509,10 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:text="0"
+                        android:text="11"
                         android:textColor="@color/black"
                         android:textSize="16sp"
-        android:textStyle="bold"
+                        android:textStyle="bold"
                         android:fontFamily="@font/variable_inter"
                         android:layout_marginBottom="8dp" />
 
@@ -382,12 +520,13 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Action Buttons -->
+        <!-- Action Buttons (view mode) -->
         <LinearLayout
+            android:id="@+id/actionsRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-        android:gravity="center"
+            android:gravity="center"
             android:paddingHorizontal="20dp"
             android:paddingBottom="20dp">
 
@@ -419,8 +558,42 @@
                 android:text="View History"
                 android:icon="@drawable/ic_unicons_chart_24"
                 android:iconTint="#007AFF" />
+        </LinearLayout>
 
+        <!-- Edit mode actions -->
+        <LinearLayout
+            android:id="@+id/editActionsRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="20dp"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDeleteProfile"
+                style="@style/Widget.GoalGetters.Button.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete"
+                android:layout_marginEnd="8dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelEdit"
+                style="@style/Widget.GoalGetters.Button.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel"
+                android:layout_marginEnd="8dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveProfile"
+                style="@style/Widget.GoalGetters.Button.Filled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save Changes" />
         </LinearLayout>
 
     </LinearLayout>
-</androidx.core.widget.NestedScrollView> 
+</androidx.core.widget.NestedScrollView>

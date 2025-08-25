@@ -1,0 +1,84 @@
+package com.ggetters.app.ui.shared.modals
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.databinding.ModalBottomSheetCreateTeamBinding
+import com.ggetters.app.ui.shared.models.Clickable
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+
+class CreateTeamBottomSheet(
+    private val onSubmit: (String) -> Unit
+) : BottomSheetDialogFragment(), Clickable {
+    companion object {
+        const val TAG = "CreateTeamBottomSheet"
+    }
+
+
+    private lateinit var binds: ModalBottomSheetCreateTeamBinding
+
+
+// --- Lifecycle
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? = createBindings(inflater, container)
+
+
+    override fun onViewCreated(
+        view: View, savedInstanceState: Bundle?
+    ) {
+        super.onViewCreated(view, savedInstanceState)
+        setupTouchListeners()
+    }
+
+
+// --- Event Handlers
+
+
+    override fun setupTouchListeners() {
+        binds.btContinue.setOnClickListener(this)
+    }
+
+
+    /**
+     * TODO: Abstract logic to a function with input validation
+     */
+    override fun onClick(view: View?) = when (view?.id) {
+        binds.btContinue.id -> {
+            val teamName = binds.etTeamName.text.toString().trim()
+            onSubmit(
+                teamName
+            )
+            
+            dismiss()
+        }
+
+        else -> {
+            Clogger.w(
+                TAG, "Unhandled on-click for: ${view?.id}"
+            )
+        }
+    }
+
+
+// --- UI
+
+
+    /**
+     * Construct the view binding for this fragment.
+     *
+     * @return the root [View] of this fragment within the same context as every
+     *         other invocation of the binding instance. This is crucial because
+     *         otherwise they would exist in different contexts.
+     */
+    private fun createBindings(
+        inflater: LayoutInflater, container: ViewGroup?
+    ): View {
+        binds = ModalBottomSheetCreateTeamBinding.inflate(inflater, container, false)
+        return binds.root
+    }
+}

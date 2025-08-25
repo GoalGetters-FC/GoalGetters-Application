@@ -2,15 +2,91 @@
 <resources>
     <!-- AppTheme style removed to resolve duplicate resource error. -->
 
-    <style name="ShapeAppearance.TopEndRounded48Dp" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+    <style name="Widget.Local.FloatingActionButton"
+            parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="fabCustomSize">64dp</item>
+        <item name="backgroundTint">#FF9500</item>
+        <item name="tint">#FFFFFF</item>
+        <item name="elevation">2dp</item>
+        <item name="pressedTranslationZ">3dp</item>
+    </style>
+
+
+    <style name="Widget.Local.Input.Layout"
+            parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="fontFamily">@font/variable_inter</item>
+
+        <!-- Corner -->
+
+        <item name="boxCornerRadiusTopStart">16dp</item>
+        <item name="boxCornerRadiusTopEnd">16dp</item>
+        <item name="boxCornerRadiusBottomStart">16dp</item>
+        <item name="boxCornerRadiusBottomEnd">16dp</item>
+
+        <!-- Colors -->
+
+        <item name="boxStrokeColor">@color/text_input_layout_stroke</item>
+        <item name="hintTextColor">@color/text_input_layout_text</item>
+        <item name="helperTextTextColor">#4B4D4F</item>
+    </style>
+
+    <style name="Widget.Local.Input.Layout.ExposedDropdownMenu"
+            parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="fontFamily">@font/variable_inter</item>
+
+        <!-- Corner -->
+
+        <item name="boxCornerRadiusTopStart">16dp</item>
+        <item name="boxCornerRadiusTopEnd">16dp</item>
+        <item name="boxCornerRadiusBottomStart">16dp</item>
+        <item name="boxCornerRadiusBottomEnd">16dp</item>
+
+        <!-- Colors -->
+
+        <item name="boxStrokeColor">@color/text_input_layout_stroke</item>
+        <item name="hintTextColor">@color/text_input_layout_text</item>
+        <item name="helperTextTextColor">#4B4D4F</item>
+    </style>
+
+    <style name="Widget.Local.Input.Layout.EditText"
+            parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox">
+        <item name="fontFamily">@font/variable_inter</item>
+        <item name="passwordToggleTint">#161620</item>
+        <item name="android:textColor">#161620</item>
+    </style>
+
+
+    <style name="Widget.Local.BottomNavigationView"
+            parent="Widget.Material3.BottomNavigationView">
+        <item name="labelVisibilityMode">unlabeled</item>
+        <item name="itemActiveIndicatorStyle">@drawable/circle_background</item>
+        <item name="itemRippleColor">@color/light</item>
+        <item name="itemTextColor">@color/selector_nav_text</item>
+        <item name="itemIconTint">@color/selector_nav_icon</item>
+    </style>
+
+
+    <style name="ShapeAppearance.Local.Curved.TopA40"
+            parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <!-- Style -->
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSizeTopRight">48dp</item>
-        <item name="cornerSizeTopLeft">0dp</item>
+        <!-- Sizes -->
+        <item name="cornerSizeTopRight">40dp</item>
+        <item name="cornerSizeTopLeft">40dp</item>
+        <item name="cornerSize">0dp</item>
+    </style>
+
+    <style name="ShapeAppearance.TopCorner40"
+            parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cardBackgroundColor">#000000</item>
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">40dp</item>
         <item name="cornerSizeBottomRight">0dp</item>
         <item name="cornerSizeBottomLeft">0dp</item>
     </style>
 
-    <style name="Widget.GoalGetters.Chip.Filled" parent="Widget.MaterialComponents.Chip.Entry">
+    <style name="Widget.GoalGetters.Chip.Filled"
+            parent="Widget.MaterialComponents.Chip.Entry">
         <item name="chipCornerRadius">16dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/black</item>
@@ -23,7 +99,8 @@
         <item name="elevation">0dp</item>
     </style>
 
-    <style name="Widget.GoalGetters.Chip.Outlined" parent="Widget.MaterialComponents.Chip.Entry">
+    <style name="Widget.GoalGetters.Chip.Outlined"
+            parent="Widget.MaterialComponents.Chip.Entry">
         <item name="chipCornerRadius">16dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/black</item>
@@ -36,7 +113,8 @@
         <item name="elevation">0dp</item>
     </style>
 
-    <style name="Widget.GoalGetters.Button.Filled" parent="Widget.MaterialComponents.Button">
+    <style name="Widget.GoalGetters.Button.Filled"
+            parent="Widget.MaterialComponents.Button">
         <item name="cornerRadius">16dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/black</item>
@@ -46,7 +124,8 @@
         <item name="elevation">0dp</item>
     </style>
 
-    <style name="Widget.GoalGetters.Button.Outlined" parent="Widget.MaterialComponents.Button">
+    <style name="Widget.GoalGetters.Button.Outlined"
+            parent="Widget.MaterialComponents.Button">
         <item name="cornerRadius">16dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/primary</item>
@@ -58,7 +137,8 @@
         <item name="elevation">0dp</item>
     </style>
 
-    <style name="Widget.GoalGetters.Chip.Filter" parent="Widget.MaterialComponents.Chip.Choice">
+    <style name="Widget.GoalGetters.Chip.Filter"
+            parent="Widget.MaterialComponents.Chip.Choice">
         <item name="chipCornerRadius">20dp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textColor">@color/text_secondary</item>
@@ -68,41 +148,92 @@
         <item name="android:fontFamily">@font/variable_inter</item>
         <item name="android:textSize">14sp</item>
         <item name="elevation">0dp</item>
-        <item name="chipBackgroundColor">@color/surface_variant</item>
         <item name="rippleColor">@color/primary</item>
     </style>
 
-    <!-- RSVP Button Styles -->
-    <style name="Widget.GoalGetters.Button.RSVP.Available" parent="Widget.MaterialComponents.Button">
-        <item name="cornerRadius">8dp</item>
+
+    <!-- Match Control Button Styles -->
+    <style name="Widget.GoalGetters.Button.MatchControl.Primary"
+            parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">12dp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="backgroundTint">@color/success</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="backgroundTint">@color/primary</item>
         <item name="android:fontFamily">@font/variable_inter</item>
-        <item name="android:textSize">12sp</item>
-        <item name="elevation">0dp</item>
-        <item name="android:minHeight">36dp</item>
+        <item name="elevation">2dp</item>
+        <item name="android:minHeight">80dp</item>
+        <item name="android:minWidth">80dp</item>
     </style>
 
-    <style name="Widget.GoalGetters.Button.RSVP.Maybe" parent="Widget.MaterialComponents.Button">
-        <item name="cornerRadius">8dp</item>
+    <style name="Widget.GoalGetters.Button.MatchControl.Secondary"
+            parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">12dp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="backgroundTint">@color/warning</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="backgroundTint">@color/surface_variant</item>
+        <item name="strokeColor">@color/divider</item>
+        <item name="strokeWidth">1dp</item>
         <item name="android:fontFamily">@font/variable_inter</item>
-        <item name="android:textSize">12sp</item>
-        <item name="elevation">0dp</item>
-        <item name="android:minHeight">36dp</item>
+        <item name="elevation">1dp</item>
+        <item name="android:minHeight">80dp</item>
+        <item name="android:minWidth">80dp</item>
     </style>
 
-    <style name="Widget.GoalGetters.Button.RSVP.Unavailable" parent="Widget.MaterialComponents.Button">
-        <item name="cornerRadius">8dp</item>
+    <style name="Widget.GoalGetters.Button.MatchControl.Danger"
+            parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">12dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/white</item>
         <item name="backgroundTint">@color/error</item>
         <item name="android:fontFamily">@font/variable_inter</item>
-        <item name="android:textSize">12sp</item>
-        <item name="elevation">0dp</item>
-        <item name="android:minHeight">36dp</item>
+        <item name="elevation">2dp</item>
+        <item name="android:minHeight">80dp</item>
+        <item name="android:minWidth">80dp</item>
     </style>
+
+    <!-- General Button Styles -->
+    <style name="Widget.GoalGetters.Button.Primary"
+            parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">8dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="backgroundTint">@color/primary</item>
+        <item name="android:fontFamily">@font/variable_inter</item>
+        <item name="elevation">2dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+    <style name="Widget.GoalGetters.Button.Secondary"
+            parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">8dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="backgroundTint">@color/surface_variant</item>
+        <item name="strokeColor">@color/divider</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:fontFamily">@font/variable_inter</item>
+        <item name="elevation">1dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+    <!-- Tab Text Appearance -->
+    <style name="TabTextAppearance"
+            parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/variable_inter</item>
+    </style>
+
+    <!-- Circle Image View Style -->
+    <style name="CircleImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- Dialog Animation Style -->
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/scale_in</item>
+        <item name="android:windowExitAnimation">@anim/scale_out</item>
+    </style>
+
 </resources> 

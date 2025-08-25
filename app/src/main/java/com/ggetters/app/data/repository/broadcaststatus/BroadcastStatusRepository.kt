@@ -22,4 +22,8 @@ interface BroadcastStatusRepository {
 
     /** Delete one status */
     suspend fun delete(entity: BroadcastStatus)
+
+    /** Delete all statuses */
+    suspend fun deleteAll()
+    fun hydrateForTeam(id: String)
 }

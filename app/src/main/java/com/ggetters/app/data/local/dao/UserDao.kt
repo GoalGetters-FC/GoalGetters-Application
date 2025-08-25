@@ -16,56 +16,31 @@ import java.util.UUID
 @Dao
 interface UserDao {
 
-    /**
-     * Insert or update a single [User].
-     * On conflict (same primary key), the existing record is replaced.
-     *
-     * @param user the [User] to upsert into the database
-     */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(user: User)
 
-    /**
-     * Observe all users as a reactive stream.
-     * Emits the full list whenever any user row is inserted, updated, or deleted.
-     *
-     * @return a [Flow] emitting the current list of [User] objects
-     */
-    @Query("SELECT * FROM user")
-    fun getAll(): Flow<List<User>>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(users: List<User>)
 
-    /**
-     * Fetch a single [User] by its ID once.
-     * This is a one‐time suspendable query that returns null if not found.
-     *
-     * @param id the unique identifier of the user to fetch
-     * @return the matching [User], or null if no user with the given ID exists
-     */
-    @Query("SELECT * FROM user WHERE id = :id")
-    suspend fun getByIdOnce(id: UUID): User?
+    @Query("SELECT * FROM user WHERE team_id = :teamId")
+    fun getByTeamId(teamId: String): Flow<List<User>>
 
-    /**
-     * Delete the user with the given ID.
-     *
-     * @param id the unique identifier of the user to remove
-     */
-    @Query("DELETE FROM user WHERE id = :id")
-    suspend fun deleteById(id: UUID)
+    @Query("SELECT * FROM user WHERE id = :id AND team_id = :teamId LIMIT 1")
+    suspend fun getByIdInTeam(id: String, teamId: String): User?
 
-    /**
-     * Fetch a single [User] by its auth ID.
-     * Returns null if no user is found with the given auth ID.
-     *
-     * @param authId the authentication ID of the user to fetch
-     * @return the matching [User], or null if not found
-     */
-    @Query("SELECT * FROM user WHERE auth_id = :authId LIMIT 1")
-    suspend fun getByAuthId(authId: String): User?
+    @Query("SELECT * FROM user WHERE auth_id = :authId AND team_id = :teamId LIMIT 1")
+    suspend fun getByAuthIdAndTeam(authId: String, teamId: String): User?
 
-    /**
-     * Delete all users from the database.
-     * This is a bulk operation that removes all user records.
-     */
-    @Query("DELETE FROM user")
-    suspend fun deleteAll()
+    @Query("DELETE FROM user WHERE id = :id AND team_id = :teamId")
+    suspend fun deleteByIdInTeam(id: String, teamId: String)
+
+    @Query("DELETE FROM user WHERE team_id = :teamId")
+    suspend fun deleteAllInTeam(teamId: String)
+
+    // dirty sync helpers
+    @Query("SELECT * FROM user WHERE team_id = :teamId AND stained_at IS NOT NULL")
+    suspend fun getDirtyUsers(teamId: String): List<User>
+
+    @Query("UPDATE user SET stained_at = NULL WHERE id = :id AND team_id = :teamId")
+    suspend fun markClean(id: String, teamId: String)
 }

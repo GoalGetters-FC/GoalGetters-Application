@@ -1,45 +1,44 @@
 package com.ggetters.app.data.repository.user
 
 import com.ggetters.app.data.model.User
+import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.remote.firestore.UserFirestore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import java.util.UUID
 import javax.inject.Inject
 
+// app/src/main/java/com/ggetters/app/data/repository/user/OnlineUserRepository.kt
 class OnlineUserRepository @Inject constructor(
     private val fs: UserFirestore
 ) : UserRepository {
 
-    override fun all(): Flow<List<User>> =
-        fs.observeAll()
+    // Caller supplies teamId everywhere in Combined repo
+    fun allForTeam(teamId: String): Flow<List<User>> = fs.observeForTeam(teamId)
+    suspend fun fetchAllForTeam(teamId: String): List<User> = fs.fetchAll(teamId)
 
-//    override suspend fun getById(id: UUID): User? =
-//        fs.getById(id.toString())     // convert UUID→String here
+    override fun all(): Flow<List<User>> = emptyFlow() // avoid accidental global
+    override suspend fun getById(id: String): User? = null
 
-    override suspend fun upsert(entity: User) =
-        fs.save(entity)
+    suspend fun getById(teamId: String, id: String): User? = fs.getById(teamId, id)
 
-//    override suspend fun delete(entity: User) =
-//        fs.delete(entity.id.toString())  // ensure you pass String here
+    override suspend fun upsert(entity: User) { fs.upsert(entity.teamId, entity) }
+    override suspend fun delete(entity: User) { fs.delete(entity.teamId, entity.id) }
 
-    override suspend fun getById(id: String): User? =
-        fs.getById(id)
+    override suspend fun deleteAll() { /* prob broken */ }
+    override suspend fun sync() { /* no-op */ }
+    override fun hydrateForTeam(id: String) { /* no-op here */ }
 
-    override suspend fun delete(entity: User) =
-        fs.delete(entity.id)
-
-
-    override suspend fun getLocalByAuthId(authId: String): User? =
-        null  // offline-only
-
-    override suspend fun insertLocal(user: User) {
-        // no-op
+    // convenience for role-based join from Team create/join flows
+    suspend fun joinTeam(teamId: String, authId: String, role: UserRole, seed: User? = null) {
+        val base = seed ?: User(
+            id = authId, authId = authId, teamId = teamId,
+            role = role
+        ).apply { notifyJoinedTeam() }
+        fs.upsert(teamId, base)
     }
 
-    override suspend fun insertRemote(user: User) =
-        fs.save(user)
-
-    override suspend fun sync() {
-        // no-op
-    }
+    override suspend fun getLocalByAuthId(authId: String): User? = null
+    override suspend fun insertLocal(user: User) { /* no-op */ }
+    override suspend fun insertRemote(user: User) { fs.upsert(user.teamId, user) }
 }

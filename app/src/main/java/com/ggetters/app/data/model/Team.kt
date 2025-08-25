@@ -19,7 +19,9 @@ import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.Exclude
 import java.time.Instant
 import java.util.UUID
+import com.google.firebase.firestore.IgnoreExtraProperties
 
+@IgnoreExtraProperties
 @Entity(
     tableName = "team",
     indices = [
@@ -27,141 +29,81 @@ import java.util.UUID
         Index(value = ["code"], unique = true),
     ]
 )
-data class Team(
+data class Team constructor(
 
     @PrimaryKey
     @DocumentId
     @ColumnInfo(name = "id")
     override val id: String = UUID.randomUUID().toString(),
 
-    
     @ColumnInfo(name = "created_at")
     override val createdAt: Instant = Instant.now(),
 
-    
     @ColumnInfo(name = "updated_at")
     override var updatedAt: Instant = Instant.now(),
 
-    
     @Exclude
     @ColumnInfo(name = "stained_at")
     override var stainedAt: Instant? = null,
 
-    
     @ColumnInfo(name = "code")
     override var code: String? = null,
 
-    
     // --- Attributes
 
-    
     @ColumnInfo(name = "name")
-    var name: String,
-    
-    
+    var name: String = "",
+
     @ColumnInfo(name = "alias")
     var alias: String? = null,
-    
-    
+
     @ColumnInfo(name = "description")
     var description: String? = null,
-    
-    
+
     @ColumnInfo(name = "composition")
-    var composition: TeamComposition,
-    
-    
+    var composition: TeamComposition = TeamComposition.UNISEX_MALE,
+
     @ColumnInfo(name = "denomination")
-    var denomination: TeamDenomination,
-    
-    
+    var denomination: TeamDenomination = TeamDenomination.OPEN,
+
     @ColumnInfo(name = "year_formed")
     var yearFormed: String? = null,
-    
-    
+
     @ColumnInfo(name = "contact_cell")
     var contactCell: String? = null,
-    
-    
+
     @ColumnInfo(name = "contact_mail")
     var contactMail: String? = null,
-    
-    
+
     @ColumnInfo(name = "club_address")
     var clubAddress: String? = null,
 
-    
-    ) : KeyedEntity, CodedEntity, AuditableEntity, StainableEntity {
+    @Exclude
+    @ColumnInfo(name = "is_active")
+    var isActive: Boolean = false
+
+) : KeyedEntity, CodedEntity, AuditableEntity, StainableEntity {
+
+    // Firestore needs a real no-arg constructor:
+    constructor() : this(
+        id            = "",
+        createdAt    = Instant.now(),
+        updatedAt    = Instant.now(),
+        stainedAt     = null,
+        code          = null,
+        name          = "",
+        alias         = null,
+        description   = null,
+        composition   = TeamComposition.UNISEX_MALE,
+        denomination  = TeamDenomination.OPEN,
+        yearFormed    = null,
+        contactCell   = null,
+        contactMail   = null,
+        clubAddress   = null,
+        isActive      = false
+    )
+
     companion object {
         const val TAG = "Team"
     }
 }
-
-
-
-// TODO: READ THIS RECOMMENDATION AND GIMME THOUGHTS ON IT
-
-/*
-Quick Recommendations by Layer
-1. Dependency Injection (DI)
-Bind Firestore data sources (TeamFirestore, UserFirestore) so you can inject them directly.
-
-Consolidate Modules: Merge any overlapping providers (e.g. if you have separate DataModule and ConDatabaseModule, fold into one).
-
-Named Bindings: Continue using @Named for online/offline repos, but also bind your raw DAOs and Firestore clients for easier testing.
-
-2. Room Database & Converters
-Single Database: Merge AppDatabase + ConDatabase into one @Database annotated class.
-
-TypeConverters:
-
-Add an InstantConverter for your Instant fields.
-
-Ensure your JSON converter (for Lineup.spotsJson) is registered.
-
-Migrations Stubbed: Even on v1, declare empty Migration objects so future schema changes are smooth.
-
-3. DAOs
-Base DAO: Introduce a generic BaseDao<T> interface for common CRUD (insert, delete, upsertAll).
-
-Reactive Streams: Return Flow<…> for all @Query methods so your UI layers get live updates.
-
-Indexes: Add @Index on any column you frequently filter by (e.g. code, date_of_event, player_id).
-
-4. Data Models (Entities)
-Soft-Delete Support: Implement StashableEntity on entities where you need soft-delete (add a stashedAt column).
-
-Nullability: Audit fields should be non-null; optional fields (location, endAt, description) should be nullable.
-
-Consistency with Supers: Each entity should implement the correct mix of KeyedEntity, CodedEntity, AuditableEntity, StainableEntity, and (where needed) StashableEntity.
-
-5. Firestore Data Sources
-One-Shot Fetch: Provide both observeAll() (real-time) and fetchAllOnce() (single request) to avoid hanging on .first().
-
-Error Wrapping: Convert Firestore exceptions into a unified DataError or Resource.Error so repos can handle retries uniformly.
-
-Batch Writes: Add saveAll(List<Team>) methods to reduce round-trips during sync.
-
-6. Repositories
-Base Repository Interface: Define a BaseRepository<T> with save(), delete(), getById(), getAll(), and sync().
-
-SyncManager: Extract two-way sync logic into a SyncManager class that batches flushing isDirty flags, merges remotes, and resolves conflicts.
-
-Conflict Strategy: Implement a default “last-write-wins” or timestamp-based merge, and allow per-entity overrides (e.g. custom hooks for PerformanceLog).
-
-7. Testing & Quality
-DAO Tests: In-memory Room tests for each DAO.
-
-Repository Tests: Mock TeamFirestore and TeamDao to verify CombinedTeamRepository sync logic.
-
-Migration Tests: Write tests that run your Migration objects against a pre-v1 schema.
-
-CI Integration: Run these tests in GitHub Actions to catch regressions early.
-
-8. Bonus Best Practices
-Use sealed class Resource<T> in your repos/VMs to model loading, success, and error states.
-
-Define Relation POJOs (EventWithLineup, EventWithAttendance) for single-call aggregates.
-
-Document Conventions: Keep a README.md in data/ that summarizes naming, supers usage, and sync patterns.
- */

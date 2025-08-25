@@ -97,3 +97,10 @@ data class Lineup(
 //  • AppSettings (global/team-level config synced from Firestore)
 //
 // Once these are in place you’ll have true end-to-end support for every core entity.
+
+
+// Lineup: We need Firestore, Dao, and Repository layers
+//  • Firestore: LineupFirestore (observeAll, fetchOnce, save, delete)
+//  • Dao: LineupDao (CRUD + deleteAll())
+//  • Repos: Offline/Online/CombinedLineupRepository + LineupRepository (Interface that extends CrudRepository<Lineup>)
+//  • Di: LineupRepositoryModule

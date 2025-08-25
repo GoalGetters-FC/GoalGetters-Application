@@ -1,306 +1,445 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:background="@color/white">
 
-    <LinearLayout
+    <!-- Header with back button and edit icon -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        app:navigationIcon="@drawable/ic_unicons_arrow_left"
+        app:title="U15a Football"
+        app:titleTextColor="@color/black"
+        app:subtitle="Football (Soccer)"
+        app:subtitleTextColor="@color/text_secondary"
+        app:menu="@menu/menu_team_profile_toolbar" />
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
-            app:title="Team Profile"
-            app:titleTextColor="@color/black"
-            app:titleCentered="true"
-            app:menu="@menu/menu_team_profile_toolbar" />
+            android:orientation="vertical"
+            android:padding="20dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <!-- Banner Image -->
-            <ImageView
-                android:id="@+id/teamBannerImage"
-                android:layout_width="0dp"
-                android:layout_height="160dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/team_banner_default"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <!-- Logo overlay -->
-            <ImageView
-                android:id="@+id/teamLogo"
-                android:layout_width="88dp"
-                android:layout_height="88dp"
-                android:layout_marginTop="-44dp"
-                android:background="@drawable/circle_background"
-                android:src="@drawable/ic_unicons_soccer_24"
-                android:elevation="8dp"
-                app:layout_constraintTop_toBottomOf="@id/teamBannerImage"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+            <!-- Team Info Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Team Info"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/variable_inter" />
 
             <!-- Team Name -->
-            <TextView
-                android:id="@+id/teamNameText"
-                android:layout_width="wrap_content"
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="56dp"
-                android:text="Greenfield U16 Lions"
-                android:textColor="#000000"
-                android:textSize="24sp"
+                android:layout_marginBottom="12dp"
+                android:hint="Team Name"
+                app:startIconDrawable="@drawable/ic_unicons_soccer_24"
+                app:startIconTint="@color/text_secondary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/teamNameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="U15a Football"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Short Team Name -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="Short Team Name"
+                app:startIconDrawable="@drawable/ic_unicons_soccer_24"
+                app:startIconTint="@color/text_secondary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/shortTeamNameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="U15a"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Uniform -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="Uniform"
+                app:startIconDrawable="@drawable/ic_unicons_soccer_24"
+                app:startIconTint="@color/text_secondary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                <AutoCompleteTextView
+                    android:id="@+id/uniformDropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Home Kit"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Age Group -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="Age Group"
+                app:startIconDrawable="@drawable/ic_unicons_user_24"
+                app:startIconTint="@color/text_secondary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                <AutoCompleteTextView
+                    android:id="@+id/ageGroupDropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="All U15"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Coach Name -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:hint="Coach Name"
+                app:startIconDrawable="@drawable/ic_unicons_hat_24"
+                app:startIconTint="@color/text_secondary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/coachNameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Coach Smith"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Contact Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Contact"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:fontFamily="sans-serif-medium"
-                app:layout_constraintTop_toBottomOf="@id/teamLogo"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                android:textColor="@color/black"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/variable_inter" />
 
-            <!-- Team Short Name / Code -->
-            <TextView
-                android:id="@+id/teamCodeText"
-                android:layout_width="wrap_content"
+            <!-- Email -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="U16-LIONS"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                app:layout_constraintTop_toBottomOf="@id/teamNameText"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_marginBottom="12dp"
+                android:hint="Email"
+                app:startIconDrawable="@drawable/ic_unicons_envelope_24"
+                app:startIconTint="@color/text_secondary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        <!-- Team Details Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/emailInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="u15a@goalgetters.com"
+                    android:inputType="textEmailAddress" />
 
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Contact Number -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="Contact Number"
+                app:startIconDrawable="@drawable/ic_unicons_bell_24"
+                app:startIconTint="@color/text_secondary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/contactNumberInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="+27 12 345 6789"
+                    android:inputType="phone" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Website Link -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:hint="Link to Website"
+                app:startIconDrawable="@drawable/ic_unicons_link_24"
+                app:startIconTint="@color/text_secondary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/websiteInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="https://goalgetters.com/u15a"
+                    android:inputType="textUri" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Team Statistics Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Team Statistics"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/variable_inter" />
+
+            <!-- Statistics Grid -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_marginBottom="20dp">
 
-                <TextView
-                    android:id="@+id/ageGroupText"
-                    android:layout_width="wrap_content"
+                <!-- Row 1 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Age Group: U16"
-                    android:textColor="#000000"
-                    android:textSize="16sp" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
 
-                <TextView
-                    android:id="@+id/genderText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Gender: Co-ed"
-                    android:textColor="#000000"
-                    android:textSize="16sp"
-                    android:layout_marginTop="4dp" />
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="2dp">
 
-                <TextView
-                    android:id="@+id/locationText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Location: Main Stadium"
-                    android:textColor="#000000"
-                    android:textSize="16sp"
-                    android:layout_marginTop="4dp" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp"
+                            android:gravity="center">
 
-                <TextView
-                    android:id="@+id/seasonText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Season: 2025/2026"
-                    android:textColor="#000000"
-                    android:textSize="16sp"
-                    android:layout_marginTop="4dp" />
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:src="@drawable/ic_unicons_trophy_24"
+                                app:tint="@color/yellow" />
 
-                <TextView
-                    android:id="@+id/contactText"
-                    android:layout_width="wrap_content"
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="11"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/black"
+                                android:layout_marginTop="4dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Wins"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_secondary" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp"
+                            android:gravity="center">
+
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:src="@drawable/ic_unicons_users_24"
+                                app:tint="@color/info" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="15"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/black"
+                                android:layout_marginTop="4dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Players"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_secondary" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+                <!-- Row 2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Contact: coach@email.com"
-                    android:textColor="#000000"
-                    android:textSize="16sp"
-                    android:layout_marginTop="4dp" />
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp"
+                            android:gravity="center">
+
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:src="@drawable/ic_unicons_calendar_24"
+                                app:tint="@color/success" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="24"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/black"
+                                android:layout_marginTop="4dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Events"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_secondary" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp"
+                            android:gravity="center">
+
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:src="@drawable/ic_unicons_clock_24"
+                                app:tint="@color/warning" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="85%"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/black"
+                                android:layout_marginTop="4dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Attendance"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_secondary" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <!-- Roles and Options -->
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fillViewport="true"
-            android:scrollbars="none"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <!-- Action Buttons -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/roleChips"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:singleLine="true"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipCoach"
-                        style="@style/Widget.GoalGetters.Chip.Filled"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Coach: 1"
-                        app:chipIcon="@drawable/ic_unicons_hat_24"
-                        app:chipIconTint="#007AFF"
-                        android:textColor="@color/black" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipAssistants"
-                        style="@style/Widget.GoalGetters.Chip.Outlined"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Assistants: 2"
-                        app:chipIcon="@drawable/ic_unicons_handshake_24"
-                        app:chipIconTint="#007AFF"
-                        android:textColor="@color/black" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipPlayers"
-                        style="@style/Widget.GoalGetters.Chip.Outlined"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Players: 15"
-                        app:chipIcon="@drawable/ic_unicons_user_24"
-                        app:chipIconTint="#007AFF"
-                        android:textColor="@color/black" />
-                </com.google.android.material.chip.ChipGroup>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </HorizontalScrollView>
-
-        <!-- Admin/Shared Actions -->
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fillViewport="true"
-            android:scrollbars="none"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center">
+                android:orientation="vertical"
+                android:layout_marginTop="20dp">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnInvite"
-                    style="@style/Widget.GoalGetters.Button.Filled"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/viewPlayersButton"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Invite"
-                    android:icon="@drawable/ic_unicons_user_plus_16"
-                    android:iconTint="#007AFF"
-                    android:layout_marginEnd="8dp" />
+                    android:text="View Team Players"
+                    android:icon="@drawable/ic_unicons_users_24"
+                    android:layout_marginBottom="8dp"
+                    android:backgroundTint="@color/white"
+                    android:textColor="@color/black"
+                    app:strokeColor="@color/text_secondary"
+                    app:strokeWidth="1dp" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnEditTeam"
-                    style="@style/Widget.GoalGetters.Button.Outlined"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/viewStatisticsButton"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Edit"
-                    android:icon="@drawable/ic_unicons_settings_24"
-                    android:iconTint="#007AFF"
-                    android:layout_marginEnd="8dp" />
+                    android:text="View Detailed Statistics"
+                    android:icon="@drawable/ic_unicons_chart_24"
+                    android:layout_marginBottom="8dp"
+                    android:backgroundTint="@color/white"
+                    android:textColor="@color/black"
+                    app:strokeColor="@color/text_secondary"
+                    app:strokeWidth="1dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnManageRoles"
-                    style="@style/Widget.GoalGetters.Button.Outlined"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Roles"
-                    android:icon="@drawable/ic_unicons_handshake_24"
-                    android:iconTint="#007AFF"
-                    android:layout_marginEnd="8dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDeleteTeam"
-                    style="@style/Widget.GoalGetters.Button.Outlined"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Delete"
-                    android:icon="@drawable/ic_unicons_archive_alt"
-                    android:iconTint="#FF3B30"
-                    android:textColor="#FF3B30"
-                    android:backgroundTint="#FFF0F0" />
             </LinearLayout>
-        </HorizontalScrollView>
 
-        <!-- Shared Actions -->
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fillViewport="true"
-            android:scrollbars="none"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
+        </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center">
+    </ScrollView>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnViewPlayers"
-                    style="@style/Widget.GoalGetters.Button.Outlined"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="View Players"
-                    android:icon="@drawable/ic_unicons_group_24"
-                    android:iconTint="#007AFF"
-                    android:layout_marginEnd="8dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnViewSchedule"
-                    style="@style/Widget.GoalGetters.Button.Outlined"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Schedule"
-                    android:icon="@drawable/ic_unicons_calender_24"
-                    android:iconTint="#007AFF"
-                    android:layout_marginEnd="8dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnLeaveTeam"
-                    style="@style/Widget.GoalGetters.Button.Outlined"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Leave Team"
-                    android:icon="@drawable/ic_unicons_arrow_right_24"
-                    android:iconTint="#FF3B30"
-                    android:textColor="#FF3B30"
-                    android:backgroundTint="#FFF0F0" />
-            </LinearLayout>
-        </HorizontalScrollView>
-
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView> 
+</LinearLayout> 

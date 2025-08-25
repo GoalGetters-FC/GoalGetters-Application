@@ -16,14 +16,16 @@
         android:layout_marginBottom="24dp">
 
         <TextView
-            android:id="@+id/eventTypeIcon"
+            android:id="@+id/eventCategory"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:text="🔵"
-            android:textSize="24sp"
+            android:text="MATCH"
+            android:textSize="14sp"
             android:gravity="center"
             android:background="@drawable/event_icon_background"
-            android:layout_marginEnd="16dp" />
+            android:layout_marginEnd="16dp"
+            android:textStyle="bold"
+            android:textColor="@color/black" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -32,10 +34,10 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/eventTitle"
+                android:id="@+id/eventName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Team Practice"
+                android:text="Team Training"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"
@@ -45,7 +47,7 @@
                 android:id="@+id/eventCreatedBy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Created by Coach"
+                android:text="Created by user123"
                 android:textSize="14sp"
                 android:textColor="@color/text_disabled" />
 
@@ -80,7 +82,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="December 15, 2024"
+                android:text="December 15, 2025"
                 android:textSize="16sp"
                 android:textColor="@color/black" />
 
@@ -106,13 +108,13 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="15:00"
+                android:text="18:30"
                 android:textSize="16sp"
                 android:textColor="@color/black" />
 
         </LinearLayout>
 
-        <!-- Venue -->
+        <!-- Location -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -128,42 +130,13 @@
                 android:layout_marginEnd="12dp" />
 
             <TextView
-                android:id="@+id/eventVenue"
+                android:id="@+id/eventLocation"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Main Field"
+                android:text="Sports Complex A"
                 android:textSize="16sp"
                 android:textColor="@color/black" />
-
-        </LinearLayout>
-
-        <!-- Opponent (for games) -->
-        <LinearLayout
-            android:id="@+id/opponentContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="⚽"
-                android:textSize="16sp"
-                android:layout_marginEnd="12dp" />
-
-            <TextView
-                android:id="@+id/eventOpponent"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="vs Eagles FC"
-                android:textSize="16sp"
-                android:textColor="@color/primary"
-                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -228,4 +201,4 @@
 
     </LinearLayout>
 
-</LinearLayout> 
+</LinearLayout>

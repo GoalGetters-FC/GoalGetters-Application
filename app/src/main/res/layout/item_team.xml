@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/divider"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp">
+
+        <!-- Team Avatar -->
+        <ImageView
+            android:id="@+id/teamAvatar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_unicons_soccer_24"
+            android:background="@drawable/circle_background"
+            android:layout_marginEnd="16dp"
+            app:tint="@color/yellow" />
+
+        <!-- Team Info -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/teamName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="U15a Football"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:fontFamily="@font/variable_inter" />
+
+            <TextView
+                android:id="@+id/teamRole"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Coach"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:fontFamily="@font/variable_inter" />
+
+            <!-- Member Counts -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:id="@+id/memberCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 members"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_tertiary"
+                    android:fontFamily="@font/variable_inter" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" • "
+                    android:textSize="12sp"
+                    android:textColor="@color/text_tertiary"
+                    android:fontFamily="@font/variable_inter" />
+
+                <TextView
+                    android:id="@+id/coachCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 coaches"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_tertiary"
+                    android:fontFamily="@font/variable_inter" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" • "
+                    android:textSize="12sp"
+                    android:textColor="@color/text_tertiary"
+                    android:fontFamily="@font/variable_inter" />
+
+                <TextView
+                    android:id="@+id/playerCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 players"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_tertiary"
+                    android:fontFamily="@font/variable_inter" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" • "
+                    android:textSize="12sp"
+                    android:textColor="@color/text_tertiary"
+                    android:fontFamily="@font/variable_inter" />
+
+                <TextView
+                    android:id="@+id/guardianCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 guardians"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_tertiary"
+                    android:fontFamily="@font/variable_inter" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Current Team Badge -->
+        <TextView
+            android:id="@+id/currentTeamBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Current Team"
+            android:textSize="10sp"
+            android:textColor="@color/black"
+            android:background="@drawable/current_team_badge"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:visibility="gone"
+            android:fontFamily="@font/variable_inter" />
+
+        <!-- Action Menu -->
+        <ImageView
+            android:id="@+id/teamMenuButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_unicons_settings_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_marginStart="8dp"
+            app:tint="@color/text_secondary" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView> 

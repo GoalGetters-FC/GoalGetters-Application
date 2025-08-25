@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <!-- Header -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="0dp"
+        app:navigationIcon="@drawable/ic_unicons_arrow_left"
+        app:title="Teams"
+        app:titleTextColor="@color/black"
+        app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        app:menu="@menu/menu_teams_toolbar" />
+
+    <!-- Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Teams List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/teamsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Empty State -->
+            <TextView
+                android:id="@+id/emptyStateText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No teams yet"
+                android:textSize="16sp"
+                android:textColor="@color/text_secondary"
+                android:gravity="center"
+                android:visibility="gone"
+                android:fontFamily="@font/variable_inter" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Bottom Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:background="@color/white"
+        android:elevation="8dp">
+
+        <!-- Link Team Code Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/linkTeamCodeButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Link Team Code"
+            android:icon="@drawable/ic_unicons_link_24"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/white"
+            android:textColor="@color/black"
+            app:strokeColor="@color/text_secondary"
+            app:strokeWidth="1dp" />
+
+        <!-- Create New Team Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/createTeamButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Create New Team"
+            android:icon="@drawable/ic_unicons_plus_24"
+            style="@style/Widget.MaterialComponents.Button" />
+
+    </LinearLayout>
+
+</LinearLayout> 

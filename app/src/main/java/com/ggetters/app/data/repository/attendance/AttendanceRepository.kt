@@ -14,4 +14,5 @@ interface AttendanceRepository {
     suspend fun delete(attendance: Attendance)
     suspend fun deleteAll()
     suspend fun sync()
+    fun hydrateForTeam(id: String)
 }

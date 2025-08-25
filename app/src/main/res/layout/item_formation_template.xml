@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    android:background="?attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <!-- Formation Preview -->
+        <LinearLayout
+            android:layout_width="80dp"
+            android:layout_height="60dp"
+            android:orientation="vertical"
+            android:background="@drawable/mini_pitch_background"
+            android:gravity="center"
+            android:layout_marginEnd="16dp">
+
+            <!-- Mini formation dots representing players -->
+            <LinearLayout
+                android:id="@+id/formationPreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- Formation Details -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/formationName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4-3-3 Attack"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/on_surface"
+                android:fontFamily="@font/variable_inter"
+                tools:text="4-3-3 Attack" />
+
+            <TextView
+                android:id="@+id/formationDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Balanced attacking formation"
+                android:textSize="12sp"
+                android:textColor="@color/on_surface_variant"
+                android:fontFamily="@font/variable_inter"
+                android:layout_marginTop="2dp"
+                tools:text="Balanced attacking formation" />
+
+            <TextView
+                android:id="@+id/playersAssigned"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="8/11 players assigned"
+                android:textSize="10sp"
+                android:textColor="@color/primary"
+                android:fontFamily="@font/variable_inter"
+                android:layout_marginTop="4dp"
+                tools:text="8/11 players assigned" />
+
+        </LinearLayout>
+
+        <!-- Action Button -->
+        <ImageButton
+            android:id="@+id/btnFormationAction"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_unicons_angle_right_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Select formation"
+            app:tint="@color/on_surface_variant" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
