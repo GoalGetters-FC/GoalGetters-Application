@@ -15,10 +15,6 @@ class HomeProfileViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    companion object {
-        private const val TAG = "HomeProfileViewModel"
-    }
-
     private val _player = MutableLiveData<User?>()
     val player: LiveData<User?> get() = _player
 
