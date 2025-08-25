@@ -101,7 +101,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private fun tryAuthenticateGoogleLogin() {
-        model.go
+        model.googleSignIn()
     }
 
 
