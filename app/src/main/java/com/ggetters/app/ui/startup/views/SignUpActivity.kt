@@ -98,16 +98,6 @@ class SignUpActivity : AppCompatActivity(), Clickable {
 // --- Internals
 
 
-    private fun tryAuthenticateCredentials() {
-        val email = binds.etIdentity.text.toString().trim()
-        val defaultPassword = binds.etPasswordDefault.text.toString().trim()
-        val confirmPassword = binds.etPasswordConfirm.text.toString().trim()
-        model.signUp(
-            email, defaultPassword, confirmPassword
-        )
-    }
-
-
     private fun load() {
         // Display loading UI
     }
@@ -138,7 +128,7 @@ class SignUpActivity : AppCompatActivity(), Clickable {
                 supportFragmentManager, "AgeVerificationBottomSheet"
             )
 
-            tryAuthenticateCredentials()
+            model.signUp()
         }
 
         else -> {

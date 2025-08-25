@@ -84,17 +84,6 @@ class ForgotPasswordActivity : AppCompatActivity(), Clickable {
     }
 
 
-// --- Internals
-
-
-    private fun trySendEmail() {
-        val email = binds.etIdentity.text.toString().trim()
-        model.sendEmail(
-            email
-        )
-    }
-
-
 // --- Event Handlers
 
 
@@ -104,7 +93,7 @@ class ForgotPasswordActivity : AppCompatActivity(), Clickable {
 
 
     override fun onClick(view: View?) = when (view?.id) {
-        binds.btSubmit.id -> trySendEmail()
+        binds.btSubmit.id -> model.sendEmail()
         else -> {
             Clogger.w(
                 TAG, "Unhandled on-click for: ${view?.id}"

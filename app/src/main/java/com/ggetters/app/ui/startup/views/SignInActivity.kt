@@ -99,15 +99,6 @@ class SignInActivity : AppCompatActivity(), Clickable {
 // --- Internals
 
 
-    private fun tryAuthenticateCredentials() {
-        val email = binds.etIdentity.text.toString().trim()
-        val password = binds.etPassword.text.toString().trim()
-        model.signIn(
-            email, password
-        )
-    }
-
-
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private fun tryAuthenticateGoogleLogin() {
         model.googleSignIn()
@@ -137,7 +128,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onClick(view: View?) = when (view?.id) {
         binds.btSignIn.id -> {
-            tryAuthenticateCredentials()
+            model.signIn()
         }
 
         binds.btGoogle.id -> {
