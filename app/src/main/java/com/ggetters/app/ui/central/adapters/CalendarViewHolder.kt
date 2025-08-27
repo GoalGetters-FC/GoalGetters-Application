@@ -5,8 +5,8 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
-import com.ggetters.app.ui.central.models.CalendarDayItem   // ✅ from ui.central.models
-import com.ggetters.app.ui.central.models.EventType     // ✅ use EventType instead of EventCategory
+import com.ggetters.app.data.model.CalendarDayItem   // ✅ from data.model
+import com.ggetters.app.data.model.EventCategory     // ✅ use EventCategory instead of EventType
 import com.ggetters.app.databinding.ItemCalendarDayBinding
 
 class CalendarViewHolder(
@@ -87,18 +87,18 @@ class CalendarViewHolder(
     }
 
     private fun renderEventDots(calendarDay: CalendarDayItem) {
-        val eventTypes = calendarDay.events.map { it.type }.toSet()
+        val eventCategories = calendarDay.events.map { it.category }.toSet()
 
-        updateEventDotVisibility(binding.eventDot1, EventType.PRACTICE, eventTypes)
-        updateEventDotVisibility(binding.eventDot2, EventType.MATCH, eventTypes)
-        updateEventDotVisibility(binding.eventDot3, EventType.OTHER, eventTypes)
+        updateEventDotVisibility(binding.eventDot1, EventCategory.TRAINING, eventCategories)
+        updateEventDotVisibility(binding.eventDot2, EventCategory.MATCH, eventCategories)
+        updateEventDotVisibility(binding.eventDot3, EventCategory.OTHER, eventCategories)
     }
 
     private fun updateEventDotVisibility(
         eventDot: View,
-        eventType: EventType,
-        eventTypes: Set<EventType>
+        eventCategory: EventCategory,
+        eventCategories: Set<EventCategory>
     ) {
-        eventDot.visibility = if (eventType in eventTypes) View.VISIBLE else View.GONE
+        eventDot.visibility = if (eventCategory in eventCategories) View.VISIBLE else View.GONE
     }
 }

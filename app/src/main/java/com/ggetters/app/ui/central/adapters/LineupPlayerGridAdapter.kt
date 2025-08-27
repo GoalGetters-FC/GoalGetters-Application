@@ -116,15 +116,6 @@ class LineupPlayerGridAdapter(
                 
                 // Hide the original view during drag
                 view.alpha = 0.5f
-
-                // Restore alpha when drag ends (regardless of drop target)
-                itemView.setOnDragListener { v, event ->
-                    if (event.action == android.view.DragEvent.ACTION_DRAG_ENDED) {
-                        v.alpha = 1.0f
-                        v.setOnDragListener(null)
-                    }
-                    false
-                }
                 
                 true
             }

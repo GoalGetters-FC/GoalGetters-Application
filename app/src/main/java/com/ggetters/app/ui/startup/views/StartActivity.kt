@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.ggetters.app.core.extensions.navigateToActivity
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivityStartBinding
 import com.ggetters.app.ui.central.views.HomeActivity
@@ -60,7 +59,8 @@ class StartActivity : AppCompatActivity(), Clickable {
         when (state) {
             is Authenticated -> {
                 authenticating = false
-                navigateToActivity(Intent(this, HomeActivity::class.java), clearTask = true)
+                startActivity(Intent(this, HomeActivity::class.java))
+                finishAffinity()
             }
 
             is SignedOut -> {
@@ -98,11 +98,11 @@ class StartActivity : AppCompatActivity(), Clickable {
 
     override fun onClick(view: View?) = when (view?.id) {
         binds.btSignIn.id -> {
-            navigateToActivity(Intent(this, SignInActivity::class.java))
+            startActivity(Intent(this, SignInActivity::class.java))
         }
 
         binds.btSignUp.id -> {
-            navigateToActivity(Intent(this, SignUpActivity::class.java))
+            startActivity(Intent(this, SignUpActivity::class.java))
         }
 
         else -> {

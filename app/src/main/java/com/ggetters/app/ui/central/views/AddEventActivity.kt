@@ -1,57 +1,61 @@
 package com.ggetters.app.ui.central.views
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.os.Bundle
-import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.ggetters.app.R
-import com.ggetters.app.core.extensions.navigateBack
-import com.ggetters.app.ui.central.models.Event
-import com.ggetters.app.ui.central.models.EventType
+import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.data.model.EventCategory
 import com.ggetters.app.ui.central.fragments.GameEventFragment
 import com.ggetters.app.ui.central.fragments.PracticeEventFragment
 import com.ggetters.app.ui.central.fragments.GeneralEventFragment
+import com.ggetters.app.ui.central.viewmodels.EventFormPickers
+import com.ggetters.app.ui.central.viewmodels.EventUpsertViewModel
+import com.ggetters.app.ui.central.models.UpsertState
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
-import java.util.*
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class AddEventActivity : AppCompatActivity() {
 
+    private val upsertVm: EventUpsertViewModel by viewModels()
     private lateinit var eventTypeViewPager: androidx.viewpager2.widget.ViewPager2
     private lateinit var eventTypeTabLayout: com.google.android.material.tabs.TabLayout
     private lateinit var scheduleButton: android.widget.Button
     private lateinit var closeButton: android.widget.ImageButton
 
-    private var selectedDate: Date? = null
-    private var selectedStartTime: String? = null
-    private var selectedEndTime: String? = null
-    private var selectedMeetingTime: String? = null
-    private var onEventCreatedListener: ((Event) -> Unit)? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_event)
-
-        // Enable smooth activity transitions
-        supportPostponeEnterTransition()
-        supportStartPostponedEnterTransition()
 
         setupViews()
         setupViewPager()
         setupTabLayout()
         setupClickListeners()
-        
-        // Set default date if provided from intent
-        intent.getLongExtra("selected_date", -1).takeIf { it != -1L }?.let { timestamp ->
-            selectedDate = Date(timestamp)
+        observeSaves()
+    }
+
+    private fun observeSaves() {
+        lifecycleScope.launch {
+            upsertVm.state.collect { st ->
+                Clogger.i("AddEventActivity", "ViewModel state = $st")
+                when (st) {
+                    is UpsertState.Error ->
+                        Snackbar.make(scheduleButton, st.reason, Snackbar.LENGTH_LONG).show()
+                    is UpsertState.Saved -> {
+                        Snackbar.make(scheduleButton, "Event scheduled!", Snackbar.LENGTH_SHORT).show()
+                        setResult(RESULT_OK)
+                        finish()
+                    }
+                    else -> {}
+                }
+            }
         }
     }
 
@@ -69,77 +73,76 @@ class AddEventActivity : AppCompatActivity() {
     private fun setupTabLayout() {
         TabLayoutMediator(eventTypeTabLayout, eventTypeViewPager) { tab, position ->
             when (position) {
-                0 -> {
-                    tab.text = "Game"
-                    tab.setIcon(R.drawable.ic_unicons_trophy_24)
-                }
-                1 -> {
-                    tab.text = "Practice"
-                    tab.setIcon(R.drawable.ic_unicons_whistle_24)
-                }
-                2 -> {
-                    tab.text = "Event"
-                    tab.setIcon(R.drawable.ic_unicons_calendar_24)
-                }
+                0 -> { tab.text = "Game"; tab.setIcon(R.drawable.ic_unicons_trophy_24) }
+                1 -> { tab.text = "Practice"; tab.setIcon(R.drawable.ic_unicons_whistle_24) }
+                2 -> { tab.text = "Event"; tab.setIcon(R.drawable.ic_unicons_calendar_24) }
             }
         }.attach()
     }
 
     private fun setupClickListeners() {
-        closeButton.setOnClickListener { navigateBack() }
+        closeButton.setOnClickListener { finish() }
 
         scheduleButton.setOnClickListener {
-            if (validateForm()) {
-                val event = createEvent()
-                onEventCreatedListener?.invoke(event)
-                navigateBack()
+            Clogger.i("AddEventActivity", "Schedule button clicked")
+
+            val currentItem = eventTypeViewPager.currentItem
+            val fragment = supportFragmentManager.fragments
+                .firstOrNull { it is GameEventFragment || it is PracticeEventFragment || it is GeneralEventFragment }
+
+            if (fragment == null) {
+                Clogger.e("AddEventActivity", "❌ No active form fragment found for index=$currentItem")
+                Snackbar.make(scheduleButton, "Form not found", Snackbar.LENGTH_LONG).show()
+                return@setOnClickListener
             }
+
+            val formData = when (fragment) {
+                is GameEventFragment -> fragment.collectFormData()
+                is PracticeEventFragment -> fragment.collectFormData()
+                is GeneralEventFragment -> fragment.collectFormData()
+                else -> null
+            }
+
+            if (formData == null) {
+                Clogger.e("AddEventActivity", "❌ collectFormData() returned null")
+                Snackbar.make(scheduleButton, "Form empty", Snackbar.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            Clogger.i("AddEventActivity", "✅ Collected formData=$formData")
+
+            val startAt = EventFormPickers.combine(formData.date, formData.start)
+            val endAt   = EventFormPickers.combine(formData.date, formData.end)
+            val meetAt  = EventFormPickers.combine(formData.date, formData.meet)
+
+            val category = when (eventTypeTabLayout.selectedTabPosition) {
+                0 -> EventCategory.MATCH
+                1 -> EventCategory.PRACTICE
+                else -> EventCategory.OTHER
+            }
+
+            Clogger.i("AddEventActivity", "formData.date=${formData.date}, start=${formData.start}, end=${formData.end}, meet=${formData.meet}")
+            upsertVm.save(
+                category = category,
+                title = formData.title,
+                location = formData.location,
+                description = formData.description,
+                startAt = startAt,
+                endAt = endAt,
+                meetingAt = meetAt
+            )
         }
     }
 
-    private fun validateForm(): Boolean {
-        // TODO: Implement form validation based on current tab
-        return true
-    }
 
-    private fun createEvent(): Event {
-        val currentTab = eventTypeTabLayout.selectedTabPosition
-        val eventType = when (currentTab) {
-            0 -> EventType.MATCH
-            1 -> EventType.PRACTICE
-            2 -> EventType.OTHER
-            else -> EventType.PRACTICE
-        }
-
-        // TODO: Extract form data from current fragment
-        return Event(
-            id = UUID.randomUUID().toString(),
-            title = "New Event",
-            type = eventType,
-            date = selectedDate ?: Date(),
-            time = selectedStartTime ?: "",
-            venue = "Location",
-            opponent = if (eventType == EventType.MATCH) "Opponent" else null,
-            description = "Description",
-            createdBy = "Current User"
-        )
-    }
-
-    fun setOnEventCreatedListener(listener: (Event) -> Unit) {
-        onEventCreatedListener = listener
-    }
-
-    // ViewPager Adapter
-    private inner class EventTypePagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {
+    private inner class EventTypePagerAdapter(activity: FragmentActivity) :
+        FragmentStateAdapter(activity) {
         override fun getItemCount(): Int = 3
-
-        override fun createFragment(position: Int): Fragment {
-            return when (position) {
-                0 -> GameEventFragment()
-                1 -> PracticeEventFragment()
-                2 -> GeneralEventFragment()
-                else -> PracticeEventFragment()
-            }
+        override fun createFragment(position: Int): Fragment = when (position) {
+            0 -> GameEventFragment()
+            1 -> PracticeEventFragment()
+            2 -> GeneralEventFragment()
+            else -> PracticeEventFragment()
         }
     }
-} 
+}

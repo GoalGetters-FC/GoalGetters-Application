@@ -18,8 +18,8 @@ android {
         applicationId = "com.ggetters.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 5
-        versionName = "dev-2025w32a"
+        versionCode = 7
+        versionName = "2025w35a"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -114,6 +114,8 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.googleid)
     implementation(libs.androidx.hilt.common)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
@@ -154,10 +156,6 @@ dependencies {
     kapt(libs.hilt.android.compiler)
     implementation(libs.hilt.navigation.compose)
     implementation("androidx.hilt:hilt-work:1.2.0")
-
-    // WorkManager
-
-    implementation(libs.androidx.work.runtime.ktx)
 
     // Lottie
 

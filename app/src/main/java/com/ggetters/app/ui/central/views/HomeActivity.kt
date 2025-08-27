@@ -1,37 +1,40 @@
 package com.ggetters.app.ui.central.views
 
 import android.content.Intent
-import android.graphics.Rect
 import android.os.Bundle
-import android.view.MotionEvent
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.ggetters.app.R
+import com.ggetters.app.core.sync.SyncScheduler
 import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.data.repository.attendance.AttendanceRepository
+import com.ggetters.app.data.repository.event.EventRepository
+import com.ggetters.app.data.repository.team.TeamRepository
+import com.ggetters.app.data.repository.user.UserRepository
 import com.ggetters.app.databinding.ActivityHomeBinding
+import com.ggetters.app.ui.central.models.AppbarTheme
+import com.ggetters.app.ui.central.models.HomeUiConfiguration
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.management.views.TeamsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-
-// TODO: Backend - Fetch data for each tab (Notifications, Calendar, Players, Team Profile)
-// TODO: Backend - Log analytics for tab navigation
-// TODO: Backend - Implement real-time notification badge updates
-// TODO: Backend - Add analytics tracking for tab navigation and user interactions
-// TODO: Backend - Implement proper user session management and authentication state
-// TODO: Backend - Add offline/online state handling for data synchronization
-// TODO: Backend - Implement push notification handling and badge management
-// TODO: Backend - Add proper error handling and retry mechanisms for network operations
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
@@ -49,37 +52,136 @@ class HomeActivity : AppCompatActivity() {
     private var longPressStartTime: Long = 0
 
 
+    var notificationBadge: ImageView? = null
+
+    // Inject repositories (make sure they’re bound in Hilt)
+    @Inject lateinit var teamRepo: TeamRepository
+    @Inject lateinit var userRepo: UserRepository
+    @Inject lateinit var eventRepo: EventRepository
+    @Inject
+    lateinit var attendanceRepo: AttendanceRepository
+
+    private var syncScheduled = false
+
 // --- Lifecycle
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setupBindings()
         setupLayoutUi()
-
         setupStatusBar()
         setupViews()
         setupBottomNavigation()
-        checkUnreadNotifications()
 
-        // Load default fragment
         if (savedInstanceState == null) {
             switchFragment(HomeCalendarFragment())
         }
 
         observe()
+        observeActiveTeam() // <- safe version
+
+        model.useViewConfiguration(
+            HomeUiConfiguration(
+                appBarColor = AppbarTheme.WHITE,
+                appBarTitle = "August 2025",
+                appBarShown = true,
+            )
+        )
+    }
+
+    // --- Observe active team safely
+    private fun observeActiveTeam() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                teamRepo.getActiveTeam().collect { team ->
+                    if (team == null) {
+                        Clogger.w(TAG, "⚠️ No active team found")
+                        // only show if UI is ready
+                        if (::binds.isInitialized) {
+                            Snackbar.make(
+                                binds.root,
+                                "Please create or join a team first",
+                                Snackbar.LENGTH_LONG
+                            ).show()
+                        }
+                    } else {
+                        Clogger.i(TAG, "✅ Active team: ${team.name} (${team.id})")
+
+                        // wrap in try-catch so no crash if not implemented
+                        runCatching { userRepo.hydrateForTeam(team.id) }
+                        runCatching { eventRepo.hydrateForTeam(team.id) }
+                        runCatching { attendanceRepo.hydrateForTeam(team.id) }
+
+                        if (!syncScheduled) {
+                            runCatching { SyncScheduler.schedule(this@HomeActivity) }
+                            syncScheduled = true
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_home, menu)
+        val notificationOption = menu?.findItem(R.id.menu_home_notifications)
+        val notificationAction = notificationOption?.actionView
+        notificationBadge = notificationAction?.findViewById<ImageView>(R.id.iv_badge)
+        notificationAction?.setOnClickListener {
+            onOptionsItemSelected(notificationOption)
+        }
+
+        return true
     }
 
 
 // --- ViewModel
 
 
-    // TODO
-    private fun observe() {}
+    private fun observe() = model.uiConfiguration.observe(this) { configuration ->
+        when (configuration.appBarShown) {
+            true -> {
+                binds.topBar.visibility = View.VISIBLE
+                binds.appBar.title = configuration.appBarTitle
+                when (configuration.appBarColor) {
+                    AppbarTheme.NIGHT -> {
+                        binds.root.setBackgroundColor("#161620".toColorInt())
+                        WindowCompat.getInsetsController(
+                            window,
+                            window.decorView
+                        ).isAppearanceLightStatusBars = false
+                        binds.topBar.setBackgroundColor("#161620".toColorInt())
+                        binds.appBar.setTitleTextColor("#FFFFFF".toColorInt())
+                    }
+
+                    else -> {
+                        binds.root.setBackgroundColor("#FFFFFF".toColorInt())
+                        WindowCompat.getInsetsController(
+                            window,
+                            window.decorView
+                        ).isAppearanceLightStatusBars = true
+                        binds.topBar.setBackgroundColor("#FFFFFF".toColorInt())
+                        binds.appBar.setTitleTextColor("#161620".toColorInt())
+                    }
+                }
+            }
+
+            else -> {
+                binds.topBar.visibility = View.GONE
+            }
+        }
+    }
 
 
 // --- Internals
+
+
+    fun setNotificationBadgeVisibility(visible: Boolean) {
+        if (visible) notificationBadge?.visibility = View.VISIBLE
+        else notificationBadge?.visibility = View.GONE
+    }
 
 
     private fun setupStatusBar() {
@@ -96,52 +198,51 @@ class HomeActivity : AppCompatActivity() {
 
 
     private fun setupViews() {
-        // Notifications are handled through the toolbar menu
-        // The menu item with id menu_home_notifications will handle the click
+        binds.appBar.menu.findItem(R.id.menu_home_notifications).setOnMenuItemClickListener {
+            val intent = Intent(this, NotificationsActivity::class.java)
+            startActivity(intent)
+            true
+        }
     }
 
 
     private fun setupBottomNavigation() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
-        bottomNav.labelVisibilityMode = BottomNavigationView.LABEL_VISIBILITY_LABELED // Ensure labels are always visible
-
-        // Ignore re-selections to avoid jitter
-        bottomNav.setOnItemReselectedListener { /* no-op */ }
+        bottomNav.labelVisibilityMode =
+            BottomNavigationView.LABEL_VISIBILITY_UNLABELED // Ensure labels are always visible
 
         bottomNav.setOnItemSelectedListener { menuItem ->
-            val currentId = when (currentFragment) {
-                is HomeCalendarFragment -> R.id.nav_calendar
-                is HomeTeamFragment -> R.id.nav_team_players
-                is PlayerProfileFragment -> R.id.nav_player_profile
-                is ProfileFragment -> R.id.nav_profile
-                else -> R.id.nav_calendar
-            }
-
-            val newIndex = navIndexFor(menuItem.itemId)
-            val oldIndex = navIndexFor(currentId)
-            val isForward = newIndex >= oldIndex
-
             when (menuItem.itemId) {
-                R.id.nav_calendar -> switchFragment(HomeCalendarFragment(), isForward)
-                R.id.nav_team_players -> switchFragment(HomeTeamFragment(), isForward)
-                R.id.nav_player_profile -> {
-                    // Launch UserProfileActivity for user profile
-                    val intent = Intent(this, UserProfileActivity::class.java).apply {
-                        putExtra(UserProfileActivity.EXTRA_PROFILE_TYPE, UserProfileActivity.PROFILE_TYPE_USER)
-                    }
-                    startActivity(intent)
+                R.id.nav_calendar -> {
+                    switchFragment(HomeCalendarFragment())
                     true
                 }
-                R.id.nav_profile -> switchFragment(ProfileFragment(), isForward)
+
+                R.id.nav_team_players -> { // Corrected ID
+                    switchFragment(HomeTeamFragment())
+                    true
+                }
+
+                R.id.nav_player_profile -> { // Player Profile - Show player details
+                    switchFragment(PlayerDetailsFragment())
+                    true
+                }
+
+                R.id.nav_profile -> {
+                    // Options tab - Show account switcher on long press, regular click shows profile
+                    switchFragment(HomeSettingsFragment())
+                    true
+                }
+
                 else -> false
-            }.let { handled -> handled }
+            }
         }
 
         // Setup long click listener for Options tab specifically
         setupOptionsLongClick(bottomNav)
 
 
-        
+
         switchFragment(HomeCalendarFragment()) // Set default fragment
     }
 
@@ -154,21 +255,21 @@ class HomeActivity : AppCompatActivity() {
                 if (menuView != null) {
                     // The Options tab is the 4th item (index 3)
                     val optionsItemView = menuView.getChildAt(3)
-                    
+
                     if (optionsItemView != null) {
                         // Set long click listener directly on the Options tab view
                         optionsItemView.setOnLongClickListener { view ->
                             Clogger.d(TAG, "Options tab long-press detected!")
                             android.util.Log.d(TAG, "🎯 Options long press working!")
-                            
+
                             // Add haptic feedback (same as profile avatar)
                             view.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
-                            
+
                             // Show account switcher
                             showAccountSwitcher()
                             true // Consume the event
                         }
-                        
+
                         Clogger.d(TAG, "Successfully set long click listener on Options tab")
                     } else {
                         Clogger.e(TAG, "Could not find Options tab view")
@@ -178,13 +279,13 @@ class HomeActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 Clogger.e(TAG, "Error setting up Options long click: ${e.message}")
-                
+
                 // Fallback: Try alternative approach
                 setupOptionsLongClickFallback(bottomNav)
             }
         }
     }
-    
+
     private fun setupOptionsLongClickFallback(bottomNav: BottomNavigationView) {
         // Alternative approach: Use touch listener but only for Options tab area
         bottomNav.setOnTouchListener { view, event ->
@@ -206,7 +307,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    
+
     private fun showTeamSwitcher() {
         // TODO: Backend - Implement team switching with proper authentication
         // TODO: Backend - Add team switching analytics and tracking
@@ -217,7 +318,11 @@ class HomeActivity : AppCompatActivity() {
         TeamSwitcherBottomSheet.newInstance(
             onTeamSelected = { selectedTeam ->
                 // Handle team selection
-                Snackbar.make(findViewById(android.R.id.content), "Switched to ${selectedTeam.teamName}", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    "Switched to ${selectedTeam.teamName}",
+                    Snackbar.LENGTH_SHORT
+                ).show()
                 // TODO: Backend - Update current team in backend
                 // TODO: Backend - Refresh all fragments with new team data
                 // TODO: Backend - Update team-specific data across the app
@@ -232,89 +337,73 @@ class HomeActivity : AppCompatActivity() {
             }
         ).show(supportFragmentManager, "TeamSwitcher")
     }
-    
+
     private fun setDefaultTeam(teamId: String) {
         // TODO: Backend - Save default team preference to backend
         // TODO: Backend - Implement default team validation
         // TODO: Backend - Add default team analytics
         // TODO: Backend - Implement default team notifications
         // TODO: Backend - Add default team data synchronization
-        
-        Snackbar.make(findViewById(android.R.id.content), "Default team updated", Snackbar.LENGTH_SHORT).show()
+
+        Snackbar.make(
+            findViewById(android.R.id.content),
+            "Default team updated",
+            Snackbar.LENGTH_SHORT
+        ).show()
     }
 
-    private fun switchFragment(fragment: Fragment, isForward: Boolean = true): Boolean {
+    private fun switchFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.setReorderingAllowed(true)
-        if (isForward) {
-            transaction.setCustomAnimations(
-                R.anim.slide_in_right,
-                R.anim.slide_out_left,
-                R.anim.slide_in_left,
-                R.anim.slide_out_right
-            )
-        } else {
-            transaction.setCustomAnimations(
-                R.anim.slide_in_left,
-                R.anim.slide_out_right,
-                R.anim.slide_in_right,
-                R.anim.slide_out_left
-            )
-        }
+
+        // Add smooth transitions with better timing
+        transaction.setCustomAnimations(
+            R.anim.slide_in_right,
+            R.anim.slide_out_left,
+            R.anim.slide_in_left,
+            R.anim.slide_out_right
+        )
+
+        // Add to back stack for proper navigation
         transaction.replace(R.id.fragmentContainer, fragment)
-        // Do not add to back stack for primary tabs to prevent deep stacks
+        transaction.addToBackStack(null)
+
         transaction.commit()
         currentFragment = fragment
-        return true
-    }
-
-    private fun navIndexFor(itemId: Int): Int = when (itemId) {
-        R.id.nav_calendar -> 0
-        R.id.nav_team_players -> 1
-        R.id.nav_player_profile -> 2
-        R.id.nav_profile -> 3
-        else -> 0
-    }
-
-    // Allow fragments to switch tabs without triggering back press exits
-    fun navigateToTab(itemId: Int) {
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
-        bottomNav.selectedItemId = itemId
     }
 
     fun showAccountSwitcher() {
         Clogger.d(TAG, "🔄 Account Switcher: Starting to show account switcher")
-        
+
         // Also log to system for debugging
         android.util.Log.d(TAG, "🔄 Account Switcher: Method called")
 
         // Show account switcher directly from HomeActivity - works from any tab
         val availableAccounts = listOf(
             com.ggetters.app.ui.central.models.UserAccount(
-                "1", 
-                "Matthew Pieterse", 
+                "1",
+                "Matthew Pieterse",
                 "matthew@example.com",
-                null, 
-                "U15a Football", 
-                "Coach", 
+                null,
+                "U15a Football",
+                "Coach",
                 true
             ),
             com.ggetters.app.ui.central.models.UserAccount(
-                "2", 
-                "Matthew Pieterse", 
+                "2",
+                "Matthew Pieterse",
                 "matthew@example.com",
-                null, 
-                "City FC", 
-                "Coach", 
+                null,
+                "City FC",
+                "Coach",
                 false
             ),
             com.ggetters.app.ui.central.models.UserAccount(
-                "3", 
-                "John Smith", 
+                "3",
+                "John Smith",
                 "john@example.com",
-                null, 
-                "United FC", 
-                "Player", 
+                null,
+                "United FC",
+                "Player",
                 false
             )
         )
@@ -324,34 +413,20 @@ class HomeActivity : AppCompatActivity() {
                 // TODO: Backend - Call backend to switch active team
                 // teamRepo.switchActiveTeam(selectedAccount.id)
                 com.google.android.material.snackbar.Snackbar.make(
-                    findViewById(android.R.id.content), 
-                    "Switched to ${selectedAccount.teamName}", 
+                    findViewById(android.R.id.content),
+                    "Switched to ${selectedAccount.teamName}",
                     com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
                 ).show()
-                
+
                 // Refresh current fragment if it's ProfileFragment
-                val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+                val currentFragment =
+                    supportFragmentManager.findFragmentById(R.id.fragmentContainer)
                 if (currentFragment is ProfileFragment) {
                     // Refresh profile with new team data
                     currentFragment.onResume()
                 }
             }
             .show(supportFragmentManager, "AccountSwitcher")
-    }
-
-
-    private fun checkUnreadNotifications() {
-        // TODO: Backend - Fetch real unread notification count from backend
-        // TODO: Backend - Implement real-time updates using WebSocket or polling
-        // TODO: Backend - Add notification preferences and filtering
-        // Notifications are handled through the toolbar menu
-    }
-
-
-    private fun isTouchInView(event: MotionEvent, view: View): Boolean {
-        val viewRect = Rect()
-        view.getGlobalVisibleRect(viewRect)
-        return viewRect.contains(event.rawX.toInt(), event.rawY.toInt())
     }
 
 
@@ -370,7 +445,7 @@ class HomeActivity : AppCompatActivity() {
         // Apply system-bar insets to the root view
         ViewCompat.setOnApplyWindowInsetsListener(binds.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
             insets
         }
     }

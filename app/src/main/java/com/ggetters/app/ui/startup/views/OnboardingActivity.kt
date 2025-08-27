@@ -8,7 +8,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.ggetters.app.core.extensions.navigateToActivity
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivityOnboardingBinding
 import com.ggetters.app.ui.central.views.HomeActivity
@@ -48,7 +47,8 @@ class OnboardingActivity : AppCompatActivity(), Clickable {
     
     
     private fun navigateToHome() {
-        navigateToActivity(Intent(this, HomeActivity::class.java), clearTask = true)
+        startActivity(Intent(this, HomeActivity::class.java))
+        finishAffinity()
     }
 
 

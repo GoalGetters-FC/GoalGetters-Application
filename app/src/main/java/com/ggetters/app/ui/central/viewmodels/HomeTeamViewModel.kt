@@ -10,13 +10,13 @@ import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.data.repository.team.TeamRepository
 import com.ggetters.app.data.repository.user.UserRepository
+import com.ggetters.app.ui.central.dialogs.InsertUserDialog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
@@ -48,61 +48,50 @@ class HomeTeamViewModel @Inject constructor(
 
 
     fun insertUser(
-        firstName: String,
-        lastName: String,
-        email: String,
-        positionLabel: String,
-        jerseyNumber: Int?,
-        dateOfBirthIso: String?
+        formFields: InsertUserDialog.Result
     ) = viewModelScope.launch {
         val team = activeTeam.value ?: return@launch
         val teamId = team.id
-
-        val position = toUserPosition(positionLabel)
-        val dob = dateOfBirthIso?.takeIf { it.isNotBlank() }?.let {
-            runCatching { LocalDate.parse(it) }.getOrNull()
-        }
-
         val now = Instant.now()
         val tempId = UUID.randomUUID().toString()
 
         val user = User(
             id = tempId,
-            authId = tempId,               
+            authId = tempId,
             teamId = teamId,
             joinedAt = now,
             role = UserRole.FULL_TIME_PLAYER,
-            name = firstName,
-            surname = lastName,
-            alias = "",            
-            dateOfBirth = dob,
-            email = email,
-            position = position,
-            number = jerseyNumber,
+            name = formFields.name,
+            surname = formFields.surname,
+            alias = "",
+            dateOfBirth = null,
+            email = null,
+            position = toUserPosition(formFields.position),
+            number = formFields.number.toInt(),
             status = UserStatus.ACTIVE,
             createdAt = now,
             updatedAt = now
         )
 
-        userDataService.upsert(user)  
-        userDataService.sync()    
+        userDataService.upsert(user)
+        userDataService.sync()
     }
 
-    
+
     private fun toUserPosition(label: String): UserPosition? =
         when (label.trim().lowercase()) {
-            "striker"       -> UserPosition.STRIKER
-            "forward"       -> UserPosition.FORWARD
-            "midfielder"    -> UserPosition.MIDFIELDER
-            "defender"      -> UserPosition.DEFENDER
-            "goalkeeper"    -> UserPosition.GOALKEEPER
-            "winger"        -> UserPosition.WINGER
-            "center back"   -> UserPosition.CENTER_BACK
-            "centre back"   -> UserPosition.CENTER_BACK
-            "full back"     -> UserPosition.FULL_BACK
-            else            -> null
+            "striker" -> UserPosition.STRIKER
+            "forward" -> UserPosition.FORWARD
+            "midfielder" -> UserPosition.MIDFIELDER
+            "defender" -> UserPosition.DEFENDER
+            "goalkeeper" -> UserPosition.GOALKEEPER
+            "winger" -> UserPosition.WINGER
+            "center back" -> UserPosition.CENTER_BACK
+            "centre back" -> UserPosition.CENTER_BACK
+            "full back" -> UserPosition.FULL_BACK
+            else -> null
         }
 
-    
+
     fun getCurrentUserAuthId() = authService.getCurrentUser()!!.uid
 }

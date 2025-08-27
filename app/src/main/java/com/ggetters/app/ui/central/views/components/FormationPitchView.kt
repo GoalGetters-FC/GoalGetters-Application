@@ -107,14 +107,21 @@ class FormationPitchView @JvmOverloads constructor(
                     if (player != null) {
                         val position = getPositionAtPoint(event.x, event.y)
                         if (position != null) {
-                            // Place dragged bench player at target position (occupied or empty)
-                            val updatedPositions = positionedPlayers.toMutableMap()
-                            updatedPositions[position] = player
-                            positionedPlayers = updatedPositions
-                            invalidate()
-
-                            // Notify fragment using a sentinel origin so it treats this as a grid drop
-                            onPlayerDroppedListener?.invoke("__GRID__", PointF(event.x, event.y))
+                            // Check if the position is already occupied
+                            val currentPlayer = positionedPlayers[position]
+                            if (currentPlayer != null) {
+                                // Position is occupied - this will be handled by the fragment
+                                onPlayerDroppedListener?.invoke(position, PointF(event.x, event.y))
+                            } else {
+                                // Position is empty - add the player directly
+                                val updatedPositions = positionedPlayers.toMutableMap()
+                                updatedPositions[position] = player
+                                positionedPlayers = updatedPositions
+                                invalidate()
+                                
+                                // Notify the fragment about the drop
+                                onPlayerDroppedListener?.invoke(position, PointF(event.x, event.y))
+                            }
                         }
                     }
                     true

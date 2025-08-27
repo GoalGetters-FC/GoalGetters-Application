@@ -8,8 +8,8 @@ import android.widget.Button
 import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.Event
-import com.ggetters.app.ui.central.models.EventType
+import com.ggetters.app.data.model.Event
+import com.ggetters.app.data.model.EventCategory
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -70,12 +70,12 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
         val timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())
 
         // --- Bind Data ---
-        eventCategory.text = event.type.name
-        eventName.text = event.title
-        eventDate.text = event.getFormattedDate()
-        eventTime.text = event.time
-        eventLocation.text = event.venue ?: "No location"
-        eventCreatedBy.text = "Created by ${event.createdBy ?: "Unknown"}"
+        eventCategory.text = event.category.name
+        eventName.text = event.name
+        eventDate.text = dateFormatter.format(event.startAt)
+        eventTime.text = timeFormatter.format(event.startAt)
+        eventLocation.text = event.location ?: "No location"
+        eventCreatedBy.text = "Created by ${event.creatorId ?: "Unknown"}"
 
         if (!event.description.isNullOrBlank()) {
             eventDescription.visibility = View.VISIBLE

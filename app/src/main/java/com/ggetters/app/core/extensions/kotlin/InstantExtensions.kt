@@ -1,4 +1,4 @@
-package com.ggetters.app.core.extensions
+package com.ggetters.app.core.extensions.kotlin
 
 import java.time.Instant
 import java.time.LocalDate

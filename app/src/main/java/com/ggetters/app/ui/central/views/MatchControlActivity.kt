@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.core.extensions.navigateBack
 import com.ggetters.app.ui.central.adapters.MatchEventAdapter
 import com.ggetters.app.ui.central.models.*
 import com.ggetters.app.ui.central.sheets.MatchdayBottomSheet
@@ -98,7 +97,9 @@ class MatchControlActivity : AppCompatActivity() {
 
     private fun setupViews() {
         // Header
-        findViewById<ImageButton>(R.id.backButton).setOnClickListener { navigateBack() }
+        findViewById<ImageButton>(R.id.backButton).setOnClickListener {
+            finish()
+        }
 
         // Score and timer elements
         homeTeamName = findViewById(R.id.homeTeamName)
@@ -483,7 +484,7 @@ class MatchControlActivity : AppCompatActivity() {
         Snackbar.make(findViewById(android.R.id.content), "Match cancelled", Snackbar.LENGTH_SHORT).show()
         
         // Navigate back to calendar
-        navigateBack()
+        finish()
     }
 
     private fun showRecordEventDialog() {

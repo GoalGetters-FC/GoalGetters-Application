@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ggetters.app.core.services.AuthenticationService
 import com.ggetters.app.core.services.GoogleAuthenticationClient
-import com.ggetters.app.core.utils.CredentialValidator
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.ui.shared.models.UiState
 import com.ggetters.app.ui.shared.models.UiState.Failure
@@ -29,10 +28,13 @@ class SignInViewModel @Inject constructor(
 
 
 // --- Fields
-    
-    
+
+
     @Inject
     lateinit var ssoClient: GoogleAuthenticationClient
+
+
+    val form = SignInFormViewModel()
 
 
     private val _uiState = MutableLiveData<UiState>()
@@ -42,69 +44,64 @@ class SignInViewModel @Inject constructor(
 // --- Contract
 
 
-    fun signIn(
-        email: String, password: String
-    ) = viewModelScope.launch {
-        try { // Validate input
-            require(CredentialValidator.isValidEAddress(email))
-            require(CredentialValidator.isValidPassword(password))
-        } catch (e: IllegalArgumentException) {
-            Clogger.d(
-                TAG, "Caught validation errors"
+    fun signIn() {
+        viewModelScope.launch {
+            form.validateForm()
+            if (!(form.isFormValid.value)) {
+                return@launch
+            }
+
+            _uiState.value = Loading
+            Clogger.i(
+                TAG, "Signing-in user with email: ${form.formState.value.identity.value}"
             )
 
-            _uiState.value = Failure(e.message.toString())
-            return@launch
-        }
+            // Authenticate
 
-        _uiState.value = Loading
-        Clogger.i(
-            TAG, "Signing-in user with email: $email"
-        )
+            runCatching {
+                val milliseconds = 3_000L
+                withTimeout(milliseconds) {
+                    authService.signInAsync(
+                        email = form.formState.value.identity.value.trim(),
+                        password = form.formState.value.identity.value.trim()
+                    )
+                }
+            }.apply {
+                onSuccess { user ->
+                    Clogger.d(
+                        TAG, "Attempt to authenticate was a success!"
+                    )
 
-        // Authenticate
+                    _uiState.value = Success
+                }
 
-        runCatching {
-            val milliseconds = 3_000L
-            withTimeout(milliseconds) {
-                authService.signInAsync(email, password)
-            }
-        }.apply {
-            onSuccess { user ->
-                Clogger.d(
-                    TAG, "Attempt to authenticate was a success!"
-                )
+                onFailure { exception ->
+                    Clogger.d(
+                        TAG, "Attempt to authenticate was a failure!"
+                    )
 
-                _uiState.value = Success
-            }
-
-            onFailure { exception ->
-                Clogger.d(
-                    TAG, "Attempt to authenticate was a failure!"
-                )
-
-                _uiState.value = Failure(
-                    exception.message.toString()
-                )
+                    _uiState.value = Failure(
+                        exception.message.toString()
+                    )
+                }
             }
         }
     }
-    
-    
+
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun googleSignIn() = viewModelScope.launch {
         _uiState.value = Loading
         Clogger.i(
             TAG, "Signing-in user with Google SSO"
         )
-        
+
         runCatching {
             val milliseconds = 30_000L
             withTimeout(milliseconds) {
                 ssoClient.executeAuthenticationTransactionAsync()
             }
         }.apply {
-            onSuccess { user ->
+            onSuccess {
                 Clogger.d(
                     TAG, "Attempt to authenticate was a success!"
                 )

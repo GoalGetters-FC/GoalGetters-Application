@@ -23,10 +23,6 @@ class OfflineEventRepository @Inject constructor(
         dao.deleteById(entity.id)
     }
 
-    override fun hydrateForTeam(id: String) {
-        /* no-op; combined repo handles team scoping */
-    }
-
     override suspend fun deleteAll() {
         dao.deleteAll()
     }
@@ -49,6 +45,10 @@ class OfflineEventRepository @Inject constructor(
 
     override fun getEventsByCreator(creatorId: String): Flow<List<Event>> =
         dao.getEventsByCreator(creatorId)
+
+    override fun hydrateForTeam(id: String) {
+        /* no-op; combined repo handles team scoping */
+    }
 
     // helpers for Combined
     suspend fun getDirtyEvents(teamId: String) = dao.getDirtyEvents(teamId)

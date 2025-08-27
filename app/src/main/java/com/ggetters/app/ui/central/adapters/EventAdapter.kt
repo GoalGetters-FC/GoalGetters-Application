@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.ggetters.app.core.utils.Clogger
-import com.ggetters.app.ui.central.models.Event
+import com.ggetters.app.data.model.Event
 import com.ggetters.app.databinding.ItemEventBinding
 import com.ggetters.app.ui.shared.adapters.KeyedDiffCallback
 
@@ -42,7 +42,7 @@ class EventAdapter(
 
     fun update(collection: List<Event>) {
         Clogger.d(TAG, "Updating the source collection")
-        val sortedCollection = collection.sortedBy { it.time }
+        val sortedCollection = collection.sortedBy { it.startAt }
         submitList(sortedCollection)
     }
 } 
