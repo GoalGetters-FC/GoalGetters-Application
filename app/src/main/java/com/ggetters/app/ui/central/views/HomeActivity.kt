@@ -51,6 +51,7 @@ class HomeActivity : AppCompatActivity() {
     private var currentFragment: Fragment? = null
     private var longPressStartTime: Long = 0
     private var currentTabIndex: Int = 0 // Track current tab position for transitions
+    private var lastBottomNavClickAt: Long = 0L
 
 
     var notificationBadge: ImageView? = null
@@ -234,6 +235,11 @@ class HomeActivity : AppCompatActivity() {
             BottomNavigationView.LABEL_VISIBILITY_UNLABELED // Ensure labels are always visible
 
         bottomNav.setOnItemSelectedListener { menuItem ->
+            // Debounce rapid taps to prevent jitter/duplicate transactions
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (now - lastBottomNavClickAt < 350L) return@setOnItemSelectedListener false
+            lastBottomNavClickAt = now
+
             val newTabIndex = when (menuItem.itemId) {
                 R.id.nav_calendar -> 0
                 R.id.nav_team_players -> 1
@@ -243,6 +249,9 @@ class HomeActivity : AppCompatActivity() {
             }
             
             if (newTabIndex != -1) {
+                // Ignore re-select on the same tab to prevent jitter
+                if (newTabIndex == currentTabIndex) return@setOnItemSelectedListener true
+
                 val fragment = when (menuItem.itemId) {
                     R.id.nav_calendar -> HomeCalendarFragment()
                     R.id.nav_team_players -> HomeTeamFragment()
@@ -259,6 +268,9 @@ class HomeActivity : AppCompatActivity() {
                 false
             }
         }
+
+        // Do nothing on reselect to avoid spamming transitions
+        bottomNav.setOnItemReselectedListener { /* no-op */ }
 
         // Setup long click listener for Options tab specifically
         setupOptionsLongClick(bottomNav)
@@ -413,9 +425,9 @@ class HomeActivity : AppCompatActivity() {
             )
         }
 
-        // Add to back stack for proper navigation
+        // Replace without pushing to back stack to avoid jitter/stack growth for bottom nav
+        transaction.setReorderingAllowed(true)
         transaction.replace(R.id.fragmentContainer, fragment)
-        transaction.addToBackStack(null)
 
         transaction.commit()
         currentFragment = fragment
