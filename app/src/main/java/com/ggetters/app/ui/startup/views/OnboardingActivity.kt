@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivityOnboardingBinding
 import com.ggetters.app.ui.central.views.HomeActivity
@@ -48,6 +49,7 @@ class OnboardingActivity : AppCompatActivity(), Clickable {
     
     private fun navigateToHome() {
         startActivity(Intent(this, HomeActivity::class.java))
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         finishAffinity()
     }
 

@@ -266,6 +266,7 @@ class MatchRosterActivity : AppCompatActivity() {
                 // TODO: Pass available players as serializable
             }
             startActivity(intent)
+        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
         } else {
             Snackbar.make(findViewById(android.R.id.content), 
                 "Need ${11 - availablePlayersCount} more available players to set formation", 
@@ -307,7 +308,8 @@ class MatchRosterActivity : AppCompatActivity() {
                 true
             }
             android.R.id.home -> {
-                onBackPressed()
+                finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
                 true
             }
             else -> super.onOptionsItemSelected(item)

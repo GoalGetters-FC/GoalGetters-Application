@@ -50,6 +50,7 @@ class HomeActivity : AppCompatActivity() {
 
     private var currentFragment: Fragment? = null
     private var longPressStartTime: Long = 0
+    private var currentTabIndex: Int = 0 // Track current tab position for transitions
 
 
     var notificationBadge: ImageView? = null
@@ -75,7 +76,7 @@ class HomeActivity : AppCompatActivity() {
         setupBottomNavigation()
 
         if (savedInstanceState == null) {
-            switchFragment(HomeCalendarFragment())
+            switchFragmentWithDirection(HomeCalendarFragment(), 0)
         }
 
         observe()
@@ -201,6 +202,7 @@ class HomeActivity : AppCompatActivity() {
         binds.appBar.menu.findItem(R.id.menu_home_notifications).setOnMenuItemClickListener {
             val intent = Intent(this, NotificationsActivity::class.java)
             startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
             true
         }
     }
@@ -212,29 +214,29 @@ class HomeActivity : AppCompatActivity() {
             BottomNavigationView.LABEL_VISIBILITY_UNLABELED // Ensure labels are always visible
 
         bottomNav.setOnItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_calendar -> {
-                    switchFragment(HomeCalendarFragment())
-                    true
+            val newTabIndex = when (menuItem.itemId) {
+                R.id.nav_calendar -> 0
+                R.id.nav_team_players -> 1
+                R.id.nav_player_profile -> 2
+                R.id.nav_profile -> 3
+                else -> -1
+            }
+            
+            if (newTabIndex != -1) {
+                val fragment = when (menuItem.itemId) {
+                    R.id.nav_calendar -> HomeCalendarFragment()
+                    R.id.nav_team_players -> HomeTeamFragment()
+                    R.id.nav_player_profile -> PlayerDetailsFragment()
+                    R.id.nav_profile -> HomeSettingsFragment()
+                    else -> null
                 }
-
-                R.id.nav_team_players -> { // Corrected ID
-                    switchFragment(HomeTeamFragment())
-                    true
+                
+                fragment?.let {
+                    switchFragmentWithDirection(it, newTabIndex)
                 }
-
-                R.id.nav_player_profile -> { // Player Profile - Show player details
-                    switchFragment(PlayerDetailsFragment())
-                    true
-                }
-
-                R.id.nav_profile -> {
-                    // Options tab - Show account switcher on long press, regular click shows profile
-                    switchFragment(HomeSettingsFragment())
-                    true
-                }
-
-                else -> false
+                true
+            } else {
+                false
             }
         }
 
@@ -243,7 +245,7 @@ class HomeActivity : AppCompatActivity() {
 
 
 
-        switchFragment(HomeCalendarFragment()) // Set default fragment
+        // Default fragment is set in onCreate
     }
 
     private fun setupOptionsLongClick(bottomNav: BottomNavigationView) {
@@ -353,15 +355,43 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun switchFragment(fragment: Fragment) {
+        // Legacy method - use default transition
+        switchFragmentWithDirection(fragment, currentTabIndex)
+    }
+
+    private fun switchFragmentWithDirection(fragment: Fragment, newTabIndex: Int) {
         val transaction = supportFragmentManager.beginTransaction()
 
-        // Add smooth transitions with better timing
-        transaction.setCustomAnimations(
-            R.anim.slide_in_right,
-            R.anim.slide_out_left,
-            R.anim.slide_in_left,
-            R.anim.slide_out_right
-        )
+        // Determine transition direction based on tab index
+        val isMovingForward = newTabIndex > currentTabIndex
+        val isMovingBackward = newTabIndex < currentTabIndex
+        
+        // Set appropriate animations based on direction
+        if (isMovingForward) {
+            // Moving forward (left to right in tab order) - slide in from right
+            transaction.setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left,
+                R.anim.slide_in_left,
+                R.anim.slide_out_right
+            )
+        } else if (isMovingBackward) {
+            // Moving backward (right to left in tab order) - slide in from left
+            transaction.setCustomAnimations(
+                R.anim.slide_in_left,
+                R.anim.slide_out_right,
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+            )
+        } else {
+            // Same tab or first load - use fade transition
+            transaction.setCustomAnimations(
+                R.anim.fade_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.fade_out
+            )
+        }
 
         // Add to back stack for proper navigation
         transaction.replace(R.id.fragmentContainer, fragment)
@@ -369,6 +399,27 @@ class HomeActivity : AppCompatActivity() {
 
         transaction.commit()
         currentFragment = fragment
+        currentTabIndex = newTabIndex
+    }
+
+    override fun onBackPressed() {
+        // Handle back navigation
+        if (supportFragmentManager.backStackEntryCount > 1) {
+            // Pop the back stack
+            supportFragmentManager.popBackStack()
+            
+            // Update current tab index based on the fragment that's now visible
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            currentTabIndex = when (currentFragment) {
+                is HomeCalendarFragment -> 0
+                is HomeTeamFragment -> 1
+                is PlayerDetailsFragment -> 2
+                is HomeSettingsFragment -> 3
+                else -> currentTabIndex
+            }
+        } else {
+            super.onBackPressed()
+        }
     }
 
     fun showAccountSwitcher() {

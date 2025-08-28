@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.ggetters.app.R
 import com.ggetters.app.core.extensions.android.onTextUpdated
 import com.ggetters.app.core.extensions.android.setLayoutError
 import com.ggetters.app.core.utils.Clogger
@@ -73,6 +74,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
                 )
 
                 startActivity(Intent(this, OnboardingActivity::class.java))
+                overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
                 finishAffinity()
             }
 
@@ -141,6 +143,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
 
         binds.tvForgotPassword.id -> {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
         }
 
         else -> {

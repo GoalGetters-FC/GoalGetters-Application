@@ -56,6 +56,7 @@ class NotificationsActivity : AppCompatActivity() {
     private fun setupHeader() {
         findViewById<ImageButton>(R.id.backButton).setOnClickListener {
             finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
     }
 

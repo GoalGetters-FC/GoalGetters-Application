@@ -52,6 +52,7 @@ class AddEventActivity : AppCompatActivity() {
                         Snackbar.make(scheduleButton, "Event scheduled!", Snackbar.LENGTH_SHORT).show()
                         setResult(RESULT_OK)
                         finish()
+                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
                     }
                     else -> {}
                 }
@@ -81,7 +82,10 @@ class AddEventActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        closeButton.setOnClickListener { finish() }
+        closeButton.setOnClickListener { 
+            finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+        }
 
         scheduleButton.setOnClickListener {
             Clogger.i("AddEventActivity", "Schedule button clicked")
