@@ -199,12 +199,32 @@ class HomeActivity : AppCompatActivity() {
 
 
     private fun setupViews() {
-        binds.appBar.menu.findItem(R.id.menu_home_notifications).setOnMenuItemClickListener {
+        val notificationsItem = binds.appBar.menu.findItem(R.id.menu_home_notifications)
+        // Click via menu item listener (fallback if actionView not present)
+        notificationsItem.setOnMenuItemClickListener {
             val intent = Intent(this, NotificationsActivity::class.java)
             startActivity(intent)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
             true
         }
+
+        // If using a custom actionLayout, clicks land on the actionView, not the MenuItem
+        val actionView = notificationsItem.actionView
+        actionView?.apply {
+            contentDescription = getString(R.string.app_name)
+            // Click anywhere on the action view
+            setOnClickListener { openNotifications() }
+
+            // Also wire inner clickable views from the custom layout
+            findViewById<View?>(R.id.cv_menu_icon)?.setOnClickListener { openNotifications() }
+            findViewById<View?>(R.id.iv_menu_icon)?.setOnClickListener { openNotifications() }
+        }
+    }
+
+    private fun openNotifications() {
+        val intent = Intent(this, NotificationsActivity::class.java)
+        startActivity(intent)
+        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
     }
 
 
