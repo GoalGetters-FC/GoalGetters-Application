@@ -147,18 +147,16 @@ class HomeCalendarFragment : Fragment(), Clickable {
      * Convenience method for [offsetCalendarView].
      */
     private fun incrementCalendarView() {
-        activeModel.goPrevMonth()
-        animateCalendarTransition()
-        updateMonthYearDisplay()
+        // Move to next month
+        offsetCalendarView(+1)
     }
 
     /**
      * Convenience method for [offsetCalendarView].
      */
     private fun decrementCalendarView() {
-        activeModel.goNextMonth()
-        animateCalendarTransition()
-        updateMonthYearDisplay()
+        // Move to previous month
+        offsetCalendarView(-1)
     }
 
 
@@ -440,7 +438,8 @@ class HomeCalendarFragment : Fragment(), Clickable {
                         val deltaY = e.y - startY
 
                         if (abs(deltaX) > abs(deltaY) && abs(deltaX) > SWIPE_THRESHOLD) {
-                            if (deltaX > 0) incrementCalendarView() else decrementCalendarView()
+                            // Swipe right (deltaX > 0) -> previous month; swipe left -> next month
+                            if (deltaX > 0) decrementCalendarView() else incrementCalendarView()
                             return true
                         }
                     }
