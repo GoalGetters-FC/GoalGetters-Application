@@ -6,7 +6,11 @@ import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.data.model.TeamComposition
 import com.ggetters.app.data.model.TeamDenomination
+import com.ggetters.app.data.model.User
+import com.ggetters.app.data.model.UserRole
+import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.data.repository.team.TeamRepository
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,14 +20,17 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
-import kotlinx.coroutines.flow.MutableSharedFlow // NEW
-import kotlinx.coroutines.flow.MutableStateFlow  // NEW
-import java.time.Instant // NEW
-import java.util.UUID    // NEW
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import java.time.Instant
+import java.util.UUID
+import com.ggetters.app.core.sync.SyncManager
 
 @HiltViewModel
 class TeamViewerViewModel @Inject constructor(
-    private val repo: TeamRepository
+    private val repo: TeamRepository,
+    private val userRepo: com.ggetters.app.data.repository.user.UserRepository,
+    private val syncManager: SyncManager
 ) : ViewModel() {
 
     // Flow of teams the current user belongs to
@@ -43,20 +50,18 @@ class TeamViewerViewModel @Inject constructor(
     private val _delete = MutableStateFlow<DeleteState>(DeleteState.Idle)
     val delete: StateFlow<DeleteState> = _delete
 
-    // TeamViewerViewModel.kt
     fun syncTeams() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
-                repo.sync()
-                Clogger.i("TeamViewerVM", "sync() completed")
-            } catch (e: CancellationException) {
-                // user navigated away / scope was cancelled — no crash
-                Clogger.i("TeamViewerVM", "sync() was cancelled")
-            } catch (e: Throwable) {
-                Clogger.e("TeamViewerVM", "sync() failed", e)
+                Clogger.i("Sync", "Manual sync start")
+                syncManager.syncAll()
+                Clogger.i("Sync", "Manual sync finished")
+            } catch (e: Exception) {
+                Clogger.e("Sync", "Manual sync failed", e)
             }
         }
     }
+
 
     fun deleteTeam(team: Team) = viewModelScope.launch {
         _delete.value = DeleteState.Deleting
@@ -69,14 +74,28 @@ class TeamViewerViewModel @Inject constructor(
         }
     }
 
-    // ---- NEW: Create / Join actions ----
-    fun createTeamFromName(teamName: String) {
+    // Create / Join actions
+    fun createTeamFromName(teamName: String, authId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _busy.value = true
                 val team = buildTeam(teamName)
-                repo.createTeam(team)   // local-first
-                repo.sync()             // push+join remotely (your repo handles this)
+                repo.createTeam(team)
+
+                // 👇 Seed creator user
+                val creator = User(
+                    id = authId,
+                    authId = authId,
+                    teamId = team.id,
+                    role = UserRole.COACH,
+                    name = "Coach",
+                    surname = "Unknown",
+                    email = FirebaseAuth.getInstance().currentUser?.email,
+                    status = UserStatus.ACTIVE
+                )
+                userRepo.insertLocal(creator)
+
+                repo.sync()
                 _toast.emit("Team created")
             } catch (e: Throwable) {
                 Clogger.e("TeamViewerVM", "createTeam failed", e)
@@ -86,6 +105,7 @@ class TeamViewerViewModel @Inject constructor(
             }
         }
     }
+
 
     fun joinByCode(teamCode: String, userCode: String?) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -141,3 +161,41 @@ class TeamViewerViewModel @Inject constructor(
             .ifEmpty { "TEAM" }
             .take(6)
 }
+
+
+/**
+ * TODO: Fix User insert + sync flow
+ *
+ * 1. Update UserRepository:
+ *    - Add helper:
+ *      suspend fun insertAndSync(user: User) {
+ *          insertLocal(user)
+ *          sync()
+ *      }
+ *    - Ensure sync() pushes unsynced users from Room → Firestore (dirty flag or fallback: push all).
+ *
+ * 2. Update TeamViewerViewModel.createTeamFromName:
+ *    - Replace:
+ *        userRepo.insertLocal(creator)
+ *        repo.sync()
+ *    - With:
+ *        userRepo.insertAndSync(creator)
+ *        repo.sync()
+ *
+ * 3. Check join flow:
+ *    - In joinByCode, verify the joining user is also inserted + synced (currently may remain local).
+ *
+ * 4. Test:
+ *    - Create a new team → Firestore users subcollection should contain:
+ *        {
+ *          "name": "Coach",
+ *          "surname": "Unknown",
+ *          "role": "COACH",
+ *          "status": "ACTIVE"
+ *        }
+ *    - Verify presence in both local DB and remote.
+ *
+ * ⚡ Optional cleanup:
+ *    - Replace all insertLocal + sync usages with insertAndSync across repos (Users, Events, Lineups, etc.)
+ *      for consistency.
+ */

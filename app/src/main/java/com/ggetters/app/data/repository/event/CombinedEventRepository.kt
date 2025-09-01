@@ -33,21 +33,47 @@ class CombinedEventRepository @Inject constructor(
 
     override suspend fun deleteAll() = offline.deleteAll()
 
-    // Push dirty → Pull fresh remote → Replace local
     override suspend fun sync() {
-        val team = teamRepo.getActiveTeam().first() ?: return
-        val teamId = team.id
+        Clogger.i("EventRepo", "Syncing events …")
 
-        // Push dirty events first
-        offline.getDirtyEvents(teamId).forEach { e ->
-            runCatching { online.upsert(e) }
-                .onSuccess { offline.markClean(e.id) }
+        try {
+            val team = teamRepo.getActiveTeam().first()
+            if (team == null) {
+                Clogger.w("EventRepo", "No active team → skipping sync")
+                return
+            }
+            val teamId = team.id
+
+            // --- Push dirty ---
+            offline.getDirtyEvents(teamId).forEach { e ->
+                runCatching { online.upsert(e) }
+                    .onSuccess { offline.markClean(e.id) }
+                    .onFailure { err ->
+                        Clogger.e("EventRepo", "Failed to push event ${e.id}: ${err.message}", err)
+                    }
+            }
+
+            // --- Pull remote ---
+            val remote = online.fetchAllForTeam(teamId)
+            Clogger.i("EventRepo", "Fetched ${remote.size} remote events")
+
+            // Filter invalid events (defensive)
+            val validRemote = remote.filter { e ->
+                if (e.teamId.isBlank() || e.startAt == null) {
+                    Clogger.w("EventRepo", "Skipping invalid event ${e.id}")
+                    false
+                } else true
+            }
+
+            // --- Replace local ---
+            offline.upsertAllLocal(validRemote)
+            Clogger.i("EventRepo", "Upserted ${validRemote.size} events into local DB")
+
+        } catch (e: Throwable) {
+            Clogger.e("EventRepo", "Sync failed: ${e.message}", e)
         }
-
-        // Pull remote + replace local
-        val remote = online.fetchAllForTeam(teamId)
-        offline.upsertAllLocal(remote)
     }
+
 
     override fun getByTeamId(teamId: String): Flow<List<Event>> =
         offline.getByTeamId(teamId)

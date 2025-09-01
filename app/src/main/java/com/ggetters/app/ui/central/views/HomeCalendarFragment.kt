@@ -77,6 +77,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Clogger.i(TAG, "onViewCreated: initializing calendar fragment")
 
         setupTouchListeners()
         setupCalendar()
@@ -84,37 +85,33 @@ class HomeCalendarFragment : Fragment(), Clickable {
         hideSelectedDayEvents()
         updateMonthYearDisplay()
 
-        // collect month events → update grid dots
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 activeModel.eventsThisMonth.collect { list ->
-                    Clogger.d(TAG, "Received ${list.size} events for this month")
+                    Clogger.i(TAG, "eventsThisMonth: received ${list.size} events")
                     monthEvents = list
                     events.clear()
-                    events.addAll(list) // <<--- now events list has data
+                    events.addAll(list)
                     updateCalendarView()
                     autoSelectToday()
                 }
-
             }
         }
 
-        // collect selected-day events → update bottom list
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 activeModel.dayEvents.collect { dayList ->
                     val day = selectedDay ?: return@collect
+                    Clogger.i(TAG, "dayEvents: ${dayList.size} events on day $day")
                     showSelectedDayEvents(day, dayList)
                 }
             }
         }
 
-        // optional: hook “due soon” to a small list/badge if you have one
-        // viewLifecycleOwner.lifecycleScope.launch { … activeModel.dueSoon.collect { … } }
-
-        // kick a background sync
         activeModel.refresh()
+        Clogger.i(TAG, "onViewCreated: refresh() triggered")
     }
+
 
 
 // --- Internals
@@ -263,15 +260,17 @@ class HomeCalendarFragment : Fragment(), Clickable {
         val targetMonth = calendar.get(Calendar.MONTH) + 1
         val targetYear = calendar.get(Calendar.YEAR)
 
-        return events.filter { event ->
+        val filtered = events.filter { event ->
             val eventDate = event.startAt.toLocalDate()
             eventDate.dayOfMonth == targetDay &&
                     eventDate.monthValue == targetMonth &&
                     eventDate.year == targetYear
-        }.sortedBy { event ->
-            event.startAt.toLocalTime()
-        }
+        }.sortedBy { it.startAt.toLocalTime() }
+
+        Clogger.i(TAG, "getEventsForDate($targetDay/$targetMonth/$targetYear): found ${filtered.size} events")
+        return filtered
     }
+
 
     private fun onDayClickedCallback(dayOfMonth: Int) {
         selectedDay = dayOfMonth
