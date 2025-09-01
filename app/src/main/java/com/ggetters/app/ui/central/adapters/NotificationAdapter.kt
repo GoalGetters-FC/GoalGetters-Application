@@ -53,7 +53,7 @@ class NotificationAdapter(
         private val scheduledEvent: LinearLayout = itemView.findViewById(R.id.scheduledEvent)
         private val eventIcon: ImageView = itemView.findViewById(R.id.eventIcon)
         private val eventDateTime: TextView = itemView.findViewById(R.id.eventDateTime)
-        private val attendanceSummary: TextView = itemView.findViewById(R.id.attendanceSummary)
+
         private val actionMenuButton: ImageButton = itemView.findViewById(R.id.actionMenuButton)
 
         fun bind(notification: NotificationItem) {
@@ -72,8 +72,7 @@ class NotificationAdapter(
             // Set up specific notification types
             setupNotificationType(notification)
             
-            // Set up attendance summary
-            setupAttendanceSummary(notification)
+
             
             // Set up click listeners
             setupClickListeners(notification)
@@ -117,7 +116,7 @@ class NotificationAdapter(
         }
 
         private fun setupNotificationType(notification: NotificationItem) {
-            // Hide all special layouts first
+            // Hide all special layouts first to prevent vestigial elements
             resultsSummary.visibility = View.GONE
             scheduledEvent.visibility = View.GONE
             
@@ -180,24 +179,7 @@ class NotificationAdapter(
 
 
 
-        private fun setupAttendanceSummary(notification: NotificationItem) {
-            // Only show attendance summary for event-related notifications
-            val isEventType = when (notification.type) {
-                NotificationType.GAME_NOTIFICATION,
-                NotificationType.GAME_REMINDER,
-                NotificationType.PRACTICE_NOTIFICATION,
-                NotificationType.PRACTICE_REMINDER -> true
-                else -> false
-            }
 
-            val counts = notification.attendanceCounts
-            if (isEventType && counts != null) {
-                attendanceSummary.visibility = View.VISIBLE
-                attendanceSummary.text = counts.getFormattedSummary()
-            } else {
-                attendanceSummary.visibility = View.GONE
-            }
-        }
 
         private fun setupClickListeners(notification: NotificationItem) {
             // Main item click - opens linked event

@@ -89,7 +89,7 @@ class CalendarViewHolder(
     private fun renderEventDots(calendarDay: CalendarDayItem) {
         val eventCategories = calendarDay.events.map { it.category }.toSet()
 
-        updateEventDotVisibility(binding.eventDot1, EventCategory.TRAINING, eventCategories)
+        updateEventDotVisibility(binding.eventDot1, EventCategory.PRACTICE, eventCategories)
         updateEventDotVisibility(binding.eventDot2, EventCategory.MATCH, eventCategories)
         updateEventDotVisibility(binding.eventDot3, EventCategory.OTHER, eventCategories)
     }

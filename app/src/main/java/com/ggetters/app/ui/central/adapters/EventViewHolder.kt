@@ -31,11 +31,7 @@ class EventViewHolder(
         binding.eventVenue.text = item.location ?: "No venue"
 
         // Category icon
-        binding.eventTypeIcon.text = when (item.category) {
-            EventCategory.MATCH -> "⚽"
-            EventCategory.PRACTICE -> "🏋️"
-            else -> "📌" // Default for OTHER or any new categories
-        }
+        binding.eventTypeIcon.text = item.category.icon
 
         // Opponent line → repurposed to show description if available
         if (!item.description.isNullOrBlank()) {

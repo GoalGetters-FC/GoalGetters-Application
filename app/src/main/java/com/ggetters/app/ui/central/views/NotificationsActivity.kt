@@ -7,6 +7,9 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,9 +51,35 @@ class NotificationsActivity : AppCompatActivity() {
         supportPostponeEnterTransition()
         supportStartPostponedEnterTransition()
 
+        setupWindowInsets()
         setupHeader()
         setupNotifications()
         setupSwipeActions()
+    }
+
+    private fun setupWindowInsets() {
+        // Enable edge-to-edge display but keep status bar visible
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // Set up window insets controller for light status bar
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = true // Light status bar icons
+
+        // Ensure status bar is visible and properly colored
+        window.statusBarColor = getColor(R.color.white)
+        
+        // Handle window insets for the header
+        val headerLayout = findViewById<android.widget.LinearLayout>(R.id.headerLayout)
+        ViewCompat.setOnApplyWindowInsetsListener(headerLayout) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(
+                view.paddingLeft,
+                insets.top + view.paddingTop,
+                view.paddingRight,
+                view.paddingBottom
+            )
+            windowInsets
+        }
     }
 
     private fun setupHeader() {

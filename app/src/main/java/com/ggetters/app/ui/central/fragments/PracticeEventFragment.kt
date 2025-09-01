@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.ggetters.app.R
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.ui.central.models.EventFormData
 import com.google.android.material.textfield.TextInputEditText
 import java.text.SimpleDateFormat
@@ -141,14 +142,52 @@ class PracticeEventFragment : Fragment() {
         ).show()
     }
 
-    fun collectFormData(): EventFormData {
+    fun collectFormData(): EventFormData? {
+        Clogger.i("PracticeEventFragment", "collectFormData() called")
+        
+        val title = view?.findViewById<TextInputEditText>(R.id.practiceTitleInput)
+            ?.text?.toString()?.trim()
+        val description = view?.findViewById<TextInputEditText>(R.id.practiceDescriptionInput)
+            ?.text?.toString()?.trim()
+        val location = view?.findViewById<TextInputEditText>(R.id.practiceLocationInput)
+            ?.text?.toString()?.trim()
+            
+        Clogger.i("PracticeEventFragment", "Collected: title='$title', description='$description', location='$location'")
+        Clogger.i("PracticeEventFragment", "Date/Time: date=$date, start=$start, end=$end, meet=$meet")
+        
+        // Validate required fields
+        if (title.isNullOrBlank()) {
+            Clogger.e("PracticeEventFragment", "❌ Title is blank")
+            view?.findViewById<TextInputEditText>(R.id.practiceTitleInput)?.error = "Title is required"
+            return null
+        }
+        
+        if (date == null) {
+            Clogger.e("PracticeEventFragment", "❌ Date is null")
+            view?.findViewById<TextInputEditText>(R.id.practiceDateInput)?.error = "Date is required"
+            return null
+        }
+        
+        if (start == null) {
+            Clogger.e("PracticeEventFragment", "❌ Start time is null")
+            view?.findViewById<TextInputEditText>(R.id.practiceStartTimeInput)?.error = "Start time is required"
+            return null
+        }
+        
+        // Validate end time is after start time if provided
+        val startTime = start
+        val endTime = end
+        if (endTime != null && startTime != null && endTime.isBefore(startTime)) {
+            Clogger.e("PracticeEventFragment", "❌ End time is before start time")
+            view?.findViewById<TextInputEditText>(R.id.practiceEndTimeInput)?.error = "End time must be after start time"
+            return null
+        }
+        
+        Clogger.i("PracticeEventFragment", "✅ All validation passed, creating EventFormData")
         return EventFormData(
-            title = view?.findViewById<TextInputEditText>(R.id.practiceTitleInput)
-                ?.text?.toString().orEmpty(),
-            description = view?.findViewById<TextInputEditText>(R.id.practiceDescriptionInput)
-                ?.text?.toString(),
-            location = view?.findViewById<TextInputEditText>(R.id.practiceLocationInput)
-                ?.text?.toString(),
+            title = title,
+            description = description,
+            location = location,
             date = date,
             start = start,
             end = end,

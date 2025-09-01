@@ -175,17 +175,7 @@
 
             </LinearLayout>
 
-            <!-- Attendance Summary (for RSVP notifications) -->
-            <TextView
-                android:id="@+id/attendanceSummary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="8 available / 3 maybe / 2 unavailable"
-                android:textColor="@color/text_tertiary"
-                android:textSize="12sp"
-                android:fontFamily="@font/variable_inter"
-                android:layout_marginTop="6dp"
-                android:visibility="gone" />
+
 
             <!-- Timestamp -->
             <TextView
