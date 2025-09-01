@@ -7,5 +7,6 @@ import kotlinx.coroutines.flow.Flow
 interface LineupRepository : CrudRepository<Lineup> {
     fun getByEventId(eventId: String): Flow<List<Lineup>>
     fun hydrateForTeam(id: String)
+    fun sync()
 
 }
