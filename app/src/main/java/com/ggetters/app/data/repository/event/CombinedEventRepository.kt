@@ -23,8 +23,7 @@ class CombinedEventRepository @Inject constructor(
         }
 
     override suspend fun getById(id: String): Event? {
-        val teamId = teamRepo.getActiveTeam().first()?.id ?: return null
-        return offline.getById(id) ?: online.getById(teamId, id)
+        return offline.getById(id) ?: online.getById(id)
     }
 
     override suspend fun upsert(entity: Event) = offline.upsert(entity)

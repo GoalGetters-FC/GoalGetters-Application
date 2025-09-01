@@ -10,4 +10,7 @@ interface UserRepository : CrudRepository<User> {
 
     suspend fun sync()
     fun hydrateForTeam(id: String)
+
+    //get users for a team
+
 }
