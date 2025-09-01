@@ -8,12 +8,14 @@
 
     <!-- Header -->
     <LinearLayout
+        android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
         android:background="@color/white"
         android:elevation="2dp">
 
