@@ -28,7 +28,8 @@ import javax.inject.Singleton
 // app/src/main/java/com/ggetters/app/data/remote/firestore/UserFirestore.kt
 @Singleton
 class UserFirestore @Inject constructor(
-    private val paths: FirestorePathProvider
+    private val paths: FirestorePathProvider,
+    private val db: FirebaseFirestore
 ) {
     // callers MUST pass teamId explicitly (or inject active team upstream)
 
@@ -113,6 +114,44 @@ class UserFirestore @Inject constructor(
             is String -> runCatching { Instant.parse(v) }.getOrNull()?.let { return it }
         }
         return null
+    }
+
+    /** Stream the current user's full name (name + surname) across all teams. */
+    fun observeFullNameForAuth(authId: String): Flow<String?> = callbackFlow {
+        val q = db.collectionGroup("users")
+            .whereEqualTo("authId", authId)
+            .limit(1)
+
+        val sub = q.addSnapshotListener { snap, err ->
+            if (err != null) {
+                // Don't crash the channel; just emit null (fallback will handle it)
+                com.ggetters.app.core.utils.Clogger.e("UserFirestore", "FullName listen failed", err)
+                trySend(null).isSuccess
+                return@addSnapshotListener
+            }
+            val doc = snap?.documents?.firstOrNull()
+            val full = buildFull(doc)
+            trySend(full).isSuccess
+        }
+        awaitClose { sub.remove() }
+    }
+
+
+    /** One-shot fetch of the current user's full name (name + surname). */
+    suspend fun fetchFullNameForAuth(authId: String): String? {
+        val res = db.collectionGroup("users")
+            .whereEqualTo("authId", authId)
+            .limit(1)
+            .get()
+            .await()
+        return buildFull(res.documents.firstOrNull())
+    }
+
+    private fun buildFull(doc: DocumentSnapshot?): String? {
+        val n = doc?.getString("name")?.trim().orEmpty()
+        val s = doc?.getString("surname")?.trim().orEmpty()
+        val full = listOf(n, s).filter { it.isNotBlank() }.joinToString(" ")
+        return full.ifBlank { null }
     }
 }
 

@@ -25,6 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -111,9 +112,12 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
 
 
     private fun onCreateTeamSheetSubmitted(teamName: String) {
-        // ---- NEW ----
-        model.createTeamFromName(teamName)
+        val authId = FirebaseAuth.getInstance().currentUser?.uid // firebase stuff shouldnt be here, but it does fix this issue for now
+            ?: return Toast.makeText(this, "Not signed in", Toast.LENGTH_SHORT).show()
+
+        model.createTeamFromName(teamName, authId)
     }
+
 
     private fun onJoinTeamSheetSubmitted(teamCode: String, userCode: String) {
         // ---- NEW ----
@@ -141,7 +145,7 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         // testing long-click for sync
         binds.linkTeamButton.setOnLongClickListener {
             Toast.makeText(this, "Starting sync…", Toast.LENGTH_SHORT).show()
-            model.syncTeams()
+            model.syncTeams() // call sync manager here;
             true
         }
 

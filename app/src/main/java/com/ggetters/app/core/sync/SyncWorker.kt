@@ -1,4 +1,3 @@
-// core/sync/SyncWorker.kt
 package com.ggetters.app.core.sync
 
 import android.content.Context
@@ -14,16 +13,16 @@ import dagger.assisted.AssistedInject
 class SyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
-    private val teamRepo: TeamRepository
+    private val syncManager: SyncManager // ✅ use SyncManager to sync everything
 ) : CoroutineWorker(appContext, params) {
+
     override suspend fun doWork(): Result = try {
         Clogger.i("Sync", "SyncWorker start")
-        teamRepo.sync()
+        syncManager.syncAll()
         Clogger.i("Sync", "SyncWorker done")
         Result.success()
     } catch (e: Exception) {
         Clogger.e("Sync", "SyncWorker failed", e)
         Result.retry()
     }
-
 }
