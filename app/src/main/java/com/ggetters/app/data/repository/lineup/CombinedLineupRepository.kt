@@ -39,6 +39,10 @@ class CombinedLineupRepository @Inject constructor(
         TODO("Not yet implemented")
     }
 
+    override fun sync() {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun deleteAll() {
         runBlocking {
             offline.deleteAll()
