@@ -1,177 +1,161 @@
+// app/src/main/java/com/ggetters/app/ui/central/views/PlayerDetailsFragment.kt
 package com.ggetters.app.ui.central.views
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AutoCompleteTextView
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.ggetters.app.R
-import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.User
-import com.ggetters.app.data.model.UserRole
-import com.ggetters.app.data.model.UserStatus
-import com.ggetters.app.databinding.FragmentPlayerDetailsBinding
 import com.ggetters.app.ui.central.viewmodels.PlayerDetailsViewModel
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
+import java.time.LocalDate
+import java.time.Period
 
 @AndroidEntryPoint
 class PlayerDetailsFragment : Fragment() {
 
-    private var _binding: FragmentPlayerDetailsBinding? = null
-    private val binding get() = _binding!!
-
-    private lateinit var ddStatus: AutoCompleteTextView
-    private lateinit var ddRole: AutoCompleteTextView
-    private lateinit var inpName: TextInputEditText
-    private lateinit var inpNumber: TextInputEditText
-    private lateinit var inpEmail: TextInputEditText
-    private lateinit var inpDob: TextInputEditText
-    private lateinit var inpContact: TextInputEditText
-
-    private lateinit var tvEmail: TextView
-    private lateinit var tvPhone: TextView
-    private lateinit var tvJoined: TextView
-
-    private lateinit var tvGoals: TextView
-    private lateinit var tvAssists: TextView
-    private lateinit var tvMatches: TextView
-    private lateinit var tvYellows: TextView
-    private lateinit var tvReds: TextView
-    private lateinit var tvCleanSheets: TextView
-
-    private lateinit var btnEdit: MaterialButton
-    private lateinit var btnMsg: MaterialButton
-    private lateinit var btnHistory: MaterialButton
-
-    private val viewModel: PlayerDetailsViewModel by viewModels()
-
     companion object {
         private const val ARG_PLAYER_ID = "player_id"
+        fun newInstance(playerId: String?): PlayerDetailsFragment =
+            PlayerDetailsFragment().apply { arguments = bundleOf(ARG_PLAYER_ID to playerId) }
+    }
 
-        fun newInstance(playerId: String) = PlayerDetailsFragment().apply {
-            arguments = Bundle().apply { putString(ARG_PLAYER_ID, playerId) }
-        }
+    private val vm: PlayerDetailsViewModel by viewModels()
+
+    // Header views
+    private lateinit var playerName: TextView
+    private lateinit var playerPosition: TextView
+    private lateinit var playerNumber: TextView
+    private lateinit var playerAge: TextView
+    private lateinit var playerHeight: TextView
+    private lateinit var playerWeight: TextView
+
+    // Stats views
+    private lateinit var gamesPlayed: TextView
+    private lateinit var goalsScored: TextView
+    private lateinit var assists: TextView
+    private lateinit var yellowCards: TextView
+    private lateinit var redCards: TextView
+    private lateinit var emptyStatsLabel: View
+
+    // Actions
+    private lateinit var editBtn: MaterialButton
+    private lateinit var statsBtn: MaterialButton
+
+    private var playerIdArg: String? = null
+    private val dash by lazy { getString(R.string.dash) }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        playerIdArg = arguments?.getString(ARG_PLAYER_ID)
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentPlayerDetailsBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = inflater.inflate(R.layout.fragment_player_details, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        bindViews(view)
+        renderEmptyState()
 
-        bindViews(view)                     // << initialize all findViewById refs
+        // Kick off load if we have an id
+        playerIdArg?.let { if (!it.isNullOrBlank()) vm.loadPlayer(it) }
 
-        val playerId = arguments?.getString(ARG_PLAYER_ID) ?: return
-        viewModel.loadPlayer(playerId)
-
-        observePlayer()
-        setupListeners()
-    }
-
-
-    private fun observePlayer() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.player.collect { player ->
-                    if (player != null) renderPlayer(player)
-                }
+        // Observe StateFlow<User?>
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                vm.player.collect { render(it) }
             }
         }
+
+        // Hook these up to your navigation later
+        editBtn.setOnClickListener { /* open edit */ }
+        statsBtn.setOnClickListener { /* open stats */ }
     }
 
-    private fun bindViews(root: View) {
-        // IDs from your XML
-        ddStatus      = root.findViewById(R.id.playerStatusDropdown)
-        ddRole        = root.findViewById(R.id.playerRoleDropdown)
-        inpName       = root.findViewById(R.id.playerNameInput)
-        inpNumber     = root.findViewById(R.id.playerNumberInput)
-        inpEmail      = root.findViewById(R.id.playerEmailInput)
-        inpDob        = root.findViewById(R.id.playerDateOfBirthInput)
-        inpContact    = root.findViewById(R.id.playerContactInput)
+    private fun bindViews(v: View) {
+        playerName     = v.findViewById(R.id.playerName)
+        playerPosition = v.findViewById(R.id.playerPosition)
+        playerNumber   = v.findViewById(R.id.playerNumber)
+        playerAge      = v.findViewById(R.id.playerAge)
+        playerHeight   = v.findViewById(R.id.playerHeight)
+        playerWeight   = v.findViewById(R.id.playerWeight)
 
-        tvEmail       = root.findViewById(R.id.playerEmail)
-        tvPhone       = root.findViewById(R.id.playerPhone)
-        tvJoined      = root.findViewById(R.id.playerJoinedDate)
+        gamesPlayed    = v.findViewById(R.id.gamesPlayed)
+        goalsScored    = v.findViewById(R.id.goalsScored)
+        assists        = v.findViewById(R.id.assists)
+        yellowCards    = v.findViewById(R.id.yellowCards)
+        redCards       = v.findViewById(R.id.redCards)
+        emptyStatsLabel= v.findViewById(R.id.emptyStatsLabel)
 
-        tvGoals       = root.findViewById(R.id.statsGoals)
-        tvAssists     = root.findViewById(R.id.statsAssists)
-        tvMatches     = root.findViewById(R.id.statsMatches)
-        tvYellows     = root.findViewById(R.id.statsYellowCards)
-        tvReds        = root.findViewById(R.id.statsRedCards)
-        tvCleanSheets = root.findViewById(R.id.statsCleanSheets)
-
-        btnEdit       = root.findViewById(R.id.btnEditProfile)
-        btnMsg        = root.findViewById(R.id.btnSendMessage)
-        btnHistory    = root.findViewById(R.id.btnViewHistory)
+        editBtn        = v.findViewById(R.id.editPlayerButton)
+        statsBtn       = v.findViewById(R.id.playerStatsButton)
     }
 
-    private fun renderPlayer(player: User) {
-        // Header still via binding (these exist in all variants)
-        binding.playerName.text = player.fullName()
-        binding.playerAge.text = "--"
-        binding.playerPosition.text = player.position?.name ?: "Unknown"
-        binding.playerNumber.text = "#${player.number ?: "--"}"
-
-        // General section (dropdowns)
-        ddStatus.setText(player.status?.name ?: UserStatus.ACTIVE.name, false)
-        ddRole.setText(player.role.name, false)
-
-        // Player details
-        inpName.setText(player.fullName())
-        inpNumber.setText(player.number?.toString() ?: "--")
-        inpEmail.setText(player.email ?: "N/A")
-        inpDob.setText(player.dateOfBirth?.toString() ?: "N/A")
-        inpContact.setText("N/A") // no contact field in model
-
-        // Contact card
-        tvEmail.text = "Email: ${player.email ?: "-"}"
-        tvPhone.text = "Phone: N/A"
-        tvJoined.text = "Joined: ${player.joinedAt?.toString() ?: "-"}"
-
-        // Stats (placeholders)
-        tvGoals.text = "0"
-        tvAssists.text = "0"
-        tvMatches.text = "0"
-        tvYellows.text = "0"
-        tvReds.text = "0"
-        tvCleanSheets.text = "0"
+    private fun renderEmptyState() {
+        playerName.text     = getString(R.string.no_player_selected)
+        playerPosition.text = dash
+        playerNumber.text   = dash
+        playerAge.text      = dash
+        playerHeight.text   = dash
+        playerWeight.text   = dash
+        setStats(null)
+        setButtonsEnabled(false)
     }
 
-    private fun setupListeners() {
-        btnEdit.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(
-                    R.id.fragmentContainer,
-                    PlayerProfileFragment.newInstance(
-                        arguments?.getString(ARG_PLAYER_ID) ?: return@setOnClickListener,
-                        startEditing = true
-                    )
-
-                )
-                .addToBackStack("player_details_to_profile_edit")
-                .commit()
+    private fun render(u: User?) {
+        if (u == null) {
+            renderEmptyState()
+            return
         }
-        btnMsg.setOnClickListener { Snackbar.make(requireView(), "Send Message clicked", Snackbar.LENGTH_SHORT).show() }
-        btnHistory.setOnClickListener { Snackbar.make(requireView(), "View History clicked", Snackbar.LENGTH_SHORT).show() }
+        setButtonsEnabled(true)
+
+        // Name
+        val fullName = listOf(u.name?.trim().orEmpty(), u.surname?.trim().orEmpty())
+            .filter { it.isNotBlank() }
+            .joinToString(" ")
+            .ifBlank { getString(R.string.no_player_selected) }
+        playerName.text = fullName
+
+        // Header fields
+        playerPosition.text = u.position?.name ?: dash
+        playerNumber.text   = u.number?.let { "#$it" } ?: dash
+        playerAge.text      = u.dateOfBirth?.let { ageYears(it) } ?: dash
+        playerHeight.text   = u.healthHeight?.let { "${it.toInt()} cm" } ?: dash
+        playerWeight.text   = u.healthWeight?.let { "${it.toInt()} kg" } ?: dash
+
+        // Stats: keep empty until Attendance/Performance wired
+        setStats(null)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun ageYears(dob: LocalDate): String =
+        Period.between(dob, LocalDate.now()).years.toString()
+
+    private fun setButtonsEnabled(enabled: Boolean) {
+        editBtn.isEnabled = enabled
+        statsBtn.isEnabled = enabled
+    }
+
+    private fun setStats(@Suppress("UNUSED_PARAMETER") stats: Any?) {
+        // Show dashes + empty-state label until real aggregates exist
+        gamesPlayed.text = dash
+        goalsScored.text = dash
+        assists.text     = dash
+        yellowCards.text = dash
+        redCards.text    = dash
+        emptyStatsLabel.visibility = View.VISIBLE
     }
 }

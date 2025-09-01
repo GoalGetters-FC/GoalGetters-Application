@@ -24,4 +24,27 @@
     <string name="security">Security</string>
     <string name="no_active_team">No active team</string>
     <string name="help_faq"><![CDATA[Help & FAQ]]></string>
+
+    <!-- Player details / shared -->
+    <string name="no_player_selected">No player selected</string>
+    <string name="no_data">No data available</string>
+    <string name="dash">--</string>
+
+    <!-- Buttons -->
+    <string name="edit_player">Edit Player</string>
+    <string name="view_statistics">Statistics</string>
+
+    <!-- Sections -->
+    <string name="personal_information">Personal Information</string>
+    <string name="season_statistics">Season Statistics</string>
+
+    <!-- Labels -->
+    <string name="age">Age:</string>
+    <string name="height">Height:</string>
+    <string name="weight">Weight:</string>
+    <string name="games_played">Games Played:</string>
+    <string name="goals_scored">Goals Scored:</string>
+    <string name="assists">Assists:</string>
+    <string name="yellow_cards">Yellow Cards:</string>
+    <string name="red_cards">Red Cards:</string>
 </resources>
