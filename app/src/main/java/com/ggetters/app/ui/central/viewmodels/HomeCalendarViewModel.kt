@@ -2,7 +2,6 @@ package com.ggetters.app.ui.central.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Event
 import com.ggetters.app.data.repository.event.EventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,42 +31,41 @@ class HomeCalendarViewModel @Inject constructor(
     private val _currentMonth = MutableStateFlow(YearMonth.now())
     val currentMonth: StateFlow<YearMonth> = _currentMonth
 
-    // all events for the active team
+    // all events for the active team, coming from Room (offline-first)
     val allEvents: StateFlow<List<Event>> =
         eventsRepo.all()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    init {
-        viewModelScope.launch {
-            allEvents.collect { list ->
-                Clogger.i("HomeCalendarVM", "allEvents updated: ${list.size} events")
-            }
-        }
-    }
-
+    // events visible in the currently displayed month
     val eventsThisMonth: Flow<List<Event>> = combine(allEvents, currentMonth) { list, ym ->
-        val filtered = list.filter { YearMonth.from(it.startAt.atZone(zone)) == ym }
-        Clogger.i("HomeCalendarVM", "eventsThisMonth for $ym: ${filtered.size} events")
-        filtered.sortedBy { it.startAt }
+        list.filter { YearMonth.from(it.startAt.atZone(zone)) == ym }
+            .sortedBy { it.startAt }
     }
 
     private val _selectedDate = MutableStateFlow<LocalDate?>(LocalDate.now())
     val selectedDate: StateFlow<LocalDate?> = _selectedDate
 
+    // events for the selected grid day
     val dayEvents: Flow<List<Event>> = combine(allEvents, selectedDate) { list, date ->
         date?.let { d ->
-            val filtered = list.filter { it.startAt.atZone(zone).toLocalDate() == d }
-            Clogger.i("HomeCalendarVM", "dayEvents for $d: ${filtered.size} events")
-            filtered.sortedBy { it.startAt }
+            list.filter { it.startAt.atZone(zone).toLocalDate() == d }
+                .sortedBy { it.startAt }
         } ?: emptyList()
     }
 
-    fun refresh() = viewModelScope.launch {
-        Clogger.i("HomeCalendarVM", "refresh() called → syncing events")
-        eventsRepo.sync()
+    // “Due soon”: next 14 days, top 10
+    val dueSoon: Flow<List<Event>> = allEvents.map { list ->
+        val now  = Instant.now()
+        val soon = now.plus(14, ChronoUnit.DAYS)
+        list.filter { it.startAt.isAfter(now as ChronoLocalDateTime<*>?) && it.startAt.isBefore(soon as ChronoLocalDateTime<*>?) }
+            .sortedBy { it.startAt }
+            .take(10)
     }
 
     fun goPrevMonth() { _currentMonth.update { it.minusMonths(1) } }
     fun goNextMonth() { _currentMonth.update { it.plusMonths(1) } }
     fun select(date: LocalDate?) { _selectedDate.value = date }
+
+    /** Push dirty → pull fresh (writes to teams/{teamId}/events/{eventId}) */
+    fun refresh() = viewModelScope.launch { eventsRepo.sync() }
 }

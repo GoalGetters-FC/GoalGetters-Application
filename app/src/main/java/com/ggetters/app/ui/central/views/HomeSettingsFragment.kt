@@ -8,9 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.FragmentSettingsBinding
 import com.ggetters.app.ui.central.models.AppbarTheme
@@ -19,7 +17,6 @@ import com.ggetters.app.ui.central.viewmodels.HomeSettingsViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.shared.models.Clickable
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeSettingsFragment : Fragment(), Clickable {
@@ -48,21 +45,14 @@ class HomeSettingsFragment : Fragment(), Clickable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Clogger.d(
+            TAG, "Created a new instance of HomeSettingsFragment"
+        )
+
         setupTouchListeners()
 
-        val email = activeModel.getAuthAccount()?.email
-        binds.tvText.text = email ?: "Not signed in"
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                activeModel.fullName.collect { name ->
-                    val fallback = email?.substringBefore('@')
-                        ?.replace('.', ' ')
-                        ?.replaceFirstChar { it.uppercase() }
-                    binds.tvHead.text = name ?: fallback ?: email ?: "Account"
-                }
-            }
-        }
+        binds.tvHead.text = activeModel.getAuthAccount()?.email
+        binds.tvText.text = activeModel.getAuthAccount()?.email
 
         sharedModel.useViewConfiguration(
             HomeUiConfiguration(
@@ -93,6 +83,7 @@ class HomeSettingsFragment : Fragment(), Clickable {
         binds.cvOptionSettings.id -> {}
         binds.cvOptionNotifications.id -> {
             startActivity(Intent(requireContext(), NotificationsActivity::class.java))
+        requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
         }
 
         binds.cvOptionPrivacy.id -> {}

@@ -438,7 +438,8 @@ class PostMatchActionsActivity : AppCompatActivity() {
                 true
             }
             android.R.id.home -> {
-                onBackPressed()
+                finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
                 true
             }
             else -> super.onOptionsItemSelected(item)

@@ -181,10 +181,19 @@ class NotificationAdapter(
 
 
         private fun setupAttendanceSummary(notification: NotificationItem) {
-            // Show attendance summary for event notifications (even non-RSVP ones)
-            if (notification.attendanceCounts != null) {
+            // Only show attendance summary for event-related notifications
+            val isEventType = when (notification.type) {
+                NotificationType.GAME_NOTIFICATION,
+                NotificationType.GAME_REMINDER,
+                NotificationType.PRACTICE_NOTIFICATION,
+                NotificationType.PRACTICE_REMINDER -> true
+                else -> false
+            }
+
+            val counts = notification.attendanceCounts
+            if (isEventType && counts != null) {
                 attendanceSummary.visibility = View.VISIBLE
-                attendanceSummary.text = notification.attendanceCounts.getFormattedSummary()
+                attendanceSummary.text = counts.getFormattedSummary()
             } else {
                 attendanceSummary.visibility = View.GONE
             }

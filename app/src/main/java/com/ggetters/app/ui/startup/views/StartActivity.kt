@@ -10,6 +10,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.R
 import com.ggetters.app.databinding.ActivityStartBinding
 import com.ggetters.app.ui.central.views.HomeActivity
 import com.ggetters.app.ui.shared.models.Clickable
@@ -60,6 +61,7 @@ class StartActivity : AppCompatActivity(), Clickable {
             is Authenticated -> {
                 authenticating = false
                 startActivity(Intent(this, HomeActivity::class.java))
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
                 finishAffinity()
             }
 
@@ -99,10 +101,12 @@ class StartActivity : AppCompatActivity(), Clickable {
     override fun onClick(view: View?) = when (view?.id) {
         binds.btSignIn.id -> {
             startActivity(Intent(this, SignInActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
         }
 
         binds.btSignUp.id -> {
             startActivity(Intent(this, SignUpActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
         }
 
         else -> {

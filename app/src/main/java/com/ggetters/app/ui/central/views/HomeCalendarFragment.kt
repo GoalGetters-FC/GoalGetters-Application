@@ -77,7 +77,6 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Clogger.i(TAG, "onViewCreated: initializing calendar fragment")
 
         setupTouchListeners()
         setupCalendar()
@@ -85,33 +84,37 @@ class HomeCalendarFragment : Fragment(), Clickable {
         hideSelectedDayEvents()
         updateMonthYearDisplay()
 
+        // collect month events → update grid dots
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 activeModel.eventsThisMonth.collect { list ->
-                    Clogger.i(TAG, "eventsThisMonth: received ${list.size} events")
+                    Clogger.d(TAG, "Received ${list.size} events for this month")
                     monthEvents = list
                     events.clear()
-                    events.addAll(list)
+                    events.addAll(list) // <<--- now events list has data
                     updateCalendarView()
                     autoSelectToday()
                 }
+
             }
         }
 
+        // collect selected-day events → update bottom list
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 activeModel.dayEvents.collect { dayList ->
                     val day = selectedDay ?: return@collect
-                    Clogger.i(TAG, "dayEvents: ${dayList.size} events on day $day")
                     showSelectedDayEvents(day, dayList)
                 }
             }
         }
 
-        activeModel.refresh()
-        Clogger.i(TAG, "onViewCreated: refresh() triggered")
-    }
+        // optional: hook “due soon” to a small list/badge if you have one
+        // viewLifecycleOwner.lifecycleScope.launch { … activeModel.dueSoon.collect { … } }
 
+        // kick a background sync
+        activeModel.refresh()
+    }
 
 
 // --- Internals
@@ -144,18 +147,16 @@ class HomeCalendarFragment : Fragment(), Clickable {
      * Convenience method for [offsetCalendarView].
      */
     private fun incrementCalendarView() {
-        activeModel.goPrevMonth()
-        animateCalendarTransition()
-        updateMonthYearDisplay()
+        // Move to next month
+        offsetCalendarView(+1)
     }
 
     /**
      * Convenience method for [offsetCalendarView].
      */
     private fun decrementCalendarView() {
-        activeModel.goNextMonth()
-        animateCalendarTransition()
-        updateMonthYearDisplay()
+        // Move to previous month
+        offsetCalendarView(-1)
     }
 
 
@@ -260,17 +261,15 @@ class HomeCalendarFragment : Fragment(), Clickable {
         val targetMonth = calendar.get(Calendar.MONTH) + 1
         val targetYear = calendar.get(Calendar.YEAR)
 
-        val filtered = events.filter { event ->
+        return events.filter { event ->
             val eventDate = event.startAt.toLocalDate()
             eventDate.dayOfMonth == targetDay &&
                     eventDate.monthValue == targetMonth &&
                     eventDate.year == targetYear
-        }.sortedBy { it.startAt.toLocalTime() }
-
-        Clogger.i(TAG, "getEventsForDate($targetDay/$targetMonth/$targetYear): found ${filtered.size} events")
-        return filtered
+        }.sortedBy { event ->
+            event.startAt.toLocalTime()
+        }
     }
-
 
     private fun onDayClickedCallback(dayOfMonth: Int) {
         selectedDay = dayOfMonth
@@ -372,6 +371,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
         }
 
         startActivityForResult(intent, REQUEST_ADD_EVENT)
+        requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
     }
 
 
@@ -438,7 +438,8 @@ class HomeCalendarFragment : Fragment(), Clickable {
                         val deltaY = e.y - startY
 
                         if (abs(deltaX) > abs(deltaY) && abs(deltaX) > SWIPE_THRESHOLD) {
-                            if (deltaX > 0) incrementCalendarView() else decrementCalendarView()
+                            // Swipe right (deltaX > 0) -> previous month; swipe left -> next month
+                            if (deltaX > 0) decrementCalendarView() else incrementCalendarView()
                             return true
                         }
                     }

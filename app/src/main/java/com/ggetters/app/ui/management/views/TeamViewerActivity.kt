@@ -93,6 +93,7 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
             putExtra(TeamDetailActivity.EXTRA_TEAM_NAME, entity.name)
         }
         startActivity(intent)
+        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
     }
 
 
@@ -128,7 +129,8 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
     override fun setupTouchListeners() {
         // Back button
         binds.backButton.setOnClickListener {
-            onBackPressed()
+            finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
 
         // Link team button
@@ -181,7 +183,8 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
 
         // Setup toolbar navigation
         binds.toolbar.setNavigationOnClickListener {
-            onBackPressed()
+            finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
 
         // Apply system-bar insets to the root view
