@@ -96,13 +96,14 @@
             app:boxStrokeColor="@color/divider"
             app:hintTextColor="@color/text_secondary"
             app:startIconDrawable="@drawable/ic_unicons_calendar_24"
-            app:startIconTint="@color/text_secondary">
+            app:startIconTint="@color/text_secondary"
+            android:hint="Date *">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/practiceDateInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="2023/06/27"
+                android:hint="e.g. 2024-12-15"
                 android:textColor="@color/black"
                 android:textColorHint="@color/text_secondary"
                 android:fontFamily="@font/variable_inter"
@@ -124,13 +125,14 @@
             app:boxStrokeColor="@color/divider"
             app:hintTextColor="@color/text_secondary"
             app:startIconDrawable="@drawable/ic_unicons_clock_24"
-            app:startIconTint="@color/text_secondary">
+            app:startIconTint="@color/text_secondary"
+            android:hint="Start Time *">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/practiceStartTimeInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="11:00"
+                android:hint="e.g. 18:00"
                 android:textColor="@color/black"
                 android:textColorHint="@color/text_secondary"
                 android:fontFamily="@font/variable_inter"
@@ -152,13 +154,14 @@
             app:boxStrokeColor="@color/divider"
             app:hintTextColor="@color/text_secondary"
             app:startIconDrawable="@drawable/ic_unicons_clock_24"
-            app:startIconTint="@color/text_secondary">
+            app:startIconTint="@color/text_secondary"
+            android:hint="End Time">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/practiceEndTimeInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="11:00"
+                android:hint="e.g. 20:00 (optional)"
                 android:textColor="@color/black"
                 android:textColorHint="@color/text_secondary"
                 android:fontFamily="@font/variable_inter"
@@ -180,13 +183,14 @@
             app:boxStrokeColor="@color/divider"
             app:hintTextColor="@color/text_secondary"
             app:startIconDrawable="@drawable/ic_unicons_clock_24"
-            app:startIconTint="@color/text_secondary">
+            app:startIconTint="@color/text_secondary"
+            android:hint="Meeting Time">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/practiceMeetingTimeInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="11:00"
+                android:hint="e.g. 17:30 (optional)"
                 android:textColor="@color/black"
                 android:textColorHint="@color/text_secondary"
                 android:fontFamily="@font/variable_inter"

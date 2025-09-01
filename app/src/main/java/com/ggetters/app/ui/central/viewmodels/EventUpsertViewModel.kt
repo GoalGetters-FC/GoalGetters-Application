@@ -48,12 +48,18 @@ class EventUpsertViewModel @Inject constructor(
 
         if (startAt == null) {
             Clogger.e("EventUpsertViewModel", "❌ StartAt is null")
-            _state.value = UpsertState.Error("Pick a start date & time")
+            _state.value = UpsertState.Error("Please select a start date and time")
             return@launch
         }
         if (endAt != null && endAt.isBefore(startAt)) {
             Clogger.e("EventUpsertViewModel", "❌ EndAt before StartAt")
-            _state.value = UpsertState.Error("End time is before start time")
+            _state.value = UpsertState.Error("End time must be after start time")
+            return@launch
+        }
+        
+        if (title.isBlank()) {
+            Clogger.e("EventUpsertViewModel", "❌ Title is blank")
+            _state.value = UpsertState.Error("Please enter an event title")
             return@launch
         }
 
