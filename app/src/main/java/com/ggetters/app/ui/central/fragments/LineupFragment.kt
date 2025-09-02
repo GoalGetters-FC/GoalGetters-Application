@@ -58,18 +58,15 @@ class LineupFragment : Fragment() {
     private val formations = listOf("4-3-3", "4-4-2", "3-5-2", "4-2-3-1", "5-3-2")
 
     companion object {
-        fun newInstance(matchId: String, matchTitle: String, homeTeam: String, awayTeam: String): LineupFragment {
+        fun newInstance(eventId: String): LineupFragment {
             val fragment = LineupFragment()
-            val args = Bundle().apply {
-                putString("match_id", matchId)
-                putString("match_title", matchTitle)
-                putString("home_team", homeTeam)
-                putString("away_team", awayTeam)
+            fragment.arguments = Bundle().apply {
+                putString("event_id", eventId)
             }
-            fragment.arguments = args
             return fragment
         }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

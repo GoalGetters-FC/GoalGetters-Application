@@ -49,5 +49,9 @@ class OnlineLineupRepository @Inject constructor(
         TODO("Not yet implemented")
     }
 
+    override fun sync() {
+        TODO("Not yet implemented")
+    }
+
 
 }

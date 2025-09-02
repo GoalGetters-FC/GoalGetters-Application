@@ -60,27 +60,15 @@ class MatchDetailsFragment : Fragment() {
     private var matchEvents = listOf<MatchEvent>()
 
     companion object {
-        fun newInstance(
-            matchId: String,
-            matchTitle: String,
-            homeTeam: String,
-            awayTeam: String,
-            venue: String,
-            matchDate: Long
-        ): MatchDetailsFragment {
+        fun newInstance(eventId: String): MatchDetailsFragment {
             val fragment = MatchDetailsFragment()
-            val args = Bundle().apply {
-                putString("match_id", matchId)
-                putString("match_title", matchTitle)
-                putString("home_team", homeTeam)
-                putString("away_team", awayTeam)
-                putString("venue", venue)
-                putLong("match_date", matchDate)
+            fragment.arguments = Bundle().apply {
+                putString("event_id", eventId)
             }
-            fragment.arguments = args
             return fragment
         }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -47,4 +47,8 @@ class CombinedBroadcastRepository @Inject constructor(
     override fun hydrateForTeam(id: String) {
         TODO("Not yet implemented")
     }
+
+    override fun sync() {
+        TODO("Not yet implemented")
+    }
 }

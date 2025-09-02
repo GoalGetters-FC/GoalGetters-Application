@@ -61,3 +61,11 @@ data class Attendance(
 ) : AuditableEntity, StainableEntity {
     companion object { const val TAG = "Attendance" }
 }
+
+// events
+// lineup
+// attendance
+
+// stats / performance
+// notifications
+// auth side, coach has perms to do things, that players cant.

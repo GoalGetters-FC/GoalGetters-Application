@@ -43,11 +43,13 @@ object FirestoreModule {
     ): TeamFirestore =
         TeamFirestore( pathProvider)
 
-    /** Your wrapper for the "user" collection */
+    /** Wrapper for the "users" collection(s) (uses collectionGroup) */
     @Provides
     @Singleton
-    fun provideUserFirestore(paths: FirestorePathProvider): UserFirestore =
-        UserFirestore(paths)
+    fun provideUserFirestore(
+        paths: FirestorePathProvider,
+        firestore: FirebaseFirestore
+    ): UserFirestore = UserFirestore(paths, db = firestore)
 
     /** Your wrapper for the "Broadcast" collection */
     @Provides @Singleton

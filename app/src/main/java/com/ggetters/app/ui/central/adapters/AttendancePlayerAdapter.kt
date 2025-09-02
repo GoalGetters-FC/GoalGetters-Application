@@ -10,16 +10,15 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.PlayerAvailability
-import com.ggetters.app.ui.central.models.RSVPStatus
+import com.ggetters.app.data.model.AttendanceWithUser
 
 class AttendancePlayerAdapter(
-    private val onPlayerAction: (PlayerAvailability, String) -> Unit
+    private val onPlayerAction: (AttendanceWithUser, String) -> Unit
 ) : RecyclerView.Adapter<AttendancePlayerAdapter.PlayerViewHolder>() {
 
-    private var players = listOf<PlayerAvailability>()
+    private var players = listOf<AttendanceWithUser>()
 
-    fun updatePlayers(newPlayers: List<PlayerAvailability>) {
+    fun updatePlayers(newPlayers: List<AttendanceWithUser>) {
         val diffCallback = PlayerDiffCallback(players, newPlayers)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
         players = newPlayers
@@ -45,73 +44,43 @@ class AttendancePlayerAdapter(
         private val statusIndicator: View = itemView.findViewById(R.id.statusIndicator)
         private val menuButton: ImageButton = itemView.findViewById(R.id.menuButton)
 
-        fun bind(player: PlayerAvailability) {
-            // Player name
-            playerName.text = player.playerName
-            
-            // Jersey number
-            jerseyNumber.text = player.jerseyNumber.toString()
-            
-            // Player avatar (placeholder for now)
+        fun bind(player: AttendanceWithUser) {
+            val (attendance, user) = player
+
+            // Player name & jersey
+            playerName.text = user.fullName()
+            jerseyNumber.text = user.number?.toString() ?: "-"
+
+            // Avatar placeholder
             playerAvatar.setImageResource(R.drawable.ic_unicons_user_24)
-            
-            // Status indicator color
-            val statusColor = when (player.status) {
-                RSVPStatus.AVAILABLE -> ContextCompat.getColor(itemView.context, R.color.success)
-                RSVPStatus.MAYBE -> ContextCompat.getColor(itemView.context, R.color.warning)
-                RSVPStatus.UNAVAILABLE -> ContextCompat.getColor(itemView.context, R.color.error)
-                RSVPStatus.NOT_RESPONDED -> ContextCompat.getColor(itemView.context, R.color.outline)
+
+            // Status color
+            val statusColor = when (attendance.status) {
+                0 -> ContextCompat.getColor(itemView.context, R.color.success) // Present
+                1 -> ContextCompat.getColor(itemView.context, R.color.error)   // Absent
+                2 -> ContextCompat.getColor(itemView.context, R.color.warning) // Late
+                3 -> ContextCompat.getColor(itemView.context, R.color.outline) // Excused
+                else -> ContextCompat.getColor(itemView.context, R.color.outline)
             }
             statusIndicator.setBackgroundColor(statusColor)
-            
-            // Menu button click listener
-            menuButton.setOnClickListener {
-                onPlayerAction(player, "menu")
-            }
-            
-            // Status indicator click to change status
-            statusIndicator.setOnClickListener {
-                onPlayerAction(player, "status_change")
-            }
-            
-            // Player name click for quick status change
-            playerName.setOnClickListener {
-                onPlayerAction(player, "status_change")
-            }
-            
-            // Set row styling based on status
-            when (player.status) {
-                RSVPStatus.AVAILABLE -> {
-                    itemView.alpha = 1.0f
-                    playerName.setTextColor(ContextCompat.getColor(itemView.context, R.color.on_surface))
-                }
-                RSVPStatus.MAYBE -> {
-                    itemView.alpha = 0.8f
-                    playerName.setTextColor(ContextCompat.getColor(itemView.context, R.color.on_surface))
-                }
-                RSVPStatus.UNAVAILABLE -> {
-                    itemView.alpha = 0.5f
-                    playerName.setTextColor(ContextCompat.getColor(itemView.context, R.color.on_surface_variant))
-                }
-                RSVPStatus.NOT_RESPONDED -> {
-                    itemView.alpha = 0.7f
-                    playerName.setTextColor(ContextCompat.getColor(itemView.context, R.color.on_surface_variant))
-                }
-            }
+
+            // Menu and status actions
+            menuButton.setOnClickListener { onPlayerAction(player, "menu") }
+            statusIndicator.setOnClickListener { onPlayerAction(player, "status_change") }
+            playerName.setOnClickListener { onPlayerAction(player, "status_change") }
         }
     }
 
     private class PlayerDiffCallback(
-        private val oldList: List<PlayerAvailability>,
-        private val newList: List<PlayerAvailability>
+        private val oldList: List<AttendanceWithUser>,
+        private val newList: List<AttendanceWithUser>
     ) : DiffUtil.Callback() {
 
         override fun getOldListSize(): Int = oldList.size
-
         override fun getNewListSize(): Int = newList.size
 
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].playerId == newList[newItemPosition].playerId
+            return oldList[oldItemPosition].user.id == newList[newItemPosition].user.id
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {

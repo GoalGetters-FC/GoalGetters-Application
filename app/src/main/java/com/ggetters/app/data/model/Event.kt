@@ -79,7 +79,7 @@ data class Event(
     val style: EventStyle,         // STANDARD, FRIENDLY, TOURNAMENT, TRAINING
 
     @ColumnInfo(name = "start_at")
-    val startAt: LocalDateTime,
+    val startAt: LocalDateTime = LocalDateTime.now(),
 
     @ColumnInfo(name = "end_at")
     val endAt: LocalDateTime? = null,
