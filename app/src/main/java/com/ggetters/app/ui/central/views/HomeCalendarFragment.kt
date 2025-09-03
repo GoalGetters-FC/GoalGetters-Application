@@ -40,6 +40,7 @@ import java.util.Locale
 import kotlin.math.abs
 import com.ggetters.app.ui.central.viewmodels.HomeTeamViewModel
 import com.google.android.material.snackbar.Snackbar
+import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
 class HomeCalendarFragment : Fragment(), Clickable {
@@ -314,7 +315,6 @@ class HomeCalendarFragment : Fragment(), Clickable {
         binds.noEventsLayout.visibility = View.GONE
     }
 
-
     private fun showEventDetails(event: Event) {
         if (event.category == EventCategory.MATCH) {
             val intent = Intent(requireContext(), MatchActivity::class.java).apply {
@@ -322,8 +322,10 @@ class HomeCalendarFragment : Fragment(), Clickable {
                 putExtra("event_title", event.name)
                 putExtra("event_venue", event.location ?: "TBD")
                 putExtra("event_opponent", event.description ?: "Opponent")
-                putExtra("event_date", event.startAt.toLocalDate().toString())
-                putExtra("event_time", event.startAt.toLocalTime().toString())
+                putExtra("event_date", event.startAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+                putExtra("event_time", DateTimeFormatter.ofPattern("HH:mm")
+                    .withZone(ZoneId.systemDefault())
+                    .format(event.startAt.atZone(ZoneId.systemDefault())))
             }
             startActivity(intent)
             requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)

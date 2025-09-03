@@ -23,6 +23,8 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 // TODO: Backend - Implement real-time match data synchronization
@@ -132,7 +134,6 @@ class MatchDetailsActivity : AppCompatActivity() {
         dateMillis: Long,
         time: String
     ): MatchDetails {
-        // TODO: Backend - Replace with real player data from backend
         val samplePlayers = listOf(
             RosterPlayer(
                 playerId = "1",
@@ -148,13 +149,15 @@ class MatchDetailsActivity : AppCompatActivity() {
         val unavailable = samplePlayers.count { it.status == RSVPStatus.UNAVAILABLE }
         val notResponded = samplePlayers.count { it.status == RSVPStatus.NOT_RESPONDED }
 
+        val instantDate = Instant.ofEpochMilli(dateMillis)
+
         return MatchDetails(
             matchId = eventId,
             title = title,
             homeTeam = "Goal Getters FC",
             awayTeam = opponent,
             venue = venue,
-            date = Instant.ofEpochMilli(dateMillis), // Argument type mismatch: actual type is 'Instant!', but 'Long' was expected.
+            date = instantDate,
             time = time,
             homeScore = 0,
             awayScore = 0,
@@ -171,18 +174,18 @@ class MatchDetailsActivity : AppCompatActivity() {
         )
     }
 
-
     private fun updateUI() {
-        // Match header information
         matchTitleText.text = matchDetails.title
         venueText.text = matchDetails.venue
-        dateTimeText.text = matchDetails.getFormattedDateTime()
 
-        // Team names
+        // ✅ Use DateTimeFormatter for Instant
+        val dateFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
+            .withZone(ZoneId.systemDefault())
+        dateTimeText.text = "${dateFormatter.format(matchDetails.date)} at ${matchDetails.time}"
+
         homeTeamText.text = matchDetails.homeTeam
         awayTeamText.text = matchDetails.awayTeam
 
-        // Score display - show/hide based on match status
         if (matchDetails.isMatchStarted()) {
             scoreDisplay.visibility = View.VISIBLE
             findViewById<TextView>(R.id.homeScore).text = matchDetails.homeScore.toString()
@@ -190,8 +193,7 @@ class MatchDetailsActivity : AppCompatActivity() {
         } else {
             scoreDisplay.visibility = View.GONE
         }
-        
-        // Update match status
+
         findViewById<TextView>(R.id.matchStatus).text = when (matchDetails.status) {
             MatchStatus.SCHEDULED -> "Upcoming"
             MatchStatus.IN_PROGRESS -> "Live"
@@ -200,11 +202,8 @@ class MatchDetailsActivity : AppCompatActivity() {
             MatchStatus.FULL_TIME -> "Full Time"
             MatchStatus.CANCELLED -> "Cancelled"
         }
-        
-        // RSVP Statistics
-        updateRSVPStats()
 
-        // Button states
+        updateRSVPStats()
         updateButtonStates()
     }
 
@@ -351,17 +350,17 @@ class MatchDetailsActivity : AppCompatActivity() {
     }
 
     private fun navigateToMatchControl() {
-        // TODO: Backend - Pass match state to control activity
         val intent = Intent(this, MatchControlActivity::class.java).apply {
             putExtra("event_id", matchDetails.matchId)
             putExtra("event_title", matchDetails.title)
             putExtra("event_opponent", matchDetails.awayTeam)
             putExtra("event_venue", matchDetails.venue)
-            putExtra("event_date", SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(matchDetails.date))
+            putExtra("event_date", matchDetails.date.toEpochMilli())
             putExtra("event_time", matchDetails.time)
         }
         startActivity(intent)
     }
+
 
     private fun navigateToPostMatch() {
         // TODO: Backend - Navigate to post-match results
