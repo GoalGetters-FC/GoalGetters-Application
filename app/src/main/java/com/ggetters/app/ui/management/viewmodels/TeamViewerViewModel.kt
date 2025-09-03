@@ -25,10 +25,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.Instant
 import java.util.UUID
 import com.ggetters.app.core.sync.SyncManager
+import com.ggetters.app.data.model.Attendance
 import com.ggetters.app.data.model.Event
 import com.ggetters.app.data.model.EventCategory
 import com.ggetters.app.data.model.EventStyle
 import com.ggetters.app.data.model.UserPosition
+import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.event.EventRepository
 import com.ggetters.app.data.repository.user.UserRepository
 import java.time.LocalDateTime
@@ -39,7 +41,8 @@ class TeamViewerViewModel @Inject constructor(
     private val repo: TeamRepository,
     private val userRepo: UserRepository,
     private val syncManager: SyncManager,
-    private val eventRepo: EventRepository
+    private val eventRepo: EventRepository,
+    private val attendanceRepo: AttendanceRepository
     
 ) : ViewModel() {
 
@@ -176,11 +179,11 @@ class TeamViewerViewModel @Inject constructor(
             try {
                 _busy.value = true
 
+                val now = Instant.now()
+
                 // 1. Build base team
                 val team = buildTeam("Chelsea FC")
                 repo.createTeam(team)
-
-                val now = Instant.now()
 
                 // 2. Insert coach = current Firebase user
                 val coach = User(
@@ -198,7 +201,7 @@ class TeamViewerViewModel @Inject constructor(
                 )
                 userRepo.upsert(coach)
 
-                // 3. Seed Chelsea players
+                // 3. Seed Chelsea players (starters, subs, inactive)
                 val chelseaPlayers = listOf(
                     "Robert Sánchez" to "goalkeeper",
                     "Reece James" to "defender",
@@ -219,12 +222,12 @@ class TeamViewerViewModel @Inject constructor(
                     "Wesley Fofana" to "defender (injured)"
                 )
 
-                chelseaPlayers.forEachIndexed { idx, (fullName, posLabel) ->
+                val seededUsers = chelseaPlayers.mapIndexed { idx, (fullName, posLabel) ->
                     val parts = fullName.split(" ", limit = 2)
                     val first = parts.getOrElse(0) { "Player" }
                     val last = parts.getOrElse(1) { "" }
 
-                    val user = User(
+                    User(
                         id = UUID.randomUUID().toString(),
                         authId = "debug_${first.lowercase()}_${idx + 1}",
                         teamId = team.id,
@@ -233,19 +236,17 @@ class TeamViewerViewModel @Inject constructor(
                         name = first,
                         surname = last,
                         alias = "",
-                        dateOfBirth = null,
-                        email = null,
-                        position = toUserPosition(posLabel), // reuse helper mapping
+                        position = toUserPosition(posLabel),
                         number = idx + 1,
                         status = if (posLabel.contains("injured", true)) UserStatus.INJURY else UserStatus.ACTIVE,
                         createdAt = now,
                         updatedAt = now
                     )
-
-                    userRepo.upsert(user)
                 }
 
-                // 4. Seed a couple of events
+                seededUsers.forEach { userRepo.upsert(it) }
+
+                // 4. Seed example events
                 val events = listOf(
                     Event(
                         id = UUID.randomUUID().toString(),
@@ -280,9 +281,27 @@ class TeamViewerViewModel @Inject constructor(
                 )
                 events.forEach { eventRepo.upsert(it) }
 
-                // 5. Sync repos
+                // 5. Auto-seed attendance for all users for each event
+                val allUsers = listOf(coach) + seededUsers
+                events.forEach { event ->
+                    val attendances = allUsers.map { user ->
+                        Attendance(
+                            eventId = event.id,
+                            playerId = user.id,
+                            status = 3, // default = Not Responded
+                            recordedBy = "system",
+                            recordedAt = now,
+                            createdAt = now,
+                            updatedAt = now
+                        )
+                    }
+                    attendanceRepo.upsertAll(attendances)
+                }
+
+                // 6. Sync repos
                 userRepo.sync()
                 eventRepo.sync()
+                attendanceRepo.sync()
                 repo.sync()
 
                 _toast.emit("Chelsea FC debug team seeded ✅")
@@ -296,7 +315,8 @@ class TeamViewerViewModel @Inject constructor(
         }
     }
 
-    /** Copy of your mapping helper */
+
+    /** Mapping helper */
     private fun toUserPosition(label: String): UserPosition? =
         when (label.trim().lowercase()) {
             "striker" -> UserPosition.STRIKER
