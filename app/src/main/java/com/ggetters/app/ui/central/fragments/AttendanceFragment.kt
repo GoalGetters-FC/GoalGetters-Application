@@ -30,8 +30,10 @@ class AttendanceFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        matchId = arguments?.getString("match_id", "") ?: ""
+        // 🔴 Fix: use consistent key "event_id"
+        matchId = arguments?.getString("event_id", "") ?: ""
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,14 +71,15 @@ class AttendanceFragment : Fragment() {
     private fun observeViewModel() {
         lifecycleScope.launchWhenStarted {
             viewModel.players.collectLatest { players ->
-                val present = players.filter { it.attendance.status == 0 }
-                val absent = players.filter { it.attendance.status == 1 }
-                val late = players.filter { it.attendance.status == 2 }
-                val excused = players.filter { it.attendance.status == 3 }
+                // 🔴 Fix grouping logic to match ViewModel statuses
+                val available = players.filter { it.attendance.status == 0 }
+                val unavailable = players.filter { it.attendance.status == 1 }
+                val maybe = players.filter { it.attendance.status == 2 }
+                val unknown = players.filter { it.attendance.status == 3 }
 
-                refereesAdapter.updatePlayers(present)
-                substitutesAdapter.updatePlayers(late)
-                unknownAdapter.updatePlayers(absent + excused)
+                refereesAdapter.updatePlayers(available)
+                substitutesAdapter.updatePlayers(maybe)
+                unknownAdapter.updatePlayers(unavailable + unknown)
             }
         }
 
