@@ -1,7 +1,7 @@
 package com.ggetters.app.ui.central.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.ggetters.app.ui.central.models.NotificationItem
+import com.ggetters.app.data.model.NotificationItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

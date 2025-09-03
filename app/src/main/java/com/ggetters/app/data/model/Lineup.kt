@@ -64,8 +64,8 @@ data class Lineup(
     val formation: String,
 
     /** JSON‐serialized list of spots via your TypeConverter **/
-    @ColumnInfo(name = "spots_json")
-    val spotsJson: String? = null
+    @ColumnInfo(name = "spots")
+    val spots: List<LineupSpot> = emptyList()
 
 ) : KeyedEntity, AuditableEntity, StainableEntity {
     companion object { const val TAG = "Lineup" }

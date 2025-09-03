@@ -41,3 +41,25 @@ fun Instant.toLocalTime(
 fun Instant.toLocalDateTime(
     zoneId: ZoneId = ZoneId.systemDefault()
 ): LocalDateTime = atZone(zoneId).toLocalDateTime()
+
+/**
+ * Extension to format an [Instant] into a relative "time ago" string.
+ *
+ * Examples:
+ * - "Just now"
+ * - "3h ago"
+ * - "2d ago"
+ */
+fun Instant.toRelativeTimeString(): String {
+    val now = Instant.now()
+    val diffMillis = now.toEpochMilli() - this.toEpochMilli()
+
+    val hours = diffMillis / (1000 * 60 * 60)
+    val days = hours / 24
+
+    return when {
+        days > 0 -> "${days}d ago"
+        hours > 0 -> "${hours}h ago"
+        else -> "Just now"
+    }
+}

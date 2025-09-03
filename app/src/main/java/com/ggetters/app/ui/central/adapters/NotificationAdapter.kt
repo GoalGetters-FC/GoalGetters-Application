@@ -9,8 +9,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.NotificationItem
-import com.ggetters.app.ui.central.models.NotificationType
+import com.ggetters.app.data.model.NotificationItem
+import com.ggetters.app.data.model.NotificationType
 
 import java.text.SimpleDateFormat
 import java.util.*

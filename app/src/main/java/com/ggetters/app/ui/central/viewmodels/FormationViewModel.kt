@@ -2,7 +2,8 @@ package com.ggetters.app.ui.central.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ggetters.app.ui.central.models.PlayerAvailability
+import com.ggetters.app.data.model.RSVPStatus
+import com.ggetters.app.data.model.RosterPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,14 +28,14 @@ class FormationViewModel @Inject constructor(
     // private val matchRepository: MatchRepository
 ) : ViewModel() {
 
-    private val _availablePlayers = MutableStateFlow<List<PlayerAvailability>>(emptyList())
-    val availablePlayers: StateFlow<List<PlayerAvailability>> = _availablePlayers.asStateFlow()
+    private val _availablePlayers = MutableStateFlow<List<RosterPlayer>>(emptyList())
+    val availablePlayers: StateFlow<List<RosterPlayer>> = _availablePlayers.asStateFlow()
 
     private val _selectedFormation = MutableStateFlow("4-3-3")
     val selectedFormation: StateFlow<String> = _selectedFormation.asStateFlow()
 
-    private val _positionedPlayers = MutableStateFlow<Map<String, PlayerAvailability>>(emptyMap())
-    val positionedPlayers: StateFlow<Map<String, PlayerAvailability>> = _positionedPlayers.asStateFlow()
+    private val _positionedPlayers = MutableStateFlow<Map<String, RosterPlayer>>(emptyMap())
+    val positionedPlayers: StateFlow<Map<String, RosterPlayer>> = _positionedPlayers.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -78,7 +79,7 @@ class FormationViewModel @Inject constructor(
     /**
      * Position a player at a specific position
      */
-    fun positionPlayer(position: String, player: PlayerAvailability) {
+    fun positionPlayer(position: String, player: RosterPlayer) {
         val currentPositions = _positionedPlayers.value.toMutableMap()
         
         // Remove player from any existing position
@@ -113,7 +114,7 @@ class FormationViewModel @Inject constructor(
     /**
      * Get players not yet positioned
      */
-    fun getUnpositionedPlayers(): List<PlayerAvailability> {
+    fun getUnpositionedPlayers(): List<RosterPlayer> {
         val positionedPlayerIds = _positionedPlayers.value.values.map { it.playerId }.toSet()
         return _availablePlayers.value.filter { it.playerId !in positionedPlayerIds }
     }
@@ -230,21 +231,9 @@ class FormationViewModel @Inject constructor(
     /**
      * Create sample players for testing
      */
-    private fun createSamplePlayers(): List<PlayerAvailability> {
+    private fun createSamplePlayers(): List<RosterPlayer> {
         return listOf(
-            PlayerAvailability("1", "John Smith", "GK", 1, com.ggetters.app.ui.central.models.RSVPStatus.AVAILABLE),
-            PlayerAvailability("2", "Mike Johnson", "CB", 4, com.ggetters.app.ui.central.models.RSVPStatus.AVAILABLE),
-            PlayerAvailability("3", "David Wilson", "CB", 5, com.ggetters.app.ui.central.models.RSVPStatus.AVAILABLE),
-            PlayerAvailability("4", "Chris Brown", "LB", 3, com.ggetters.app.ui.central.models.RSVPStatus.MAYBE),
-            PlayerAvailability("5", "Tom Davis", "RB", 2, com.ggetters.app.ui.central.models.RSVPStatus.AVAILABLE),
-            PlayerAvailability("6", "Alex Miller", "CM", 8, com.ggetters.app.ui.central.models.RSVPStatus.AVAILABLE),
-            PlayerAvailability("8", "Jake Taylor", "CM", 10, com.ggetters.app.ui.central.models.RSVPStatus.AVAILABLE),
-            PlayerAvailability("9", "Ben Moore", "LW", 11, com.ggetters.app.ui.central.models.RSVPStatus.AVAILABLE),
-            PlayerAvailability("10", "Luke Jackson", "ST", 9, com.ggetters.app.ui.central.models.RSVPStatus.AVAILABLE),
-            PlayerAvailability("11", "Ryan White", "RW", 7, com.ggetters.app.ui.central.models.RSVPStatus.MAYBE),
-            PlayerAvailability("12", "Mark Lewis", "SUB", 12, com.ggetters.app.ui.central.models.RSVPStatus.AVAILABLE),
-            PlayerAvailability("16", "James Garcia", "SUB", 16, com.ggetters.app.ui.central.models.RSVPStatus.AVAILABLE),
-            PlayerAvailability("17", "Daniel Martinez", "SUB", 17, com.ggetters.app.ui.central.models.RSVPStatus.MAYBE)
+            RosterPlayer("1", "John Smith", 11, "GK", RSVPStatus.AVAILABLE),
         )
     }
 }

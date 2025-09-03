@@ -8,15 +8,20 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.PlayerMatchStats
+import com.ggetters.app.data.model.PlayerMatchStats
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.progressindicator.LinearProgressIndicator
 
+/**
+ * RecyclerView adapter for displaying player match statistics.
+ *
+ * @param onPlayerClick Callback when a player stat card is clicked.
+ */
 class PlayerStatsAdapter(
     private val onPlayerClick: (PlayerMatchStats) -> Unit
 ) : RecyclerView.Adapter<PlayerStatsAdapter.PlayerStatsViewHolder>() {
 
-    private var playerStats = listOf<PlayerMatchStats>()
+    private var playerStats: List<PlayerMatchStats> = emptyList()
 
     fun updateStats(newStats: List<PlayerMatchStats>) {
         val diffCallback = StatsDiffCallback(playerStats, newStats)
@@ -59,11 +64,11 @@ class PlayerStatsAdapter(
             jerseyNumber.text = stats.jerseyNumber.toString()
             playerPosition.text = stats.position
             playerRating.text = String.format("%.1f", stats.rating)
-            
-            // Set rating progress (out of 10)
+
+            // Rating bar (scale 0–100)
             ratingProgress.progress = (stats.rating * 10).toInt()
-            
-            // Update rating color based on performance
+
+            // Rating color
             val ratingColor = when {
                 stats.rating >= 8.0 -> ContextCompat.getColor(itemView.context, R.color.success)
                 stats.rating >= 7.0 -> ContextCompat.getColor(itemView.context, R.color.warning)
@@ -72,8 +77,8 @@ class PlayerStatsAdapter(
             }
             playerRating.setTextColor(ratingColor)
             ratingProgress.setIndicatorColor(ratingColor)
-            
-            // Statistics
+
+            // Match stats
             minutesPlayed.text = "${stats.minutesPlayed}'"
             goals.text = stats.goals.toString()
             assists.text = stats.assists.toString()
@@ -82,36 +87,28 @@ class PlayerStatsAdapter(
             passAccuracy.text = "${stats.passAccuracy}%"
             tackles.text = stats.tackles.toString()
             fouls.text = stats.fouls.toString()
-            
-            // Cards display
-            val cardText = when {
+
+            // Cards
+            cards.text = when {
                 stats.redCards > 0 -> "🟥 ${stats.redCards}"
                 stats.yellowCards > 0 -> "🟡 ${stats.yellowCards}"
                 else -> "-"
             }
-            cards.text = cardText
-            
-            // Highlight outstanding performances
+
+            // Highlight performances
             when {
-                stats.goals >= 2 -> {
-                    playerCard.strokeColor = ContextCompat.getColor(itemView.context, R.color.success)
-                    playerCard.strokeWidth = 3
-                }
-                stats.rating >= 8.5 -> {
-                    playerCard.strokeColor = ContextCompat.getColor(itemView.context, R.color.primary)
-                    playerCard.strokeWidth = 3
-                }
-                stats.redCards > 0 -> {
-                    playerCard.strokeColor = ContextCompat.getColor(itemView.context, R.color.error)
-                    playerCard.strokeWidth = 3
-                }
-                else -> {
-                    playerCard.strokeWidth = 0
-                }
+                stats.goals >= 2 -> highlightCard(R.color.success)
+                stats.rating >= 8.5 -> highlightCard(R.color.primary)
+                stats.redCards > 0 -> highlightCard(R.color.error)
+                else -> playerCard.strokeWidth = 0
             }
-            
-            // Click listener
+
             playerCard.setOnClickListener { onPlayerClick(stats) }
+        }
+
+        private fun highlightCard(colorRes: Int) {
+            playerCard.strokeColor = ContextCompat.getColor(itemView.context, colorRes)
+            playerCard.strokeWidth = 3
         }
     }
 
@@ -119,18 +116,11 @@ class PlayerStatsAdapter(
         private val oldList: List<PlayerMatchStats>,
         private val newList: List<PlayerMatchStats>
     ) : DiffUtil.Callback() {
-
         override fun getOldListSize(): Int = oldList.size
-
         override fun getNewListSize(): Int = newList.size
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].playerId == newList[newItemPosition].playerId
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition] == newList[newItemPosition]
-        }
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+            oldList[oldItemPosition].playerId == newList[newItemPosition].playerId
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+            oldList[oldItemPosition] == newList[newItemPosition]
     }
 }
-

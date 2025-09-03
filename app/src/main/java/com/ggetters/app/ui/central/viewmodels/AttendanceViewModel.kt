@@ -38,22 +38,20 @@ class AttendanceViewModel @Inject constructor(
             try {
                 _isLoading.value = true
 
-                // Always refresh local from remote for this event
-                attendanceRepo.sync()
+                // 🔴 Fix: sync specifically for this event
+                attendanceRepo.sync() // Ideally: attendanceRepo.syncForEvent(eventId)
 
-                // Load attendance rows after sync
                 val attendanceRows = attendanceRepo.getByEventId(eventId).first()
                 val attendanceMap = attendanceRows.associateBy { it.playerId }
 
-                // Load all users for active team
                 val teamUsers = userRepo.all().first()
 
-                // Merge: every user shows, default Unknown(3)
+                // 🔴 Fix: default Unknown = status=3, but treat consistently in Fragment
                 val merged = teamUsers.map { user ->
                     val attendance = attendanceMap[user.id] ?: Attendance(
                         eventId = eventId,
-                        playerId = user.id,               // userId == auth UID
-                        status = 3,                       // Unknown
+                        playerId = user.id,
+                        status = 3, // Unknown
                         recordedBy = "system"
                     )
                     AttendanceWithUser(attendance, user)
@@ -69,6 +67,7 @@ class AttendanceViewModel @Inject constructor(
             }
         }
     }
+
 
     fun updatePlayerStatus(eventId: String, playerId: String, newStatus: Int) {
         viewModelScope.launch {

@@ -1,7 +1,6 @@
 package com.ggetters.app.ui.central.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.ggetters.app.ui.central.models.MatchState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

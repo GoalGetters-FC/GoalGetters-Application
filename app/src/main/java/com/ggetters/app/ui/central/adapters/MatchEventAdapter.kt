@@ -8,8 +8,10 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.MatchEvent
-import com.ggetters.app.ui.central.models.MatchEventType
+import com.ggetters.app.data.model.MatchEvent
+import com.ggetters.app.data.model.MatchEventType
+import com.ggetters.app.ui.shared.extensions.getEventDescription
+import com.ggetters.app.ui.shared.extensions.getFormattedTime
 import com.google.android.material.card.MaterialCardView
 
 class MatchEventAdapter(

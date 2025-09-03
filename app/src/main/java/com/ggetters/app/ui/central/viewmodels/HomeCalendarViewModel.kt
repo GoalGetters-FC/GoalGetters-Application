@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.chrono.ChronoLocalDateTime
@@ -55,12 +56,14 @@ class HomeCalendarViewModel @Inject constructor(
 
     // “Due soon”: next 14 days, top 10
     val dueSoon: Flow<List<Event>> = allEvents.map { list ->
-        val now  = Instant.now()
-        val soon = now.plus(14, ChronoUnit.DAYS)
-        list.filter { it.startAt.isAfter(now as ChronoLocalDateTime<*>?) && it.startAt.isBefore(soon as ChronoLocalDateTime<*>?) }
+        val now = LocalDateTime.now()
+        val soon = now.plusDays(14)
+        list.filter { it.startAt.isAfter(now) && it.startAt.isBefore(soon) }
             .sortedBy { it.startAt }
             .take(10)
     }
+
+
 
     fun goPrevMonth() { _currentMonth.update { it.minusMonths(1) } }
     fun goNextMonth() { _currentMonth.update { it.plusMonths(1) } }

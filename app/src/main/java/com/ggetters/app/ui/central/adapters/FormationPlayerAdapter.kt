@@ -1,3 +1,4 @@
+// app/src/main/java/com/ggetters/app/ui/central/adapters/FormationPlayerAdapter.kt
 package com.ggetters.app.ui.central.adapters
 
 import android.content.ClipData
@@ -10,18 +11,18 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.PlayerAvailability
-import com.ggetters.app.ui.central.models.RSVPStatus
+import com.ggetters.app.data.model.RosterPlayer
+import com.ggetters.app.data.model.RSVPStatus
 import com.google.android.material.card.MaterialCardView
 
 class FormationPlayerAdapter(
-    private val onPlayerDragStart: (PlayerAvailability) -> Unit,
-    private val onPlayerClick: (PlayerAvailability) -> Unit
+    private val onPlayerDragStart: (RosterPlayer) -> Unit,
+    private val onPlayerClick: (RosterPlayer) -> Unit
 ) : RecyclerView.Adapter<FormationPlayerAdapter.PlayerViewHolder>() {
 
-    private var players = listOf<PlayerAvailability>()
+    private var players = listOf<RosterPlayer>()
 
-    fun updatePlayers(newPlayers: List<PlayerAvailability>) {
+    fun updatePlayers(newPlayers: List<RosterPlayer>) {
         val diffCallback = PlayerDiffCallback(players, newPlayers)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
         players = newPlayers
@@ -47,88 +48,79 @@ class FormationPlayerAdapter(
         private val playerPosition: TextView = itemView.findViewById(R.id.playerPosition)
         private val statusIndicator: View = itemView.findViewById(R.id.statusIndicator)
 
-        fun bind(player: PlayerAvailability) {
+        fun bind(player: RosterPlayer) {
             jerseyNumber.text = player.jerseyNumber.toString()
-            playerName.text = player.playerName.split(" ").let { 
-                if (it.size > 1) "${it[0]} ${it.last()[0]}." else it[0] 
+            playerName.text = player.playerName.split(" ").let {
+                if (it.size > 1) "${it[0]} ${it.last()[0]}." else it[0]
             }
             playerPosition.text = player.position
-            
+
             updateStatusIndicator(player)
             updateCardStyling(player)
             setupDragAndDrop(player)
-            
-            // Click listener
+
             playerCard.setOnClickListener { onPlayerClick(player) }
         }
 
-        private fun updateStatusIndicator(player: PlayerAvailability) {
+        private fun updateStatusIndicator(player: RosterPlayer) {
             val color = when (player.status) {
                 RSVPStatus.AVAILABLE -> ContextCompat.getColor(itemView.context, R.color.success)
                 RSVPStatus.MAYBE -> ContextCompat.getColor(itemView.context, R.color.warning)
                 RSVPStatus.UNAVAILABLE -> ContextCompat.getColor(itemView.context, R.color.error)
                 RSVPStatus.NOT_RESPONDED -> ContextCompat.getColor(itemView.context, R.color.text_tertiary)
             }
-            
             statusIndicator.setBackgroundColor(color)
         }
 
-        private fun updateCardStyling(player: PlayerAvailability) {
+        private fun updateCardStyling(player: RosterPlayer) {
             val cardBackground = when (player.status) {
                 RSVPStatus.AVAILABLE -> ContextCompat.getColor(itemView.context, R.color.surface_container)
                 RSVPStatus.MAYBE -> ContextCompat.getColor(itemView.context, R.color.warning_light)
                 RSVPStatus.UNAVAILABLE -> ContextCompat.getColor(itemView.context, R.color.error_light)
                 RSVPStatus.NOT_RESPONDED -> ContextCompat.getColor(itemView.context, R.color.surface_variant)
             }
-            
             playerCard.setCardBackgroundColor(cardBackground)
-            
+
             val strokeColor = when (player.status) {
                 RSVPStatus.AVAILABLE -> ContextCompat.getColor(itemView.context, R.color.success)
                 RSVPStatus.MAYBE -> ContextCompat.getColor(itemView.context, R.color.warning)
                 RSVPStatus.UNAVAILABLE -> ContextCompat.getColor(itemView.context, R.color.error)
                 RSVPStatus.NOT_RESPONDED -> ContextCompat.getColor(itemView.context, R.color.outline)
             }
-            
             playerCard.strokeColor = strokeColor
             playerCard.strokeWidth = 2
-            
-            // Disable interaction for unavailable players
+
             playerCard.isEnabled = player.status != RSVPStatus.UNAVAILABLE
             playerCard.alpha = if (player.status == RSVPStatus.UNAVAILABLE) 0.6f else 1.0f
         }
 
-        private fun setupDragAndDrop(player: PlayerAvailability) {
+        private fun setupDragAndDrop(player: RosterPlayer) {
             if (player.status == RSVPStatus.UNAVAILABLE) return
-            
+
             playerCard.setOnLongClickListener { view ->
                 onPlayerDragStart(player)
-                
+
                 val item = ClipData.Item(player.playerId)
                 val dragData = ClipData(
                     "Player",
                     arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
                     item
                 )
-                
+
                 val shadowBuilder = View.DragShadowBuilder(view)
                 view.startDragAndDrop(dragData, shadowBuilder, player, 0)
-                
-                // Hide the original view during drag
+
                 view.alpha = 0.5f
-                
                 true
             }
         }
     }
 
     private class PlayerDiffCallback(
-        private val oldList: List<PlayerAvailability>,
-        private val newList: List<PlayerAvailability>
+        private val oldList: List<RosterPlayer>,
+        private val newList: List<RosterPlayer>
     ) : DiffUtil.Callback() {
-
         override fun getOldListSize(): Int = oldList.size
-
         override fun getNewListSize(): Int = newList.size
 
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
@@ -140,4 +132,3 @@ class FormationPlayerAdapter(
         }
     }
 }
-

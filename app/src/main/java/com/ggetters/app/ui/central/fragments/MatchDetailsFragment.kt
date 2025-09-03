@@ -11,12 +11,20 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
+import com.ggetters.app.data.model.MatchDetails
+import com.ggetters.app.data.model.MatchEvent
+import com.ggetters.app.data.model.MatchEventType
+import com.ggetters.app.data.model.MatchStatus
+import com.ggetters.app.data.model.RSVPStats
 import com.ggetters.app.ui.central.adapters.MatchEventAdapter
 import com.ggetters.app.ui.central.models.*
 import com.ggetters.app.ui.central.viewmodels.MatchDetailsViewModel
 import com.google.android.material.card.MaterialCardView
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 // TODO: Backend - Implement real-time match data loading
@@ -137,55 +145,46 @@ class MatchDetailsFragment : Fragment() {
     }
 
     private fun loadMatchData() {
-        // TODO: Backend - Load actual match data
-        // Create sample match details for now
-        val dateFormatter = SimpleDateFormat("EEE, MMM dd", Locale.getDefault())
-        val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-        
-        val date = Date(matchDate)
-        
-        // Sample data - replace with backend data
+        // TODO: Sample data - replace with backend data
+        val instantDate = Instant.ofEpochMilli(matchDate)
+
         matchDetails = MatchDetails(
             matchId = matchId,
             title = matchTitle,
             homeTeam = homeTeam,
             awayTeam = awayTeam,
             venue = venue,
-            date = date,
-            time = timeFormatter.format(date),
-            homeScore = 2, // Sample score - will be 0 for upcoming matches
+            date = instantDate,
+            time = DateTimeFormatter.ofPattern("HH:mm")
+                .withZone(ZoneId.systemDefault())
+                .format(instantDate),
+            homeScore = 2,
             awayScore = 2,
-            status = MatchStatus.FULL_TIME, // Sample status
+            status = MatchStatus.FULL_TIME,
             rsvpStats = RSVPStats(12, 3, 2, 1),
             playerAvailability = emptyList(),
             createdBy = "Coach"
         )
-        
-        // Load sample match events
+
         loadSampleMatchEvents()
-        
         updateUI()
     }
 
     private fun updateUI() {
-        // Match header information
         matchTitleText.text = "${matchDetails.homeTeam} vs ${matchDetails.awayTeam}"
-        
-        val dateFormatter = SimpleDateFormat("EEE, MMM dd", Locale.getDefault())
+
+        val dateFormatter = DateTimeFormatter.ofPattern("EEE, MMM dd")
+            .withZone(ZoneId.systemDefault())
         matchDateText.text = dateFormatter.format(matchDetails.date)
-        
+
         matchTimeText.text = matchDetails.time
         venueText.text = matchDetails.venue
 
-        // Team names
-        homeTeamText.text = matchDetails.homeTeam
-        awayTeamText.text = matchDetails.awayTeam
-
-        // Score and status
         updateScoreDisplay()
         updateMatchStatus()
         updateEventsDisplay()
     }
+
 
     private fun updateScoreDisplay() {
         when (matchDetails.status) {
