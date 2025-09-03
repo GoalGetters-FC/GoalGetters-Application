@@ -5,25 +5,25 @@
     <!-- Status Options -->
     <item
         android:id="@+id/action_set_available"
-        android:title="Set as Available"
+        android:title="Mark as Present"
         android:icon="@drawable/ic_unicons_check_24"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_set_maybe"
-        android:title="Set as Maybe"
-        android:icon="@drawable/ic_unicons_question_24"
-        app:showAsAction="never" />
-
-    <item
         android:id="@+id/action_set_unavailable"
-        android:title="Set as Unavailable"
+        android:title="Mark as Absent"
         android:icon="@drawable/ic_unicons_times_24"
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_set_maybe"
+        android:title="Mark as Late"
+        android:icon="@drawable/ic_unicons_question_24"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_set_not_responded"
-        android:title="Reset to Not Responded"
+        android:title="Mark as Excused"
         android:icon="@drawable/ic_unicons_clock_24"
         app:showAsAction="never" />
 

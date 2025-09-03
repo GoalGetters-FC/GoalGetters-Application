@@ -13,7 +13,7 @@ import com.ggetters.app.R
 import com.ggetters.app.data.model.AttendanceWithUser
 
 class AttendancePlayerAdapter(
-    private val onPlayerAction: (AttendanceWithUser, String) -> Unit
+    private val onPlayerAction: (AttendanceWithUser, String, View?) -> Unit
 ) : RecyclerView.Adapter<AttendancePlayerAdapter.PlayerViewHolder>() {
 
     private var players = listOf<AttendanceWithUser>()
@@ -54,20 +54,20 @@ class AttendancePlayerAdapter(
             // Avatar placeholder
             playerAvatar.setImageResource(R.drawable.ic_unicons_user_24)
 
-            // Status color
+            // Status color - 0=Present,1=Absent,2=Late,3=Excused
             val statusColor = when (attendance.status) {
-                0 -> ContextCompat.getColor(itemView.context, R.color.success) // Present
-                1 -> ContextCompat.getColor(itemView.context, R.color.error)   // Absent
-                2 -> ContextCompat.getColor(itemView.context, R.color.warning) // Late
-                3 -> ContextCompat.getColor(itemView.context, R.color.outline) // Excused
+                0 -> ContextCompat.getColor(itemView.context, R.color.success) // Present (green)
+                1 -> ContextCompat.getColor(itemView.context, R.color.error)   // Absent (red)
+                2 -> ContextCompat.getColor(itemView.context, R.color.warning) // Late (orange)
+                3 -> ContextCompat.getColor(itemView.context, R.color.outline) // Excused (grey)
                 else -> ContextCompat.getColor(itemView.context, R.color.outline)
             }
             statusIndicator.setBackgroundColor(statusColor)
 
             // Menu and status actions
-            menuButton.setOnClickListener { onPlayerAction(player, "menu") }
-            statusIndicator.setOnClickListener { onPlayerAction(player, "status_change") }
-            playerName.setOnClickListener { onPlayerAction(player, "status_change") }
+            menuButton.setOnClickListener { onPlayerAction(player, "menu", it) }
+            statusIndicator.setOnClickListener { onPlayerAction(player, "status_change", null) }
+            playerName.setOnClickListener { onPlayerAction(player, "status_change", null) }
         }
     }
 

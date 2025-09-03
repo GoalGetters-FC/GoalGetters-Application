@@ -12,7 +12,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Referees Section -->
+        <!-- Present Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,10 +28,11 @@
                 android:layout_marginBottom="12dp">
 
                 <TextView
+                    android:id="@+id/presentSectionTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Referees (3)"
+                    android:text="Present (0)"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="@color/on_surface"
@@ -47,7 +48,7 @@
 
             <!-- Players List -->
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/refereesRecyclerView"
+                android:id="@+id/presentRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
@@ -56,7 +57,7 @@
 
         </LinearLayout>
 
-        <!-- Substitutes Section -->
+        <!-- Absent Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -72,54 +73,11 @@
                 android:layout_marginBottom="12dp">
 
                 <TextView
+                    android:id="@+id/absentSectionTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Substitutes (2)"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/on_surface"
-                    android:fontFamily="@font/variable_inter" />
-
-                <View
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:background="@drawable/indicator_maybe"
-                    android:layout_marginEnd="4dp" />
-
-            </LinearLayout>
-
-            <!-- Players List -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/substitutesRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:itemCount="2"
-                tools:listitem="@layout/item_attendance_player" />
-
-        </LinearLayout>
-
-        <!-- Unknown Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="24dp">
-
-            <!-- Section Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Unknown (1)"
+                    android:text="Absent (0)"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="@color/on_surface"
@@ -135,7 +93,97 @@
 
             <!-- Players List -->
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/unknownRecyclerView"
+                android:id="@+id/absentRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:itemCount="2"
+                tools:listitem="@layout/item_attendance_player" />
+
+        </LinearLayout>
+
+        <!-- Late Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <!-- Section Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:id="@+id/lateSectionTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Late (0)"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/on_surface"
+                    android:fontFamily="@font/variable_inter" />
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/indicator_maybe"
+                    android:layout_marginEnd="4dp" />
+
+            </LinearLayout>
+
+            <!-- Players List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/lateRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:itemCount="1"
+                tools:listitem="@layout/item_attendance_player" />
+
+        </LinearLayout>
+
+        <!-- Excused Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <!-- Section Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:id="@+id/excusedSectionTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Excused (0)"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/on_surface"
+                    android:fontFamily="@font/variable_inter" />
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@color/outline"
+                    android:layout_marginEnd="4dp" />
+
+            </LinearLayout>
+
+            <!-- Players List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/excusedRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
