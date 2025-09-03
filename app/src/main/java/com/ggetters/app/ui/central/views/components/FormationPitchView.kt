@@ -8,7 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.PlayerAvailability
+import com.ggetters.app.data.model.RosterPlayer
 
 class FormationPitchView @JvmOverloads constructor(
     context: Context,
@@ -32,7 +32,7 @@ class FormationPitchView @JvmOverloads constructor(
 
     // Formation and players
     private var currentFormation = "4-3-3"
-    private var positionedPlayers = mutableMapOf<String, PlayerAvailability?>()
+    private var positionedPlayers = mutableMapOf<String, RosterPlayer?>()
     private var playerPositions = mutableMapOf<String, PointF>()
 
     // Drawing properties
@@ -99,7 +99,7 @@ class FormationPitchView @JvmOverloads constructor(
                 }
                 
                 android.view.DragEvent.ACTION_DROP -> {
-                    val player = event.localState as? PlayerAvailability
+                    val player = event.localState as? RosterPlayer
                     if (player != null) {
                         val position = getPositionAtPoint(event.x, event.y)
                         if (position != null) {
@@ -133,9 +133,9 @@ class FormationPitchView @JvmOverloads constructor(
         }
     }
 
-        override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-
+        
         // Calculate pitch dimensions to maximize space
         val padding = 8f  // Reduced padding
         val availableWidth = width - (padding * 2)
@@ -622,7 +622,7 @@ class FormationPitchView @JvmOverloads constructor(
     private var isDragging = false
     
     // Callbacks
-    private var onPlayerClickListener: ((String, PlayerAvailability?) -> Unit)? = null
+    private var onPlayerClickListener: ((String, RosterPlayer?) -> Unit)? = null
     private var onPositionClickListener: ((String) -> Unit)? = null
     private var onPlayerDroppedListener: ((String, PointF) -> Unit)? = null
 
@@ -724,20 +724,20 @@ class FormationPitchView @JvmOverloads constructor(
         }
     }
 
-    fun setPlayers(players: Map<String, PlayerAvailability?>) {
+    fun setPlayers(players: Map<String, RosterPlayer?>) {
         positionedPlayers.clear()
         positionedPlayers.putAll(players)
         invalidate()
     }
 
-    fun getPositionedPlayers(): Map<String, PlayerAvailability?> {
+    fun getPositionedPlayers(): Map<String, RosterPlayer?> {
         return positionedPlayers.toMap()
     }
 
     fun getCurrentFormation(): String = currentFormation
 
     // Callback setters
-    fun setOnPlayerClickListener(listener: (String, PlayerAvailability?) -> Unit) {
+    fun setOnPlayerClickListener(listener: (String, RosterPlayer?) -> Unit) {
         onPlayerClickListener = listener
     }
 

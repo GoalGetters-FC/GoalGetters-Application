@@ -16,8 +16,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.adapters.LineupPlayerGridAdapter
-import com.ggetters.app.ui.central.models.PlayerAvailability
-import com.ggetters.app.ui.central.models.RSVPStatus
+import com.ggetters.app.data.model.RosterPlayer
+import com.ggetters.app.data.model.RSVPStatus
 import com.ggetters.app.ui.central.viewmodels.LineupViewModel
 import com.ggetters.app.ui.central.views.components.FormationPitchView
 import com.ggetters.app.ui.central.sheets.MatchEventsBottomSheet
@@ -51,10 +51,10 @@ class LineupFragment : Fragment() {
     private lateinit var playersAdapter: LineupPlayerGridAdapter
     
     // Data
-    private var availablePlayers = listOf<PlayerAvailability>()
+    private var availablePlayers = listOf<RosterPlayer>()
     private var currentFormation = "4-3-3"
-    private var positionedPlayers = mutableMapOf<String, PlayerAvailability?>()
-    private var currentDraggedPlayer: PlayerAvailability? = null
+    private var positionedPlayers = mutableMapOf<String, RosterPlayer?>()
+    private var currentDraggedPlayer: RosterPlayer? = null
     private val formations = listOf("4-3-3", "4-4-2", "3-5-2", "4-2-3-1", "5-3-2")
 
     companion object {
@@ -171,29 +171,8 @@ class LineupFragment : Fragment() {
 
     private fun loadPlayerData() {
         // TODO: Backend - Load actual player data
-        // Create sample data matching available players
-        availablePlayers = listOf(
-            PlayerAvailability("1", "Aaron Robertson", "GK", 1, RSVPStatus.AVAILABLE),
-            PlayerAvailability("2", "Jacob Holdford", "CB", 4, RSVPStatus.AVAILABLE),
-            PlayerAvailability("3", "Matthew Mokotle", "CM", 8, RSVPStatus.AVAILABLE),
-            PlayerAvailability("4", "Dylan Seedat", "FW", 9, RSVPStatus.AVAILABLE),
-            PlayerAvailability("5", "Arjan Bidnugram", "CB", 5, RSVPStatus.AVAILABLE),
-            PlayerAvailability("6", "Fortune Manthata", "ST", 10, RSVPStatus.AVAILABLE),
-            PlayerAvailability("7", "Luke Jackson", "ST", 11, RSVPStatus.AVAILABLE),
-            PlayerAvailability("8", "Mike Wilson", "CM", 6, RSVPStatus.AVAILABLE),
-            PlayerAvailability("9", "David Smith", "FW", 7, RSVPStatus.AVAILABLE),
-            PlayerAvailability("10", "Chris Brown", "LB", 3, RSVPStatus.AVAILABLE),
-            PlayerAvailability("11", "Tom Davis", "RB", 2, RSVPStatus.AVAILABLE),
-            PlayerAvailability("12", "Alex Miller", "CM", 12, RSVPStatus.AVAILABLE),
-            PlayerAvailability("13", "Sam Wilson", "SUB", 13, RSVPStatus.AVAILABLE),
-            PlayerAvailability("14", "Jake Taylor", "SUB", 14, RSVPStatus.AVAILABLE),
-            PlayerAvailability("15", "Ben Moore", "SUB", 15, RSVPStatus.AVAILABLE),
-            PlayerAvailability("16", "Ryan White", "SUB", 16, RSVPStatus.AVAILABLE),
-            PlayerAvailability("17", "Mark Lewis", "SUB", 17, RSVPStatus.AVAILABLE),
-            PlayerAvailability("18", "Paul Clark", "SUB", 18, RSVPStatus.AVAILABLE),
-            PlayerAvailability("19", "Steve Hall", "SUB", 19, RSVPStatus.AVAILABLE),
-            PlayerAvailability("20", "Nick Allen", "SUB", 20, RSVPStatus.AVAILABLE)
-        )
+        // Temporarily commented out due to data model issues
+        // availablePlayers = listOf()
         
         // Set initial formation on pitch
         updatePitchFormation()
@@ -324,7 +303,7 @@ class LineupFragment : Fragment() {
         pitchView.setPlayers(formationPlayers)
     }
 
-    private fun handlePlayerSelection(player: PlayerAvailability) {
+    private fun handlePlayerSelection(player: RosterPlayer) {
         // Show position selection dialog for the selected player
         val availablePositions = pitchView.getAvailablePositions().filter { position ->
             !pitchView.isPositionOccupied(position)
@@ -347,7 +326,7 @@ class LineupFragment : Fragment() {
             .show()
     }
     
-    private fun handlePlayerDragStart(player: PlayerAvailability) {
+    private fun handlePlayerDragStart(player: RosterPlayer) {
         currentDraggedPlayer = player
         // Player drag started - could add visual feedback here
         // The actual drop handling is done in FormationPitchView's drag listener
@@ -386,12 +365,12 @@ class LineupFragment : Fragment() {
     fun getCurrentFormation(): String = currentFormation
 
     // Public method to get positioned players
-    fun getPositionedPlayers(): Map<String, PlayerAvailability?> {
+    fun getPositionedPlayers(): Map<String, RosterPlayer?> {
         return pitchView.getPositionedPlayers()
     }
 
     // Dialog methods for player management
-    private fun showPlayerOptionsDialog(position: String, player: PlayerAvailability) {
+    private fun showPlayerOptionsDialog(position: String, player: RosterPlayer) {
         val options = arrayOf(
             "Change Player",
             "Remove from Position", 
@@ -436,7 +415,7 @@ class LineupFragment : Fragment() {
             .show()
     }
 
-    private fun showRoleSelectionDialog(position: String, player: PlayerAvailability) {
+    private fun showRoleSelectionDialog(position: String, player: RosterPlayer) {
         val roles = when (position.take(2)) {
             "GK" -> arrayOf("Goalkeeper", "Sweeper Keeper")
             "CB" -> arrayOf("Center Back", "Ball Playing Defender", "Stopper")
@@ -474,7 +453,7 @@ class LineupFragment : Fragment() {
         // Note: We'll need to update the header text in the layout if there's a reference to it
     }
 
-    private fun positionPlayer(player: PlayerAvailability, position: String) {
+    private fun positionPlayer(player: RosterPlayer, position: String) {
         // TODO: Backend - Update player position
         val currentPositions = pitchView.getPositionedPlayers().toMutableMap()
         currentPositions[position] = player
@@ -502,14 +481,14 @@ class LineupFragment : Fragment() {
             Snackbar.LENGTH_SHORT).show()
     }
 
-    private fun updatePlayerRole(position: String, player: PlayerAvailability, role: String) {
+    private fun updatePlayerRole(position: String, player: RosterPlayer, role: String) {
         // TODO: Backend - Update player role
         Snackbar.make(requireView(), 
             "${player.playerName} role changed to $role", 
             Snackbar.LENGTH_SHORT).show()
     }
 
-    private fun viewPlayerDetails(player: PlayerAvailability) {
+    private fun viewPlayerDetails(player: RosterPlayer) {
         // TODO: Navigate to player details screen
         Snackbar.make(requireView(), 
             "Opening ${player.playerName}'s details", 
@@ -587,7 +566,7 @@ class LineupFragment : Fragment() {
         currentDraggedPlayer = null
     }
 
-    private fun handlePlayerMovement(fromPosition: String, toPosition: String, player: PlayerAvailability) {
+    private fun handlePlayerMovement(fromPosition: String, toPosition: String, player: RosterPlayer) {
         val currentPositions = pitchView.getPositionedPlayers().toMutableMap()
         val targetPlayer = currentPositions[toPosition]
         
