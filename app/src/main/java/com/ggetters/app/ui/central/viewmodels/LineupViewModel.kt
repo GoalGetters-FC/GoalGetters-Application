@@ -2,7 +2,7 @@ package com.ggetters.app.ui.central.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ggetters.app.ui.central.models.PlayerAvailability
+import com.ggetters.app.data.model.RosterPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,14 +20,14 @@ class LineupViewModel @Inject constructor(
     // TODO: Backend - Inject lineup repository and formation service
 ) : ViewModel() {
 
-    private val _players = MutableStateFlow<List<PlayerAvailability>>(emptyList())
-    val players: StateFlow<List<PlayerAvailability>> = _players.asStateFlow()
+    private val _players = MutableStateFlow<List<RosterPlayer>>(emptyList())
+    val players: StateFlow<List<RosterPlayer>> = _players.asStateFlow()
 
     private val _formation = MutableStateFlow("4-3-3")
     val formation: StateFlow<String> = _formation.asStateFlow()
 
-    private val _positionedPlayers = MutableStateFlow<Map<String, PlayerAvailability?>>(emptyMap())
-    val positionedPlayers: StateFlow<Map<String, PlayerAvailability?>> = _positionedPlayers.asStateFlow()
+    private val _positionedPlayers = MutableStateFlow<Map<String, RosterPlayer?>>(emptyMap())
+    val positionedPlayers: StateFlow<Map<String, RosterPlayer?>> = _positionedPlayers.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -69,7 +69,7 @@ class LineupViewModel @Inject constructor(
         }
     }
 
-    fun positionPlayer(player: PlayerAvailability, position: String) {
+    fun positionPlayer(player: RosterPlayer, position: String) {
         viewModelScope.launch {
             try {
                 // TODO: Backend - Update player position in repository

@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
+import com.ggetters.app.data.model.RSVPStatus
+import com.ggetters.app.data.model.RosterPlayer
 import com.ggetters.app.ui.central.adapters.FormationPlayerAdapter
 import com.ggetters.app.ui.central.models.*
 import com.ggetters.app.ui.central.viewmodels.FormationViewModel
@@ -46,9 +48,9 @@ class FormationActivity : AppCompatActivity() {
     private lateinit var formationStatsText: android.widget.TextView
     
     private lateinit var playerAdapter: FormationPlayerAdapter
-    private var availablePlayers = listOf<PlayerAvailability>()
+    private var availablePlayers = listOf<RosterPlayer>()
     private var selectedFormation = "4-3-3"
-    private var positionedPlayers = mutableMapOf<String, PlayerAvailability>() // position -> player
+    private var positionedPlayers = mutableMapOf<String, RosterPlayer>() // position -> player
     
     // Match data
     private var matchId = ""
@@ -150,22 +152,11 @@ class FormationActivity : AppCompatActivity() {
         updateFormationStats()
     }
 
-    private fun createSampleAvailablePlayers(): List<PlayerAvailability> {
+    private fun createSampleAvailablePlayers(): List<RosterPlayer> {
         // TODO: Backend - Get from intent or repository
         return listOf(
-            PlayerAvailability("1", "John Smith", "GK", 1, RSVPStatus.AVAILABLE),
-            PlayerAvailability("2", "Mike Johnson", "CB", 4, RSVPStatus.AVAILABLE),
-            PlayerAvailability("3", "David Wilson", "CB", 5, RSVPStatus.AVAILABLE),
-            PlayerAvailability("4", "Chris Brown", "LB", 3, RSVPStatus.MAYBE),
-            PlayerAvailability("5", "Tom Davis", "RB", 2, RSVPStatus.AVAILABLE),
-            PlayerAvailability("6", "Alex Miller", "CM", 8, RSVPStatus.AVAILABLE),
-            PlayerAvailability("8", "Jake Taylor", "CM", 10, RSVPStatus.AVAILABLE),
-            PlayerAvailability("9", "Ben Moore", "LW", 11, RSVPStatus.AVAILABLE),
-            PlayerAvailability("10", "Luke Jackson", "ST", 9, RSVPStatus.AVAILABLE),
-            PlayerAvailability("11", "Ryan White", "RW", 7, RSVPStatus.MAYBE),
-            PlayerAvailability("12", "Mark Lewis", "SUB", 12, RSVPStatus.AVAILABLE),
-            PlayerAvailability("16", "James Garcia", "SUB", 16, RSVPStatus.AVAILABLE),
-            PlayerAvailability("17", "Daniel Martinez", "SUB", 17, RSVPStatus.MAYBE)
+            RosterPlayer("1", "John Smith", 1,"GK", RSVPStatus.AVAILABLE),
+            RosterPlayer("2", "Mike Johnson", 11,"CB", RSVPStatus.AVAILABLE),
         )
     }
 
@@ -198,7 +189,7 @@ class FormationActivity : AppCompatActivity() {
         selectFormation("4-3-3")
     }
 
-    private fun handlePlayerDragStart(player: PlayerAvailability) {
+    private fun handlePlayerDragStart(player: RosterPlayer) {
         // TODO: Backend - Handle drag start analytics
         Snackbar.make(findViewById(android.R.id.content), 
             "Drag ${player.playerName} to a position on the pitch", Snackbar.LENGTH_SHORT).show()
@@ -216,7 +207,7 @@ class FormationActivity : AppCompatActivity() {
         }
     }
 
-    private fun handlePlayerDrop(position: String, player: PlayerAvailability) {
+    private fun handlePlayerDrop(position: String, player: RosterPlayer) {
         // TODO: Backend - Validate position compatibility with player
         
         // Remove player from previous position if any
@@ -286,7 +277,7 @@ class FormationActivity : AppCompatActivity() {
         return positionedPlayers.size == 11
     }
 
-    private fun showPlayerDetails(player: PlayerAvailability) {
+    private fun showPlayerDetails(player: RosterPlayer) {
         // TODO: Backend - Show player details dialog
         Snackbar.make(findViewById(android.R.id.content), 
             "${player.playerName} - ${player.position} (#${player.jerseyNumber})", 

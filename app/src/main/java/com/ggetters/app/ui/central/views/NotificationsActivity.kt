@@ -15,11 +15,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.adapters.NotificationAdapter
-import com.ggetters.app.ui.central.models.NotificationItem
-import com.ggetters.app.ui.central.models.NotificationType
-import com.ggetters.app.ui.central.models.RSVPStatus
-import com.ggetters.app.ui.central.models.AttendanceCounts
-import com.ggetters.app.ui.central.models.LinkedEventType
+import com.ggetters.app.data.model.NotificationItem
+import com.ggetters.app.data.model.NotificationType
+import com.ggetters.app.data.model.RSVPStatus
+import com.ggetters.app.data.model.AttendanceCounts
+import com.ggetters.app.data.model.LinkedEventType
 import com.ggetters.app.ui.central.viewmodels.NotificationsViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint

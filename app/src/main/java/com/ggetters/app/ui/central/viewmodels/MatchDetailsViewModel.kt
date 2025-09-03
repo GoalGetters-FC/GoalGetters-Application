@@ -2,14 +2,13 @@ package com.ggetters.app.ui.central.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ggetters.app.ui.central.models.MatchDetails
-import com.ggetters.app.ui.central.models.PlayerAvailability
-import com.ggetters.app.ui.central.models.RSVPStatus
+import com.ggetters.app.data.model.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.Instant
 import javax.inject.Inject
 
 // TODO: Backend - Inject repository for match data operations
@@ -71,17 +70,20 @@ class MatchDetailsViewModel @Inject constructor(
             try {
                 // TODO: Backend - Update player RSVP in backend
                 // matchRepository.updatePlayerRSVP(matchId, playerId, status)
-                
+
                 // Update local state
                 _matchDetails.value?.let { match ->
                     val updatedPlayers = match.playerAvailability.map { player ->
                         if (player.playerId == playerId) {
-                            player.copy(status = status, responseTime = java.util.Date())
+                            player.copy(
+                                status = status,
+                                responseTime = Instant.now()
+                            )
                         } else {
                             player
                         }
                     }
-                    
+
                     val updatedStats = calculateRSVPStats(updatedPlayers)
                     val updatedMatch = match.copy(
                         playerAvailability = updatedPlayers,
@@ -89,15 +91,16 @@ class MatchDetailsViewModel @Inject constructor(
                     )
                     _matchDetails.value = updatedMatch
                 }
-                
+
                 // TODO: Backend - Send notification to coaches about RSVP change
                 // notificationRepository.sendRSVPUpdateNotification(matchId, playerId, status)
-                
+
             } catch (exception: Exception) {
                 _error.value = "Failed to update RSVP: ${exception.message}"
             }
         }
     }
+
 
     /**
      * Refresh match data
@@ -132,13 +135,13 @@ class MatchDetailsViewModel @Inject constructor(
     /**
      * Calculate RSVP statistics from player list
      */
-    private fun calculateRSVPStats(players: List<PlayerAvailability>): com.ggetters.app.ui.central.models.RSVPStats {
+    private fun calculateRSVPStats(players: List<RosterPlayer>): RSVPStats {
         val available = players.count { it.status == RSVPStatus.AVAILABLE }
         val maybe = players.count { it.status == RSVPStatus.MAYBE }
         val unavailable = players.count { it.status == RSVPStatus.UNAVAILABLE }
         val notResponded = players.count { it.status == RSVPStatus.NOT_RESPONDED }
         
-        return com.ggetters.app.ui.central.models.RSVPStats(
+        return RSVPStats(
             available = available,
             maybe = maybe,
             unavailable = unavailable,

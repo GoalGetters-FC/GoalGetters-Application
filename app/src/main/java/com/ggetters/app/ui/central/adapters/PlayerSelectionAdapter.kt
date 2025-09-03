@@ -6,14 +6,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.LineupPlayer
+import com.ggetters.app.data.model.*
 
 class PlayerSelectionAdapter(
-    private val players: List<LineupPlayer>,
-    private val onPlayerSelected: (LineupPlayer) -> Unit
+    private val players: List<RosterPlayer>,
+    private val onPlayerSelected: (RosterPlayer) -> Unit
 ) : RecyclerView.Adapter<PlayerSelectionAdapter.PlayerViewHolder>() {
 
-    private var selectedPlayer: LineupPlayer? = null
+    private var selectedPlayer: RosterPlayer? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -32,7 +32,7 @@ class PlayerSelectionAdapter(
         private val playerPosition: TextView = itemView.findViewById(R.id.playerPosition)
         private val playerNumber: TextView = itemView.findViewById(R.id.playerNumber)
 
-        fun bind(player: LineupPlayer) {
+        fun bind(player: RosterPlayer) {
             playerName.text = player.playerName
             playerPosition.text = player.position
             playerNumber.text = player.jerseyNumber.toString()

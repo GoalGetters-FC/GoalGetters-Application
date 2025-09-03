@@ -11,6 +11,11 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
+import com.ggetters.app.data.model.MatchDetails
+import com.ggetters.app.data.model.MatchEvent
+import com.ggetters.app.data.model.MatchEventType
+import com.ggetters.app.data.model.MatchStatus
+import com.ggetters.app.data.model.RSVPStats
 import com.ggetters.app.ui.central.adapters.MatchEventAdapter
 import com.ggetters.app.ui.central.models.*
 import com.ggetters.app.ui.central.viewmodels.MatchDetailsViewModel
@@ -151,7 +156,7 @@ class MatchDetailsFragment : Fragment() {
             homeTeam = homeTeam,
             awayTeam = awayTeam,
             venue = venue,
-            date = date,
+            date = date.toInstant(),
             time = timeFormatter.format(date),
             homeScore = 2, // Sample score - will be 0 for upcoming matches
             awayScore = 2,

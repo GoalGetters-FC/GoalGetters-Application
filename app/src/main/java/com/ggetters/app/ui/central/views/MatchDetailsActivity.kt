@@ -9,7 +9,12 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.*
+import com.ggetters.app.data.model.MatchDetails
+import com.ggetters.app.data.model.MatchStatus
+import com.ggetters.app.data.model.RSVPStats
+import com.ggetters.app.data.model.RosterPlayer
+import com.ggetters.app.data.model.RSVPStatus
+
 import com.ggetters.app.ui.central.viewmodels.MatchDetailsViewModel
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -17,6 +22,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.util.*
 
 // TODO: Backend - Implement real-time match data synchronization
@@ -128,21 +134,13 @@ class MatchDetailsActivity : AppCompatActivity() {
     ): MatchDetails {
         // TODO: Backend - Replace with real player data from backend
         val samplePlayers = listOf(
-            PlayerAvailability("1", "John Smith", "GK", 1, RSVPStatus.AVAILABLE),
-            PlayerAvailability("2", "Mike Johnson", "CB", 4, RSVPStatus.AVAILABLE),
-            PlayerAvailability("3", "David Wilson", "CB", 5, RSVPStatus.AVAILABLE),
-            PlayerAvailability("4", "Chris Brown", "LB", 3, RSVPStatus.MAYBE),
-            PlayerAvailability("5", "Tom Davis", "RB", 2, RSVPStatus.AVAILABLE),
-            PlayerAvailability("6", "Alex Miller", "CM", 8, RSVPStatus.AVAILABLE),
-            PlayerAvailability("7", "Sam Wilson", "CM", 6, RSVPStatus.UNAVAILABLE),
-            PlayerAvailability("8", "Jake Taylor", "CM", 10, RSVPStatus.AVAILABLE),
-            PlayerAvailability("9", "Ben Moore", "LW", 11, RSVPStatus.AVAILABLE),
-            PlayerAvailability("10", "Luke Jackson", "ST", 9, RSVPStatus.AVAILABLE),
-            PlayerAvailability("11", "Ryan White", "RW", 7, RSVPStatus.MAYBE),
-            PlayerAvailability("12", "Mark Lewis", "SUB", 12, RSVPStatus.AVAILABLE),
-            PlayerAvailability("13", "Paul Clark", "SUB", 13, RSVPStatus.NOT_RESPONDED),
-            PlayerAvailability("14", "Steve Hall", "SUB", 14, RSVPStatus.NOT_RESPONDED),
-            PlayerAvailability("15", "Nick Allen", "SUB", 15, RSVPStatus.UNAVAILABLE)
+            RosterPlayer(
+                playerId = "1",
+                playerName = "Alice",
+                jerseyNumber = 11,
+                position = "GK",
+                status = RSVPStatus.AVAILABLE
+            )
         )
 
         val available = samplePlayers.count { it.status == RSVPStatus.AVAILABLE }
@@ -156,16 +154,23 @@ class MatchDetailsActivity : AppCompatActivity() {
             homeTeam = "Goal Getters FC",
             awayTeam = opponent,
             venue = venue,
-            date = Date(dateMillis),
+            date = Instant.ofEpochMilli(dateMillis), // Argument type mismatch: actual type is 'Instant!', but 'Long' was expected.
             time = time,
             homeScore = 0,
             awayScore = 0,
             status = MatchStatus.SCHEDULED,
-            rsvpStats = RSVPStats(available, maybe, unavailable, notResponded),
+            rsvpStats = RSVPStats(
+                available = available,
+                maybe = maybe,
+                unavailable = unavailable,
+                notResponded = notResponded
+            ),
             playerAvailability = samplePlayers,
-            createdBy = "Coach"
+            createdBy = "Coach",
+            createdAt = Instant.now()
         )
     }
+
 
     private fun updateUI() {
         // Match header information

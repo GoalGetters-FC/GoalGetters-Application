@@ -9,22 +9,23 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.core.extensions.kotlin.toRelativeTimeString
-import com.ggetters.app.data.model.RSVPStatus
 import com.ggetters.app.data.model.RosterPlayer
+import com.ggetters.app.data.model.RSVPStatus
+import com.ggetters.app.ui.shared.extensions.getColorRes
 import com.ggetters.app.ui.shared.extensions.getDisplayText
+import com.ggetters.app.ui.shared.extensions.getIcon
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
-import com.ggetters.app.ui.shared.extensions.getFormattedTime
-import com.ggetters.app.ui.shared.extensions.getIcon
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.*
 
-
-class PlayerAvailabilityAdapter(
+class RosterPlayerAdapter(
     private val onPlayerClick: (RosterPlayer) -> Unit,
     private val onRSVPChange: (RosterPlayer, RSVPStatus) -> Unit,
     private val onContactPlayer: (RosterPlayer) -> Unit
-) : RecyclerView.Adapter<PlayerAvailabilityAdapter.PlayerViewHolder>() {
+) : RecyclerView.Adapter<RosterPlayerAdapter.PlayerViewHolder>() {
 
     private var players = listOf<RosterPlayer>()
 
@@ -68,126 +69,82 @@ class PlayerAvailabilityAdapter(
             setupQuickActions(player)
             updateCardStyling(player)
 
-            // Response time
-            responseTime.text = player.responseTime?.toRelativeTimeString() ?: "No response"
+            responseTime.text = player.responseTime?.let { formatResponseTime(it) } ?: "No response"
 
-            // Click listeners
             playerCard.setOnClickListener { onPlayerClick(player) }
             contactButton.setOnClickListener { onContactPlayer(player) }
         }
 
-
         private fun updateStatusDisplay(player: RosterPlayer) {
             statusChip.text = "${player.status.getIcon()} ${player.status.getDisplayText()}"
-
-            val statusColor = when (player.status) {
-                RSVPStatus.AVAILABLE -> ContextCompat.getColor(itemView.context, R.color.success)
-                RSVPStatus.MAYBE -> ContextCompat.getColor(itemView.context, R.color.warning)
-                RSVPStatus.UNAVAILABLE -> ContextCompat.getColor(itemView.context, R.color.error)
-                RSVPStatus.NOT_RESPONDED -> ContextCompat.getColor(itemView.context, R.color.text_tertiary)
-            }
-
-            statusChip.setChipBackgroundColorResource(
-                when (player.status) {
-                    RSVPStatus.AVAILABLE -> R.color.success_light
-                    RSVPStatus.MAYBE -> R.color.warning_light
-                    RSVPStatus.UNAVAILABLE -> R.color.error_light
-                    RSVPStatus.NOT_RESPONDED -> R.color.surface_variant
-                }
+            statusChip.setChipBackgroundColorResource(player.status.getColorRes())
+            statusChip.setTextColor(
+                ContextCompat.getColor(itemView.context, player.status.getColorRes())
             )
-
-            statusChip.setTextColor(statusColor)
         }
 
-
         private fun setupQuickActions(player: RosterPlayer) {
-            // Available button
             availableButton.setOnClickListener {
                 if (player.status != RSVPStatus.AVAILABLE) {
                     onRSVPChange(player, RSVPStatus.AVAILABLE)
                 }
             }
-            
-            // Maybe button
             maybeButton.setOnClickListener {
                 if (player.status != RSVPStatus.MAYBE) {
                     onRSVPChange(player, RSVPStatus.MAYBE)
                 }
             }
-            
-            // Unavailable button
             unavailableButton.setOnClickListener {
                 if (player.status != RSVPStatus.UNAVAILABLE) {
                     onRSVPChange(player, RSVPStatus.UNAVAILABLE)
                 }
             }
-            
-            // Update button states
             updateButtonStates(player)
         }
 
         private fun updateButtonStates(player: RosterPlayer) {
-            // Reset all buttons
             listOf(availableButton, maybeButton, unavailableButton).forEach { button ->
                 button.strokeWidth = 1
-                button.setTextColor(ContextCompat.getColor(itemView.context, R.color.text_secondary))
+                button.setTextColor(
+                    ContextCompat.getColor(itemView.context, R.color.text_secondary)
+                )
             }
-            
-            // Highlight selected status
+
             val selectedButton = when (player.status) {
                 RSVPStatus.AVAILABLE -> availableButton
                 RSVPStatus.MAYBE -> maybeButton
                 RSVPStatus.UNAVAILABLE -> unavailableButton
                 RSVPStatus.NOT_RESPONDED -> null
             }
-            
+
             selectedButton?.let { button ->
                 button.strokeWidth = 3
-                val selectedColor = when (player.status) {
-                    RSVPStatus.AVAILABLE -> ContextCompat.getColor(itemView.context, R.color.success)
-                    RSVPStatus.MAYBE -> ContextCompat.getColor(itemView.context, R.color.warning)
-                    RSVPStatus.UNAVAILABLE -> ContextCompat.getColor(itemView.context, R.color.error)
-                    else -> ContextCompat.getColor(itemView.context, R.color.text_secondary)
-                }
-                button.setTextColor(selectedColor)
-                button.strokeColor = ContextCompat.getColorStateList(itemView.context, 
-                    when (player.status) {
-                        RSVPStatus.AVAILABLE -> R.color.success
-                        RSVPStatus.MAYBE -> R.color.warning
-                        RSVPStatus.UNAVAILABLE -> R.color.error
-                        else -> R.color.outline
-                    }
+                button.setTextColor(
+                    ContextCompat.getColor(itemView.context, player.status.getColorRes())
+                )
+                button.strokeColor = ContextCompat.getColorStateList(
+                    itemView.context,
+                    player.status.getColorRes()
                 )
             }
         }
 
         private fun updateCardStyling(player: RosterPlayer) {
             val cardBackground = when (player.status) {
-                RSVPStatus.AVAILABLE -> ContextCompat.getColor(itemView.context, R.color.success_light)
-                RSVPStatus.MAYBE -> ContextCompat.getColor(itemView.context, R.color.warning_light)
-                RSVPStatus.UNAVAILABLE -> ContextCompat.getColor(itemView.context, R.color.error_light)
-                RSVPStatus.NOT_RESPONDED -> ContextCompat.getColor(itemView.context, R.color.surface_container)
+                RSVPStatus.AVAILABLE -> R.color.success_light
+                RSVPStatus.MAYBE -> R.color.warning_light
+                RSVPStatus.UNAVAILABLE -> R.color.error_light
+                RSVPStatus.NOT_RESPONDED -> R.color.surface_container
             }
-            
-            playerCard.setCardBackgroundColor(cardBackground)
-            
-            val strokeColor = when (player.status) {
-                RSVPStatus.AVAILABLE -> ContextCompat.getColor(itemView.context, R.color.success)
-                RSVPStatus.MAYBE -> ContextCompat.getColor(itemView.context, R.color.warning)
-                RSVPStatus.UNAVAILABLE -> ContextCompat.getColor(itemView.context, R.color.error)
-                RSVPStatus.NOT_RESPONDED -> ContextCompat.getColor(itemView.context, R.color.outline)
-            }
-            
-            playerCard.strokeColor = strokeColor
+            playerCard.setCardBackgroundColor(ContextCompat.getColor(itemView.context, cardBackground))
+            playerCard.strokeColor = ContextCompat.getColor(itemView.context, player.status.getColorRes())
             playerCard.strokeWidth = 2
         }
 
-        private fun formatResponseTime(responseTime: java.util.Date): String {
-            val now = java.util.Date()
-            val diff = now.time - responseTime.time
-            val hours = diff / (1000 * 60 * 60)
-            val days = hours / 24
-            
+        private fun formatResponseTime(responseTime: Instant): String {
+            val now = Instant.now()
+            val hours = ChronoUnit.HOURS.between(responseTime, now)
+            val days = ChronoUnit.DAYS.between(responseTime, now)
             return when {
                 days > 0 -> "${days}d ago"
                 hours > 0 -> "${hours}h ago"
@@ -200,18 +157,13 @@ class PlayerAvailabilityAdapter(
         private val oldList: List<RosterPlayer>,
         private val newList: List<RosterPlayer>
     ) : DiffUtil.Callback() {
-
         override fun getOldListSize(): Int = oldList.size
-
         override fun getNewListSize(): Int = newList.size
-
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             return oldList[oldItemPosition].playerId == newList[newItemPosition].playerId
         }
-
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             return oldList[oldItemPosition] == newList[newItemPosition]
         }
     }
 }
-

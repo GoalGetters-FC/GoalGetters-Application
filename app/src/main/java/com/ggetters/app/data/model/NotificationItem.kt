@@ -1,4 +1,4 @@
-package com.ggetters.app.ui.central.models
+package com.ggetters.app.data.model
 
 data class NotificationItem(
     val id: Int,
@@ -32,9 +32,9 @@ data class NotificationItem(
             else -> false
         }
     }
-    
 
-    
+
+
     fun getLinkedEventTitle(): String {
         return when (linkedEventType) {
             LinkedEventType.GAME -> "Game Details"
@@ -57,13 +57,6 @@ enum class NotificationType {
     ADMIN_MESSAGE,      // Direct message from admin
     POST_MATCH_SUMMARY, // Match results and summary
     SYSTEM              // System notification
-}
-
-enum class RSVPStatus {
-    AVAILABLE,   // Green - User is available
-    MAYBE,       // Orange - User might be available
-    UNAVAILABLE, // Red/Gray - User is not available
-    NOT_RESPONDED // No response yet
 }
 
 enum class LinkedEventType {
@@ -91,4 +84,4 @@ fun NotificationItem.isReminderNotification(): Boolean {
 
 fun NotificationItem.getAccentColor(): String {
     return teamColor ?: "#FFD400" // Default to primary yellow
-} 
+}
