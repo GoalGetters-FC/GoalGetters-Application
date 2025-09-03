@@ -158,6 +158,21 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
                 supportFragmentManager, CreateTeamBottomSheet.TAG
             )
         }
+
+
+        // long click create team → seed debug team
+        binds.createTeamButton.setOnLongClickListener {
+            val authId = FirebaseAuth.getInstance().currentUser?.uid
+            if (authId == null) {
+                Toast.makeText(this, "Not signed in", Toast.LENGTH_SHORT).show()
+                return@setOnLongClickListener true
+            }
+
+            model.createDebugTeam(authId)
+            Toast.makeText(this, "Debug team seeded", Toast.LENGTH_SHORT).show()
+            true
+        }
+
     }
 
     override fun onClick(view: View?) = when (view?.id) {

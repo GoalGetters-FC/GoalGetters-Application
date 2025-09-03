@@ -25,12 +25,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.Instant
 import java.util.UUID
 import com.ggetters.app.core.sync.SyncManager
+import com.ggetters.app.data.model.Event
+import com.ggetters.app.data.model.EventCategory
+import com.ggetters.app.data.model.EventStyle
+import com.ggetters.app.data.model.UserPosition
+import com.ggetters.app.data.repository.event.EventRepository
+import com.ggetters.app.data.repository.user.UserRepository
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 @HiltViewModel
 class TeamViewerViewModel @Inject constructor(
     private val repo: TeamRepository,
-    private val userRepo: com.ggetters.app.data.repository.user.UserRepository,
-    private val syncManager: SyncManager
+    private val userRepo: UserRepository,
+    private val syncManager: SyncManager,
+    private val eventRepo: EventRepository
+    
 ) : ViewModel() {
 
     // Flow of teams the current user belongs to
@@ -146,7 +156,7 @@ class TeamViewerViewModel @Inject constructor(
             description = "",
             composition = TeamComposition.UNISEX_MALE,
             denomination = TeamDenomination.OPEN,
-            yearFormed = now.atZone(java.time.ZoneId.systemDefault()).year.toString(),
+            yearFormed = now.atZone(ZoneId.systemDefault()).year.toString(),
             contactCell = "",
             contactMail = "",
             clubAddress = "",
@@ -160,7 +170,151 @@ class TeamViewerViewModel @Inject constructor(
             .replace(Regex("[^A-Z0-9]"), "")
             .ifEmpty { "TEAM" }
             .take(6)
+
+    fun createDebugTeam(authId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _busy.value = true
+
+                // 1. Build base team
+                val team = buildTeam("Chelsea FC")
+                repo.createTeam(team)
+
+                val now = Instant.now()
+
+                // 2. Insert coach = current Firebase user
+                val coach = User(
+                    id = authId,
+                    authId = authId,
+                    teamId = team.id,
+                    joinedAt = now,
+                    role = UserRole.COACH,
+                    name = "Mauricio",
+                    surname = "Pochettino",
+                    email = FirebaseAuth.getInstance().currentUser?.email,
+                    status = UserStatus.ACTIVE,
+                    createdAt = now,
+                    updatedAt = now
+                )
+                userRepo.upsert(coach)
+
+                // 3. Seed Chelsea players
+                val chelseaPlayers = listOf(
+                    "Robert Sánchez" to "goalkeeper",
+                    "Reece James" to "defender",
+                    "Thiago Silva" to "defender",
+                    "Levi Colwill" to "defender",
+                    "Ben Chilwell" to "defender",
+                    "Enzo Fernández" to "midfielder",
+                    "Moises Caicedo" to "midfielder",
+                    "Conor Gallagher" to "midfielder",
+                    "Raheem Sterling" to "winger",
+                    "Nicolas Jackson" to "striker",
+                    "Cole Palmer" to "winger",
+                    "Marc Cucurella" to "defender",
+                    "Trevoh Chalobah" to "defender",
+                    "Noni Madueke" to "winger",
+                    "Armando Broja" to "striker",
+                    "Mykhailo Mudryk" to "winger",
+                    "Wesley Fofana" to "defender (injured)"
+                )
+
+                chelseaPlayers.forEachIndexed { idx, (fullName, posLabel) ->
+                    val parts = fullName.split(" ", limit = 2)
+                    val first = parts.getOrElse(0) { "Player" }
+                    val last = parts.getOrElse(1) { "" }
+
+                    val user = User(
+                        id = UUID.randomUUID().toString(),
+                        authId = "debug_${first.lowercase()}_${idx + 1}",
+                        teamId = team.id,
+                        joinedAt = now,
+                        role = UserRole.FULL_TIME_PLAYER,
+                        name = first,
+                        surname = last,
+                        alias = "",
+                        dateOfBirth = null,
+                        email = null,
+                        position = toUserPosition(posLabel), // reuse helper mapping
+                        number = idx + 1,
+                        status = if (posLabel.contains("injured", true)) UserStatus.INJURY else UserStatus.ACTIVE,
+                        createdAt = now,
+                        updatedAt = now
+                    )
+
+                    userRepo.upsert(user)
+                }
+
+                // 4. Seed a couple of events
+                val events = listOf(
+                    Event(
+                        id = UUID.randomUUID().toString(),
+                        teamId = team.id,
+                        name = "Match vs Arsenal",
+                        category = EventCategory.MATCH,
+                        location = "Stamford Bridge",
+                        startAt = LocalDateTime.ofInstant(now.plusSeconds(86400), ZoneId.systemDefault()),
+                        endAt = LocalDateTime.ofInstant(now.plusSeconds(93600), ZoneId.systemDefault()),
+                        creatorId = authId,
+                        createdAt = now,
+                        updatedAt = now,
+                        stainedAt = null,
+                        description = "Premier League fixture",
+                        style = EventStyle.FRIENDLY
+                    ),
+                    Event(
+                        id = UUID.randomUUID().toString(),
+                        teamId = team.id,
+                        name = "Training Session",
+                        category = EventCategory.PRACTICE,
+                        location = "Cobham Training Ground",
+                        startAt = LocalDateTime.ofInstant(now.plusSeconds(172800), ZoneId.systemDefault()),
+                        endAt = LocalDateTime.ofInstant(now.plusSeconds(180000), ZoneId.systemDefault()),
+                        creatorId = authId,
+                        createdAt = now,
+                        updatedAt = now,
+                        stainedAt = null,
+                        description = "First-team training",
+                        style = EventStyle.STANDARD
+                    )
+                )
+                events.forEach { eventRepo.upsert(it) }
+
+                // 5. Sync repos
+                userRepo.sync()
+                eventRepo.sync()
+                repo.sync()
+
+                _toast.emit("Chelsea FC debug team seeded ✅")
+
+            } catch (e: Throwable) {
+                Clogger.e("TeamViewerVM", "createDebugTeam failed", e)
+                _toast.tryEmit("Debug team failed: ${e.message}")
+            } finally {
+                _busy.value = false
+            }
+        }
+    }
+
+    /** Copy of your mapping helper */
+    private fun toUserPosition(label: String): UserPosition? =
+        when (label.trim().lowercase()) {
+            "striker" -> UserPosition.STRIKER
+            "forward" -> UserPosition.FORWARD
+            "midfielder" -> UserPosition.MIDFIELDER
+            "defender" -> UserPosition.DEFENDER
+            "goalkeeper" -> UserPosition.GOALKEEPER
+            "winger" -> UserPosition.WINGER
+            "center back", "centre back" -> UserPosition.CENTER_BACK
+            "full back" -> UserPosition.FULL_BACK
+            else -> null
+        }
+
+
+
 }
+
+
 
 
 /**
