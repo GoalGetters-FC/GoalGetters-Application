@@ -24,7 +24,8 @@ class FormationPitchView @JvmOverloads constructor(
     private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     // Colors
-    private val pitchColor = ContextCompat.getColor(context, R.color.pitch_green)
+    private val pitchColor = ContextCompat.getColor(context, R.color.pitch_green_light)  // Lighter green for main pitch
+    private val pitchBackgroundColor = ContextCompat.getColor(context, R.color.pitch_green_dark)  // Darker green for background
     private val lineColor = Color.WHITE
     private val playerColor = ContextCompat.getColor(context, R.color.surface)
     private val playerBorderColor = ContextCompat.getColor(context, R.color.outline)
@@ -48,8 +49,8 @@ class FormationPitchView @JvmOverloads constructor(
     }
 
     private fun setupPaints() {
-        // Pitch background - solid green like the image
-        pitchPaint.color = Color.parseColor("#4CAF50")  // Match image green
+        // Pitch background - lighter green for main playing field (better contrast)
+        pitchPaint.color = pitchColor  // Use the lighter green for main pitch
         pitchPaint.style = Paint.Style.FILL
 
         // White lines - crisp and clean
@@ -194,7 +195,14 @@ class FormationPitchView @JvmOverloads constructor(
     }
 
     private fun drawGrassPitch(canvas: Canvas) {
-        // Draw solid green background like the image
+        // Draw darker green background first (like the image)
+        val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = pitchBackgroundColor
+            style = Paint.Style.FILL
+        }
+        canvas.drawRect(pitchRect, backgroundPaint)
+        
+        // Draw main playing field with medium-dark green (clean, no texture lines)
         canvas.drawRect(pitchRect, pitchPaint)
     }
 
