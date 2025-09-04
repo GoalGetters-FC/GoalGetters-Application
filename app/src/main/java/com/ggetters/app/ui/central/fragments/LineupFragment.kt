@@ -15,9 +15,9 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.data.model.RSVPStatus
 import com.ggetters.app.ui.central.adapters.LineupPlayerGridAdapter
 import com.ggetters.app.data.model.RosterPlayer
+import com.ggetters.app.data.model.RSVPStatus
 import com.ggetters.app.ui.central.viewmodels.LineupViewModel
 import com.ggetters.app.ui.central.views.components.FormationPitchView
 import com.ggetters.app.ui.central.sheets.MatchEventsBottomSheet
@@ -53,6 +53,8 @@ class LineupFragment : Fragment() {
     // Data
     private var availablePlayers = listOf<RosterPlayer>()
     private var currentFormation = "4-3-3"
+    private var positionedPlayers = mutableMapOf<String, RosterPlayer?>()
+    private var currentDraggedPlayer: RosterPlayer? = null
     private val formations = listOf("4-3-3", "4-4-2", "3-5-2", "4-2-3-1", "5-3-2")
 
     companion object {
@@ -116,20 +118,13 @@ class LineupFragment : Fragment() {
     }
 
     private fun setupPitchInteractions() {
-        // Player click - show player options
-        pitchView.setOnPlayerClickListener { position, player ->
-            player?.let { showPlayerOptionsDialog(position, it) }
-        }
-        
-        // Empty position click - show player selection
-        pitchView.setOnPositionClickListener { position ->
-            showPlayerSelectionDialog(position)
-        }
-        
         // Player dropped - handle position change
         pitchView.setOnPlayerDroppedListener { position, dropPoint ->
+            android.util.Log.d("LineupFragment", "Player dropped listener called: position=$position, dropPoint=(${dropPoint.x}, ${dropPoint.y})")
             handlePlayerDrop(position, dropPoint)
         }
+        
+        android.util.Log.d("LineupFragment", "Pitch interactions setup completed")
     }
 
     private fun setupFormationSpinner() {
@@ -176,10 +171,8 @@ class LineupFragment : Fragment() {
 
     private fun loadPlayerData() {
         // TODO: Backend - Load actual player data
-        // Create sample data matching available players
-        availablePlayers = listOf(
-          RosterPlayer("2", "Ben Thompson", 11, "GK", RSVPStatus.AVAILABLE ),
-        )
+        // Temporarily commented out due to data model issues
+        // availablePlayers = listOf()
         
         // Set initial formation on pitch
         updatePitchFormation()
@@ -334,8 +327,17 @@ class LineupFragment : Fragment() {
     }
     
     private fun handlePlayerDragStart(player: RosterPlayer) {
+        currentDraggedPlayer = player
         // Player drag started - could add visual feedback here
         // The actual drop handling is done in FormationPitchView's drag listener
+        
+        // Debug logging
+        android.util.Log.d("LineupFragment", "Player drag started: ${player.playerName}")
+        
+        // Show visual feedback
+        Snackbar.make(requireView(), 
+            "Dragging ${player.playerName} - drop on pitch to position", 
+            Snackbar.LENGTH_SHORT).show()
     }
 
     private fun showAddPlayer() {
@@ -494,37 +496,76 @@ class LineupFragment : Fragment() {
     }
 
     private fun handlePlayerDrop(position: String, dropPoint: PointF) {
-        // Find the closest valid position to the drop point
-        val closestPosition = findClosestPosition(dropPoint)
-        
-        if (closestPosition != null) {
-            // Get the player being dragged from the drop event
-            val draggedPlayer = pitchView.getPositionedPlayers()[position]
-            
-            if (draggedPlayer != null) {
-                // Player is already on the pitch - handle movement/swapping
-                handlePlayerMovement(position, closestPosition, draggedPlayer)
-            } else {
-                // Player is being dropped from the grid - the FormationPitchView already handled it
-                // Just update the available players grid
-                updateAvailablePlayersGrid()
-                
-                // Show success message
-                val player = pitchView.getPositionedPlayers()[closestPosition]
-                player?.let {
-                    Snackbar.make(requireView(), 
-                        "${it.playerName} positioned at $closestPosition", 
-                        Snackbar.LENGTH_SHORT).show()
-                }
-            }
+        // Check if this is a swap scenario (dropPoint.x == -1f indicates swap)
+        if (dropPoint.x == -1f && dropPoint.y == -1f) {
+            // This is a swap scenario - handle player swapping
+            handlePlayerSwap(position)
         } else {
-            // Invalid drop - snap back to original position
-            Snackbar.make(requireView(), 
-                "Invalid position - player returned", 
-                Snackbar.LENGTH_SHORT).show()
+            // Regular drop - find the closest valid position to the drop point
+            val closestPosition = findClosestPosition(dropPoint)
+            
+            if (closestPosition != null) {
+                // Get the player being dragged from the drop event
+                val draggedPlayer = pitchView.getPositionedPlayers()[position]
+                
+                if (draggedPlayer != null) {
+                    // Player is already on the pitch - handle movement/swapping
+                    handlePlayerMovement(position, closestPosition, draggedPlayer)
+                } else {
+                    // Player is being dropped from the grid - the FormationPitchView already handled it
+                    // Just update the available players grid
+                    updateAvailablePlayersGrid()
+                    
+                    // Show success message
+                    val player = pitchView.getPositionedPlayers()[closestPosition]
+                    player?.let {
+                        Snackbar.make(requireView(), 
+                            "${it.playerName} positioned at $closestPosition", 
+                            Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                // Invalid drop - snap back to original position
+                Snackbar.make(requireView(), 
+                    "Invalid position - player returned", 
+                    Snackbar.LENGTH_SHORT).show()
+            }
         }
     }
     
+    private fun handlePlayerSwap(targetPosition: String) {
+        // Get the current player at the target position
+        val currentPositions = pitchView.getPositionedPlayers().toMutableMap()
+        val targetPlayer = currentPositions[targetPosition]
+        
+        // Get the dragged player from the current dragged player state
+        val draggedPlayer = currentDraggedPlayer
+        
+        if (targetPlayer != null && draggedPlayer != null) {
+            // Find where the dragged player currently is on the pitch
+            val draggedPlayerPosition = currentPositions.entries.find { it.value?.playerId == draggedPlayer.playerId }?.key
+            
+            if (draggedPlayerPosition != null) {
+                // Swap the players
+                currentPositions[draggedPlayerPosition] = targetPlayer
+                currentPositions[targetPosition] = draggedPlayer
+                
+                // Update the pitch view
+                pitchView.setPlayers(currentPositions)
+                
+                // Update the available players grid
+                updateAvailablePlayersGrid()
+                
+                Snackbar.make(requireView(), 
+                    "Players swapped: ${draggedPlayer.playerName} ↔ ${targetPlayer.playerName}", 
+                    Snackbar.LENGTH_SHORT).show()
+            }
+        }
+        
+        // Clear the dragged player state
+        currentDraggedPlayer = null
+    }
+
     private fun handlePlayerMovement(fromPosition: String, toPosition: String, player: RosterPlayer) {
         val currentPositions = pitchView.getPositionedPlayers().toMutableMap()
         val targetPlayer = currentPositions[toPosition]

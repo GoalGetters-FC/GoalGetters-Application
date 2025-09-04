@@ -81,7 +81,7 @@ class MatchDetailsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            matchId = it.getString("match_id", "")
+            matchId = it.getString("event_id", "")  // Fixed: use consistent key "event_id"
             matchTitle = it.getString("match_title", "")
             homeTeam = it.getString("home_team", "")
             awayTeam = it.getString("away_team", "")

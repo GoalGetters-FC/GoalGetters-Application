@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -24,9 +25,10 @@ class AttendanceFragment : Fragment() {
     private val viewModel: AttendanceViewModel by viewModels()
 
     private var matchId: String = ""
-    private lateinit var refereesAdapter: AttendancePlayerAdapter
-    private lateinit var substitutesAdapter: AttendancePlayerAdapter
-    private lateinit var unknownAdapter: AttendancePlayerAdapter
+    private lateinit var presentAdapter: AttendancePlayerAdapter
+    private lateinit var absentAdapter: AttendancePlayerAdapter
+    private lateinit var lateAdapter: AttendancePlayerAdapter
+    private lateinit var excusedAdapter: AttendancePlayerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,36 +52,44 @@ class AttendanceFragment : Fragment() {
     }
 
     private fun setupRecyclerViews(view: View) {
-        refereesAdapter = AttendancePlayerAdapter { player, action -> handlePlayerAction(player, action) }
-        substitutesAdapter = AttendancePlayerAdapter { player, action -> handlePlayerAction(player, action) }
-        unknownAdapter = AttendancePlayerAdapter { player, action -> handlePlayerAction(player, action) }
+        presentAdapter = AttendancePlayerAdapter { player, action, clickedView -> handlePlayerAction(player, action, clickedView) }
+        absentAdapter = AttendancePlayerAdapter { player, action, clickedView -> handlePlayerAction(player, action, clickedView) }
+        lateAdapter = AttendancePlayerAdapter { player, action, clickedView -> handlePlayerAction(player, action, clickedView) }
+        excusedAdapter = AttendancePlayerAdapter { player, action, clickedView -> handlePlayerAction(player, action, clickedView) }
 
-        view.findViewById<RecyclerView>(R.id.refereesRecyclerView).apply {
+        view.findViewById<RecyclerView>(R.id.presentRecyclerView).apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = refereesAdapter
+            adapter = presentAdapter
         }
-        view.findViewById<RecyclerView>(R.id.substitutesRecyclerView).apply {
+        view.findViewById<RecyclerView>(R.id.absentRecyclerView).apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = substitutesAdapter
+            adapter = absentAdapter
         }
-        view.findViewById<RecyclerView>(R.id.unknownRecyclerView).apply {
+        view.findViewById<RecyclerView>(R.id.lateRecyclerView).apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = unknownAdapter
+            adapter = lateAdapter
+        }
+        view.findViewById<RecyclerView>(R.id.excusedRecyclerView).apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = excusedAdapter
         }
     }
 
     private fun observeViewModel() {
         lifecycleScope.launchWhenStarted {
             viewModel.players.collectLatest { players ->
-                // 🔴 Fix grouping logic to match ViewModel statuses
-                val available = players.filter { it.attendance.status == 0 }
-                val unavailable = players.filter { it.attendance.status == 1 }
-                val maybe = players.filter { it.attendance.status == 2 }
-                val unknown = players.filter { it.attendance.status == 3 }
+                // Fixed: Proper status mapping - 0=Present,1=Absent,2=Late,3=Excused
+                val present = players.filter { it.attendance.status == 0 }
+                val absent = players.filter { it.attendance.status == 1 }
+                val late = players.filter { it.attendance.status == 2 }
+                val excused = players.filter { it.attendance.status == 3 }
 
-                refereesAdapter.updatePlayers(available)
-                substitutesAdapter.updatePlayers(maybe)
-                unknownAdapter.updatePlayers(unavailable + unknown)
+                presentAdapter.updatePlayers(present)
+                absentAdapter.updatePlayers(absent)
+                lateAdapter.updatePlayers(late)
+                excusedAdapter.updatePlayers(excused)
+                
+                updateSectionCounts(present.size, absent.size, late.size, excused.size)
             }
         }
 
@@ -93,23 +103,46 @@ class AttendanceFragment : Fragment() {
         }
     }
 
-    private fun handlePlayerAction(player: AttendanceWithUser, action: String) {
+    private fun updateSectionCounts(presentCount: Int, absentCount: Int, lateCount: Int, excusedCount: Int) {
+        view?.let { view ->
+            view.findViewById<TextView>(R.id.presentSectionTitle)?.text = "Present ($presentCount)"
+            view.findViewById<TextView>(R.id.absentSectionTitle)?.text = "Absent ($absentCount)"
+            view.findViewById<TextView>(R.id.lateSectionTitle)?.text = "Late ($lateCount)"
+            view.findViewById<TextView>(R.id.excusedSectionTitle)?.text = "Excused ($excusedCount)"
+        }
+    }
+
+    private fun handlePlayerAction(player: AttendanceWithUser, action: String, clickedView: View?) {
         when (action) {
-            "menu" -> showPlayerMenu(player)
+            "menu" -> showPlayerMenu(player, clickedView)
             "status_change" -> cyclePlayerStatus(player)
         }
     }
 
-    private fun showPlayerMenu(player: AttendanceWithUser) {
-        val popup = PopupMenu(requireContext(), requireView())
+    private fun showPlayerMenu(player: AttendanceWithUser, anchor: View?) {
+        // Use the clicked button as anchor, or fall back to the fragment view
+        val anchorView = anchor ?: requireView()
+        val popup = PopupMenu(requireContext(), anchorView)
         popup.menuInflater.inflate(R.menu.menu_player_attendance, popup.menu)
+        
+        // Force popup to show below the anchor for better positioning
+        try {
+            val field = PopupMenu::class.java.getDeclaredField("mPopup")
+            field.isAccessible = true
+            val menuPopupHelper = field.get(popup)
+            val classPopupHelper = Class.forName(menuPopupHelper.javaClass.name)
+            val setForceIcons = classPopupHelper.getMethod("setForceShowIcon", Boolean::class.java)
+            setForceIcons.invoke(menuPopupHelper, true)
+        } catch (e: Exception) {
+            // Ignore if reflection fails - menu will still work without icons
+        }
 
         popup.setOnMenuItemClickListener { menuItem ->
             val newStatus = when (menuItem.itemId) {
-                R.id.action_set_available -> 0
-                R.id.action_set_unavailable -> 1
-                R.id.action_set_maybe -> 2
-                R.id.action_set_not_responded -> 3
+                R.id.action_set_available -> 0      // Present
+                R.id.action_set_unavailable -> 1    // Absent  
+                R.id.action_set_maybe -> 2          // Late
+                R.id.action_set_not_responded -> 3  // Excused
                 else -> null
             }
             newStatus?.let {
