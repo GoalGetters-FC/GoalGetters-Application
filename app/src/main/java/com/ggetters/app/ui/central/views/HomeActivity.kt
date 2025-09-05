@@ -32,6 +32,7 @@ import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.management.views.TeamsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -43,16 +44,13 @@ class HomeActivity : AppCompatActivity() {
         private const val LONG_PRESS_DURATION_MS = 500L
     }
 
-
     private lateinit var binds: ActivityHomeBinding
     private val model: HomeViewModel by viewModels()
-
 
     private var currentFragment: Fragment? = null
     private var longPressStartTime: Long = 0
     private var currentTabIndex: Int = 0 // Track current tab position for transitions
     private var lastBottomNavClickAt: Long = 0L
-
 
     var notificationBadge: ImageView? = null
 
@@ -60,14 +58,11 @@ class HomeActivity : AppCompatActivity() {
     @Inject lateinit var teamRepo: TeamRepository
     @Inject lateinit var userRepo: UserRepository
     @Inject lateinit var eventRepo: EventRepository
-    @Inject
-    lateinit var attendanceRepo: AttendanceRepository
+    @Inject lateinit var attendanceRepo: AttendanceRepository
 
     private var syncScheduled = false
 
-// --- Lifecycle
-
-
+    // --- Lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupBindings()
@@ -125,7 +120,6 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_home, menu)
         val notificationOption = menu?.findItem(R.id.menu_home_notifications)
@@ -138,10 +132,7 @@ class HomeActivity : AppCompatActivity() {
         return true
     }
 
-
-// --- ViewModel
-
-
+    // --- ViewModel
     private fun observe() = model.uiConfiguration.observe(this) { configuration ->
         when (configuration.appBarShown) {
             true -> {
@@ -157,7 +148,6 @@ class HomeActivity : AppCompatActivity() {
                         binds.topBar.setBackgroundColor("#161620".toColorInt())
                         binds.appBar.setTitleTextColor("#FFFFFF".toColorInt())
                     }
-
                     else -> {
                         binds.root.setBackgroundColor("#FFFFFF".toColorInt())
                         WindowCompat.getInsetsController(
@@ -169,22 +159,17 @@ class HomeActivity : AppCompatActivity() {
                     }
                 }
             }
-
             else -> {
                 binds.topBar.visibility = View.GONE
             }
         }
     }
 
-
-// --- Internals
-
-
+    // --- Internals
     fun setNotificationBadgeVisibility(visible: Boolean) {
         if (visible) notificationBadge?.visibility = View.VISIBLE
         else notificationBadge?.visibility = View.GONE
     }
-
 
     private fun setupStatusBar() {
         // Enable edge-to-edge display but keep status bar visible
@@ -197,7 +182,6 @@ class HomeActivity : AppCompatActivity() {
         // Ensure status bar is visible and properly colored
         window.statusBarColor = getColor(R.color.white)
     }
-
 
     private fun setupViews() {
         val notificationsItem = binds.appBar.menu.findItem(R.id.menu_home_notifications)
@@ -228,7 +212,6 @@ class HomeActivity : AppCompatActivity() {
         overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
     }
 
-
     private fun setupBottomNavigation() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNav.labelVisibilityMode =
@@ -247,7 +230,7 @@ class HomeActivity : AppCompatActivity() {
                 R.id.nav_profile -> 3
                 else -> -1
             }
-            
+
             if (newTabIndex != -1) {
                 // Ignore re-select on the same tab to prevent jitter
                 if (newTabIndex == currentTabIndex) return@setOnItemSelectedListener true
@@ -255,11 +238,11 @@ class HomeActivity : AppCompatActivity() {
                 val fragment = when (menuItem.itemId) {
                     R.id.nav_calendar -> HomeCalendarFragment()
                     R.id.nav_team_players -> HomeTeamFragment()
-                    R.id.nav_player_profile -> PlayerDetailsFragment()
+                    R.id.nav_player_profile -> profileFragmentForCurrentUser()
                     R.id.nav_profile -> HomeSettingsFragment()
                     else -> null
                 }
-                
+
                 fragment?.let {
                     switchFragmentWithDirection(it, newTabIndex)
                 }
@@ -275,9 +258,13 @@ class HomeActivity : AppCompatActivity() {
         // Setup long click listener for Options tab specifically
         setupOptionsLongClick(bottomNav)
 
-
-
         // Default fragment is set in onCreate
+    }
+
+    private fun profileFragmentForCurrentUser(): Fragment {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        // If uid is null/blank, pass blank – PlayerProfileFragment will call loadCurrentUser()
+        return PlayerProfileFragment.newInstance(uid ?: "", startEditing = false)
     }
 
     private fun setupOptionsLongClick(bottomNav: BottomNavigationView) {
@@ -341,7 +328,6 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-
     private fun showTeamSwitcher() {
         // TODO: Backend - Implement team switching with proper authentication
         // TODO: Backend - Add team switching analytics and tracking
@@ -397,7 +383,7 @@ class HomeActivity : AppCompatActivity() {
         // Determine transition direction based on tab index
         val isMovingForward = newTabIndex > currentTabIndex
         val isMovingBackward = newTabIndex < currentTabIndex
-        
+
         // Set appropriate animations based on direction
         if (isMovingForward) {
             // Moving forward (left to right in tab order) - slide in from right
@@ -439,13 +425,13 @@ class HomeActivity : AppCompatActivity() {
         if (supportFragmentManager.backStackEntryCount > 1) {
             // Pop the back stack
             supportFragmentManager.popBackStack()
-            
+
             // Update current tab index based on the fragment that's now visible
             val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
             currentTabIndex = when (currentFragment) {
                 is HomeCalendarFragment -> 0
                 is HomeTeamFragment -> 1
-                is PlayerDetailsFragment -> 2
+                is PlayerProfileFragment -> 2
                 is HomeSettingsFragment -> 3
                 else -> currentTabIndex
             }
@@ -512,14 +498,10 @@ class HomeActivity : AppCompatActivity() {
             .show(supportFragmentManager, "AccountSwitcher")
     }
 
-
-// --- UI
-
-
+    // --- UI
     private fun setupBindings() {
         binds = ActivityHomeBinding.inflate(layoutInflater)
     }
-
 
     private fun setupLayoutUi() {
         setContentView(binds.root)
@@ -532,4 +514,4 @@ class HomeActivity : AppCompatActivity() {
             insets
         }
     }
-} 
+}
