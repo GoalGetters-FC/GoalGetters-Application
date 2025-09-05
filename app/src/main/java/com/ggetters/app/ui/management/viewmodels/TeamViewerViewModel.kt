@@ -3,38 +3,37 @@ package com.ggetters.app.ui.management.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ggetters.app.core.utils.Clogger
-import com.ggetters.app.data.model.Team
-import com.ggetters.app.data.model.TeamComposition
-import com.ggetters.app.data.model.TeamDenomination
-import com.ggetters.app.data.model.User
-import com.ggetters.app.data.model.UserRole
-import com.ggetters.app.data.model.UserStatus
-import com.ggetters.app.data.repository.team.TeamRepository
-import com.google.firebase.auth.FirebaseAuth
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.launch
-import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import java.time.Instant
-import java.util.UUID
 import com.ggetters.app.core.sync.SyncManager
 import com.ggetters.app.data.model.Attendance
 import com.ggetters.app.data.model.Event
 import com.ggetters.app.data.model.EventCategory
 import com.ggetters.app.data.model.EventStyle
+import com.ggetters.app.data.model.Team
+import com.ggetters.app.data.model.TeamComposition
+import com.ggetters.app.data.model.TeamDenomination
+import com.ggetters.app.data.model.User
 import com.ggetters.app.data.model.UserPosition
+import com.ggetters.app.data.model.UserRole
+import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.event.EventRepository
+import com.ggetters.app.data.repository.team.TeamRepository
 import com.ggetters.app.data.repository.user.UserRepository
+import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.UUID
+import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class TeamViewerViewModel @Inject constructor(
@@ -43,14 +42,11 @@ class TeamViewerViewModel @Inject constructor(
     private val syncManager: SyncManager,
     private val eventRepo: EventRepository,
     private val attendanceRepo: AttendanceRepository
-    
 ) : ViewModel() {
 
     // Flow of teams the current user belongs to
     val teams: StateFlow<List<Team>> = repo.getTeamsForCurrentUser()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
-
-
 
     // ---- NEW: Lightweight UI signals ----
     private val _busy = MutableStateFlow(false)
@@ -74,7 +70,6 @@ class TeamViewerViewModel @Inject constructor(
             }
         }
     }
-
 
     fun deleteTeam(team: Team) = viewModelScope.launch {
         _delete.value = DeleteState.Deleting
@@ -118,7 +113,6 @@ class TeamViewerViewModel @Inject constructor(
             }
         }
     }
-
 
     fun joinByCode(teamCode: String, userCode: String?) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -246,7 +240,7 @@ class TeamViewerViewModel @Inject constructor(
 
                 seededUsers.forEach { userRepo.upsert(it) }
 
-                // 4. Seed example events
+                // 4. Seed example events (future)
                 val events = listOf(
                     Event(
                         id = UUID.randomUUID().toString(),
@@ -281,7 +275,30 @@ class TeamViewerViewModel @Inject constructor(
                 )
                 events.forEach { eventRepo.upsert(it) }
 
-                // 5. Auto-seed attendance for all users for each event
+                // --- NEW: Completed match in the past (finished, with scorers in description) ---
+                val completedStart = LocalDateTime.ofInstant(
+                    now.minusSeconds(3 * 24 * 60 * 60), // 3 days ago
+                    ZoneId.systemDefault()
+                )
+                val completedMatch = Event(
+                    id = UUID.randomUUID().toString(),
+                    teamId = team.id,
+                    name = "Match vs Liverpool (Completed)",
+                    category = EventCategory.MATCH,
+                    location = "Stamford Bridge",
+                    startAt = completedStart,
+                    endAt = completedStart.plusMinutes(105), // 90' + stoppage
+                    creatorId = authId,
+                    createdAt = now,
+                    updatedAt = now,
+                    stainedAt = null,
+                    // Store final score + scorers in description for now
+                    description = "Full-time: Chelsea 2–1 Liverpool. Scorers: Jackson 23', Palmer 67' — Opponent 78'",
+                    style = EventStyle.FRIENDLY
+                )
+                eventRepo.upsert(completedMatch)
+
+                // 5. Auto-seed attendance for all users for each FUTURE event (default = Not Responded = 3)
                 val allUsers = listOf(coach) + seededUsers
                 events.forEach { event ->
                     val attendances = allUsers.map { user ->
@@ -298,6 +315,28 @@ class TeamViewerViewModel @Inject constructor(
                     attendanceRepo.upsertAll(attendances)
                 }
 
+                // --- NEW: Attendance for the completed match
+                // Coach + first XI marked Present(0), remaining players Absent(1)
+                val starters = seededUsers.take(11).map { it.id }.toSet()
+                val completedAttendances = allUsers.map { user ->
+                    val isStarter = user.id in starters
+                    val statusInt = when {
+                        user.id == coach.id -> 0 // Present
+                        isStarter -> 0           // Present
+                        else -> 1                // Absent
+                    }
+                    Attendance(
+                        eventId = completedMatch.id,
+                        playerId = user.id,
+                        status = statusInt,
+                        recordedBy = "system",
+                        recordedAt = now,
+                        createdAt = now,
+                        updatedAt = now
+                    )
+                }
+                attendanceRepo.upsertAll(completedAttendances)
+
                 // 6. Sync repos
                 userRepo.sync()
                 eventRepo.sync()
@@ -305,7 +344,6 @@ class TeamViewerViewModel @Inject constructor(
                 repo.sync()
 
                 _toast.emit("Chelsea FC debug team seeded ✅")
-
             } catch (e: Throwable) {
                 Clogger.e("TeamViewerVM", "createDebugTeam failed", e)
                 _toast.tryEmit("Debug team failed: ${e.message}")
@@ -314,7 +352,6 @@ class TeamViewerViewModel @Inject constructor(
             }
         }
     }
-
 
     /** Mapping helper */
     private fun toUserPosition(label: String): UserPosition? =
@@ -329,13 +366,7 @@ class TeamViewerViewModel @Inject constructor(
             "full back" -> UserPosition.FULL_BACK
             else -> null
         }
-
-
-
 }
-
-
-
 
 /**
  * TODO: Fix User insert + sync flow
