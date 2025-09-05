@@ -420,7 +420,7 @@ class HomeActivity : AppCompatActivity() {
         currentTabIndex = newTabIndex
     }
 
-    override fun onBackPressed() {
+    override fun onBackPressed() { // fix this, onBackPressedDispatcher
         // Handle back navigation
         if (supportFragmentManager.backStackEntryCount > 1) {
             // Pop the back stack
