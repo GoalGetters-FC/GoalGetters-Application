@@ -1,6 +1,7 @@
 // app/src/main/java/com/ggetters/app/data/mappers/RosterMapper.kt
 package com.ggetters.app.data.mappers
 
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.*
 
 /**
@@ -18,13 +19,18 @@ object RosterMapper {
         return users.map { user ->
             val rsvp = attendances.find { it.playerId == user.id }
             val spot = spots.find { it.userId == user.id }
+            
+            val attendanceStatus = rsvp?.status
+            val rsvpStatus = attendanceStatus?.toRsvpStatus() ?: RSVPStatus.NOT_RESPONDED
+            
+            Clogger.d("RosterMapper", "User ${user.name} ${user.surname}: attendanceStatus=$attendanceStatus, rsvpStatus=$rsvpStatus")
 
             RosterPlayer(
                 playerId = user.id,
                 playerName = "${user.name} ${user.surname}",
                 jerseyNumber = user.number ?: 0,
                 position = user.position?.name ?: "N/A",
-                status = rsvp?.status?.toRsvpStatus() ?: RSVPStatus.NOT_RESPONDED,
+                status = rsvpStatus,
                 responseTime = rsvp?.recordedAt,
                 notes = null,
                 profileImageUrl = null,
@@ -35,9 +41,10 @@ object RosterMapper {
     }
 
     private fun Int.toRsvpStatus(): RSVPStatus = when (this) {
-        1 -> RSVPStatus.AVAILABLE
-        2 -> RSVPStatus.MAYBE
-        3 -> RSVPStatus.UNAVAILABLE
+        0 -> RSVPStatus.AVAILABLE  // Present
+        1 -> RSVPStatus.UNAVAILABLE  // Absent
+        2 -> RSVPStatus.MAYBE  // Late
+        3 -> RSVPStatus.NOT_RESPONDED  // Excused
         else -> RSVPStatus.NOT_RESPONDED
     }
 }
