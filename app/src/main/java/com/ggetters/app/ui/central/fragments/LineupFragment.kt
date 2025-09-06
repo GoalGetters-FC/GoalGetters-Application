@@ -382,6 +382,10 @@ class LineupFragment : Fragment() {
         lifecycleScope.launchWhenStarted {
             rosterViewModel.players.collectLatest { players ->
                 Clogger.d("LineupFragment", "Received ${players.size} players from roster")
+                
+                // Get the previous list of available players to detect changes
+                val previousAvailablePlayers = availablePlayers.toSet()
+                
                 // Filter for players marked as PRESENT (status = 0 in attendance)
                 // Attendance status mapping: 0=Present, 1=Absent, 2=Late, 3=Excused
                 availablePlayers = players.filter { player ->
@@ -390,7 +394,13 @@ class LineupFragment : Fragment() {
                     Clogger.d("LineupFragment", "Player ${player.playerName}: status=${player.status}, available=$isAvailable")
                     isAvailable
                 }
+                
+                val currentAvailablePlayers = availablePlayers.toSet()
                 Clogger.d("LineupFragment", "Filtered to ${availablePlayers.size} available players")
+                
+                // Remove players from pitch who are no longer available
+                removeUnavailablePlayersFromPitch(previousAvailablePlayers, currentAvailablePlayers)
+                
                 updateAvailablePlayersGrid()
                 updatePitchFormation()
             }
@@ -494,6 +504,41 @@ class LineupFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun removeUnavailablePlayersFromPitch(previousAvailable: Set<RosterPlayer>, currentAvailable: Set<RosterPlayer>) {
+        // Find players who were available before but are no longer available
+        val playersToRemove = previousAvailable - currentAvailable
+        
+        if (playersToRemove.isNotEmpty()) {
+            Clogger.d("LineupFragment", "Removing ${playersToRemove.size} players from pitch: ${playersToRemove.map { it.playerName }}")
+            
+            // Remove these players from the pitch
+            val currentPositions = pitchView.getPositionedPlayers().toMutableMap()
+            val positionsToClear = mutableListOf<String>()
+            
+            currentPositions.forEach { (position, player) ->
+                if (player != null && playersToRemove.contains(player)) {
+                    positionsToClear.add(position)
+                    Clogger.d("LineupFragment", "Removing ${player.playerName} from position $position")
+                }
+            }
+            
+            // Clear the positions
+            positionsToClear.forEach { position ->
+                currentPositions[position] = null
+            }
+            
+            // Update the pitch view
+            pitchView.setPlayers(currentPositions)
+            
+            // Show a snackbar to inform the user
+            if (positionsToClear.isNotEmpty()) {
+                Snackbar.make(requireView(), 
+                    "Removed ${positionsToClear.size} player(s) from lineup due to attendance change", 
+                    Snackbar.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun updateAvailablePlayersGrid() {
