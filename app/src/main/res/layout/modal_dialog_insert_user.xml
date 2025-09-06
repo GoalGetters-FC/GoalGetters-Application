@@ -120,7 +120,6 @@
 
             <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Local.Input.Layout"
-                    android:enabled="false"
                     android:hint="Date of Birth (DOB)"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent">
@@ -128,10 +127,14 @@
                 <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_dob"
                         style="@style/Widget.Local.Input.Layout.EditText"
-                        android:inputType="text"
+                        android:inputType="date"
                         android:maxLines="1"
                         android:layout_height="wrap_content"
-                        android:layout_width="match_parent" />
+                        android:layout_width="match_parent"
+                        android:focusable="false"
+                        android:clickable="true"
+                        android:hint="Tap to select date"
+                        android:textColorHint="#80000000" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
