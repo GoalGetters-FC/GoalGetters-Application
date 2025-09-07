@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter
 class PlayerProfileFragment : Fragment() {
 
     companion object {
-        private const val ARG_PLAYER_ID = "player_id"
+        private const val ARG_PLAYER_ID = "player_id" // need to pass the actual id from db
         private const val ARG_START_EDITING = "start_editing"
 
         fun newInstance(playerId: String, startEditing: Boolean = false): PlayerProfileFragment {
@@ -103,15 +103,23 @@ class PlayerProfileFragment : Fragment() {
         // Ensure UI matches editing state immediately
         setEditing(isEditing)
 
-        playerId?.let { viewModel.loadPlayer(it) }
+        // If no playerId passed, load the currently logged-in user
+        if (playerId.isNullOrBlank()) {
+            viewModel.loadCurrentUser()
+        } else {
+            viewModel.loadPlayer(playerId!!)
+        }
 
         viewModel.player.observe(viewLifecycleOwner, Observer { player ->
             player?.let {
                 currentPlayer = it
                 displayPlayerInfo(it)
+                // (optional) refresh button visibility based on actual role
+                // setupRoleVisibility()  // uncomment if you want role-based buttons to re-evaluate
             }
         })
     }
+
 
     // 🔙 Added back exactly as requested (formatted + safe)
     private fun setupRoleVisibility() {
