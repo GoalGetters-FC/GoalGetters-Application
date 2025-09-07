@@ -2,6 +2,7 @@ package com.ggetters.app.data.repository.user
 
 import com.ggetters.app.data.local.dao.UserDao
 import com.ggetters.app.data.model.User
+import com.ggetters.app.core.utils.Clogger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import java.util.UUID
@@ -21,7 +22,17 @@ class OfflineUserRepository @Inject constructor(
     suspend fun getById(teamId: String, id: String): User? = dao.getByIdInTeam(id, teamId)
 
     override suspend fun upsert(entity: User) {
-        entity.stain()
+        // Avoid crashing if the entity is already marked dirty
+        try {
+            if (entity.isCleaned()) {
+                entity.stain()
+            } else {
+                Clogger.w("UserRepo", "Upsert called with already-dirty entity; proceeding without re-stain")
+            }
+        } catch (e: IllegalStateException) {
+            // Defensive: proceed without re-staining
+            Clogger.w("UserRepo", "stain() threw on upsert; proceeding: ${e.message}")
+        }
         dao.upsert(entity)
     }
 
