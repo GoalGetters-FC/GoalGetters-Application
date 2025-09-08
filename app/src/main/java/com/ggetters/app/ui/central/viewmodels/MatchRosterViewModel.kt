@@ -3,6 +3,7 @@ package com.ggetters.app.ui.central.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.mappers.RosterMapper
 import com.ggetters.app.data.model.Attendance
 import com.ggetters.app.data.model.Lineup
@@ -46,28 +47,51 @@ class MatchRosterViewModel @Inject constructor(
 
     /**
      * Load roster (users + RSVPs + lineup).
+     * This method starts observing the data flows and will automatically update when attendance changes.
      */
     fun loadRoster(matchId: String) {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
             try {
-                val users = userRepo.all().first()
-                val attendance = attendanceRepo.getByEventId(matchId).first()
-                val lineup = lineupRepo.getByEventId(matchId).first().firstOrNull()
-                _players.value = RosterMapper.merge(users, attendance, lineup)
+                // Observe users, attendance, and lineup flows and combine them
+                combine(
+                    userRepo.all(),
+                    attendanceRepo.getByEventId(matchId),
+                    lineupRepo.getByEventId(matchId)
+                ) { users, attendance, lineupList ->
+                    Clogger.d("MatchRosterVM", "Raw data: ${users.size} users, ${attendance.size} attendance records")
+                    attendance.forEach { att ->
+                        Clogger.d("MatchRosterVM", "Attendance: playerId=${att.playerId}, status=${att.status}")
+                    }
+                    val lineup = lineupList.firstOrNull()
+                    RosterMapper.merge(users, attendance, lineup)
+                }.collect { rosterPlayers ->
+                    Clogger.d("MatchRosterVM", "Roster updated: ${rosterPlayers.size} players, ${rosterPlayers.count { it.status == RSVPStatus.AVAILABLE }} available")
+                    _players.value = rosterPlayers
+                    _isLoading.value = false
+                }
 
             } catch (e: Exception) {
                 _error.value = "Failed to load roster: ${e.message}"
-            } finally {
                 _isLoading.value = false
             }
         }
+    }
+    
+    /**
+     * Force refresh the roster data.
+     * This can be called when we know attendance has been updated.
+     */
+    fun refreshRoster(matchId: String) {
+        Clogger.d("MatchRosterVM", "Force refreshing roster for matchId: $matchId")
+        loadRoster(matchId)
     }
 
 
     /**
      * Update RSVP for a player.
+     * The roster will automatically update via the observed flows.
      */
     fun updatePlayerRSVP(matchId: String, playerId: String, status: RSVPStatus) {
         viewModelScope.launch {
@@ -81,7 +105,7 @@ class MatchRosterViewModel @Inject constructor(
                         recordedAt = Instant.now()
                     )
                 )
-                loadRoster(matchId)
+                // No need to call loadRoster() - the flows will automatically update
             } catch (e: Exception) {
                 _error.value = "Failed to update RSVP: ${e.message}"
             }
@@ -89,10 +113,10 @@ class MatchRosterViewModel @Inject constructor(
     }
 
     private fun RSVPStatus.toDbInt(): Int = when (this) {
-        RSVPStatus.AVAILABLE -> 1
-        RSVPStatus.MAYBE -> 2
-        RSVPStatus.UNAVAILABLE -> 3
-        RSVPStatus.NOT_RESPONDED -> 0
+        RSVPStatus.AVAILABLE -> 0  // Present
+        RSVPStatus.UNAVAILABLE -> 1  // Absent
+        RSVPStatus.MAYBE -> 2  // Late
+        RSVPStatus.NOT_RESPONDED -> 3  // Excused
     }
 
     /**

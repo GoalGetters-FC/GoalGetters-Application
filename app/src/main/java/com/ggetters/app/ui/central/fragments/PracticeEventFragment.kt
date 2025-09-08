@@ -16,7 +16,6 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.util.*
 
-
 class PracticeEventFragment : Fragment() {
 
     private var selectedDate: Date? = null
@@ -28,7 +27,6 @@ class PracticeEventFragment : Fragment() {
     private var start: LocalTime? = null
     private var end: LocalTime? = null
     private var meet: LocalTime? = null
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,94 +50,78 @@ class PracticeEventFragment : Fragment() {
 
         // Date picker
         dateInput.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            DatePickerDialog(
-                requireContext(),
-                { _, year, month, dayOfMonth ->
-                    date = LocalDate.of(year, month + 1, dayOfMonth) // ✅ set var
-                    dateInput.setText(date.toString())
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
+            showDatePicker { selectedDate ->
+                this.selectedDate = selectedDate
+                this.date = LocalDate.of(
+                    selectedDate.year + 1900, // Date.getYear() returns year - 1900
+                    selectedDate.month + 1,   // Date.getMonth() returns 0-11
+                    selectedDate.date
+                )
+                val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                dateInput.setText(formatter.format(selectedDate))
+            }
         }
 
         // Start time picker
         startTimeInput.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            TimePickerDialog(
-                requireContext(),
-                { _, hour, minute ->
-                    start = LocalTime.of(hour, minute) // ✅ set var
-                    startTimeInput.setText(start.toString())
-                },
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                true
-            ).show()
+            showTimePicker { hour, minute ->
+                this.selectedStartTime = String.format("%02d:%02d", hour, minute)
+                this.start = LocalTime.of(hour, minute)
+                startTimeInput.setText(selectedStartTime)
+            }
         }
 
         // End time picker
         endTimeInput.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            TimePickerDialog(
-                requireContext(),
-                { _, hour, minute ->
-                    end = LocalTime.of(hour, minute) // ✅ set var
-                    endTimeInput.setText(end.toString())
-                },
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                true
-            ).show()
+            showTimePicker { hour, minute ->
+                this.selectedEndTime = String.format("%02d:%02d", hour, minute)
+                this.end = LocalTime.of(hour, minute)
+                endTimeInput.setText(selectedEndTime)
+            }
         }
 
         // Meeting time picker
         meetingTimeInput.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            TimePickerDialog(
-                requireContext(),
-                { _, hour, minute ->
-                    meet = LocalTime.of(hour, minute) // ✅ set var
-                    meetingTimeInput.setText(meet.toString())
-                },
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                true
-            ).show()
+            showTimePicker { hour, minute ->
+                this.selectedMeetingTime = String.format("%02d:%02d", hour, minute)
+                this.meet = LocalTime.of(hour, minute)
+                meetingTimeInput.setText(selectedMeetingTime)
+            }
         }
     }
 
     private fun showDatePicker(onDateSelected: (Date) -> Unit) {
         val calendar = Calendar.getInstance()
-        selectedDate?.let { calendar.time = it }
-        
-        DatePickerDialog(
+        val datePickerDialog = DatePickerDialog(
             requireContext(),
             { _, year, month, dayOfMonth ->
-                calendar.set(year, month, dayOfMonth)
-                onDateSelected(calendar.time)
+                val selectedDate = Calendar.getInstance().apply {
+                    set(year, month, dayOfMonth)
+                }.time
+                onDateSelected(selectedDate)
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
+        )
+        
+        // Set min date to today
+        datePickerDialog.datePicker.minDate = System.currentTimeMillis()
+        datePickerDialog.show()
     }
 
-    private fun showTimePicker(onTimeSelected: (String) -> Unit) {
+    private fun showTimePicker(onTimeSelected: (Int, Int) -> Unit) {
         val calendar = Calendar.getInstance()
-        
-        TimePickerDialog(
+        val timePickerDialog = TimePickerDialog(
             requireContext(),
             { _, hourOfDay, minute ->
-                val time = String.format("%02d:%02d", hourOfDay, minute)
-                onTimeSelected(time)
+                onTimeSelected(hourOfDay, minute)
             },
             calendar.get(Calendar.HOUR_OF_DAY),
             calendar.get(Calendar.MINUTE),
-            true
-        ).show()
+            true // 24-hour format
+        )
+        timePickerDialog.show()
     }
 
     fun collectFormData(): EventFormData? {
@@ -178,7 +160,6 @@ class PracticeEventFragment : Fragment() {
         val startTime = start
         val endTime = end
         if (endTime != null && startTime != null && endTime.isBefore(startTime)) {
-            Clogger.e("PracticeEventFragment", "❌ End time is before start time")
             view?.findViewById<TextInputEditText>(R.id.practiceEndTimeInput)?.error = "End time must be after start time"
             return null
         }
@@ -194,5 +175,4 @@ class PracticeEventFragment : Fragment() {
             meet = meet
         )
     }
-
-} 
+}

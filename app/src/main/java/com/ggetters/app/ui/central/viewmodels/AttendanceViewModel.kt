@@ -79,6 +79,7 @@ class AttendanceViewModel @Inject constructor(
                     status = newStatus,
                     recordedBy = "system"
                 )
+                Clogger.d("AttendanceVM", "Updating player $playerId to status $newStatus")
                 attendanceRepo.upsert(updated)
 
                 // optimistic local update so UI feels instant
