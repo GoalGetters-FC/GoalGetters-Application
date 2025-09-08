@@ -544,8 +544,9 @@ class LineupFragment : Fragment() {
     private fun updateAvailablePlayersGrid() {
         // Filter out players who are already positioned on the pitch
         val positionedPlayers = pitchView.getPositionedPlayers().values.filterNotNull()
+        val positionedIds = positionedPlayers.map { it.playerId }.toSet()
         val availableForBench = availablePlayers.filter { player ->
-            !positionedPlayers.contains(player)
+            !positionedIds.contains(player.playerId)
         }
         
         // Update the grid adapter with only available players
