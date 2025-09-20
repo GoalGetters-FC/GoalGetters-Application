@@ -1,19 +1,75 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   GoalGetters Data Extraction Security Rules
+   Controls what data can be extracted during device transfer and cloud backup
    See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
 -->
 <data-extraction-rules>
+    <!-- CLOUD BACKUP RULES -->
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <!-- EXCLUDE: All sensitive data from cloud backup -->
+        <exclude domain="sharedpref" path="auth_preferences.xml"/>
+        <exclude domain="sharedpref" path="firebase_auth_tokens.xml"/>
+        <exclude domain="sharedpref" path="google_auth_credentials.xml"/>
+        <exclude domain="sharedpref" path="user_health_data.xml"/>
+        <exclude domain="sharedpref" path="contact_information.xml"/>
+        <exclude domain="sharedpref" path="personal_details.xml"/>
+        <exclude domain="sharedpref" path="team_contact_details.xml"/>
+        <exclude domain="sharedpref" path="team_sensitive_info.xml"/>
+        <exclude domain="sharedpref" path="firebase_analytics.xml"/>
+        <exclude domain="sharedpref" path="crashlytics_data.xml"/>
+        <exclude domain="sharedpref" path="google_services.xml"/>
+        <exclude domain="sharedpref" path="db_maintenance"/>
+        <exclude domain="sharedpref" path="internal_flags.xml"/>
+        
+        <!-- EXCLUDE: All database files from cloud backup -->
+        <exclude domain="database" path="ggetters.db"/>
+        <exclude domain="database" path="ggetters-config.db"/>
+        <exclude domain="database" path="app_database"/>
+        <exclude domain="database" path="config_database"/>
+        
+        <!-- INCLUDE: Only safe app preferences for cloud backup -->
+        <include domain="sharedpref" path="app_preferences.xml"/>
+        <include domain="sharedpref" path="ui_preferences.xml"/>
+        <include domain="sharedpref" path="theme_settings.xml"/>
+        <include domain="sharedpref" path="notification_preferences.xml"/>
+        <include domain="sharedpref" path="app_state.xml"/>
+        <include domain="sharedpref" path="user_preferences.xml"/>
+        
+        <!-- INCLUDE: Non-sensitive cache files -->
+        <include domain="file" path="cache/"/>
+        <include domain="file" path="temp/"/>
     </cloud-backup>
-    <!--
+    
+    <!-- DEVICE TRANSFER RULES (More restrictive than cloud backup) -->
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <!-- EXCLUDE: All authentication and personal data from device transfer -->
+        <exclude domain="sharedpref" path="auth_preferences.xml"/>
+        <exclude domain="sharedpref" path="firebase_auth_tokens.xml"/>
+        <exclude domain="sharedpref" path="google_auth_credentials.xml"/>
+        <exclude domain="sharedpref" path="user_health_data.xml"/>
+        <exclude domain="sharedpref" path="contact_information.xml"/>
+        <exclude domain="sharedpref" path="personal_details.xml"/>
+        <exclude domain="sharedpref" path="team_contact_details.xml"/>
+        <exclude domain="sharedpref" path="team_sensitive_info.xml"/>
+        <exclude domain="sharedpref" path="firebase_analytics.xml"/>
+        <exclude domain="sharedpref" path="crashlytics_data.xml"/>
+        <exclude domain="sharedpref" path="google_services.xml"/>
+        <exclude domain="sharedpref" path="db_maintenance"/>
+        <exclude domain="sharedpref" path="internal_flags.xml"/>
+        
+        <!-- EXCLUDE: All database files from device transfer -->
+        <exclude domain="database" path="ggetters.db"/>
+        <exclude domain="database" path="ggetters-config.db"/>
+        <exclude domain="database" path="app_database"/>
+        <exclude domain="database" path="config_database"/>
+        
+        <!-- INCLUDE: Only basic UI preferences for device transfer -->
+        <include domain="sharedpref" path="ui_preferences.xml"/>
+        <include domain="sharedpref" path="theme_settings.xml"/>
+        <include domain="sharedpref" path="notification_preferences.xml"/>
+        
+        <!-- EXCLUDE: All other shared preferences by default -->
+        <exclude domain="sharedpref" path="."/>
     </device-transfer>
-    -->
 </data-extraction-rules>
