@@ -16,8 +16,10 @@
     <exclude domain="sharedpref" path="personal_details.xml"/>
     
     <!-- EXCLUDE: Database Files (contain sensitive data) -->
-    <exclude domain="database" path="ggetters.db"/>
+    <exclude domain="database" path="ggetters_v1.db"/>
     <exclude domain="database" path="ggetters-config.db"/>
+    <exclude domain="database" path="ggetters.db"/>
+    <exclude domain="database" path="ggetters.sqlite"/>
     <exclude domain="database" path="app_database"/>
     <exclude domain="database" path="config_database"/>
     
@@ -33,6 +35,20 @@
     <!-- EXCLUDE: Database Maintenance & Internal Flags -->
     <exclude domain="sharedpref" path="db_maintenance"/>
     <exclude domain="sharedpref" path="internal_flags.xml"/>
+    
+    <!-- EXCLUDE: DataStore Files (ConfigurationsService) -->
+    <exclude domain="file" path="ConfigurationsOptions.preferences_pb"/>
+    <exclude domain="file" path="ConfigurationsOptions.preferences_pb.tmp"/>
+    <exclude domain="file" path="ConfigurationsOptions.preferences_pb.lock"/>
+    <exclude domain="file" path="datastore/ConfigurationsOptions.preferences_pb"/>
+    <exclude domain="file" path="datastore/ConfigurationsOptions.preferences_pb.tmp"/>
+    <exclude domain="file" path="datastore/ConfigurationsOptions.preferences_pb.lock"/>
+    
+    <!-- EXCLUDE: All DataStore directories and files -->
+    <exclude domain="file" path="datastore/"/>
+    <exclude domain="file" path="*.preferences_pb"/>
+    <exclude domain="file" path="*.preferences_pb.tmp"/>
+    <exclude domain="file" path="*.preferences_pb.lock"/>
     
     <!-- INCLUDE: Safe App Configuration -->
     <include domain="sharedpref" path="app_preferences.xml"/>
