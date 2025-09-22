@@ -1,0 +1,39 @@
+name: MobSF Analysis
+
+on:
+  push:
+    branches: [ 'topic/devops' ]
+  pull_request:
+    branches: [ main, staging ]
+
+jobs:
+  mobsf-scan:
+    name: Run MobSF Static Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Analysis
+        uses: MobSF/mobsfscan-action@main
+        with:
+          scan-type: 'android' 
+          output-format: 'sarif' 
+
+      - name: Artifact
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: mobsf.sarif
+          
+      - name: Triage
+        if: steps.scan.outcome == 'failure' || failure()
+        run: |
+          echo "❌ MobSF scan failed due to security findings or an error."
+          echo "   Check the logs and the uploaded SARIF report."
+          exit 1
