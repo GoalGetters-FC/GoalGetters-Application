@@ -18,8 +18,8 @@ android {
         applicationId = "com.ggetters.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 10
-        versionName = "2025m09b"
+        versionCode = 11
+        versionName = "2025w39b"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
