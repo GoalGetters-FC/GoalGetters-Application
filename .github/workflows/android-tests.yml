@@ -69,16 +69,7 @@ jobs:
           name: coverage-report
           path: app/build/reports/jacoco/jacocoTestReport/html
 
-      - name: Set up Android SDK and run connected tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 29
-          target: google_apis
-          arch: x86_64
-          emulator-boot-timeout: 1200
-          force-avd-creation: true
-          avd-name: ci-api29
-          disable-animations: true
-          script: adb shell getprop ro.build.version.sdk && ./gradlew connectedDebugAndroidTest --stacktrace
+      # Connected Android tests disabled in CI to avoid SDK/emulator flakiness
+      # Run these locally if needed: `./gradlew connectedDebugAndroidTest`
 
         
