@@ -44,7 +44,7 @@ class GlobalAuthenticationListener
     /**
      * Listen for Firebase authentication state changes.
      */
-    fun listen() = { 
+    fun listen() {
         Clogger.d(
             TAG, "Listening for Firebase authentication state changes"
         )

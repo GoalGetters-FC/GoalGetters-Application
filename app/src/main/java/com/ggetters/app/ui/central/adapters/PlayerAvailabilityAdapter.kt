@@ -9,21 +9,26 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.PlayerAvailability
-import com.ggetters.app.ui.central.models.RSVPStatus
+import com.ggetters.app.core.extensions.kotlin.toRelativeTimeString
+import com.ggetters.app.data.model.RSVPStatus
+import com.ggetters.app.data.model.RosterPlayer
+import com.ggetters.app.ui.shared.extensions.getDisplayText
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
+import com.ggetters.app.ui.shared.extensions.getFormattedTime
+import com.ggetters.app.ui.shared.extensions.getIcon
+
 
 class PlayerAvailabilityAdapter(
-    private val onPlayerClick: (PlayerAvailability) -> Unit,
-    private val onRSVPChange: (PlayerAvailability, RSVPStatus) -> Unit,
-    private val onContactPlayer: (PlayerAvailability) -> Unit
+    private val onPlayerClick: (RosterPlayer) -> Unit,
+    private val onRSVPChange: (RosterPlayer, RSVPStatus) -> Unit,
+    private val onContactPlayer: (RosterPlayer) -> Unit
 ) : RecyclerView.Adapter<PlayerAvailabilityAdapter.PlayerViewHolder>() {
 
-    private var players = listOf<PlayerAvailability>()
+    private var players = listOf<RosterPlayer>()
 
-    fun updatePlayers(newPlayers: List<PlayerAvailability>) {
+    fun updatePlayers(newPlayers: List<RosterPlayer>) {
         val diffCallback = PlayerDiffCallback(players, newPlayers)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
         players = newPlayers
@@ -54,37 +59,34 @@ class PlayerAvailabilityAdapter(
         private val unavailableButton: MaterialButton = itemView.findViewById(R.id.unavailableButton)
         private val contactButton: ImageButton = itemView.findViewById(R.id.contactButton)
 
-        fun bind(player: PlayerAvailability) {
+        fun bind(player: RosterPlayer) {
             playerName.text = player.playerName
             playerPosition.text = player.position
             jerseyNumber.text = player.jerseyNumber.toString()
-            
+
             updateStatusDisplay(player)
             setupQuickActions(player)
             updateCardStyling(player)
-            
+
             // Response time
-            responseTime.text = if (player.responseTime != null) {
-                "Responded ${formatResponseTime(player.responseTime!!)}"
-            } else {
-                "No response"
-            }
-            
+            responseTime.text = player.responseTime?.toRelativeTimeString() ?: "No response"
+
             // Click listeners
             playerCard.setOnClickListener { onPlayerClick(player) }
             contactButton.setOnClickListener { onContactPlayer(player) }
         }
 
-        private fun updateStatusDisplay(player: PlayerAvailability) {
-            statusChip.text = "${player.getStatusIcon()} ${player.getStatusDisplayText()}"
-            
+
+        private fun updateStatusDisplay(player: RosterPlayer) {
+            statusChip.text = "${player.status.getIcon()} ${player.status.getDisplayText()}"
+
             val statusColor = when (player.status) {
                 RSVPStatus.AVAILABLE -> ContextCompat.getColor(itemView.context, R.color.success)
                 RSVPStatus.MAYBE -> ContextCompat.getColor(itemView.context, R.color.warning)
                 RSVPStatus.UNAVAILABLE -> ContextCompat.getColor(itemView.context, R.color.error)
                 RSVPStatus.NOT_RESPONDED -> ContextCompat.getColor(itemView.context, R.color.text_tertiary)
             }
-            
+
             statusChip.setChipBackgroundColorResource(
                 when (player.status) {
                     RSVPStatus.AVAILABLE -> R.color.success_light
@@ -93,11 +95,12 @@ class PlayerAvailabilityAdapter(
                     RSVPStatus.NOT_RESPONDED -> R.color.surface_variant
                 }
             )
-            
+
             statusChip.setTextColor(statusColor)
         }
 
-        private fun setupQuickActions(player: PlayerAvailability) {
+
+        private fun setupQuickActions(player: RosterPlayer) {
             // Available button
             availableButton.setOnClickListener {
                 if (player.status != RSVPStatus.AVAILABLE) {
@@ -123,7 +126,7 @@ class PlayerAvailabilityAdapter(
             updateButtonStates(player)
         }
 
-        private fun updateButtonStates(player: PlayerAvailability) {
+        private fun updateButtonStates(player: RosterPlayer) {
             // Reset all buttons
             listOf(availableButton, maybeButton, unavailableButton).forEach { button ->
                 button.strokeWidth = 1
@@ -158,7 +161,7 @@ class PlayerAvailabilityAdapter(
             }
         }
 
-        private fun updateCardStyling(player: PlayerAvailability) {
+        private fun updateCardStyling(player: RosterPlayer) {
             val cardBackground = when (player.status) {
                 RSVPStatus.AVAILABLE -> ContextCompat.getColor(itemView.context, R.color.success_light)
                 RSVPStatus.MAYBE -> ContextCompat.getColor(itemView.context, R.color.warning_light)
@@ -194,8 +197,8 @@ class PlayerAvailabilityAdapter(
     }
 
     private class PlayerDiffCallback(
-        private val oldList: List<PlayerAvailability>,
-        private val newList: List<PlayerAvailability>
+        private val oldList: List<RosterPlayer>,
+        private val newList: List<RosterPlayer>
     ) : DiffUtil.Callback() {
 
         override fun getOldListSize(): Int = oldList.size

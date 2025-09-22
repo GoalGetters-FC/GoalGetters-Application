@@ -29,6 +29,11 @@ class AddEventActivity : AppCompatActivity() {
     private lateinit var eventTypeTabLayout: com.google.android.material.tabs.TabLayout
     private lateinit var scheduleButton: android.widget.Button
     private lateinit var closeButton: android.widget.ImageButton
+    
+    // Store fragment references
+    private val gameFragment = GameEventFragment()
+    private val practiceFragment = PracticeEventFragment()
+    private val generalFragment = GeneralEventFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +57,7 @@ class AddEventActivity : AppCompatActivity() {
                         Snackbar.make(scheduleButton, "Event scheduled!", Snackbar.LENGTH_SHORT).show()
                         setResult(RESULT_OK)
                         finish()
+                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
                     }
                     else -> {}
                 }
@@ -81,20 +87,26 @@ class AddEventActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        closeButton.setOnClickListener { finish() }
+        closeButton.setOnClickListener { 
+            finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+        }
 
         scheduleButton.setOnClickListener {
             Clogger.i("AddEventActivity", "Schedule button clicked")
 
             val currentItem = eventTypeViewPager.currentItem
-            val fragment = supportFragmentManager.fragments
-                .firstOrNull { it is GameEventFragment || it is PracticeEventFragment || it is GeneralEventFragment }
-
-            if (fragment == null) {
-                Clogger.e("AddEventActivity", "❌ No active form fragment found for index=$currentItem")
-                Snackbar.make(scheduleButton, "Form not found", Snackbar.LENGTH_LONG).show()
-                return@setOnClickListener
+            Clogger.i("AddEventActivity", "Current tab position: $currentItem")
+            
+            // Get the current fragment based on tab position
+            val fragment = when (currentItem) {
+                0 -> gameFragment
+                1 -> practiceFragment
+                2 -> generalFragment
+                else -> practiceFragment
             }
+            
+            Clogger.i("AddEventActivity", "Using fragment: ${fragment.javaClass.simpleName}")
 
             val formData = when (fragment) {
                 is GameEventFragment -> fragment.collectFormData()
@@ -104,8 +116,8 @@ class AddEventActivity : AppCompatActivity() {
             }
 
             if (formData == null) {
-                Clogger.e("AddEventActivity", "❌ collectFormData() returned null")
-                Snackbar.make(scheduleButton, "Form empty", Snackbar.LENGTH_LONG).show()
+                Clogger.e("AddEventActivity", "❌ collectFormData() returned null - validation failed")
+                Snackbar.make(scheduleButton, "Please fill in all required fields", Snackbar.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
@@ -139,10 +151,10 @@ class AddEventActivity : AppCompatActivity() {
         FragmentStateAdapter(activity) {
         override fun getItemCount(): Int = 3
         override fun createFragment(position: Int): Fragment = when (position) {
-            0 -> GameEventFragment()
-            1 -> PracticeEventFragment()
-            2 -> GeneralEventFragment()
-            else -> PracticeEventFragment()
+            0 -> gameFragment
+            1 -> practiceFragment
+            2 -> generalFragment
+            else -> practiceFragment
         }
     }
 }

@@ -4,12 +4,15 @@ import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Event
 import com.ggetters.app.data.model.EventCategory
 import com.ggetters.app.data.remote.firestore.EventFirestore
+import com.ggetters.app.data.repository.team.TeamRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class OnlineEventRepository @Inject constructor(
-    private val fs: EventFirestore
+    private val fs: EventFirestore,
+    private val teamRepo: TeamRepository
 ) : EventRepository {
 
     override fun all(): Flow<List<Event>> = flowOf(emptyList()) // avoid unscoped global
@@ -17,18 +20,21 @@ class OnlineEventRepository @Inject constructor(
     suspend fun fetchAllForTeam(teamId: String): List<Event> =
         fs.fetchAllForTeam(teamId)
 
-    override suspend fun getById(id: String): Event? = null // Use team-scoped variant
-    suspend fun getById(teamId: String, id: String): Event? =
-        fs.getById(teamId, id)
+    // ✅ Public getById now always resolves active teamId internally
+    override suspend fun getById(id: String): Event? {
+        val teamId = teamRepo.getActiveTeam().first()?.id ?: return null
+        return fs.getById(teamId, id)
+    }
 
-    override suspend fun upsert(entity: Event) =
+    override suspend fun upsert(entity: Event) {
         fs.upsert(entity.teamId, entity)
+    }
 
-    override suspend fun delete(entity: Event) =
+    override suspend fun delete(entity: Event) {
         fs.delete(entity.teamId, entity.id)
+    }
 
     override suspend fun deleteAll() { /* no-op */ }
-
     override suspend fun sync() { /* no-op */ }
 
     override fun getByTeamId(teamId: String): Flow<List<Event>> =

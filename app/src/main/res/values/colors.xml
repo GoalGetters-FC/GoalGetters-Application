@@ -98,6 +98,10 @@
     <!-- Additional missing colors -->
     <color name="text_on_accent">#000000</color>
     <color name="md_theme_light_primary">#FFD400</color>
+    
+    <!-- Pitch Colors - Based on the reference image -->
+    <color name="pitch_green_light">#388E3C</color>  <!-- Medium-dark green for main pitch (better contrast) -->
+    <color name="pitch_green_dark">#2E7D32</color>   <!-- Dark green for pitch background (matches image) -->
     <color name="md_theme_light_onPrimary">#000000</color>
     
     <!-- Material Design 3 Surface Colors -->

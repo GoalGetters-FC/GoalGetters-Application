@@ -1,19 +1,23 @@
+// app/src/main/java/com/ggetters/app/ui/central/viewmodels/EventUpsertViewModel.kt
 package com.ggetters.app.ui.central.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.data.model.Attendance
 import com.ggetters.app.data.model.Event
 import com.ggetters.app.data.model.EventCategory
 import com.ggetters.app.data.model.EventStyle
+import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.event.EventRepository
 import com.ggetters.app.data.repository.team.TeamRepository
+import com.ggetters.app.data.repository.user.UserRepository
 import com.ggetters.app.ui.central.models.UpsertState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -22,12 +26,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EventUpsertViewModel @Inject constructor(
-    private val repo: EventRepository,
-    private val teamRepo: TeamRepository
+    private val eventRepo: EventRepository,
+    private val teamRepo: TeamRepository,
+    private val userRepo: UserRepository,
+    private val attendanceRepo: AttendanceRepository,
+    // OPTIONAL: inject an auth provider to get the current UID
+    // private val authRepo: AuthRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<UpsertState>(UpsertState.Idle)
-    val state: StateFlow<UpsertState> = _state
+    private val _state = kotlinx.coroutines.flow.MutableStateFlow<UpsertState>(UpsertState.Idle)
+    val state: kotlinx.coroutines.flow.StateFlow<UpsertState> = _state
 
     fun save(
         category: EventCategory,
@@ -36,32 +44,28 @@ class EventUpsertViewModel @Inject constructor(
         description: String?,
         startAt: Instant?,
         endAt: Instant?,
-        meetingAt: Instant? = null
+        meetingAt: Instant? = null // NOTE: currently unused by Event model
     ) = viewModelScope.launch {
-        // 🔎 Always wait for the active team from DB
         val team = teamRepo.getActiveTeam().first()
         if (team == null) {
-            Clogger.e("EventUpsertViewModel", "❌ No active team found, cannot save event")
             _state.value = UpsertState.Error("No active team selected")
             return@launch
         }
-
         if (startAt == null) {
-            Clogger.e("EventUpsertViewModel", "❌ StartAt is null")
             _state.value = UpsertState.Error("Pick a start date & time")
             return@launch
         }
         if (endAt != null && endAt.isBefore(startAt)) {
-            Clogger.e("EventUpsertViewModel", "❌ EndAt before StartAt")
             _state.value = UpsertState.Error("End time is before start time")
             return@launch
         }
 
         _state.value = UpsertState.Saving
 
+        // Build event
         val event = Event(
             id = UUID.randomUUID().toString(),
-            teamId = team.id, // ✅ always from active team
+            teamId = team.id,
             name = title.ifBlank { defaultTitle(category) },
             category = category,
             location = location,
@@ -72,16 +76,57 @@ class EventUpsertViewModel @Inject constructor(
             style = EventStyle.FRIENDLY
         )
 
-        Clogger.i(
-            "EventUpsertViewModel",
-            "✅ Saving event '${event.name}' for team='${team.name}' (id=${team.id})"
-        )
+        try {
+            withContext(Dispatchers.IO) {
+                // 1) Save event (local → remote via repo.sync())
+                eventRepo.upsert(event)
+                eventRepo.sync()
 
-        repo.upsert(event)
-        repo.sync()
+                // 2) Ensure attendance exists for ALL team users (Unknown = 3), idempotent
+                ensureAttendanceSeeded(event.id /*, recordedBy = authRepo.currentUidOrNull() */)
 
-        _state.value = UpsertState.Saved(event.id)
-        Clogger.i("EventUpsertViewModel", "🎉 Event saved successfully with id=${event.id}")
+                // 3) Pull fresh attendance locally (optional but keeps things consistent)
+                attendanceRepo.sync()
+            }
+
+            _state.value = UpsertState.Saved(event.id)
+            Clogger.i("EventUpsertVM", "Event saved + attendance seeded for team=${team.id}")
+
+        } catch (e: Exception) {
+            Clogger.e("EventUpsertVM", "Failed saving event: ${e.message}", e)
+            _state.value = UpsertState.Error("Failed to save event: ${e.message}")
+        }
+    }
+
+    private suspend fun ensureAttendanceSeeded(
+        eventId: String,
+        recordedBy: String = "system" // replace with auth UID if you inject it
+    ) {
+        // what users exist already for the event?
+        val existing = attendanceRepo.getByEventId(eventId).first()
+        val existingIds = existing.map { it.playerId }.toSet()
+
+        // who is on the team?
+        val teamUsers = userRepo.all().first() // already scoped to active team in CombinedUserRepository
+
+        // build missing rows only (idempotent)
+        val missing = teamUsers
+            .filter { it.id !in existingIds }
+            .map { u ->
+                Attendance(
+                    eventId = eventId,
+                    playerId = u.id,   // user.id == auth UID
+                    status = 3,        // Unknown / Not Responded
+                    recordedBy = recordedBy
+                )
+            }
+
+        if (missing.isNotEmpty()) {
+            Clogger.i("EventUpsertVM", "Seeding ${missing.size} attendance rows for event=$eventId")
+            attendanceRepo.upsertAll(missing) // local + remote
+        } else {
+            Clogger.d("EventUpsertVM", "Attendance already seeded for event=$eventId")
+        }
     }
 
     private fun defaultTitle(cat: EventCategory) = when (cat) {

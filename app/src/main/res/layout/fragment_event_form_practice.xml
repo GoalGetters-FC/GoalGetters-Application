@@ -27,6 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            android:hint="Title"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
@@ -39,9 +40,7 @@
                 android:id="@+id/practiceTitleInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Title"
                 android:textColor="@color/black"
-                android:textColorHint="@color/text_secondary"
                 android:fontFamily="@font/variable_inter" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -51,6 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
+            android:hint="Description"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
@@ -63,9 +63,7 @@
                 android:id="@+id/practiceDescriptionInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Description"
                 android:textColor="@color/black"
-                android:textColorHint="@color/text_secondary"
                 android:fontFamily="@font/variable_inter"
                 android:inputType="textMultiLine"
                 android:minLines="2" />
@@ -88,6 +86,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            android:hint="Date *"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
@@ -102,9 +101,7 @@
                 android:id="@+id/practiceDateInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="2023/06/27"
                 android:textColor="@color/black"
-                android:textColorHint="@color/text_secondary"
                 android:fontFamily="@font/variable_inter"
                 android:focusable="false"
                 android:clickable="true" />
@@ -116,6 +113,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            android:hint="Start Time *"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
@@ -130,9 +128,7 @@
                 android:id="@+id/practiceStartTimeInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="11:00"
                 android:textColor="@color/black"
-                android:textColorHint="@color/text_secondary"
                 android:fontFamily="@font/variable_inter"
                 android:focusable="false"
                 android:clickable="true" />
@@ -144,6 +140,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            android:hint="End Time"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
@@ -158,9 +155,7 @@
                 android:id="@+id/practiceEndTimeInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="11:00"
                 android:textColor="@color/black"
-                android:textColorHint="@color/text_secondary"
                 android:fontFamily="@font/variable_inter"
                 android:focusable="false"
                 android:clickable="true" />
@@ -172,6 +167,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            android:hint="Meeting Time"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
@@ -186,9 +182,7 @@
                 android:id="@+id/practiceMeetingTimeInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="11:00"
                 android:textColor="@color/black"
-                android:textColorHint="@color/text_secondary"
                 android:fontFamily="@font/variable_inter"
                 android:focusable="false"
                 android:clickable="true" />
@@ -200,6 +194,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            android:hint="Location"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
@@ -214,9 +209,7 @@
                 android:id="@+id/practiceLocationInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Add External Street..."
                 android:textColor="@color/black"
-                android:textColorHint="@color/text_secondary"
                 android:fontFamily="@font/variable_inter" />
 
         </com.google.android.material.textfield.TextInputLayout>

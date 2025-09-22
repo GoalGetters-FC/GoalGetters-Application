@@ -5,265 +5,168 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
+import com.ggetters.app.data.model.AttendanceWithUser
 import com.ggetters.app.ui.central.adapters.AttendancePlayerAdapter
-import com.ggetters.app.ui.central.models.PlayerAvailability
-import com.ggetters.app.ui.central.models.RSVPStatus
 import com.ggetters.app.ui.central.viewmodels.AttendanceViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-
-// TODO: Backend - Implement real-time player availability updates
-// TODO: Backend - Add push notifications for availability changes
-// TODO: Backend - Implement coach permission checks for player management
-// TODO: Backend - Add bulk attendance operations
+import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class AttendanceFragment : Fragment() {
 
     private val viewModel: AttendanceViewModel by viewModels()
-    
-    // Arguments
-    private var matchId: String = ""
-    private var matchTitle: String = ""
-    
-    // UI Components
-    private lateinit var refereesRecyclerView: RecyclerView
-    private lateinit var substitutesRecyclerView: RecyclerView
-    private lateinit var unknownRecyclerView: RecyclerView
-    
-    // Adapters
-    private lateinit var refereesAdapter: AttendancePlayerAdapter
-    private lateinit var substitutesAdapter: AttendancePlayerAdapter
-    private lateinit var unknownAdapter: AttendancePlayerAdapter
-    
-    // Data
-    private var allPlayers = listOf<PlayerAvailability>()
 
-    companion object {
-        fun newInstance(matchId: String, matchTitle: String): AttendanceFragment {
-            val fragment = AttendanceFragment()
-            val args = Bundle().apply {
-                putString("match_id", matchId)
-                putString("match_title", matchTitle)
-            }
-            fragment.arguments = args
-            return fragment
-        }
-    }
+    private var matchId: String = ""
+    private lateinit var presentAdapter: AttendancePlayerAdapter
+    private lateinit var absentAdapter: AttendancePlayerAdapter
+    private lateinit var lateAdapter: AttendancePlayerAdapter
+    private lateinit var excusedAdapter: AttendancePlayerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            matchId = it.getString("match_id", "")
-            matchTitle = it.getString("match_title", "")
-        }
+        // 🔴 Fix: use consistent key "event_id"
+        matchId = arguments?.getString("event_id", "") ?: ""
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_attendance, container, false)
-    }
+    ): View? = inflater.inflate(R.layout.fragment_attendance, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+
         setupRecyclerViews(view)
-        loadPlayerData()
         observeViewModel()
+        viewModel.loadPlayers(matchId)
     }
 
     private fun setupRecyclerViews(view: View) {
-        // Referees section
-        refereesRecyclerView = view.findViewById(R.id.refereesRecyclerView)
-        refereesAdapter = AttendancePlayerAdapter { player, action ->
-            handlePlayerAction(player, action)
-        }
-        refereesRecyclerView.apply {
+        presentAdapter = AttendancePlayerAdapter { player, action, clickedView -> handlePlayerAction(player, action, clickedView) }
+        absentAdapter = AttendancePlayerAdapter { player, action, clickedView -> handlePlayerAction(player, action, clickedView) }
+        lateAdapter = AttendancePlayerAdapter { player, action, clickedView -> handlePlayerAction(player, action, clickedView) }
+        excusedAdapter = AttendancePlayerAdapter { player, action, clickedView -> handlePlayerAction(player, action, clickedView) }
+
+        view.findViewById<RecyclerView>(R.id.presentRecyclerView).apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = refereesAdapter
-            isNestedScrollingEnabled = false
+            adapter = presentAdapter
         }
-        
-        // Substitutes section
-        substitutesRecyclerView = view.findViewById(R.id.substitutesRecyclerView)
-        substitutesAdapter = AttendancePlayerAdapter { player, action ->
-            handlePlayerAction(player, action)
-        }
-        substitutesRecyclerView.apply {
+        view.findViewById<RecyclerView>(R.id.absentRecyclerView).apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = substitutesAdapter
-            isNestedScrollingEnabled = false
+            adapter = absentAdapter
         }
-        
-        // Unknown section
-        unknownRecyclerView = view.findViewById(R.id.unknownRecyclerView)
-        unknownAdapter = AttendancePlayerAdapter { player, action ->
-            handlePlayerAction(player, action)
-        }
-        unknownRecyclerView.apply {
+        view.findViewById<RecyclerView>(R.id.lateRecyclerView).apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = unknownAdapter
-            isNestedScrollingEnabled = false
+            adapter = lateAdapter
         }
-    }
-
-    private fun loadPlayerData() {
-        // TODO: Backend - Load actual player data from repository
-        // Create sample data matching the sketch
-        allPlayers = listOf(
-            // Referees section (Available players)
-            PlayerAvailability("1", "Aaron Robertson", "GK", 1, RSVPStatus.AVAILABLE),
-            PlayerAvailability("2", "Jacob Holdford", "CB", 4, RSVPStatus.AVAILABLE),
-            PlayerAvailability("3", "Matthew Mokotle", "CM", 8, RSVPStatus.AVAILABLE),
-            
-            // Substitutes section (Maybe/Available reserves)
-            PlayerAvailability("4", "Dylan Seedat", "SUB", 12, RSVPStatus.MAYBE),
-            PlayerAvailability("5", "Arjan Bidnugram", "SUB", 13, RSVPStatus.MAYBE),
-            
-            // Unknown section (Not responded)
-            PlayerAvailability("6", "Fortune Manthata", "ST", 9, RSVPStatus.NOT_RESPONDED)
-        )
-        
-        updatePlayerLists()
-    }
-
-    private fun updatePlayerLists() {
-        // Group players by availability status
-        val referees = allPlayers.filter { it.status == RSVPStatus.AVAILABLE }
-        val substitutes = allPlayers.filter { it.status == RSVPStatus.MAYBE }
-        val unknown = allPlayers.filter { it.status == RSVPStatus.NOT_RESPONDED }
-        
-        // Update adapters
-        refereesAdapter.updatePlayers(referees)
-        substitutesAdapter.updatePlayers(substitutes)
-        unknownAdapter.updatePlayers(unknown)
-    }
-
-    private fun handlePlayerAction(player: PlayerAvailability, action: String) {
-        when (action) {
-            "menu" -> showPlayerMenu(player)
-            "status_change" -> changePlayerStatus(player)
+        view.findViewById<RecyclerView>(R.id.excusedRecyclerView).apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = excusedAdapter
         }
-    }
-
-    private fun showPlayerMenu(player: PlayerAvailability) {
-        // Find the view for this player to anchor the popup
-        val view = requireView()
-        val popup = PopupMenu(requireContext(), view)
-        popup.menuInflater.inflate(R.menu.menu_player_attendance, popup.menu)
-        
-        popup.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.action_set_available -> {
-                    updatePlayerStatus(player, RSVPStatus.AVAILABLE)
-                    true
-                }
-                R.id.action_set_maybe -> {
-                    updatePlayerStatus(player, RSVPStatus.MAYBE)
-                    true
-                }
-                R.id.action_set_unavailable -> {
-                    updatePlayerStatus(player, RSVPStatus.UNAVAILABLE)
-                    true
-                }
-                R.id.action_set_not_responded -> {
-                    updatePlayerStatus(player, RSVPStatus.NOT_RESPONDED)
-                    true
-                }
-                R.id.action_send_reminder -> {
-                    sendReminder(player)
-                    true
-                }
-                R.id.action_view_profile -> {
-                    viewPlayerProfile(player)
-                    true
-                }
-                else -> false
-            }
-        }
-        
-        popup.show()
-    }
-
-    private fun changePlayerStatus(player: PlayerAvailability) {
-        // Cycle through statuses: Available -> Maybe -> Not Responded -> Available
-        val newStatus = when (player.status) {
-            RSVPStatus.AVAILABLE -> RSVPStatus.MAYBE
-            RSVPStatus.MAYBE -> RSVPStatus.NOT_RESPONDED
-            RSVPStatus.NOT_RESPONDED -> RSVPStatus.AVAILABLE
-            RSVPStatus.UNAVAILABLE -> RSVPStatus.AVAILABLE
-        }
-        
-        updatePlayerStatus(player, newStatus)
-    }
-
-    private fun updatePlayerStatus(player: PlayerAvailability, newStatus: RSVPStatus) {
-        // TODO: Backend - Update player status in backend
-        val updatedPlayers = allPlayers.map { 
-            if (it.playerId == player.playerId) {
-                it.copy(status = newStatus)
-            } else {
-                it
-            }
-        }
-        
-        allPlayers = updatedPlayers
-        updatePlayerLists()
-        
-        val statusText = when (newStatus) {
-            RSVPStatus.AVAILABLE -> "Available"
-            RSVPStatus.MAYBE -> "Maybe"
-            RSVPStatus.UNAVAILABLE -> "Unavailable"
-            RSVPStatus.NOT_RESPONDED -> "Not Responded"
-        }
-        
-        Snackbar.make(requireView(), 
-            "${player.playerName} marked as $statusText", 
-            Snackbar.LENGTH_SHORT).show()
-    }
-
-    private fun sendReminder(player: PlayerAvailability) {
-        // TODO: Backend - Send reminder notification to player
-        Snackbar.make(requireView(), 
-            "Reminder sent to ${player.playerName}", 
-            Snackbar.LENGTH_SHORT).show()
-    }
-
-    private fun viewPlayerProfile(player: PlayerAvailability) {
-        // TODO: Navigate to player profile
-        Snackbar.make(requireView(), 
-            "Opening ${player.playerName}'s profile", 
-            Snackbar.LENGTH_SHORT).show()
     }
 
     private fun observeViewModel() {
-        // TODO: Observe player data changes
-        // viewModel.players.observe(viewLifecycleOwner) { players ->
-        //     allPlayers = players
-        //     updatePlayerLists()
-        // }
+        lifecycleScope.launchWhenStarted {
+            viewModel.players.collectLatest { players ->
+                // Fixed: Proper status mapping - 0=Present,1=Absent,2=Late,3=Excused
+                val present = players.filter { it.attendance.status == 0 }
+                val absent = players.filter { it.attendance.status == 1 }
+                val late = players.filter { it.attendance.status == 2 }
+                val excused = players.filter { it.attendance.status == 3 }
+
+                presentAdapter.updatePlayers(present)
+                absentAdapter.updatePlayers(absent)
+                lateAdapter.updatePlayers(late)
+                excusedAdapter.updatePlayers(excused)
+                
+                updateSectionCounts(present.size, absent.size, late.size, excused.size)
+            }
+        }
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.error.collectLatest { err ->
+                err?.let {
+                    Snackbar.make(requireView(), it, Snackbar.LENGTH_SHORT).show()
+                    viewModel.clearError()
+                }
+            }
+        }
     }
 
-    // Public method to refresh data
-    fun refreshAttendance() {
-        loadPlayerData()
+    private fun updateSectionCounts(presentCount: Int, absentCount: Int, lateCount: Int, excusedCount: Int) {
+        view?.let { view ->
+            view.findViewById<TextView>(R.id.presentSectionTitle)?.text = "Present ($presentCount)"
+            view.findViewById<TextView>(R.id.absentSectionTitle)?.text = "Absent ($absentCount)"
+            view.findViewById<TextView>(R.id.lateSectionTitle)?.text = "Late ($lateCount)"
+            view.findViewById<TextView>(R.id.excusedSectionTitle)?.text = "Excused ($excusedCount)"
+        }
     }
 
-    // Public method to get attendance summary
-    fun getAttendanceSummary(): Map<String, Int> {
-        return mapOf(
-            "available" to allPlayers.count { it.status == RSVPStatus.AVAILABLE },
-            "maybe" to allPlayers.count { it.status == RSVPStatus.MAYBE },
-            "unavailable" to allPlayers.count { it.status == RSVPStatus.UNAVAILABLE },
-            "not_responded" to allPlayers.count { it.status == RSVPStatus.NOT_RESPONDED }
-        )
+    private fun handlePlayerAction(player: AttendanceWithUser, action: String, clickedView: View?) {
+        when (action) {
+            "menu" -> showPlayerMenu(player, clickedView)
+            "status_change" -> cyclePlayerStatus(player)
+        }
     }
+
+    private fun showPlayerMenu(player: AttendanceWithUser, anchor: View?) {
+        // Use the clicked button as anchor, or fall back to the fragment view
+        val anchorView = anchor ?: requireView()
+        val popup = PopupMenu(requireContext(), anchorView)
+        popup.menuInflater.inflate(R.menu.menu_player_attendance, popup.menu)
+        
+        // Force popup to show below the anchor for better positioning
+        try {
+            val field = PopupMenu::class.java.getDeclaredField("mPopup")
+            field.isAccessible = true
+            val menuPopupHelper = field.get(popup)
+            val classPopupHelper = Class.forName(menuPopupHelper.javaClass.name)
+            val setForceIcons = classPopupHelper.getMethod("setForceShowIcon", Boolean::class.java)
+            setForceIcons.invoke(menuPopupHelper, true)
+        } catch (e: Exception) {
+            // Ignore if reflection fails - menu will still work without icons
+        }
+
+        popup.setOnMenuItemClickListener { menuItem ->
+            val newStatus = when (menuItem.itemId) {
+                R.id.action_set_available -> 0      // Present
+                R.id.action_set_unavailable -> 1    // Absent  
+                R.id.action_set_maybe -> 2          // Late
+                R.id.action_set_not_responded -> 3  // Excused
+                else -> null
+            }
+            newStatus?.let {
+                viewModel.updatePlayerStatus(player.attendance.eventId, player.user.id, it)
+            }
+            true
+        }
+        popup.show()
+    }
+
+    private fun cyclePlayerStatus(player: AttendanceWithUser) {
+        val current = player.attendance.status
+        val newStatus = (current + 1) % 4
+        viewModel.updatePlayerStatus(player.attendance.eventId, player.user.id, newStatus)
+    }
+
+    companion object {
+        fun newInstance(eventId: String): AttendanceFragment {
+            val fragment = AttendanceFragment()
+            fragment.arguments = Bundle().apply {
+                putString("event_id", eventId)
+            }
+            return fragment
+        }
+    }
+
 }

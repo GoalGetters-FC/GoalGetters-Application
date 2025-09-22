@@ -18,8 +18,8 @@ android {
         applicationId = "com.ggetters.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 6
-        versionName = "2025m08b"
+        versionCode = 8
+        versionName = "2025m09a"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -82,7 +82,8 @@ android {
         }
         release {
             isDebuggable = false
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )

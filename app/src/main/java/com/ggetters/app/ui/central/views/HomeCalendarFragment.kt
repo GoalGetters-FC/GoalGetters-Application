@@ -40,6 +40,7 @@ import java.util.Locale
 import kotlin.math.abs
 import com.ggetters.app.ui.central.viewmodels.HomeTeamViewModel
 import com.google.android.material.snackbar.Snackbar
+import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
 class HomeCalendarFragment : Fragment(), Clickable {
@@ -147,18 +148,16 @@ class HomeCalendarFragment : Fragment(), Clickable {
      * Convenience method for [offsetCalendarView].
      */
     private fun incrementCalendarView() {
-        activeModel.goPrevMonth()
-        animateCalendarTransition()
-        updateMonthYearDisplay()
+        // Move to next month
+        offsetCalendarView(+1)
     }
 
     /**
      * Convenience method for [offsetCalendarView].
      */
     private fun decrementCalendarView() {
-        activeModel.goNextMonth()
-        animateCalendarTransition()
-        updateMonthYearDisplay()
+        // Move to previous month
+        offsetCalendarView(-1)
     }
 
 
@@ -316,7 +315,6 @@ class HomeCalendarFragment : Fragment(), Clickable {
         binds.noEventsLayout.visibility = View.GONE
     }
 
-
     private fun showEventDetails(event: Event) {
         if (event.category == EventCategory.MATCH) {
             val intent = Intent(requireContext(), MatchActivity::class.java).apply {
@@ -324,8 +322,10 @@ class HomeCalendarFragment : Fragment(), Clickable {
                 putExtra("event_title", event.name)
                 putExtra("event_venue", event.location ?: "TBD")
                 putExtra("event_opponent", event.description ?: "Opponent")
-                putExtra("event_date", event.startAt.toLocalDate().toString())
-                putExtra("event_time", event.startAt.toLocalTime().toString())
+                putExtra("event_date", event.startAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+                putExtra("event_time", DateTimeFormatter.ofPattern("HH:mm")
+                    .withZone(ZoneId.systemDefault())
+                    .format(event.startAt.atZone(ZoneId.systemDefault())))
             }
             startActivity(intent)
             requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
@@ -373,6 +373,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
         }
 
         startActivityForResult(intent, REQUEST_ADD_EVENT)
+        requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
     }
 
 
@@ -439,7 +440,8 @@ class HomeCalendarFragment : Fragment(), Clickable {
                         val deltaY = e.y - startY
 
                         if (abs(deltaX) > abs(deltaY) && abs(deltaX) > SWIPE_THRESHOLD) {
-                            if (deltaX > 0) incrementCalendarView() else decrementCalendarView()
+                            // Swipe right (deltaX > 0) -> previous month; swipe left -> next month
+                            if (deltaX > 0) decrementCalendarView() else incrementCalendarView()
                             return true
                         }
                     }

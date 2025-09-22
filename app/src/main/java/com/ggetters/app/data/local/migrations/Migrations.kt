@@ -193,3 +193,56 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
         db.execSQL("CREATE INDEX IF NOT EXISTS index_event_team_id ON event(team_id)")
     }
 }
+
+/** DB v4 -> v5: migrate Lineup.spots_json (TEXT) -> Lineup.spots (via TypeConverter). */
+val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // 1) Create new table schema with `spots` column (TEXT, handled by TypeConverter)
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS lineup_new (
+                id TEXT NOT NULL PRIMARY KEY,
+                created_at INTEGER NOT NULL,
+                updated_at INTEGER NOT NULL,
+                stained_at INTEGER,
+                
+                event_id TEXT NOT NULL,
+                created_by TEXT,
+                formation TEXT NOT NULL,
+                spots TEXT NOT NULL, -- new column, replaces spots_json
+                
+                FOREIGN KEY(event_id) REFERENCES event(id)
+                  ON UPDATE CASCADE ON DELETE CASCADE,
+                FOREIGN KEY(created_by) REFERENCES user(id)
+                  ON UPDATE CASCADE ON DELETE SET NULL
+            )
+            """.trimIndent()
+        )
+
+        // 2) Copy old data across, mapping spots_json -> spots
+        // If spots_json is null, default to "[]"
+        db.execSQL(
+            """
+            INSERT INTO lineup_new (
+                id, created_at, updated_at, stained_at,
+                event_id, created_by, formation, spots
+            )
+            SELECT
+                id, created_at, updated_at, stained_at,
+                event_id, created_by, formation,
+                COALESCE(spots_json, '[]')
+            FROM lineup
+            """.trimIndent()
+        )
+
+        // 3) Drop old table
+        db.execSQL("DROP TABLE lineup")
+
+        // 4) Rename new table
+        db.execSQL("ALTER TABLE lineup_new RENAME TO lineup")
+
+        // 5) Recreate indices to match @Entity
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_lineup_event_id ON lineup(event_id)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_lineup_created_by ON lineup(created_by)")
+    }
+}

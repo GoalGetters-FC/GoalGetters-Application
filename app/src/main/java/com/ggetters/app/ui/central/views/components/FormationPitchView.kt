@@ -8,7 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.PlayerAvailability
+import com.ggetters.app.data.model.RosterPlayer
 
 class FormationPitchView @JvmOverloads constructor(
     context: Context,
@@ -24,7 +24,8 @@ class FormationPitchView @JvmOverloads constructor(
     private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     // Colors
-    private val pitchColor = ContextCompat.getColor(context, R.color.pitch_green)
+    private val pitchColor = ContextCompat.getColor(context, R.color.pitch_green_light)  // Lighter green for main pitch
+    private val pitchBackgroundColor = ContextCompat.getColor(context, R.color.pitch_green_dark)  // Darker green for background
     private val lineColor = Color.WHITE
     private val playerColor = ContextCompat.getColor(context, R.color.surface)
     private val playerBorderColor = ContextCompat.getColor(context, R.color.outline)
@@ -32,7 +33,7 @@ class FormationPitchView @JvmOverloads constructor(
 
     // Formation and players
     private var currentFormation = "4-3-3"
-    private var positionedPlayers = mutableMapOf<String, PlayerAvailability?>()
+    private var positionedPlayers = mutableMapOf<String, RosterPlayer?>()
     private var playerPositions = mutableMapOf<String, PointF>()
 
     // Drawing properties
@@ -48,33 +49,29 @@ class FormationPitchView @JvmOverloads constructor(
     }
 
     private fun setupPaints() {
-        // Pitch background with realistic grass color
-        pitchPaint.color = Color.parseColor("#2E7D32")  // Deeper grass green
+        // Pitch background - lighter green for main playing field (better contrast)
+        pitchPaint.color = pitchColor  // Use the lighter green for main pitch
         pitchPaint.style = Paint.Style.FILL
 
-        // Grass pattern for realism
-        grassPattern.color = Color.parseColor("#388E3C")  // Slightly lighter green for stripes
-        grassPattern.style = Paint.Style.FILL
-
-        // Pitch lines - bright white for visibility
+        // White lines - crisp and clean
         linePaint.color = Color.WHITE
         linePaint.style = Paint.Style.STROKE
-        linePaint.strokeWidth = lineWidth
+        linePaint.strokeWidth = 4f
         linePaint.strokeCap = Paint.Cap.ROUND
 
-        // Player circles - more prominent design
+        // Player circles
         playerPaint.color = Color.WHITE
         playerPaint.style = Paint.Style.FILL
         playerPaint.setShadowLayer(6f, 0f, 4f, Color.argb(80, 0, 0, 0))
 
-        // Player text - larger and bolder
-        textPaint.color = Color.parseColor("#1976D2")  // Blue for contrast
+        // Player text
+        textPaint.color = Color.parseColor("#1976D2")
         textPaint.textAlign = Paint.Align.CENTER
         textPaint.textSize = 28f
         textPaint.typeface = Typeface.DEFAULT_BOLD
         textPaint.setShadowLayer(2f, 0f, 1f, Color.argb(100, 255, 255, 255))
 
-        // Enhanced shadow for player circles
+        // Shadow for player circles
         shadowPaint.color = Color.argb(50, 0, 0, 0)
         shadowPaint.style = Paint.Style.FILL
     }
@@ -103,25 +100,18 @@ class FormationPitchView @JvmOverloads constructor(
                 }
                 
                 android.view.DragEvent.ACTION_DROP -> {
-                    val player = event.localState as? PlayerAvailability
+                    val player = event.localState as? RosterPlayer
                     if (player != null) {
                         val position = getPositionAtPoint(event.x, event.y)
                         if (position != null) {
-                            // Check if the position is already occupied
-                            val currentPlayer = positionedPlayers[position]
-                            if (currentPlayer != null) {
-                                // Position is occupied - this will be handled by the fragment
-                                onPlayerDroppedListener?.invoke(position, PointF(event.x, event.y))
-                            } else {
-                                // Position is empty - add the player directly
+                            // Place dragged bench player at target position (occupied or empty)
                                 val updatedPositions = positionedPlayers.toMutableMap()
                                 updatedPositions[position] = player
                                 positionedPlayers = updatedPositions
                                 invalidate()
                                 
-                                // Notify the fragment about the drop
-                                onPlayerDroppedListener?.invoke(position, PointF(event.x, event.y))
-                            }
+                            // Notify fragment using a sentinel origin so it treats this as a grid drop
+                            onPlayerDroppedListener?.invoke("__GRID__", PointF(event.x, event.y))
                         }
                     }
                     true
@@ -147,13 +137,41 @@ class FormationPitchView @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         
-        // Calculate pitch dimensions
-        val padding = 20f
+        // Calculate pitch dimensions to maximize space
+        val padding = 8f  // Reduced padding
+        val availableWidth = width - (padding * 2)
+        val availableHeight = height - (padding * 2)
+        
+        // Adjust ratio to be slightly less vertical to use more space
+        val pitchRatio = 1.3f  // Slightly reduced from 1.5 to use more width
+        
+        // Calculate dimensions to maintain aspect ratio while maximizing size
+        val pitchWidth: Float
+        val pitchHeight: Float
+        val leftOffset: Float
+        val topOffset: Float
+        
+        if (availableHeight / availableWidth > pitchRatio) {
+            // Width is the limiting factor - use full width
+            pitchWidth = availableWidth
+            pitchHeight = pitchWidth * pitchRatio
+            leftOffset = padding
+            topOffset = (height - pitchHeight) / 2
+        } else {
+            // Height is the limiting factor - use full height
+            pitchHeight = availableHeight
+            pitchWidth = pitchHeight / pitchRatio
+            leftOffset = (width - pitchWidth) / 2
+            topOffset = padding
+        }
+        
+        // Ensure minimum margins
+        val minMargin = 4f
         pitchRect = RectF(
-            padding,
-            padding,
-            width - padding,
-            height - padding
+            maxOf(leftOffset, minMargin),
+            maxOf(topOffset, minMargin),
+            minOf(leftOffset + pitchWidth, width - minMargin),
+            minOf(topOffset + pitchHeight, height - minMargin)
         )
         
         // Recalculate player positions for current formation
@@ -177,19 +195,15 @@ class FormationPitchView @JvmOverloads constructor(
     }
 
     private fun drawGrassPitch(canvas: Canvas) {
-        // Draw base grass color
-        canvas.drawRoundRect(pitchRect, 12f, 12f, pitchPaint)
-        
-        // Draw grass stripes for realism
-        val stripeWidth = pitchRect.width() / 12f
-        for (i in 0..11) {
-            if (i % 2 == 0) {
-                val left = pitchRect.left + (i * stripeWidth)
-                val right = pitchRect.left + ((i + 1) * stripeWidth)
-                val stripeRect = RectF(left, pitchRect.top, right, pitchRect.bottom)
-                canvas.drawRect(stripeRect, grassPattern)
-            }
+        // Draw darker green background first (like the image)
+        val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = pitchBackgroundColor
+            style = Paint.Style.FILL
         }
+        canvas.drawRect(pitchRect, backgroundPaint)
+        
+        // Draw main playing field with medium-dark green (clean, no texture lines)
+        canvas.drawRect(pitchRect, pitchPaint)
     }
 
     private fun drawDropZones(canvas: Canvas) {
@@ -241,33 +255,61 @@ class FormationPitchView @JvmOverloads constructor(
         val pitchWidth = pitchRect.width()
         val pitchHeight = pitchRect.height()
         
-        // Outer boundary - crisp white lines
-        val thickLinePaint = Paint(linePaint).apply {
-            strokeWidth = 5f
-        }
-        canvas.drawRoundRect(pitchRect, 8f, 8f, thickLinePaint)
+        // Outer boundary
+        canvas.drawRect(pitchRect, linePaint)
         
         // Center line
-        val centerX = pitchRect.centerX()
         canvas.drawLine(
-            centerX, pitchRect.top,
-            centerX, pitchRect.bottom,
-            thickLinePaint
+            pitchRect.left,
+            pitchRect.centerY(),
+            pitchRect.right,
+            pitchRect.centerY(),
+            linePaint
         )
-        
-        // Center circle - proper football size
-        val centerCircleRadius = pitchWidth * 0.15f
-        canvas.drawCircle(centerX, pitchRect.centerY(), centerCircleRadius, linePaint)
-        
-        // Center spot - more prominent
-        val centerSpotPaint = Paint(linePaint).apply {
-            style = Paint.Style.FILL
-        }
-        canvas.drawCircle(centerX, pitchRect.centerY(), 6f, centerSpotPaint)
-        
-        // Goal areas (18-yard boxes)
-        val goalAreaWidth = pitchWidth * 0.35f
-        val goalAreaHeight = pitchHeight * 0.25f
+
+        // Center circle
+        val centerCircleRadius = pitchWidth * 0.2f
+        canvas.drawCircle(
+            pitchRect.centerX(),
+            pitchRect.centerY(),
+            centerCircleRadius,
+            linePaint
+        )
+
+        // Center spot
+        canvas.drawCircle(
+            pitchRect.centerX(),
+            pitchRect.centerY(),
+            6f,
+            linePaint
+        )
+
+        // Penalty areas (18-yard boxes)
+        val penaltyAreaWidth = pitchWidth * 0.7f
+        val penaltyAreaHeight = pitchHeight * 0.2f
+        val penaltyAreaX = (pitchWidth - penaltyAreaWidth) / 2f
+
+        // Top penalty area
+        canvas.drawRect(
+            pitchRect.left + penaltyAreaX,
+            pitchRect.top,
+            pitchRect.left + penaltyAreaX + penaltyAreaWidth,
+            pitchRect.top + penaltyAreaHeight,
+            linePaint
+        )
+
+        // Bottom penalty area
+        canvas.drawRect(
+            pitchRect.left + penaltyAreaX,
+            pitchRect.bottom - penaltyAreaHeight,
+            pitchRect.left + penaltyAreaX + penaltyAreaWidth,
+            pitchRect.bottom,
+            linePaint
+        )
+
+        // Goal areas (6-yard boxes)
+        val goalAreaWidth = pitchWidth * 0.4f
+        val goalAreaHeight = pitchHeight * 0.1f
         val goalAreaX = (pitchWidth - goalAreaWidth) / 2f
         
         // Top goal area
@@ -288,119 +330,59 @@ class FormationPitchView @JvmOverloads constructor(
             linePaint
         )
         
-        // 6-yard boxes
-        val sixYardWidth = pitchWidth * 0.2f
-        val sixYardHeight = pitchHeight * 0.12f
-        val sixYardX = (pitchWidth - sixYardWidth) / 2f
-        
-        // Top 6-yard box
-        canvas.drawRect(
-            pitchRect.left + sixYardX,
-            pitchRect.top,
-            pitchRect.left + sixYardX + sixYardWidth,
-            pitchRect.top + sixYardHeight,
-            linePaint
-        )
-        
-        // Bottom 6-yard box
-        canvas.drawRect(
-            pitchRect.left + sixYardX,
-            pitchRect.bottom - sixYardHeight,
-            pitchRect.left + sixYardX + sixYardWidth,
-            pitchRect.bottom,
-            linePaint
-        )
-        
         // Corner arcs
-        val cornerRadius = 20f
+        val cornerRadius = pitchWidth * 0.05f
+
         // Top-left corner
         canvas.drawArc(
-            pitchRect.left - cornerRadius,
-            pitchRect.top - cornerRadius,
-            pitchRect.left + cornerRadius,
-            pitchRect.top + cornerRadius,
-            0f, 90f, false, linePaint
+            pitchRect.left,
+            pitchRect.top,
+            pitchRect.left + (cornerRadius * 2),
+            pitchRect.top + (cornerRadius * 2),
+            0f,
+            90f,
+            false,
+            linePaint
         )
         
         // Top-right corner
         canvas.drawArc(
-            pitchRect.right - cornerRadius,
-            pitchRect.top - cornerRadius,
-            pitchRect.right + cornerRadius,
-            pitchRect.top + cornerRadius,
-            90f, 90f, false, linePaint
+            pitchRect.right - (cornerRadius * 2),
+            pitchRect.top,
+            pitchRect.right,
+            pitchRect.top + (cornerRadius * 2),
+            90f,
+            90f,
+            false,
+            linePaint
         )
         
         // Bottom-left corner
         canvas.drawArc(
-            pitchRect.left - cornerRadius,
-            pitchRect.bottom - cornerRadius,
-            pitchRect.left + cornerRadius,
-            pitchRect.bottom + cornerRadius,
-            270f, 90f, false, linePaint
+            pitchRect.left,
+            pitchRect.bottom - (cornerRadius * 2),
+            pitchRect.left + (cornerRadius * 2),
+            pitchRect.bottom,
+            270f,
+            90f,
+            false,
+            linePaint
         )
         
         // Bottom-right corner
         canvas.drawArc(
-            pitchRect.right - cornerRadius,
-            pitchRect.bottom - cornerRadius,
-            pitchRect.right + cornerRadius,
-            pitchRect.bottom + cornerRadius,
-            180f, 90f, false, linePaint
-        )
-        
-        // Draw goal posts for realism
-        drawGoalPosts(canvas)
-    }
-    
-    private fun drawGoalPosts(canvas: Canvas) {
-        val pitchWidth = pitchRect.width()
-        val goalWidth = pitchWidth * 0.2f
-        val goalX = (pitchWidth - goalWidth) / 2f
-        
-        val goalPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
-            strokeWidth = 6f
-            style = Paint.Style.STROKE
-            strokeCap = Paint.Cap.ROUND
-        }
-        
-        // Top goal posts
-        val topGoalY = pitchRect.top - 8f
-        canvas.drawLine(
-            pitchRect.left + goalX, pitchRect.top,
-            pitchRect.left + goalX, topGoalY,
-            goalPaint
-        )
-        canvas.drawLine(
-            pitchRect.left + goalX + goalWidth, pitchRect.top,
-            pitchRect.left + goalX + goalWidth, topGoalY,
-            goalPaint
-        )
-        canvas.drawLine(
-            pitchRect.left + goalX, topGoalY,
-            pitchRect.left + goalX + goalWidth, topGoalY,
-            goalPaint
-        )
-        
-        // Bottom goal posts
-        val bottomGoalY = pitchRect.bottom + 8f
-        canvas.drawLine(
-            pitchRect.left + goalX, pitchRect.bottom,
-            pitchRect.left + goalX, bottomGoalY,
-            goalPaint
-        )
-        canvas.drawLine(
-            pitchRect.left + goalX + goalWidth, pitchRect.bottom,
-            pitchRect.left + goalX + goalWidth, bottomGoalY,
-            goalPaint
-        )
-        canvas.drawLine(
-            pitchRect.left + goalX, bottomGoalY,
-            pitchRect.left + goalX + goalWidth, bottomGoalY,
-            goalPaint
+            pitchRect.right - (cornerRadius * 2),
+            pitchRect.bottom - (cornerRadius * 2),
+            pitchRect.right,
+            pitchRect.bottom,
+            180f,
+            90f,
+            false,
+            linePaint
         )
     }
+
+
 
     private fun drawPlayers(canvas: Canvas) {
         for ((position, player) in positionedPlayers) {
@@ -648,7 +630,7 @@ class FormationPitchView @JvmOverloads constructor(
     private var isDragging = false
     
     // Callbacks
-    private var onPlayerClickListener: ((String, PlayerAvailability?) -> Unit)? = null
+    private var onPlayerClickListener: ((String, RosterPlayer?) -> Unit)? = null
     private var onPositionClickListener: ((String) -> Unit)? = null
     private var onPlayerDroppedListener: ((String, PointF) -> Unit)? = null
 
@@ -750,20 +732,20 @@ class FormationPitchView @JvmOverloads constructor(
         }
     }
 
-    fun setPlayers(players: Map<String, PlayerAvailability?>) {
+    fun setPlayers(players: Map<String, RosterPlayer?>) {
         positionedPlayers.clear()
         positionedPlayers.putAll(players)
         invalidate()
     }
 
-    fun getPositionedPlayers(): Map<String, PlayerAvailability?> {
+    fun getPositionedPlayers(): Map<String, RosterPlayer?> {
         return positionedPlayers.toMap()
     }
 
     fun getCurrentFormation(): String = currentFormation
 
     // Callback setters
-    fun setOnPlayerClickListener(listener: (String, PlayerAvailability?) -> Unit) {
+    fun setOnPlayerClickListener(listener: (String, RosterPlayer?) -> Unit) {
         onPlayerClickListener = listener
     }
 

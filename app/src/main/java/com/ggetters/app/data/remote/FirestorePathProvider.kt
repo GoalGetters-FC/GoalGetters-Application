@@ -27,5 +27,9 @@ class FirestorePathProvider @Inject constructor(
     fun eventsCollection(teamId: String): CollectionReference =
         teamDocument(teamId).collection("events")
 
+    /** Subcollection: attendance under a specific event */
+    fun attendanceCollection(teamId: String, eventId: String): CollectionReference =
+        eventsCollection(teamId).document(eventId).collection("attendance")
+
     /** Add others here as needed... */
 }

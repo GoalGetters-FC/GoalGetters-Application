@@ -206,6 +206,7 @@ class TeamsFragment : Fragment() {
         intent.putExtra("team_id", team.id)
         intent.putExtra("team_name", team.name)
         startActivity(intent)
+        requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
     }
 
     private fun switchToTeam(team: Team) {

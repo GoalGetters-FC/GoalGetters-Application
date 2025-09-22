@@ -11,20 +11,20 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.PlayerAvailability
-import com.ggetters.app.ui.central.models.RSVPStatus
+import com.ggetters.app.data.model.RosterPlayer
+import com.ggetters.app.data.model.RSVPStatus
 
 class LineupPlayerGridAdapter(
-    private val onPlayerClick: (PlayerAvailability) -> Unit,
+    private val onPlayerClick: (RosterPlayer) -> Unit,
     private val onAddPlayerClick: () -> Unit,
-    private val onPlayerDragStart: (PlayerAvailability) -> Unit = {}
+    private val onPlayerDragStart: (RosterPlayer) -> Unit = {}
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var players = listOf<PlayerAvailability>()
+    private var players = listOf<RosterPlayer>()
     private val VIEW_TYPE_PLAYER = 0
     private val VIEW_TYPE_ADD_BUTTON = 1
 
-    fun updatePlayers(newPlayers: List<PlayerAvailability>) {
+    fun updatePlayers(newPlayers: List<RosterPlayer>) {
         val diffCallback = PlayerDiffCallback(players, newPlayers)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
         players = newPlayers
@@ -66,27 +66,27 @@ class LineupPlayerGridAdapter(
         private val playerName: TextView = itemView.findViewById(R.id.playerName)
         private val playerPosition: TextView = itemView.findViewById(R.id.playerPosition)
 
-        fun bind(player: PlayerAvailability) {
+        fun bind(player: RosterPlayer) {
             // Player avatar (using placeholder)
             playerAvatar.setImageResource(R.drawable.ic_unicons_user_24)
-            
+
             // Jersey number
             jerseyNumber.text = player.jerseyNumber.toString()
-            
+
             // Player name
             playerName.text = player.playerName
-            
+
             // Player position
             playerPosition.text = player.position
-            
+
             // Click listener
             itemView.setOnClickListener {
                 onPlayerClick(player)
             }
-            
+
             // Setup drag and drop for available players
             setupDragAndDrop(player)
-            
+
             // Styling based on availability (could be used for visual feedback)
             when (player.status) {
                 RSVPStatus.AVAILABLE -> {
@@ -97,26 +97,35 @@ class LineupPlayerGridAdapter(
                 }
             }
         }
-        
-        private fun setupDragAndDrop(player: PlayerAvailability) {
+
+        private fun setupDragAndDrop(player: RosterPlayer) {
             if (player.status == RSVPStatus.UNAVAILABLE) return
-            
+
             itemView.setOnLongClickListener { view ->
                 onPlayerDragStart(player)
-                
+
                 val item = ClipData.Item(player.playerId)
                 val dragData = ClipData(
                     "Player",
                     arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
                     item
                 )
-                
+
                 val shadowBuilder = View.DragShadowBuilder(view)
                 view.startDragAndDrop(dragData, shadowBuilder, player, 0)
-                
+
                 // Hide the original view during drag
                 view.alpha = 0.5f
-                
+
+                // Restore alpha when drag ends (regardless of drop target)
+                itemView.setOnDragListener { v, event ->
+                    if (event.action == android.view.DragEvent.ACTION_DRAG_ENDED) {
+                        v.alpha = 1.0f
+                        v.setOnDragListener(null)
+                    }
+                    false
+                }
+
                 true
             }
         }
@@ -128,7 +137,7 @@ class LineupPlayerGridAdapter(
         fun bind() {
             addButton.setImageResource(R.drawable.ic_unicons_plus_24)
             addButton.setColorFilter(ContextCompat.getColor(itemView.context, R.color.on_surface_variant))
-            
+
             itemView.setOnClickListener {
                 onAddPlayerClick()
             }
@@ -136,8 +145,8 @@ class LineupPlayerGridAdapter(
     }
 
     private class PlayerDiffCallback(
-        private val oldList: List<PlayerAvailability>,
-        private val newList: List<PlayerAvailability>
+        private val oldList: List<RosterPlayer>,
+        private val newList: List<RosterPlayer>
     ) : DiffUtil.Callback() {
 
         override fun getOldListSize(): Int = oldList.size

@@ -41,6 +41,15 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"
+                android:layout_marginBottom="2dp" />
+
+            <TextView
+                android:id="@+id/eventStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Standard"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
                 android:layout_marginBottom="4dp" />
 
             <TextView

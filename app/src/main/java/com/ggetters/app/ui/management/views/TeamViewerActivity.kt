@@ -25,6 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -92,6 +93,7 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
             putExtra(TeamDetailActivity.EXTRA_TEAM_NAME, entity.name)
         }
         startActivity(intent)
+        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
     }
 
 
@@ -110,9 +112,12 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
 
 
     private fun onCreateTeamSheetSubmitted(teamName: String) {
-        // ---- NEW ----
-        model.createTeamFromName(teamName)
+        val authId = FirebaseAuth.getInstance().currentUser?.uid // firebase stuff shouldnt be here, but it does fix this issue for now
+            ?: return Toast.makeText(this, "Not signed in", Toast.LENGTH_SHORT).show()
+
+        model.createTeamFromName(teamName, authId)
     }
+
 
     private fun onJoinTeamSheetSubmitted(teamCode: String, userCode: String) {
         // ---- NEW ----
@@ -124,7 +129,8 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
     override fun setupTouchListeners() {
         // Back button
         binds.backButton.setOnClickListener {
-            onBackPressed()
+            finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
 
         // Link team button
@@ -139,7 +145,7 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         // testing long-click for sync
         binds.linkTeamButton.setOnLongClickListener {
             Toast.makeText(this, "Starting sync…", Toast.LENGTH_SHORT).show()
-            model.syncTeams()
+            model.syncTeams() // call sync manager here;
             true
         }
 
@@ -152,6 +158,21 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
                 supportFragmentManager, CreateTeamBottomSheet.TAG
             )
         }
+
+
+        // long click create team → seed debug team
+        binds.createTeamButton.setOnLongClickListener {
+            val authId = FirebaseAuth.getInstance().currentUser?.uid
+            if (authId == null) {
+                Toast.makeText(this, "Not signed in", Toast.LENGTH_SHORT).show()
+                return@setOnLongClickListener true
+            }
+
+            model.createDebugTeam(authId)
+            Toast.makeText(this, "Debug team seeded", Toast.LENGTH_SHORT).show()
+            true
+        }
+
     }
 
     override fun onClick(view: View?) = when (view?.id) {
@@ -177,7 +198,8 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
 
         // Setup toolbar navigation
         binds.toolbar.setNavigationOnClickListener {
-            onBackPressed()
+            finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
 
         // Apply system-bar insets to the root view

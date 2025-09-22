@@ -62,7 +62,8 @@ class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogLis
 
         // Setup click listeners
         binds.toolbar.setNavigationOnClickListener {
-            onBackPressed()
+            finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
 
         // Setup menu click listeners

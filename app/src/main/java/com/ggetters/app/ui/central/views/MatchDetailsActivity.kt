@@ -9,7 +9,12 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.*
+import com.ggetters.app.data.model.MatchDetails
+import com.ggetters.app.data.model.MatchStatus
+import com.ggetters.app.data.model.RSVPStats
+import com.ggetters.app.data.model.RosterPlayer
+import com.ggetters.app.data.model.RSVPStatus
+
 import com.ggetters.app.ui.central.viewmodels.MatchDetailsViewModel
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -17,6 +22,9 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 // TODO: Backend - Implement real-time match data synchronization
@@ -126,23 +134,14 @@ class MatchDetailsActivity : AppCompatActivity() {
         dateMillis: Long,
         time: String
     ): MatchDetails {
-        // TODO: Backend - Replace with real player data from backend
         val samplePlayers = listOf(
-            PlayerAvailability("1", "John Smith", "GK", 1, RSVPStatus.AVAILABLE),
-            PlayerAvailability("2", "Mike Johnson", "CB", 4, RSVPStatus.AVAILABLE),
-            PlayerAvailability("3", "David Wilson", "CB", 5, RSVPStatus.AVAILABLE),
-            PlayerAvailability("4", "Chris Brown", "LB", 3, RSVPStatus.MAYBE),
-            PlayerAvailability("5", "Tom Davis", "RB", 2, RSVPStatus.AVAILABLE),
-            PlayerAvailability("6", "Alex Miller", "CM", 8, RSVPStatus.AVAILABLE),
-            PlayerAvailability("7", "Sam Wilson", "CM", 6, RSVPStatus.UNAVAILABLE),
-            PlayerAvailability("8", "Jake Taylor", "CM", 10, RSVPStatus.AVAILABLE),
-            PlayerAvailability("9", "Ben Moore", "LW", 11, RSVPStatus.AVAILABLE),
-            PlayerAvailability("10", "Luke Jackson", "ST", 9, RSVPStatus.AVAILABLE),
-            PlayerAvailability("11", "Ryan White", "RW", 7, RSVPStatus.MAYBE),
-            PlayerAvailability("12", "Mark Lewis", "SUB", 12, RSVPStatus.AVAILABLE),
-            PlayerAvailability("13", "Paul Clark", "SUB", 13, RSVPStatus.NOT_RESPONDED),
-            PlayerAvailability("14", "Steve Hall", "SUB", 14, RSVPStatus.NOT_RESPONDED),
-            PlayerAvailability("15", "Nick Allen", "SUB", 15, RSVPStatus.UNAVAILABLE)
+            RosterPlayer(
+                playerId = "1",
+                playerName = "Alice",
+                jerseyNumber = 11,
+                position = "GK",
+                status = RSVPStatus.AVAILABLE
+            )
         )
 
         val available = samplePlayers.count { it.status == RSVPStatus.AVAILABLE }
@@ -150,34 +149,43 @@ class MatchDetailsActivity : AppCompatActivity() {
         val unavailable = samplePlayers.count { it.status == RSVPStatus.UNAVAILABLE }
         val notResponded = samplePlayers.count { it.status == RSVPStatus.NOT_RESPONDED }
 
+        val instantDate = Instant.ofEpochMilli(dateMillis)
+
         return MatchDetails(
             matchId = eventId,
             title = title,
             homeTeam = "Goal Getters FC",
             awayTeam = opponent,
             venue = venue,
-            date = Date(dateMillis),
+            date = instantDate,
             time = time,
             homeScore = 0,
             awayScore = 0,
             status = MatchStatus.SCHEDULED,
-            rsvpStats = RSVPStats(available, maybe, unavailable, notResponded),
+            rsvpStats = RSVPStats(
+                available = available,
+                maybe = maybe,
+                unavailable = unavailable,
+                notResponded = notResponded
+            ),
             playerAvailability = samplePlayers,
-            createdBy = "Coach"
+            createdBy = "Coach",
+            createdAt = Instant.now()
         )
     }
 
     private fun updateUI() {
-        // Match header information
         matchTitleText.text = matchDetails.title
         venueText.text = matchDetails.venue
-        dateTimeText.text = matchDetails.getFormattedDateTime()
 
-        // Team names
+        // ✅ Use DateTimeFormatter for Instant
+        val dateFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
+            .withZone(ZoneId.systemDefault())
+        dateTimeText.text = "${dateFormatter.format(matchDetails.date)} at ${matchDetails.time}"
+
         homeTeamText.text = matchDetails.homeTeam
         awayTeamText.text = matchDetails.awayTeam
 
-        // Score display - show/hide based on match status
         if (matchDetails.isMatchStarted()) {
             scoreDisplay.visibility = View.VISIBLE
             findViewById<TextView>(R.id.homeScore).text = matchDetails.homeScore.toString()
@@ -185,8 +193,7 @@ class MatchDetailsActivity : AppCompatActivity() {
         } else {
             scoreDisplay.visibility = View.GONE
         }
-        
-        // Update match status
+
         findViewById<TextView>(R.id.matchStatus).text = when (matchDetails.status) {
             MatchStatus.SCHEDULED -> "Upcoming"
             MatchStatus.IN_PROGRESS -> "Live"
@@ -195,11 +202,8 @@ class MatchDetailsActivity : AppCompatActivity() {
             MatchStatus.FULL_TIME -> "Full Time"
             MatchStatus.CANCELLED -> "Cancelled"
         }
-        
-        // RSVP Statistics
-        updateRSVPStats()
 
-        // Button states
+        updateRSVPStats()
         updateButtonStates()
     }
 
@@ -346,17 +350,17 @@ class MatchDetailsActivity : AppCompatActivity() {
     }
 
     private fun navigateToMatchControl() {
-        // TODO: Backend - Pass match state to control activity
         val intent = Intent(this, MatchControlActivity::class.java).apply {
             putExtra("event_id", matchDetails.matchId)
             putExtra("event_title", matchDetails.title)
             putExtra("event_opponent", matchDetails.awayTeam)
             putExtra("event_venue", matchDetails.venue)
-            putExtra("event_date", SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(matchDetails.date))
+            putExtra("event_date", matchDetails.date.toEpochMilli())
             putExtra("event_time", matchDetails.time)
         }
         startActivity(intent)
     }
+
 
     private fun navigateToPostMatch() {
         // TODO: Backend - Navigate to post-match results
@@ -383,7 +387,8 @@ class MatchDetailsActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
+        finish()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         return true
     }
 

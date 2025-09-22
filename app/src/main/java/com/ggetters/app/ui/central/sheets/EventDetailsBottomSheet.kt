@@ -57,6 +57,7 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
     private fun setupEventDetails(view: View, event: Event) {
         val eventCategory = view.findViewById<TextView>(R.id.eventCategory)
         val eventName = view.findViewById<TextView>(R.id.eventName)
+        val eventStyle = view.findViewById<TextView>(R.id.eventStyle)
         val eventDate = view.findViewById<TextView>(R.id.eventDate)
         val eventTime = view.findViewById<TextView>(R.id.eventTime)
         val eventLocation = view.findViewById<TextView>(R.id.eventLocation)
@@ -70,10 +71,19 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
         val timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())
 
         // --- Bind Data ---
-        eventCategory.text = event.category.name
+        eventCategory.text = event.category.displayName
         eventName.text = event.name
+        eventStyle.text = event.style.displayName
         eventDate.text = dateFormatter.format(event.startAt)
-        eventTime.text = timeFormatter.format(event.startAt)
+        
+        // Show time range if end time is available, otherwise just start time
+        val timeText = if (event.endAt != null) {
+            "${timeFormatter.format(event.startAt)} - ${timeFormatter.format(event.endAt)}"
+        } else {
+            timeFormatter.format(event.startAt)
+        }
+        eventTime.text = timeText
+        
         eventLocation.text = event.location ?: "No location"
         eventCreatedBy.text = "Created by ${event.creatorId ?: "Unknown"}"
 

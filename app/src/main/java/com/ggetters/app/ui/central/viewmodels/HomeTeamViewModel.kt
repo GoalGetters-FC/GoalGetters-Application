@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.inject.Inject
 
@@ -55,6 +57,13 @@ class HomeTeamViewModel @Inject constructor(
         val now = Instant.now()
         val tempId = UUID.randomUUID().toString()
 
+        // Parse DOB from string
+        val dateOfBirth = runCatching {
+            if (formFields.dateOfBirth.isNotBlank()) {
+                LocalDate.parse(formFields.dateOfBirth, DateTimeFormatter.ISO_DATE)
+            } else null
+        }.getOrNull()
+
         val user = User(
             id = tempId,
             authId = tempId,
@@ -64,10 +73,10 @@ class HomeTeamViewModel @Inject constructor(
             name = formFields.name,
             surname = formFields.surname,
             alias = "",
-            dateOfBirth = null,
+            dateOfBirth = dateOfBirth,
             email = null,
             position = toUserPosition(formFields.position),
-            number = formFields.number.toInt(),
+            number = formFields.number.toIntOrNull(),
             status = UserStatus.ACTIVE,
             createdAt = now,
             updatedAt = now

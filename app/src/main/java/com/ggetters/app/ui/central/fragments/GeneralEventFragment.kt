@@ -40,7 +40,6 @@ class GeneralEventFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         setupDateTimePickers(view)
-        setDefaultTimes(view)
     }
 
     private fun setupDateTimePickers(view: View) {
@@ -110,16 +109,6 @@ class GeneralEventFragment : Fragment() {
         }
     }
 
-    private fun setDefaultTimes(view: View) {
-        // Set different default times for general events as shown in the image
-        val startTimeInput = view.findViewById<TextInputEditText>(R.id.eventStartTimeInput)
-        val endTimeInput = view.findViewById<TextInputEditText>(R.id.eventEndTimeInput)
-        val meetingTimeInput = view.findViewById<TextInputEditText>(R.id.eventMeetingTimeInput)
-
-        startTimeInput.setText("11:00")
-        endTimeInput.setText("11:40")
-        meetingTimeInput.setText("12:00")
-    }
 
     private fun showDatePicker(onDateSelected: (Date) -> Unit) {
         val calendar = Calendar.getInstance()

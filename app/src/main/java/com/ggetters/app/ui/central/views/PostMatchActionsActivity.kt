@@ -12,8 +12,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
+import com.ggetters.app.data.model.MatchEvent
+import com.ggetters.app.data.model.MatchEventType
+import com.ggetters.app.data.model.PlayerMatchStats
+import com.ggetters.app.data.model.MatchResult // doesnt exist
 import com.ggetters.app.ui.central.adapters.PlayerStatsAdapter
-import com.ggetters.app.ui.central.models.*
 import com.ggetters.app.ui.central.viewmodels.PostMatchViewModel
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -438,7 +441,8 @@ class PostMatchActionsActivity : AppCompatActivity() {
                 true
             }
             android.R.id.home -> {
-                onBackPressed()
+                finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
                 true
             }
             else -> super.onOptionsItemSelected(item)

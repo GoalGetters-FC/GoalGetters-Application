@@ -32,6 +32,7 @@ import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.management.views.TeamsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -43,14 +44,13 @@ class HomeActivity : AppCompatActivity() {
         private const val LONG_PRESS_DURATION_MS = 500L
     }
 
-
     private lateinit var binds: ActivityHomeBinding
     private val model: HomeViewModel by viewModels()
 
-
     private var currentFragment: Fragment? = null
     private var longPressStartTime: Long = 0
-
+    private var currentTabIndex: Int = 0 // Track current tab position for transitions
+    private var lastBottomNavClickAt: Long = 0L
 
     var notificationBadge: ImageView? = null
 
@@ -58,14 +58,11 @@ class HomeActivity : AppCompatActivity() {
     @Inject lateinit var teamRepo: TeamRepository
     @Inject lateinit var userRepo: UserRepository
     @Inject lateinit var eventRepo: EventRepository
-    @Inject
-    lateinit var attendanceRepo: AttendanceRepository
+    @Inject lateinit var attendanceRepo: AttendanceRepository
 
     private var syncScheduled = false
 
-// --- Lifecycle
-
-
+    // --- Lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupBindings()
@@ -75,7 +72,7 @@ class HomeActivity : AppCompatActivity() {
         setupBottomNavigation()
 
         if (savedInstanceState == null) {
-            switchFragment(HomeCalendarFragment())
+            switchFragmentWithDirection(HomeCalendarFragment(), 0)
         }
 
         observe()
@@ -123,7 +120,6 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_home, menu)
         val notificationOption = menu?.findItem(R.id.menu_home_notifications)
@@ -136,10 +132,7 @@ class HomeActivity : AppCompatActivity() {
         return true
     }
 
-
-// --- ViewModel
-
-
+    // --- ViewModel
     private fun observe() = model.uiConfiguration.observe(this) { configuration ->
         when (configuration.appBarShown) {
             true -> {
@@ -155,7 +148,6 @@ class HomeActivity : AppCompatActivity() {
                         binds.topBar.setBackgroundColor("#161620".toColorInt())
                         binds.appBar.setTitleTextColor("#FFFFFF".toColorInt())
                     }
-
                     else -> {
                         binds.root.setBackgroundColor("#FFFFFF".toColorInt())
                         WindowCompat.getInsetsController(
@@ -167,22 +159,17 @@ class HomeActivity : AppCompatActivity() {
                     }
                 }
             }
-
             else -> {
                 binds.topBar.visibility = View.GONE
             }
         }
     }
 
-
-// --- Internals
-
-
+    // --- Internals
     fun setNotificationBadgeVisibility(visible: Boolean) {
         if (visible) notificationBadge?.visibility = View.VISIBLE
         else notificationBadge?.visibility = View.GONE
     }
-
 
     private fun setupStatusBar() {
         // Enable edge-to-edge display but keep status bar visible
@@ -196,15 +183,34 @@ class HomeActivity : AppCompatActivity() {
         window.statusBarColor = getColor(R.color.white)
     }
 
-
     private fun setupViews() {
-        binds.appBar.menu.findItem(R.id.menu_home_notifications).setOnMenuItemClickListener {
+        val notificationsItem = binds.appBar.menu.findItem(R.id.menu_home_notifications)
+        // Click via menu item listener (fallback if actionView not present)
+        notificationsItem.setOnMenuItemClickListener {
             val intent = Intent(this, NotificationsActivity::class.java)
             startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
             true
+        }
+
+        // If using a custom actionLayout, clicks land on the actionView, not the MenuItem
+        val actionView = notificationsItem.actionView
+        actionView?.apply {
+            contentDescription = getString(R.string.app_name)
+            // Click anywhere on the action view
+            setOnClickListener { openNotifications() }
+
+            // Also wire inner clickable views from the custom layout
+            findViewById<View?>(R.id.cv_menu_icon)?.setOnClickListener { openNotifications() }
+            findViewById<View?>(R.id.iv_menu_icon)?.setOnClickListener { openNotifications() }
         }
     }
 
+    private fun openNotifications() {
+        val intent = Intent(this, NotificationsActivity::class.java)
+        startActivity(intent)
+        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
+    }
 
     private fun setupBottomNavigation() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
@@ -212,38 +218,53 @@ class HomeActivity : AppCompatActivity() {
             BottomNavigationView.LABEL_VISIBILITY_UNLABELED // Ensure labels are always visible
 
         bottomNav.setOnItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_calendar -> {
-                    switchFragment(HomeCalendarFragment())
-                    true
+            // Debounce rapid taps to prevent jitter/duplicate transactions
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (now - lastBottomNavClickAt < 350L) return@setOnItemSelectedListener false
+            lastBottomNavClickAt = now
+
+            val newTabIndex = when (menuItem.itemId) {
+                R.id.nav_calendar -> 0
+                R.id.nav_team_players -> 1
+                R.id.nav_player_profile -> 2
+                R.id.nav_profile -> 3
+                else -> -1
+            }
+
+            if (newTabIndex != -1) {
+                // Ignore re-select on the same tab to prevent jitter
+                if (newTabIndex == currentTabIndex) return@setOnItemSelectedListener true
+
+                val fragment = when (menuItem.itemId) {
+                    R.id.nav_calendar -> HomeCalendarFragment()
+                    R.id.nav_team_players -> HomeTeamFragment()
+                    R.id.nav_player_profile -> profileFragmentForCurrentUser()
+                    R.id.nav_profile -> HomeSettingsFragment()
+                    else -> null
                 }
 
-                R.id.nav_team_players -> { // Corrected ID
-                    switchFragment(HomeTeamFragment())
-                    true
+                fragment?.let {
+                    switchFragmentWithDirection(it, newTabIndex)
                 }
-
-                R.id.nav_player_profile -> { // Player Profile - Show player details
-                    switchFragment(PlayerDetailsFragment())
-                    true
-                }
-
-                R.id.nav_profile -> {
-                    // Options tab - Show account switcher on long press, regular click shows profile
-                    switchFragment(HomeSettingsFragment())
-                    true
-                }
-
-                else -> false
+                true
+            } else {
+                false
             }
         }
+
+        // Do nothing on reselect to avoid spamming transitions
+        bottomNav.setOnItemReselectedListener { /* no-op */ }
 
         // Setup long click listener for Options tab specifically
         setupOptionsLongClick(bottomNav)
 
+        // Default fragment is set in onCreate
+    }
 
-
-        switchFragment(HomeCalendarFragment()) // Set default fragment
+    private fun profileFragmentForCurrentUser(): Fragment {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        // If uid is null/blank, pass blank – PlayerProfileFragment will call loadCurrentUser()
+        return PlayerProfileFragment.newInstance(uid ?: "", startEditing = false)
     }
 
     private fun setupOptionsLongClick(bottomNav: BottomNavigationView) {
@@ -307,7 +328,6 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-
     private fun showTeamSwitcher() {
         // TODO: Backend - Implement team switching with proper authentication
         // TODO: Backend - Add team switching analytics and tracking
@@ -353,22 +373,71 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun switchFragment(fragment: Fragment) {
+        // Legacy method - use default transition
+        switchFragmentWithDirection(fragment, currentTabIndex)
+    }
+
+    private fun switchFragmentWithDirection(fragment: Fragment, newTabIndex: Int) {
         val transaction = supportFragmentManager.beginTransaction()
 
-        // Add smooth transitions with better timing
-        transaction.setCustomAnimations(
-            R.anim.slide_in_right,
-            R.anim.slide_out_left,
-            R.anim.slide_in_left,
-            R.anim.slide_out_right
-        )
+        // Determine transition direction based on tab index
+        val isMovingForward = newTabIndex > currentTabIndex
+        val isMovingBackward = newTabIndex < currentTabIndex
 
-        // Add to back stack for proper navigation
+        // Set appropriate animations based on direction
+        if (isMovingForward) {
+            // Moving forward (left to right in tab order) - slide in from right
+            transaction.setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left,
+                R.anim.slide_in_left,
+                R.anim.slide_out_right
+            )
+        } else if (isMovingBackward) {
+            // Moving backward (right to left in tab order) - slide in from left
+            transaction.setCustomAnimations(
+                R.anim.slide_in_left,
+                R.anim.slide_out_right,
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+            )
+        } else {
+            // Same tab or first load - use fade transition
+            transaction.setCustomAnimations(
+                R.anim.fade_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.fade_out
+            )
+        }
+
+        // Replace without pushing to back stack to avoid jitter/stack growth for bottom nav
+        transaction.setReorderingAllowed(true)
         transaction.replace(R.id.fragmentContainer, fragment)
-        transaction.addToBackStack(null)
 
         transaction.commit()
         currentFragment = fragment
+        currentTabIndex = newTabIndex
+    }
+
+    override fun onBackPressed() { // fix this, onBackPressedDispatcher
+        // Handle back navigation
+        if (supportFragmentManager.backStackEntryCount > 1) {
+            // Pop the back stack
+            supportFragmentManager.popBackStack()
+
+            // Update current tab index based on the fragment that's now visible
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            currentTabIndex = when (currentFragment) {
+                is HomeCalendarFragment -> 0
+                is HomeTeamFragment -> 1
+                is PlayerProfileFragment -> 2
+                is HomeSettingsFragment -> 3
+                else -> currentTabIndex
+            }
+        } else {
+            super.onBackPressed()
+        }
     }
 
     fun showAccountSwitcher() {
@@ -429,14 +498,10 @@ class HomeActivity : AppCompatActivity() {
             .show(supportFragmentManager, "AccountSwitcher")
     }
 
-
-// --- UI
-
-
+    // --- UI
     private fun setupBindings() {
         binds = ActivityHomeBinding.inflate(layoutInflater)
     }
-
 
     private fun setupLayoutUi() {
         setContentView(binds.root)
@@ -449,4 +514,4 @@ class HomeActivity : AppCompatActivity() {
             insets
         }
     }
-} 
+}

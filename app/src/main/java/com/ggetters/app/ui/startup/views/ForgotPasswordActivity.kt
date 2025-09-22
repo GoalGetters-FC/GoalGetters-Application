@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.ggetters.app.R
 import com.ggetters.app.core.extensions.android.onTextUpdated
 import com.ggetters.app.core.extensions.android.setLayoutError
 import com.ggetters.app.core.utils.Clogger
@@ -99,6 +100,11 @@ class ForgotPasswordActivity : AppCompatActivity(), Clickable {
                 TAG, "Unhandled on-click for: ${view?.id}"
             )
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
     }
 
 
