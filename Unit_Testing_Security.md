@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Tests are security-safe and deterministic. No secrets found and no real network/Firebase usage in unit tests. Minor improvements recommended for coverage reporting and centralized coroutine test setup.
+Tests are security-safe and deterministic. No secrets found and no real network/Firebase usage in unit tests. Coverage reporting is now enabled in Gradle and CI. Next, centralize coroutine test setup and consider unifying mocking.
 
 ## Scope
 
@@ -19,7 +19,7 @@ Tests are security-safe and deterministic. No secrets found and no real network/
 - Coroutines test: `kotlinx-coroutines-test` with `StandardTestDispatcher`
 - Robolectric (Android on JVM)
 - Espresso (instrumented UI)
-- JaCoCo dependency present (coverage not yet wired in CI)
+- JaCoCo enabled; `jacocoTestReport` generates XML/HTML and runs in CI
 
 ## Security Hygiene (Verified)
 
@@ -32,32 +32,32 @@ Tests are security-safe and deterministic. No secrets found and no real network/
 
 ## Gaps / Risks
 
-- Coverage not reported/gated in CI despite JaCoCo dependency
 - Mixed mocking stacks (MockK + Mockito) increases maintenance overhead
 - Coroutine dispatcher setup repeated across classes (not centralized)
 - Some instrumented tests use sleeps (minor flakiness risk)
 
 ## Recommendations (Priority)
 
-1) Enable coverage reporting and artifact upload
-- Add a `jacocoTestReport` task and run it in CI
-- Optionally set a minimum PR coverage threshold
-
-2) Centralize coroutine test setup
+1) Centralize coroutine test setup
 - Provide a JUnit 5 extension to set/reset `Dispatchers.Main`
 - Share a `TestDispatcher` via the extension
 
-3) Consolidate on one mocking framework (prefer MockK for Kotlin)
+2) Consolidate on one mocking framework (prefer MockK for Kotlin)
 
-4) Reduce sleeps in instrumented tests
+3) Reduce sleeps in instrumented tests
 - Replace with Idling Resources or await conditions where feasible
+
+4) (Optional) Add a minimum PR coverage threshold in CI
 
 ## Example snippets
 
-```kotlin
-// app/build.gradle.kts — JaCoCo
-plugins { jacoco }
+```12:65:app/build.gradle.kts
+plugins {
+    // ... existing code ...
+    jacoco
+}
 
+// --- JaCoCo Coverage
 tasks.test {
     useJUnitPlatform()
     finalizedBy(tasks.jacocoTestReport)
@@ -71,10 +71,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     }
     classDirectories.setFrom(
         fileTree("${buildDir}/tmp/kotlin-classes/debug") {
-            exclude(
-                "**/R.class", "**/R$*.class", "**/BuildConfig.*",
-                "**/Manifest*.*", "**/*$ViewInjector*.*", "**/*$ViewBinder*.*"
-            )
+            exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*")
         }
     )
     sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
@@ -82,8 +79,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 }
 ```
 
-```yaml
-# .github/workflows/android-tests.yml — upload coverage
+```1:95:.github/workflows/android-tests.yml
 - name: Run Unit Tests + Coverage
   run: ./gradlew testDebugUnitTest jacocoTestReport
 
@@ -94,26 +90,27 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     path: app/build/reports/jacoco/jacocoTestReport/html
 ```
 
-## New Security Tests Added
+## New Unit Tests Added
 
-Location: `app/src/test/java/com/ggetters/app/security/`
-
-- AuthValidatorTest.kt: Enforces password complexity (reject weak, accept strong)
-- SignInViewModelSecurityTest.kt: Invalid inputs yield Failure; no AuthService call
-- SignUpViewModelSecurityTest.kt: Weak/mismatched passwords fail fast; no AuthService call
-- AuthServiceSecurityTest.kt: `isUserSignedIn` correctness; `logout` triggers `signOut()`
-- ForgotPasswordViewModelSecurityTest.kt: Invalid email fails fast; no service call
+Locations:
+- `app/src/test/java/com/ggetters/app/core/FinalTest.kt`
+- `app/src/test/java/com/ggetters/app/ui/shared/extensions/MatchEventExtensionsTest.kt`
+- `app/src/test/java/com/ggetters/app/core/InstantExtensionsTest.kt`
+- `app/src/test/java/com/ggetters/app/core/ValidationBuilderTest.kt`
+- `app/src/test/java/com/ggetters/app/core/StringExtensionsTest.kt`
+- `app/src/test/java/com/ggetters/app/data/model/MatchDetailsTest.kt`
 
 Impact:
-- Blocks risky auth paths before backend interaction
-- Verifies logout/security flows
-- Improves guardrail coverage of credential validation
+- Expands baseline JVM coverage without Android/Firebase dependencies
+- Verifies core result pattern, time conversions, and match helpers
 
 How to run:
 - JVM unit tests: `./gradlew testDebugUnitTest` (or `./gradlew test`)
+- With coverage: `./gradlew testDebugUnitTest jacocoTestReport`
+- Coverage report: `app/build/reports/jacoco/jacocoTestReport/html/index.html`
 
 ## Conclusion
 
-- Status: Security-safe tests and CI. No secret leakage or real-network usage in unit tests.
-- Next: Enable coverage in CI, centralize coroutine testing, consider unifying mocks.
+- Status: Security-safe tests and CI with coverage artifacts. No secret leakage or real-network usage in unit tests.
+- Next: Centralize coroutine testing, consider unifying mocks, and optionally add PR coverage gates.
 

@@ -1,5 +1,6 @@
 import java.io.FileInputStream
 import java.util.Properties
+import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
     alias(libs.plugins.android.application)
@@ -8,6 +9,7 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
     kotlin("kapt")
+    jacoco
 }
 
 android {
@@ -105,6 +107,38 @@ android {
     }
 }
 
+// --- JaCoCo Coverage
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+    finalizedBy("jacocoTestReport")
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    classDirectories.setFrom(
+        files(
+            fileTree("${buildDir}/tmp/kotlin-classes/debug") {
+                exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*")
+            },
+            fileTree("${buildDir}/intermediates/javac/debug/classes") {
+                exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*")
+            }
+        )
+    )
+    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+    executionData.setFrom(
+        fileTree(buildDir) {
+            include("**/jacoco/testDebugUnitTest.exec", "**/jacoco/test.exec")
+        }
+    )
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -122,7 +156,11 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    // JUnit 4 (legacy)
     testImplementation(libs.junit)
+    // JUnit 5 (Jupiter) for use with JUnit Platform
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.3")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
