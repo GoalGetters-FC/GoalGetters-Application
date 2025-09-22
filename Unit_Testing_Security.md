@@ -14,7 +14,7 @@ Tests are security-safe and deterministic. No secrets found and no real network/
 
 ## Tooling Detected
 
-- JUnit 5 (Jupiter), Kotlin Test
+- JUnit 5 (Jupiter) with Platform engine, plus legacy JUnit 4
 - Mocking: MockK, Mockito (core/inline)
 - Coroutines test: `kotlinx-coroutines-test` with `StandardTestDispatcher`
 - Robolectric (Android on JVM)
@@ -79,6 +79,22 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 }
 ```
 
+```108:165:app/build.gradle.kts
+dependencies {
+    // ... existing app deps ...
+
+    // Unit testing
+    testImplementation(libs.junit) // JUnit 4 (legacy)
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.3")
+}
+
+// Ensure JUnit Platform runs
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+}
+```
+
 ```1:95:.github/workflows/android-tests.yml
 - name: Run Unit Tests + Coverage
   run: ./gradlew testDebugUnitTest jacocoTestReport
@@ -99,10 +115,15 @@ Locations:
 - `app/src/test/java/com/ggetters/app/core/ValidationBuilderTest.kt`
 - `app/src/test/java/com/ggetters/app/core/StringExtensionsTest.kt`
 - `app/src/test/java/com/ggetters/app/data/model/MatchDetailsTest.kt`
+// Security-focused
+- `app/src/test/java/com/ggetters/app/core/validation/PasswordSecurityValidationTest.kt`
+- `app/src/test/java/com/ggetters/app/core/validation/WhitespaceExclusionValidationTest.kt`
+- `app/src/test/java/com/ggetters/app/core/validation/EmailValidationTest.kt`
 
 Impact:
 - Expands baseline JVM coverage without Android/Firebase dependencies
 - Verifies core result pattern, time conversions, and match helpers
+- Guards credential paths: enforces password complexity, rejects whitespace and invalid emails
 
 How to run:
 - JVM unit tests: `./gradlew testDebugUnitTest` (or `./gradlew test`)
