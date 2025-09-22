@@ -46,4 +46,4 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build -x lint sonar --info
+        run: ./gradlew assembleDebug sonar --info
