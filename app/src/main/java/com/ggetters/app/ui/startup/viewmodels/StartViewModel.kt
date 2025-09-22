@@ -3,7 +3,7 @@ package com.ggetters.app.ui.startup.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.ggetters.app.core.services.AuthService
+import com.ggetters.app.core.services.AuthenticationService
 import com.ggetters.app.ui.startup.models.StartUiState
 import com.ggetters.app.ui.startup.models.StartUiState.Authenticated
 import com.ggetters.app.ui.startup.models.StartUiState.SignedOut
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StartViewModel @Inject constructor(
-    private val authService: AuthService
+    private val authService: AuthenticationService
 ) : ViewModel() {
     companion object {
         private const val TAG = "StartViewModel"

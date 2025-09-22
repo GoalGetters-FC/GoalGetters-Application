@@ -1,0 +1,129 @@
+package com.ggetters.app.ui.startup.viewmodels
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.data.model.Team
+import com.ggetters.app.data.repository.team.TeamRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+/**
+ * Drives onboarding actions: creating or joining a team, then navigating to Home.
+ *
+ * Notes:
+ * - Matches TeamRepository interface you provided (createTeam(Team), joinTeam(teamId), getByCode(code), joinOrCreateTeam(code)).
+ * - UI state via StateFlow; one-off events via Channel.
+ *
+ * @see <a href="https://developer.android.com/topic/libraries/architecture/viewmodel">Android ViewModel</a>
+ * @see <a href="https://developer.android.com/kotlin/flow/stateflow-and-sharedflow">StateFlow & SharedFlow</a>
+ * @see <a href="https://developer.android.com/training/dependency-injection/hilt-android">Hilt</a>
+ */
+@HiltViewModel
+class OnboardingViewModel @Inject constructor(
+    private val teamRepository: TeamRepository
+) : ViewModel() {
+
+    companion object {
+        private const val TAG = "OnboardingViewModel"
+    }
+
+    data class UiState(
+        val isBusy: Boolean = false,
+        val errorMessage: String? = null
+    )
+
+    sealed interface UiEvent {
+        data object NavigateHome : UiEvent
+        data class Toast(val message: String) : UiEvent
+    }
+
+    private val _state = MutableStateFlow(UiState())
+    val state: StateFlow<UiState> = _state.asStateFlow()
+
+    private val _events = Channel<UiEvent>(Channel.BUFFERED)
+    val events = _events.receiveAsFlow()
+
+    /**
+     * Create a team from a name and make it active.
+     *
+     * Adjust the Team(...) construction to your data class’ required params/defaults.
+     * After creation, we set it active and call sync() to push changes if online.
+     *
+     * @see <a href="https://developer.android.com/topic/libraries/architecture/repositories">Repositories</a>
+     */
+    fun createTeam(teamName: String) = viewModelScope.launch {
+        val name = teamName.trim()
+        if (name.isBlank()) {
+            _events.send(UiEvent.Toast("Please enter a team name."))
+            return@launch
+        }
+
+        _state.update { it.copy(isBusy = true, errorMessage = null) }
+        runCatching {
+            val toCreate = Team(name = name) // ← ensure your Team has defaults for other fields
+            val created: Team = teamRepository.createTeam(toCreate)
+            teamRepository.setActiveTeam(created)
+            teamRepository.sync()
+            created
+        }.onSuccess { created ->
+            Clogger.i(TAG, "Created team ${created.name} (${created.id}) and set active")
+            _state.update { it.copy(isBusy = false) }
+            _events.send(UiEvent.NavigateHome)
+        }.onFailure { e ->
+            Clogger.e(TAG, "Failed to create team", e)
+            _state.update { it.copy(isBusy = false, errorMessage = e.message ?: "Failed to create team") }
+            _events.send(UiEvent.Toast("Could not create team: ${e.message ?: "Unknown error"}"))
+        }
+    }
+
+    /**
+     * Join a team using a join code (and optional userCode if your backend uses it).
+     *
+     * Flow:
+     * 1) Try find team by code.
+     * 2) If found → joinTeam(team.id).
+     * 3) If not found → fall back to joinOrCreateTeam(code) (if your server allows creating via code).
+     * 4) Set active + sync.
+     *
+     * The provided TeamRepository API does not accept userCode, so we ignore it here.
+     * If you later extend the repo, thread userCode through accordingly.
+     */
+    fun joinTeam(teamCode: String, userCode: String) = viewModelScope.launch {
+        val code = teamCode.trim()
+        if (code.isBlank()) {
+            _events.send(UiEvent.Toast("Team code is required."))
+            return@launch
+        }
+
+        _state.update { it.copy(isBusy = true, errorMessage = null) }
+        runCatching {
+            val existing: Team? = teamRepository.getByCode(code)
+            val joined: Team = if (existing != null) {
+                teamRepository.joinTeam(existing.id)
+                existing
+            } else {
+                // If your backend can create a team from a code, this returns the team and links the user.
+                teamRepository.joinOrCreateTeam(code)
+            }
+            teamRepository.setActiveTeam(joined)
+            teamRepository.sync()
+            joined
+        }.onSuccess { team ->
+            Clogger.i(TAG, "Joined team ${team.name} (${team.id}); set active")
+            _state.update { it.copy(isBusy = false) }
+            _events.send(UiEvent.NavigateHome)
+        }.onFailure { e ->
+            Clogger.e(TAG, "Failed to join team", e)
+            _state.update { it.copy(isBusy = false, errorMessage = e.message ?: "Failed to join team") }
+            _events.send(UiEvent.Toast("Could not join team: ${e.message ?: "Unknown error"}"))
+        }
+    }
+}

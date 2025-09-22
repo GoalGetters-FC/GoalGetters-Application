@@ -3,194 +3,206 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="12dp"
+    android:orientation="vertical"
     android:background="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true">
 
-    <!-- Left Side: Icon Placeholder -->
-    <FrameLayout
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginEnd="12dp">
-
-        <!-- Notification Icon -->
-        <ImageView
-            android:id="@+id/notificationIcon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_unicons_bell_24"
-            app:tint="@color/text_secondary"
-            android:visibility="visible" />
-
-        <!-- Unread Indicator -->
-        <View
-            android:id="@+id/unreadIndicator"
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            android:layout_gravity="center"
-            android:background="@drawable/unread_indicator"
-            android:visibility="gone" />
-
-    </FrameLayout>
-
-    <!-- Main Content Area -->
+    <!-- Main notification row -->
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_marginEnd="12dp">
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp">
 
-        <!-- Main Notification Text -->
-        <TextView
-            android:id="@+id/notificationText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Don't forget to pack your shin guards for tomorrow!"
-            android:textColor="@color/black"
-            android:textSize="14sp"
-            android:fontFamily="@font/variable_inter"
-            android:lineSpacingExtra="2dp"
-            android:maxLines="3"
-            android:ellipsize="end" />
+        <!-- Left Side: Icon Placeholder -->
+        <FrameLayout
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="12dp">
 
-        <!-- Results Summary (for match results) -->
-        <LinearLayout
-            android:id="@+id/resultsSummary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:visibility="gone">
-
-            <!-- Home Score -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/result_home_background"
-                android:padding="8dp"
-                android:layout_marginEnd="4dp">
-
-                <TextView
-                    android:id="@+id/homeScore"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="15"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/variable_inter" />
-
-                <TextView
-                    android:id="@+id/homeLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Home"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/variable_inter" />
-
-            </LinearLayout>
-
-            <!-- Away Score -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/result_away_background"
-                android:padding="8dp"
-                android:layout_marginStart="4dp">
-
-                <TextView
-                    android:id="@+id/awayScore"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="2"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/variable_inter" />
-
-                <TextView
-                    android:id="@+id/awayLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Away"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/variable_inter" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- Scheduled Event (for games/practices) -->
-        <LinearLayout
-            android:id="@+id/scheduledEvent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/scheduled_event_background"
-            android:padding="8dp"
-            android:visibility="gone">
-
-            <!-- Event Icon -->
+            <!-- Notification Icon -->
             <ImageView
-                android:id="@+id/eventIcon"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@drawable/ic_unicons_calender_24"
+                android:id="@+id/notificationIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_unicons_bell_24"
                 app:tint="@color/text_secondary"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="8dp" />
+                android:visibility="visible" />
 
-            <!-- Event Date/Time -->
+            <!-- Unread Indicator -->
+            <View
+                android:id="@+id/unreadIndicator"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_gravity="center"
+                android:background="@drawable/unread_indicator"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <!-- Main Content Area -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginEnd="12dp">
+
+            <!-- Main Notification Text -->
             <TextView
-                android:id="@+id/eventDateTime"
-                android:layout_width="0dp"
+                android:id="@+id/notificationText"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="12/06 21:00"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp"
+                android:text="Don't forget to pack your shin guards for tomorrow!"
+                android:textColor="@color/black"
+                android:textSize="14sp"
                 android:fontFamily="@font/variable_inter"
-                android:layout_gravity="center_vertical" />
+                android:lineSpacingExtra="2dp"
+                android:maxLines="3"
+                android:ellipsize="end" />
+
+            <!-- Results Summary (for match results) -->
+            <LinearLayout
+                android:id="@+id/resultsSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:visibility="gone">
+
+                <!-- Home Score -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/result_home_background"
+                    android:padding="8dp"
+                    android:layout_marginEnd="4dp">
+
+                    <TextView
+                        android:id="@+id/homeScore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="15"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/variable_inter" />
+
+                    <TextView
+                        android:id="@+id/homeLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Home"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/variable_inter" />
+
+                </LinearLayout>
+
+                <!-- Away Score -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/result_away_background"
+                    android:padding="8dp"
+                    android:layout_marginStart="4dp">
+
+                    <TextView
+                        android:id="@+id/awayScore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/variable_inter" />
+
+                    <TextView
+                        android:id="@+id/awayLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Away"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/variable_inter" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Scheduled Event (for games/practices) -->
+            <LinearLayout
+                android:id="@+id/scheduledEvent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/scheduled_event_background"
+                android:padding="8dp"
+                android:visibility="gone">
+
+                <!-- Event Icon -->
+                <ImageView
+                    android:id="@+id/eventIcon"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_unicons_calendar_24"
+                    app:tint="@color/text_secondary"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="8dp" />
+
+                <!-- Event Date/Time -->
+                <TextView
+                    android:id="@+id/eventDateTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="12/06 21:00"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_gravity="center_vertical" />
+
+            </LinearLayout>
+
+
+
+            <!-- Timestamp -->
+            <TextView
+                android:id="@+id/notificationTimestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2 days ago"
+                android:textColor="@color/text_tertiary"
+                android:textSize="12sp"
+                android:fontFamily="@font/variable_inter"
+                android:layout_marginTop="6dp" />
 
         </LinearLayout>
 
-        <!-- Timestamp -->
-        <TextView
-            android:id="@+id/notificationTimestamp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="2 days ago"
-            android:textColor="@color/text_tertiary"
-            android:textSize="12sp"
-            android:fontFamily="@font/variable_inter"
-            android:layout_marginTop="6dp" />
+        <!-- Right Side: Action Menu -->
+        <ImageButton
+            android:id="@+id/actionMenuButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_unicons_ellipsis_v"
+            app:tint="@color/text_secondary"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="More options" />
 
     </LinearLayout>
 
-    <!-- Right Side: Action Menu -->
-    <ImageButton
-        android:id="@+id/actionMenuButton"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_gravity="center_vertical"
-        android:src="@drawable/ic_unicons_ellipsis_v"
-        app:tint="@color/text_secondary"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="More options" />
+
 
 </LinearLayout> 

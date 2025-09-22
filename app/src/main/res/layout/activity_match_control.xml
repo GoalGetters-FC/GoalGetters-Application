@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:elevation="2dp">
+
+        <!-- Top Row: Back Button, Title, Spacer -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="16dp">
+
+            <!-- Back Button -->
+            <ImageButton
+                android:id="@+id/backButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_unicons_arrow_left"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                app:tint="@color/text_secondary" />
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/matchTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Track Event"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/variable_inter"
+                android:gravity="center" />
+
+            <!-- Spacer to balance the layout -->
+            <View
+                android:layout_width="48dp"
+                android:layout_height="48dp" />
+
+        </LinearLayout>
+
+        <!-- Venue Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="16dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_unicons_map_pin_24"
+                app:tint="@color/text_secondary"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/matchVenue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Main Field"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:fontFamily="@font/variable_inter" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Score Display -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="16dp"
+        android:background="@color/surface_elevated">
+
+        <!-- Score -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <!-- Home Team Score -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/homeTeamName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Home"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/homeScore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/black"
+                    android:textSize="48sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/variable_inter" />
+
+            </LinearLayout>
+
+            <!-- Score Separator -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textColor="@color/text_secondary"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/variable_inter"
+                android:layout_marginHorizontal="24dp" />
+
+            <!-- Away Team Score -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/awayTeamName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Away"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/awayScore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/black"
+                    android:textSize="48sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/variable_inter" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Timer Display -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_unicons_clock_24"
+                app:tint="@color/text_secondary"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/matchTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0:00"
+                android:textColor="@color/text_secondary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/variable_inter" />
+
+        </LinearLayout>
+
+        <!-- Match Status -->
+        <TextView
+            android:id="@+id/matchStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scheduled"
+            android:textColor="@color/text_tertiary"
+            android:textSize="14sp"
+            android:fontFamily="@font/variable_inter"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+
+    <!-- Control Grid -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="20dp">
+
+        <!-- 3x3 Grid of Control Buttons -->
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="3"
+            android:rowCount="3"
+            android:alignmentMode="alignMargins"
+            android:useDefaultMargins="true">
+
+            <!-- Row 1 -->
+            <!-- Start/Pause Match Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnStartMatch"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_columnWeight="1"
+                android:text="Start"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/variable_inter"
+                app:icon="@drawable/ic_unicons_play_24"
+                app:iconGravity="textTop"
+                app:iconSize="24dp"
+                app:iconPadding="8dp"
+                style="@style/Widget.GoalGetters.Button.MatchControl.Primary" />
+
+            <!-- Pause/Resume Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPauseMatch"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_columnWeight="1"
+                android:text="Pause"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/variable_inter"
+                app:icon="@drawable/ic_unicons_pause_24"
+                app:iconGravity="textTop"
+                app:iconSize="24dp"
+                app:iconPadding="8dp"
+                style="@style/Widget.GoalGetters.Button.MatchControl.Secondary"
+                android:visibility="gone" />
+
+            <!-- End Match Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEndMatch"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_columnWeight="1"
+                android:text="End"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/variable_inter"
+                app:icon="@drawable/ic_unicons_stop_24"
+                app:iconGravity="textTop"
+                app:iconSize="24dp"
+                app:iconPadding="8dp"
+                style="@style/Widget.GoalGetters.Button.MatchControl.Secondary"
+                android:visibility="gone" />
+
+            <!-- Row 2 -->
+            <!-- Undo Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnUndo"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_columnWeight="1"
+                android:text="Undo"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/variable_inter"
+                app:icon="@drawable/ic_unicons_undo_24"
+                app:iconGravity="textTop"
+                app:iconSize="24dp"
+                app:iconPadding="8dp"
+                style="@style/Widget.GoalGetters.Button.MatchControl.Secondary" />
+
+            <!-- Timer Control Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTimerControl"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_columnWeight="1"
+                android:text="Timer"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/variable_inter"
+                app:icon="@drawable/ic_unicons_clock_24"
+                app:iconGravity="textTop"
+                app:iconSize="24dp"
+                app:iconPadding="8dp"
+                style="@style/Widget.GoalGetters.Button.MatchControl.Secondary" />
+
+            <!-- Analytics Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAnalytics"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_columnWeight="1"
+                android:text="Stats"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/variable_inter"
+                app:icon="@drawable/ic_unicons_analytics_24"
+                app:iconGravity="textTop"
+                app:iconSize="24dp"
+                app:iconPadding="8dp"
+                style="@style/Widget.GoalGetters.Button.MatchControl.Secondary" />
+
+            <!-- Row 3 -->
+            <!-- Cancel Match Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelMatch"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_columnWeight="1"
+                android:text="Cancel"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/variable_inter"
+                app:icon="@drawable/ic_unicons_close_24"
+                app:iconGravity="textTop"
+                app:iconSize="24dp"
+                app:iconPadding="8dp"
+                style="@style/Widget.GoalGetters.Button.MatchControl.Danger" />
+
+            <!-- Record Event Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRecordEvent"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_columnWeight="1"
+                android:text="Event"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/variable_inter"
+                app:icon="@drawable/ic_unicons_lightning_24"
+                app:iconGravity="textTop"
+                app:iconSize="24dp"
+                app:iconPadding="8dp"
+                style="@style/Widget.GoalGetters.Button.MatchControl.Primary" />
+
+            <!-- Settings Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSettings"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_columnWeight="1"
+                android:text="Settings"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/variable_inter"
+                app:icon="@drawable/ic_unicons_settings_24"
+                app:iconGravity="textTop"
+                app:iconSize="24dp"
+                app:iconPadding="8dp"
+                style="@style/Widget.GoalGetters.Button.MatchControl.Secondary" />
+
+        </GridLayout>
+
+    </LinearLayout>
+
+</LinearLayout> 

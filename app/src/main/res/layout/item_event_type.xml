@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="20dp"
+    android:paddingVertical="16dp"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Event Icon -->
+    <TextView
+        android:id="@+id/eventIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:text="⚽"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Event Info -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/eventTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Goal"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/on_surface"
+            android:fontFamily="@font/variable_inter" />
+
+        <TextView
+            android:id="@+id/eventDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Record a goal scored"
+            android:textSize="14sp"
+            android:textColor="@color/on_surface_variant"
+            android:fontFamily="@font/variable_inter"
+            android:layout_marginTop="2dp" />
+
+    </LinearLayout>
+
+    <!-- Arrow Icon -->
+    <ImageView
+        android:id="@+id/eventArrow"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_unicons_arrow_right_24"
+        app:tint="@color/on_surface_variant" />
+
+</LinearLayout>

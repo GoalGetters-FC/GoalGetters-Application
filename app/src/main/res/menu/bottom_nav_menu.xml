@@ -2,18 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_calendar"
-        android:icon="@drawable/ic_unicons_calender_24"
+        android:icon="@drawable/xic_x24_uic_line_calendar"
         android:title="Events" />
     <item
         android:id="@+id/nav_team_players"
-        android:icon="@drawable/ic_unicons_folder_open"
+        android:icon="@drawable/xic_x24_uic_line_trophy"
         android:title="Team" />
     <item
-        android:id="@+id/nav_team_profile"
-        android:icon="@drawable/ic_unicons_user_24"
+        android:id="@+id/nav_player_profile"
+        android:icon="@drawable/xic_x24_uic_line_user"
         android:title="Account" />
     <item
         android:id="@+id/nav_profile"
-        android:icon="@drawable/ic_unicons_browser_24"
+        android:icon="@drawable/xic_x24_uic_line_cog"
         android:title="Options" />
 </menu> 

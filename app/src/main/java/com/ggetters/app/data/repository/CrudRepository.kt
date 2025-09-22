@@ -7,4 +7,5 @@ interface CrudRepository<E> {
     suspend fun getById(id: String): E?
     suspend fun upsert(entity: E)
     suspend fun delete(entity: E)
+    suspend fun deleteAll()
 }

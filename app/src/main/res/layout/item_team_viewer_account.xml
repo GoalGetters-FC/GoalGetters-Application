@@ -1,95 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:orientation="horizontal"
-        android:paddingVertical="4dp"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:paddingVertical="8dp"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
 
     <com.google.android.material.card.MaterialCardView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/divider">
+
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent">
+            android:layout_width="match_parent"
+            android:padding="16dp"
+            android:gravity="center_vertical">
 
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
-                android:padding="12dp"
-                android:layout_height="match_parent"
-                android:layout_width="match_parent">
+            <!-- Team Avatar -->
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp">
 
+                <!-- Circular Team Avatar -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    app:cardCornerRadius="30dp"
+                    app:cardBackgroundColor="@color/yellow"
+                    app:cardElevation="0dp">
+
+                    <ImageView
+                        android:id="@+id/teamLogo"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_unicons_soccer_24"
+                        android:tint="@color/black" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </FrameLayout>
+
+            <!-- Team Information -->
             <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent">
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-                <androidx.coordinatorlayout.widget.CoordinatorLayout
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content">
+                <TextView
+                    android:id="@+id/tv_team_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="U15a Football"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="8dp" />
 
-                    <com.google.android.material.card.MaterialCardView
-                            android:layout_gravity="center_vertical"
-                            app:cardCornerRadius="100dp"
-                            android:layout_height="80dp"
-                            android:layout_width="80dp">
-
-                        <ImageView
-                                android:src="@drawable/xic_x48_uic_line_football"
-                                android:importantForAccessibility="no"
-                                android:layout_gravity="center"
-                                android:layout_height="wrap_content"
-                                android:layout_width="wrap_content" />
-
-                        <!-- TODO: Add check icon for selected team -->
-                        <!-- Place it using gravity and z index -->
-
-                    </com.google.android.material.card.MaterialCardView>
-                </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
+                <!-- Role with User Icon -->
                 <LinearLayout
-                        android:orientation="vertical"
-                        android:layout_marginStart="24dp"
-                        android:layout_marginEnd="40dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:src="@drawable/ic_unicons_user_24"
+                        android:tint="@color/text_secondary"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:id="@+id/tv_team_role"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_width="match_parent">
-
-                    <TextView
-                            android:id="@+id/tv_team_name"
-                            android:text="Springboks"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content" />
-
-                    <TextView
-                            android:id="@+id/tv_team_role"
-                            android:text="Full-time Coach"
-                            android:textSize="14sp"
-                            app:drawableStartCompat="@drawable/xic_x16_uic_line_suitcase"
-                            android:drawablePadding="8dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content" />
-
-                    <TextView
-                            android:id="@+id/tv_team_count"
-                            android:text="15 players"
-                            android:textSize="14sp"
-                            app:drawableStartCompat="@drawable/xic_x16_uic_line_user_arrows"
-                            android:drawablePadding="8dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content" />
+                        android:text="Coach"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary" />
 
                 </LinearLayout>
+
+                <!-- Member Count with User Icon -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:src="@drawable/ic_unicons_user_24"
+                        android:tint="@color/text_secondary"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:id="@+id/tv_team_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="15 members"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary" />
+
+                </LinearLayout>
+
             </LinearLayout>
 
+            <!-- Three-dot Menu -->
             <ImageView
-                    android:id="@+id/iv_options"
-                    android:src="@drawable/xic_x24_uic_line_ellipsis_v"
-                    android:background="?attr/selectableItemBackground"
-                    android:importantForAccessibility="no"
-                    android:layout_gravity="center_vertical|end"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content" />
+                android:id="@+id/iv_options"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_unicons_ellipsis_v"
+                android:background="?attr/selectableItemBackground"
+                android:padding="4dp"
+                android:tint="@color/text_secondary" />
 
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        </LinearLayout>
+
     </com.google.android.material.card.MaterialCardView>
+
 </LinearLayout>

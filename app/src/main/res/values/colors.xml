@@ -2,14 +2,16 @@
 <resources>
     <!-- Primary Action Color: Yellow (for buttons, not background) -->
     <color name="yellow">#FFD400</color>
-    <color name="primary">#FFD400</color>
+    <color name="primary">#FF9500</color>
     <color name="primary_pressed">#E6BC00</color>
     <color name="primary_disabled">#FFF7CC</color>
+    <color name="secondary">#000000</color>
+    <color name="light">#f5f6f7</color>
 
     <!-- Text Colors -->
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
-    <color name="text_primary">#000000</color>
+    <color name="text_primary">#161620</color>
     <color name="text_secondary">#666666</color>
     <color name="text_tertiary">#999999</color>
     <color name="text_disabled">#CCCCCC</color>
@@ -21,6 +23,7 @@
     <color name="surface_elevated">#F8F9FA</color>
     <color name="surface_variant">#F5F5F5</color>
     <color name="divider">#E0E0E0</color>
+    <color name="primary_light">#FFF8E1</color>
 
     <!-- Backgrounds & Containers: White (default) -->
     <color name="background">#FFFFFF</color>
@@ -95,5 +98,27 @@
     <!-- Additional missing colors -->
     <color name="text_on_accent">#000000</color>
     <color name="md_theme_light_primary">#FFD400</color>
+    
+    <!-- Pitch Colors - Based on the reference image -->
+    <color name="pitch_green_light">#388E3C</color>  <!-- Medium-dark green for main pitch (better contrast) -->
+    <color name="pitch_green_dark">#2E7D32</color>   <!-- Dark green for pitch background (matches image) -->
     <color name="md_theme_light_onPrimary">#000000</color>
+    
+    <!-- Material Design 3 Surface Colors -->
+    <color name="on_primary">#000000</color>
+    <color name="on_surface">#000000</color>
+    <color name="on_surface_variant">#666666</color>
+    <color name="outline">#CCCCCC</color>
+    <color name="outline_variant">#E0E0E0</color>
+    <color name="inverse_surface">#2E2E2E</color>
+    <color name="inverse_on_surface">#F5F5F5</color>
+    <color name="surface_container">#F8F9FA</color>
+    <color name="surface_container_high">#F0F1F2</color>
+    <color name="surface_container_highest">#E8E9EA</color>
+    <color name="surface_bright">#FFFFFF</color>
+    <color name="surface_dim">#F5F5F5</color>
+    
+    <!-- Football pitch color -->
+    <color name="pitch_green">#2E7D32</color>
+    
 </resources>

@@ -8,6 +8,12 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.ggetters.app.R
+import com.ggetters.app.core.extensions.android.onTextUpdated
+import com.ggetters.app.core.extensions.android.setLayoutError
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ForgotPasswordActivityBinding
 import com.ggetters.app.ui.shared.models.Clickable
@@ -15,6 +21,7 @@ import com.ggetters.app.ui.shared.models.UiState.Failure
 import com.ggetters.app.ui.shared.models.UiState.Success
 import com.ggetters.app.ui.startup.viewmodels.ForgotPasswordViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ForgotPasswordActivity : AppCompatActivity(), Clickable {
@@ -39,6 +46,7 @@ class ForgotPasswordActivity : AppCompatActivity(), Clickable {
         setupBindings()
         setupLayoutUi()
         setupTouchListeners()
+        setupForm()
         observe()
     }
 
@@ -77,17 +85,6 @@ class ForgotPasswordActivity : AppCompatActivity(), Clickable {
     }
 
 
-// --- Internals
-
-
-    private fun trySendEmail() {
-        val email = binds.etIdentity.text.toString().trim()
-        model.sendEmail(
-            email
-        )
-    }
-
-
 // --- Event Handlers
 
 
@@ -97,7 +94,7 @@ class ForgotPasswordActivity : AppCompatActivity(), Clickable {
 
 
     override fun onClick(view: View?) = when (view?.id) {
-        binds.btSubmit.id -> trySendEmail()
+        binds.btSubmit.id -> model.sendEmail()
         else -> {
             Clogger.w(
                 TAG, "Unhandled on-click for: ${view?.id}"
@@ -105,8 +102,29 @@ class ForgotPasswordActivity : AppCompatActivity(), Clickable {
         }
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+    }
+
 
 // --- UI 
+
+
+    private fun setupForm() {
+        binds.etIdentity.onTextUpdated { text ->
+            model.form.onIdentityChanged(text)
+        }
+
+        // Error UI
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.form.formState.collect { state ->
+                    binds.etIdentity.setLayoutError(state.identity.error?.toString())
+                }
+            }
+        }
+    }
 
 
     private fun setupBindings() {

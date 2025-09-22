@@ -1,150 +1,154 @@
 package com.ggetters.app.data.remote.firestore
 
 import com.ggetters.app.data.model.Event
-import com.google.firebase.firestore.FirebaseFirestore
+import com.ggetters.app.data.model.EventCategory
+import com.ggetters.app.data.model.EventStyle
+import com.ggetters.app.data.remote.FirestorePathProvider
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Firestore-backed data source for [Event] entities.
+ * Remote Firestore data source for Events.
  *
- * Provides real-time streams and suspend functions for CRUD operations
- * against the "events" collection in Firestore.
+ * Events are stored in Firestore at:
+ *   /teams/{teamId}/events/{eventId}
+ *
+ * This class handles conversion between Firestore documents and the domain Event model.
  */
 @Singleton
 class EventFirestore @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val paths: FirestorePathProvider
 ) {
 
-    // TODO: Backend - Implement collection reference optimization
-    // TODO: Backend - Add proper error handling and retry logic
-    // TODO: Backend - Implement batch operations for performance
-    // TODO: Backend - Add offline support configuration
-    // TODO: Backend - Implement proper security rules validation
-
-    // Reference to the "events" collection in Firestore
-    private val eventsCol = firestore.collection("events")
-
-    /**
-     * Observe all events in real time.
-     * Emits the full list whenever any document in the collection changes.
-     * 
-     * TODO: Backend - Add pagination for large event lists
-     * TODO: Backend - Add filtering by team ID for security
-     * TODO: Backend - Implement proper error recovery
-     */
-    fun observeAll(): Flow<List<Event>> = callbackFlow {
-        val subscription = eventsCol.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                close(error)
-            } else {
-                val list = snapshot?.toObjects(Event::class.java).orEmpty()
-                trySend(list).isSuccess
-            }
-        }
-        awaitClose { subscription.remove() }
-    }
-
-    /**
-     * Observe events for a specific team in real time.
-     * 
-     * TODO: Backend - Implement team-based filtering
-     * TODO: Backend - Add date range filtering for calendar views
-     * TODO: Backend - Add event type filtering
-     */
+    /** Observe all events for a given team in real-time. */
     fun observeByTeamId(teamId: String): Flow<List<Event>> = callbackFlow {
-        val subscription = eventsCol
-            .whereEqualTo("team_id", teamId)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    close(error)
-                } else {
-                    val list = snapshot?.toObjects(Event::class.java).orEmpty()
-                    trySend(list).isSuccess
-                }
-            }
-        awaitClose { subscription.remove() }
+        val col = paths.eventsCollection(teamId)
+        val sub = col.addSnapshotListener { snap, err ->
+            if (err != null) { close(err); return@addSnapshotListener }
+            val events = snap?.documents.orEmpty().mapNotNull { it.toEvent(teamId) }
+            trySend(events).isSuccess
+        }
+        awaitClose { sub.remove() }
     }
 
-    /**
-     * Fetch a single [Event] by its document ID.
-     *
-     * TODO: Backend - Add proper error handling
-     * TODO: Backend - Implement caching strategy
-     * 
-     * @param id the ID of the event document
-     * @return the [Event] object, or null if not found
-     */
-    suspend fun getById(id: String): Event? =
-        eventsCol
-            .document(id)
+    /** Fetch all events for a given team (one-shot). */
+    suspend fun fetchAllForTeam(teamId: String): List<Event> =
+        paths.eventsCollection(teamId).get().await()
+            .documents.mapNotNull { it.toEvent(teamId) }
+
+    /** Fetch a single event by ID (one-shot). */
+    suspend fun getById(teamId: String, eventId: String): Event? =
+        paths.eventsCollection(teamId)
+            .document(eventId) // ✅ ensures valid path: teams/{teamId}/events/{eventId}
             .get()
             .await()
-            .toObject(Event::class.java)
+            .toEvent(teamId)
 
-    /**
-     * Save or overwrite an [Event] in Firestore.
-     * Creates the document if it does not exist.
-     *
-     * TODO: Backend - Add validation before save
-     * TODO: Backend - Implement proper error handling
-     * TODO: Backend - Add audit logging
-     * 
-     * @param event the [Event] object to save
-     */
-    suspend fun save(event: Event) {
-        eventsCol
+    /** Create or update an event in Firestore. */
+    suspend fun upsert(teamId: String, event: Event) {
+        paths.eventsCollection(teamId)
             .document(event.id)
-            .set(event)
+            .set(event.toFirestoreMap())
             .await()
     }
 
-    /**
-     * Save multiple events in a batch operation.
-     * 
-     * TODO: Backend - Implement batch write operations
-     * TODO: Backend - Add proper error handling for batch operations
-     * TODO: Backend - Add transaction support for consistency
-     */
-    suspend fun saveAll(events: List<Event>) {
-        // TODO: Backend - Implement using firestore batch write
-        events.forEach { save(it) }
-    }
-
-    /**
-     * Delete an [Event] from Firestore.
-     *
-     * TODO: Backend - Implement soft delete instead of hard delete
-     * TODO: Backend - Add cascade delete for related data (attendance, lineup)
-     * TODO: Backend - Add proper authorization checks
-     * 
-     * @param id the ID of the event to delete
-     */
-    suspend fun delete(id: String) {
-        eventsCol
+    /** Delete an event from Firestore. */
+    suspend fun delete(teamId: String, id: String) {
+        paths.eventsCollection(teamId)
             .document(id)
             .delete()
             .await()
     }
 
-    /**
-     * Delete multiple events in a batch operation.
-     */
+    // ---------- Mapping helpers ----------
 
-    suspend fun deleteAll(events: List<Event>) {
+    private fun DocumentSnapshot.toEvent(teamId: String): Event? {
+        val id = this.id
+        val name = getString("name") ?: return null
 
+        val createdAt = readInstant("createdAt", "created_at") ?: Instant.now()
+        val updatedAt = readInstant("updatedAt", "updated_at") ?: createdAt
+
+        val startAt = readLdt("startAt", "start_at") ?: return null
+        val endAt = readLdt("endAt", "end_at")
+
+        return Event(
+            id = id,
+            teamId = teamId,
+            name = name,
+            description = getString("description"),
+            creatorId = getString("creatorId") ?: getString("creator_id"),
+            category = parseCategory(get("category")),
+            style = parseStyle(get("style")),
+            startAt = startAt,
+            endAt = endAt,
+            location = getString("location"),
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            stainedAt = null // never stored in Firestore
+        )
     }
 
-    // TODO: Backend - Implement date range queries for calendar
-    // TODO: Backend - Add event search functionality
-    // TODO: Backend - Implement recurring event management
-    // TODO: Backend - Add event conflict detection
-    // TODO: Backend - Implement event templates support
-    // TODO: Backend - Add proper indexing for performance
-    // TODO: Backend - Implement real-time event updates
-    // TODO: Backend - Add event statistics and analytics
-} 
+    private fun Event.toFirestoreMap(): Map<String, Any?> = mapOf(
+        "id" to id,
+        "teamId" to teamId,
+        "creatorId" to creatorId,
+        "name" to name,
+        "description" to description,
+        "category" to category.name,
+        "style" to style.name,
+        "startAt" to Timestamp(Date.from(startAt.atZone(ZoneId.systemDefault()).toInstant())),
+        "endAt" to endAt?.let { Timestamp(Date.from(it.atZone(ZoneId.systemDefault()).toInstant())) },
+        "location" to location,
+        "createdAt" to Timestamp(Date.from(createdAt)),
+        "updatedAt" to Timestamp(Date.from(updatedAt))
+    )
+
+    // ---------- Value parsers ----------
+
+    private fun DocumentSnapshot.readInstant(vararg keys: String): Instant? =
+        keys.asSequence().mapNotNull { key ->
+            when (val v = get(key)) {
+                is Timestamp -> v.toDate().toInstant()
+                is Date      -> v.toInstant()
+                is Number    -> Instant.ofEpochMilli(v.toLong())
+                is String    -> runCatching { Instant.parse(v) }.getOrNull()
+                else         -> null
+            }
+        }.firstOrNull()
+
+    private fun DocumentSnapshot.readLdt(vararg keys: String): LocalDateTime? =
+        keys.asSequence().mapNotNull { key ->
+            when (val v = get(key)) {
+                is Timestamp -> LocalDateTime.ofInstant(v.toDate().toInstant(), ZoneId.systemDefault())
+                is Date      -> LocalDateTime.ofInstant(v.toInstant(), ZoneId.systemDefault())
+                is Number    -> LocalDateTime.ofInstant(Instant.ofEpochMilli(v.toLong()), ZoneId.systemDefault())
+                is String    -> runCatching { LocalDateTime.parse(v) }.getOrNull()
+                else         -> null
+            }
+        }.firstOrNull()
+
+    private fun parseCategory(value: Any?): EventCategory =
+        when (value) {
+            is String -> runCatching { EventCategory.valueOf(value.uppercase()) }.getOrDefault(EventCategory.OTHER)
+            is Number -> EventCategory.values().getOrNull(value.toInt()) ?: EventCategory.OTHER
+            else      -> EventCategory.OTHER
+        }
+
+    private fun parseStyle(value: Any?): EventStyle =
+        when (value) {
+            is String -> runCatching { EventStyle.valueOf(value.uppercase()) }.getOrDefault(EventStyle.STANDARD)
+            is Number -> EventStyle.values().getOrNull(value.toInt()) ?: EventStyle.STANDARD
+            else      -> EventStyle.STANDARD
+        }
+}

@@ -17,4 +17,12 @@ class OfflineBroadcastRepository @Inject constructor(
     override suspend fun deleteAll() {
         TODO("Not yet implemented")
     }
+
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun sync() {
+        TODO("Not yet implemented")
+    }
 }

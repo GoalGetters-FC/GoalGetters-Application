@@ -6,13 +6,13 @@
 
     <item
             android:id="@+id/nav_item_team_viewer_back"
-            android:icon="@drawable/xic_x24_uic_line_multiply"
+            android:icon="@drawable/ic_unicons_close_24"
             android:title="Back"
             app:showAsAction="always" />
 
     <item
             android:id="@+id/nav_item_team_viewer_code"
-            android:icon="@drawable/xic_x24_uic_line_link_add"
+            android:icon="@drawable/ic_unicons_link_24"
             android:title="Link a new team"
             app:showAsAction="ifRoom" />
 

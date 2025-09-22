@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/main"
+        android:padding="24dp"
+        android:background="#FFFFFF"
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+    <TextView
+            android:id="@+id/tv_title"
+            android:text="Create"
+            android:textColor="#161620"
+            android:textSize="24sp"
+            android:textFontWeight="600"
+            android:fontFamily="@font/variable_inter"
+            android:layout_gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            tools:ignore="HardcodedText" />
+
+    <Space
+            android:layout_height="24dp"
+            android:layout_width="0dp" />
+
+    <ScrollView
+            android:id="@+id/sv_form"
+            android:fillViewport="true"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+
+        <!-- Form -->
+
+        <LinearLayout
+                android:id="@+id/cv_form"
+                android:orientation="vertical"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+
+            <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Local.Input.Layout"
+                    android:hint="Name"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_user_name"
+                        style="@style/Widget.Local.Input.Layout.EditText"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Space
+                    android:layout_height="16dp"
+                    android:layout_width="0dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Local.Input.Layout"
+                    android:hint="Surname"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_user_surname"
+                        style="@style/Widget.Local.Input.Layout.EditText"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Space
+                    android:layout_height="16dp"
+                    android:layout_width="0dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Local.Input.Layout.ExposedDropdownMenu"
+                    android:hint="Position"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent">
+
+                <AutoCompleteTextView
+                        android:id="@+id/et_user_position"
+                        android:inputType="none"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        tools:ignore="LabelFor" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Space
+                    android:layout_height="16dp"
+                    android:layout_width="0dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Local.Input.Layout"
+                    android:hint="Number"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_user_number"
+                        style="@style/Widget.Local.Input.Layout.EditText"
+                        android:inputType="number"
+                        android:maxLines="1"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Space
+                    android:layout_height="16dp"
+                    android:layout_width="0dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Local.Input.Layout"
+                    android:hint="Date of Birth (DOB)"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_dob"
+                        style="@style/Widget.Local.Input.Layout.EditText"
+                        android:inputType="date"
+                        android:maxLines="1"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:focusable="false"
+                        android:clickable="true"
+                        android:hint="Tap to select date"
+                        android:textColorHint="#80000000" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <Space
+            android:layout_height="24dp"
+            android:layout_width="0dp" />
+
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_gravity="end"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content">
+
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/bt_negative"
+                android:text="Cancel"
+                android:textColor="#161620"
+                android:backgroundTint="#FFFFFF"
+                app:cornerRadius="16dp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                tools:ignore="HardcodedText" />
+
+        <Space
+                android:layout_height="0dp"
+                android:layout_width="12dp" />
+
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/bt_positive"
+                android:text="Add to Team"
+                android:textColor="#FFFFFF"
+                app:cornerRadius="16dp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+</LinearLayout>

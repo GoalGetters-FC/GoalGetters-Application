@@ -9,9 +9,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.models.NotificationItem
-import com.ggetters.app.ui.central.models.NotificationType
-import com.ggetters.app.ui.central.models.RSVPStatus
+import com.ggetters.app.data.model.NotificationItem
+import com.ggetters.app.data.model.NotificationType
+
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -19,8 +19,8 @@ class NotificationAdapter(
     private var notifications: List<NotificationItem>,
     private val onActionClick: (NotificationItem, String) -> Unit,
     private val onItemClick: (NotificationItem) -> Unit,
-    private val onRSVPClick: (NotificationItem, RSVPStatus) -> Unit,
-    private val onSwipeAction: (NotificationItem, String) -> Unit
+    private val onSwipeAction: (NotificationItem, String) -> Unit,
+    private val onLongPress: (NotificationItem) -> Unit
 ) : RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>() {
 
     fun updateNotifications(newNotifications: List<NotificationItem>) {
@@ -53,6 +53,7 @@ class NotificationAdapter(
         private val scheduledEvent: LinearLayout = itemView.findViewById(R.id.scheduledEvent)
         private val eventIcon: ImageView = itemView.findViewById(R.id.eventIcon)
         private val eventDateTime: TextView = itemView.findViewById(R.id.eventDateTime)
+
         private val actionMenuButton: ImageButton = itemView.findViewById(R.id.actionMenuButton)
 
         fun bind(notification: NotificationItem) {
@@ -71,18 +72,24 @@ class NotificationAdapter(
             // Set up specific notification types
             setupNotificationType(notification)
             
+
+            
             // Set up click listeners
             setupClickListeners(notification)
+            
+            // Set up long press
+            setupLongPress(notification)
         }
 
         private fun setNotificationIcon(type: NotificationType) {
             val iconRes = when (type) {
-                NotificationType.GAME_RSVP, NotificationType.GAME_REMINDER -> R.drawable.ic_unicons_calender_24
-                NotificationType.PRACTICE_RSVP, NotificationType.PRACTICE_REMINDER -> R.drawable.ic_unicons_clock_24
+                NotificationType.GAME_NOTIFICATION, NotificationType.GAME_REMINDER -> R.drawable.ic_unicons_calender_24
+                NotificationType.PRACTICE_NOTIFICATION, NotificationType.PRACTICE_REMINDER -> R.drawable.ic_unicons_clock_24
                 NotificationType.ANNOUNCEMENT -> R.drawable.ic_unicons_bell_24
                 NotificationType.PLAYER_UPDATE -> R.drawable.ic_unicons_user_24
                 NotificationType.ADMIN_MESSAGE -> R.drawable.ic_unicons_message_24
                 NotificationType.SCHEDULE_CHANGE -> R.drawable.ic_unicons_settings_24
+                NotificationType.POST_MATCH_SUMMARY -> R.drawable.ic_unicons_calender_24
                 NotificationType.SYSTEM -> R.drawable.ic_unicons_bell_24
             }
             notificationIcon.setImageResource(iconRes)
@@ -100,16 +107,22 @@ class NotificationAdapter(
                 notificationText.setTextColor(itemView.context.getColor(R.color.black))
                 notificationText.setTypeface(null, android.graphics.Typeface.BOLD)
             }
+            
+            // Set accent color for unread notifications
+            if (!notification.isSeen) {
+                // TODO: Backend - Use team color from notification.teamColor
+                unreadIndicator.setBackgroundColor(itemView.context.getColor(R.color.primary))
+            }
         }
 
         private fun setupNotificationType(notification: NotificationItem) {
-            // Hide all special layouts first
+            // Hide all special layouts first to prevent vestigial elements
             resultsSummary.visibility = View.GONE
             scheduledEvent.visibility = View.GONE
             
             when (notification.type) {
-                NotificationType.GAME_RSVP, NotificationType.PRACTICE_RSVP -> {
-                    // Show scheduled event for RSVP notifications
+                NotificationType.GAME_NOTIFICATION, NotificationType.PRACTICE_NOTIFICATION -> {
+                    // Show scheduled event for game/practice notifications
                     scheduledEvent.visibility = View.VISIBLE
                     notification.eventDate?.let { date ->
                         eventDateTime.text = formatEventDateTime(date)
@@ -121,6 +134,11 @@ class NotificationAdapter(
                     notification.eventDate?.let { date ->
                         eventDateTime.text = formatEventDateTime(date)
                     }
+                }
+                NotificationType.POST_MATCH_SUMMARY -> {
+                    // Show results summary for match results
+                    resultsSummary.visibility = View.VISIBLE
+                    setupResultsSummary(notification)
                 }
                 NotificationType.ANNOUNCEMENT -> {
                     // Check if it's a results announcement
@@ -157,8 +175,14 @@ class NotificationAdapter(
             }
         }
 
+
+
+
+
+
+
         private fun setupClickListeners(notification: NotificationItem) {
-            // Main item click
+            // Main item click - opens linked event
             itemView.setOnClickListener {
                 onItemClick(notification)
             }
@@ -166,6 +190,13 @@ class NotificationAdapter(
             // Action menu button
             actionMenuButton.setOnClickListener {
                 showActionMenu(notification)
+            }
+        }
+
+        private fun setupLongPress(notification: NotificationItem) {
+            itemView.setOnLongClickListener {
+                onLongPress(notification)
+                true
             }
         }
 
@@ -183,6 +214,14 @@ class NotificationAdapter(
                     }
                     R.id.action_delete -> {
                         onActionClick(notification, "delete")
+                        true
+                    }
+                    R.id.action_pin -> {
+                        onActionClick(notification, "pin")
+                        true
+                    }
+                    R.id.action_view_event -> {
+                        onActionClick(notification, "view_event")
                         true
                     }
                     else -> false

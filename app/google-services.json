@@ -12,7 +12,20 @@
           "package_name": "com.ggetters.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1041555858797-rsdl9bdequv07grht6cefgbmmd995g6f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ggetters.app",
+            "certificate_hash": "43901f348102d308a9d6ec31edd403f87bb0c7d0"
+          }
+        },
+        {
+          "client_id": "1041555858797-4ndjnng0ecr7tunt9jcs0f8vkleuv8ah.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyClqKe5mMh88Z6sWGbJJaQTJ7ZkwfV22Bg"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1041555858797-4ndjnng0ecr7tunt9jcs0f8vkleuv8ah.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

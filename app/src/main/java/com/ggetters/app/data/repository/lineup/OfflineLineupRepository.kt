@@ -26,13 +26,21 @@ class OfflineLineupRepository @Inject constructor(
         dao.delete(entity)
     }
 
-    override fun getByEventId(eventId: String): Flow<List<Lineup>> =
-        dao.getByEventId(eventId)
-
-    override fun deleteAll() {
+    override suspend fun deleteAll() {
         runBlocking {
             dao.deleteAll()
         }
+    }
+
+    override fun getByEventId(eventId: String): Flow<List<Lineup>> =
+        dao.getByEventId(eventId)
+
+    override fun hydrateForTeam(id: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun sync() {
+        TODO("Not yet implemented")
     }
 }
 

@@ -7,7 +7,7 @@
         android:id="@+id/notificationIcon"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:src="@drawable/ic_unicons_bell_24"
+        android:src="@drawable/notification"
         android:layout_gravity="center" />
 
     <View

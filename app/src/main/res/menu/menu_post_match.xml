@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_export"
+        android:title="Export Data"
+        android:icon="@drawable/ic_unicons_archive_alt"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_edit_result"
+        android:title="Edit Result"
+        android:icon="@drawable/ic_unicons_settings_24"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_add_notes"
+        android:title="Add Notes"
+        android:icon="@drawable/ic_unicons_bookmark_24"
+        app:showAsAction="never" />
+
+</menu>
+

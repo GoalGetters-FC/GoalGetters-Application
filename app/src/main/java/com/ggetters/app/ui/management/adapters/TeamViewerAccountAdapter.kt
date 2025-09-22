@@ -6,11 +6,12 @@ import androidx.recyclerview.widget.ListAdapter
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.databinding.ItemTeamViewerAccountBinding
+import com.ggetters.app.ui.shared.adapters.KeyedDiffCallback
 
 class TeamViewerAccountAdapter(
     private val onSelectClicked: (Team) -> Unit,
     private val onDeleteClicked: (Team) -> Unit,
-) : ListAdapter<Team, TeamViewerAccountViewHolder>(TeamViewerAccountDiffCallback()) {
+) : ListAdapter<Team, TeamViewerAccountViewHolder>(KeyedDiffCallback<Team>()) {
     companion object {
         private const val TAG = "TeamViewerAccountAdapter"
         private const val DEV_VERBOSE_LOGGER = false
