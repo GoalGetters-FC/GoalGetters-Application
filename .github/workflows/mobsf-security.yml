@@ -51,7 +51,7 @@ jobs:
 
       - name: Artifact
         uses: github/codeql-action/upload-sarif@v3
-        if: always() && steps.scan.outputs.FAILED != 'true'
+        if: always() # && steps.scan.outputs.FAILED != 'true'
         with:
           sarif_file: mobsfscan.sarif
 
