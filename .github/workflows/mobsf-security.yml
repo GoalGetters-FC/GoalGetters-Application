@@ -8,32 +8,77 @@ on:
 
 jobs:
   mobsf-scan:
-    name: Run MobSF Static Analysis
+    name: MobSF Security
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      pull-requests: write
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Analysis
-        uses: MobSF/mobsfscan-action@main
+      - name: Install PYTHON
+        uses: actions/setup-python@v4
         with:
-          scan-type: 'android' 
-          output-format: 'sarif' 
+          python-version: '3.9'
+
+      - name: Install MOB-SF
+        run: pip install mobsfscan
+
+      - name: Analysis
+        id: scan
+        run: |
+          mobsfscan --sarif --output mobsfscan.sarif .
+          
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "Security findings detected"
+            echo "FAILED=true" >> $GITHUB_OUTPUT
+          else
+            echo "No security findings"
+            echo "FAILED=false" >> $GITHUB_OUTPUT
+          fi
+          
+          exit 0
 
       - name: Artifact
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
-          sarif_file: mobsf.sarif
-          
+          sarif_file: mobsfscan.sarif
+
       - name: Triage
-        if: steps.scan.outcome == 'failure' || failure()
+        if: steps.scan.outputs.FAILED == 'true'
         run: |
           echo "❌ MobSF scan failed due to security findings or an error."
           echo "   Check the logs and the uploaded SARIF report."
           exit 1
+
+
+#    name: MobSF Security
+#    runs-on: ubuntu-latest
+#    permissions:
+#      contents: read
+#      security-events: write
+#      pull-requests: write
+#
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#
+#      - name: Analysis
+#        id: scan
+#        uses: MobSF/mobsfscan-action@main
+#        with:
+#          scan-type: 'android' 
+#          output-format: 'sarif' 
+#
+#      - name: Artifact
+#        uses: github/codeql-action/upload-sarif@v3
+#        if: always()
+#        with:
+#          sarif_file: mobsfscan.sarif
+#          
+#      - name: Triage
+#        if: steps.scan.outcome == 'failure' || failure()
+#        run: |
+#          echo "❌ MobSF scan failed due to security findings or an error."
+#          echo "   Check the logs and the uploaded SARIF report."
+#          exit 1
