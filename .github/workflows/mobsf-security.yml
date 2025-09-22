@@ -9,7 +9,14 @@ on:
 jobs:
   mobsf-scan:
     name: MobSF Security
+    
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write
+      
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,22 +32,26 @@ jobs:
       - name: Analysis
         id: scan
         run: |
-          mobsfscan --sarif --output mobsfscan.sarif .
+          mobsfscan --sarif --output mobsfscan.sarif . --no-fail
           
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "Security findings detected"
-            echo "FAILED=true" >> $GITHUB_OUTPUT
+          if [ -f "mobsfscan.sarif" ]; then
+            echo "SARIF report generated successfully."
+            
+            FINDINGS_COUNT=$(jq '.runs[0].results // [] | length' mobsfscan.sarif)
+            echo "Number of findings: $FINDINGS_COUNT"
+            if [ "$FINDINGS_COUNT" -gt 0 ]; then
+              echo "FAILED=true" >> $GITHUB_OUTPUT
+            else
+              echo "FAILED=false" >> $GITHUB_OUTPUT
+            fi
           else
-            echo "No security findings"
-            echo "FAILED=false" >> $GITHUB_OUTPUT
+            echo "SARIF file was not created."
+            echo "FAILED=true" >> $GITHUB_OUTPUT
           fi
-          
-          exit 0
 
       - name: Artifact
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: always() && steps.scan.outputs.FAILED != 'true'
         with:
           sarif_file: mobsfscan.sarif
 
