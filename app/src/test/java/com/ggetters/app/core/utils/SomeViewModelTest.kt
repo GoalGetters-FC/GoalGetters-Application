@@ -2,6 +2,7 @@
 package com.ggetters.app.core.utils
 
 import android.app.Application
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
-import org.junit.jupiter.api.*
+import org.junit.*
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -48,18 +49,18 @@ class SomeViewModel(private val userRepository: UserRepository) : ViewModel() {
 )
 class SomeViewModelTest {
 
-    // Use JUnit 5 extension instead of Rule
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     private val testDispatcher = StandardTestDispatcher()
 
     private lateinit var userRepository: UserRepository
     private lateinit var viewModel: SomeViewModel
 
-    @BeforeEach
+    @Before
     fun setup() {
-        // Clear all mocks before each test
         clearAllMocks()
 
-        // Mock static Android Log to prevent RuntimeException
         mockkStatic("android.util.Log")
         every { android.util.Log.d(any(), any()) } returns 0
         every { android.util.Log.i(any(), any()) } returns 0
@@ -67,35 +68,25 @@ class SomeViewModelTest {
         every { android.util.Log.e(any(), any<String>()) } returns 0
         every { android.util.Log.v(any(), any()) } returns 0
 
-        // Set main dispatcher for testing
         Dispatchers.setMain(testDispatcher)
 
-        // Create mock repository
         userRepository = mockk(relaxed = true)
-
-        // Create ViewModel instance
         viewModel = SomeViewModel(userRepository)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
-        // Reset main dispatcher
         Dispatchers.resetMain()
-        // Clean up all mocks
         unmockkAll()
     }
 
     @Test
     fun `SomeViewModel can be instantiated without throwing exception`() {
-        // Assert
-        assertDoesNotThrow {
-            SomeViewModel(userRepository)
-        }
+        assertNotNull(SomeViewModel(userRepository))
     }
 
     @Test
     fun `when loadUser called emits user state`() = runTest {
-        // Arrange
         val testUser = User(
             id = "u1",
             name = "UT",
@@ -106,23 +97,18 @@ class SomeViewModelTest {
             role = UserRole.FULL_TIME_PLAYER,
             dateOfBirth = LocalDate.of(1990, 1, 1),
             email = "test@example.com",
+        )
+        every { userRepository.getLocalByAuthId("u1") } returns testUser
 
-            )
-        coEvery { userRepository.getLocalByAuthId("u1") } returns testUser
-
-        // Act
         viewModel.loadUser("u1")
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Assert
         assertEquals(testUser, viewModel.userLiveData.value)
-        coVerify { userRepository.getLocalByAuthId("u1") }
+        verify { userRepository.getLocalByAuthId("u1") }
     }
-
 
     @Test
     fun `when loadUser called multiple times should update state correctly`() = runTest {
-        // Arrange
         val user1 = User(
             id = "u1",
             name = "User 1",
@@ -133,8 +119,7 @@ class SomeViewModelTest {
             role = UserRole.FULL_TIME_PLAYER,
             dateOfBirth = LocalDate.of(1990, 1, 1),
             email = "user1@example.com",
-
-            )
+        )
         val user2 = User(
             id = "u2",
             name = "User 2",
@@ -145,13 +130,11 @@ class SomeViewModelTest {
             role = UserRole.PART_TIME_PLAYER,
             dateOfBirth = LocalDate.of(1991, 1, 1),
             email = "user2@example.com",
+        )
 
-            )
+        every { userRepository.getLocalByAuthId("u1") } returns user1
+        every { userRepository.getLocalByAuthId("u2") } returns user2
 
-        coEvery { userRepository.getLocalByAuthId("u1") } returns user1
-        coEvery { userRepository.getLocalByAuthId("u2") } returns user2
-
-        // Act
         viewModel.loadUser("u1")
         testDispatcher.scheduler.advanceUntilIdle()
         val firstResult = viewModel.userLiveData.value
@@ -160,22 +143,19 @@ class SomeViewModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
         val secondResult = viewModel.userLiveData.value
 
-        // Assert
         assertEquals(user1, firstResult)
         assertEquals(user2, secondResult)
-        coVerify { userRepository.getLocalByAuthId("u1") }
-        coVerify { userRepository.getLocalByAuthId("u2") }
+        verify { userRepository.getLocalByAuthId("u1") }
+        verify { userRepository.getLocalByAuthId("u2") }
     }
 
     @Test
     fun `userLiveData should be initialized properly`() {
-        // Assert
         assertNotNull(viewModel.userLiveData)
     }
 
     @Test
     fun `loadUser should work with coroutine context`() = runTest {
-        // Arrange
         val testUser = User(
             id = "test",
             name = "Test User",
@@ -186,25 +166,17 @@ class SomeViewModelTest {
             role = UserRole.FULL_TIME_PLAYER,
             dateOfBirth = LocalDate.of(1990, 1, 1),
             email = "test@example.com",
+        )
+        every { userRepository.getLocalByAuthId("test") } returns testUser
 
-            )
-        coEvery { userRepository.getLocalByAuthId("test") } returns testUser
+        viewModel.loadUser("test")
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        // Act
-        val result = runCatching {
-            viewModel.loadUser("test")
-            testDispatcher.scheduler.advanceUntilIdle()
-        }
-
-        // Assert
-        assert(result.isSuccess) { "loadUser should complete successfully: ${result.exceptionOrNull()}" }
         assertEquals(testUser, viewModel.userLiveData.value)
     }
 
-
     @Test
     fun `loadUser should handle different user roles correctly`() = runTest {
-        // Arrange - Test with different UserRole values
         val playerUser = User(
             id = "player",
             name = "Player User",
@@ -215,8 +187,7 @@ class SomeViewModelTest {
             role = UserRole.FULL_TIME_PLAYER,
             dateOfBirth = LocalDate.of(1985, 6, 15),
             email = "player@example.com",
-
-            )
+        )
 
         val partTimeUser = User(
             id = "part-time",
@@ -228,18 +199,15 @@ class SomeViewModelTest {
             role = UserRole.PART_TIME_PLAYER,
             dateOfBirth = LocalDate.of(1992, 3, 20),
             email = "parttime@example.com",
+        )
 
-            )
+        every { userRepository.getLocalByAuthId("player") } returns playerUser
+        every { userRepository.getLocalByAuthId("part-time") } returns partTimeUser
 
-        coEvery { userRepository.getLocalByAuthId("player") } returns playerUser
-        coEvery { userRepository.getLocalByAuthId("part-time") } returns partTimeUser
-
-        // Act & Assert for Full Time Player
         viewModel.loadUser("player")
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(UserRole.FULL_TIME_PLAYER, viewModel.userLiveData.value?.role)
 
-        // Act & Assert for Part Time Player
         viewModel.loadUser("part-time")
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(UserRole.PART_TIME_PLAYER, viewModel.userLiveData.value?.role)

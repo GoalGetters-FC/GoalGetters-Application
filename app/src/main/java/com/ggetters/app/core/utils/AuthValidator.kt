@@ -39,7 +39,7 @@ object AuthValidator {
         val inputHasLowerCase = input.any { it.isLowerCase() }
         val inputHasNumerical = input.any { it.isDigit() }
         val inputHasAnySymbol = input.any { !it.isLetterOrDigit() }
-        val inputHasNoSpacing = input.any { !it.isWhitespace() }
+        val inputHasNoSpacing = input.none { it.isWhitespace() }
 
         return !arrayOf(
             inputWithinLength,

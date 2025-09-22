@@ -58,6 +58,8 @@ android {
             unitTests.isIncludeAndroidResources = true
             unitTests.all {
                 it.useJUnitPlatform()
+                it.jvmArgs("-Dnet.bytebuddy.experimental=true")
+                it.systemProperty("DISABLE_CLOGGER", "true")
             }
         }
     }
@@ -153,4 +155,5 @@ android {
 dependencies {
     testImplementation(libs.androidx.core.testing)
     testImplementation(libs.androidx.core.testing)
+    testImplementation("io.mockk:mockk-android:1.13.13")
 }

@@ -28,11 +28,13 @@ object Clogger {
     private var crashlytics: FirebaseCrashlytics? = null
     init {
         try {
-            crashlytics = FirebaseCrashlytics.getInstance()
+            val disable = System.getProperty("DISABLE_CLOGGER") == "true"
+            if (!disable) {
+                crashlytics = FirebaseCrashlytics.getInstance()
+            }
         } catch (e: Exception) {
-            Log.e(
-                TAG, "Failed to initialize crashlytics logger", e
-            )
+            // In unit tests, Crashlytics may not be available
+            try { Log.e(TAG, "Failed to initialize crashlytics logger", e) } catch (_: Throwable) {}
         }
     }
     
@@ -46,7 +48,7 @@ object Clogger {
      * @see Log.i
      */
     fun i(tag: String, message: String) {
-        Log.i(tag, message)
+        try { Log.i(tag, message) } catch (_: Throwable) {}
         crashlytics?.log("[I][${tag}]: $message")
     }
 
@@ -57,7 +59,7 @@ object Clogger {
      * @see Log.w
      */
     fun w(tag: String, message: String) {
-        Log.w(tag, message)
+        try { Log.w(tag, message) } catch (_: Throwable) {}
         crashlytics?.log("[W][${tag}]: $message")
     }
 
@@ -68,7 +70,7 @@ object Clogger {
      * @see Log.d
      */
     fun d(tag: String, message: String) {
-        Log.d(tag, message)
+        try { Log.d(tag, message) } catch (_: Throwable) {}
         crashlytics?.log("[D][${tag}]: $message")
     }
 
@@ -83,7 +85,9 @@ object Clogger {
      * @see Log.e
      */
     fun e(tag: String, message: String, throwable: Throwable? = null) {
-        Log.e(tag, message, throwable)
+        try {
+            if (throwable != null) Log.e(tag, message, throwable) else Log.e(tag, message)
+        } catch (_: Throwable) {}
         crashlytics?.log("[E][${tag}]: $message")
         if (throwable != null) {
             crashlytics?.recordException(throwable)
