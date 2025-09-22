@@ -12,6 +12,6 @@ sonar {
     properties {
         property("sonar.projectKey", "GoalGetters-FC_GoalGetters-Application")
         property("sonar.organization", "goalgetters-fc")
-        property("sonar.eclusions", "**/drawable/**/*")
+        property("sonar.exclusions", "**/drawable/**/*")
     }
 }
