@@ -35,8 +35,8 @@ class SignUpViewModelSecurityTest {
 
         // Invalid password (too weak)
         vm.signUp("user@example.com", "weak", "weak")
-        // Mismatched passwords
-        vm.signUp("user@example.com", "Str0ng!Pass", "Str0ng!Pas$Diff")
+        // Mismatched passwords (escape $ to avoid string template)
+        vm.signUp("user@example.com", "Str0ng!Pass", "Str0ng!Pas\$Diff")
 
         verify(atLeast = 1) { observer.onChanged(ofType(UiState.Failure::class)) }
         coVerify(exactly = 0) { authService.signUpAsync(any(), any()) }
