@@ -69,13 +69,16 @@ jobs:
           name: coverage-report
           path: app/build/reports/jacoco/jacocoTestReport/html
 
-      - name: Set up Android SDK
+      - name: Set up Android SDK and run connected tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 33
+          api-level: 29
           target: google_apis
           arch: x86_64
-          profile: Nexus 6
-          script: ./gradlew connectedDebugAndroidTest
+          emulator-boot-timeout: 1200
+          force-avd-creation: true
+          avd-name: ci-api29
+          disable-animations: true
+          script: adb shell getprop ro.build.version.sdk && ./gradlew connectedDebugAndroidTest --stacktrace
 
         
