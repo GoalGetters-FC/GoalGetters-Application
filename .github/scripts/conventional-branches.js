@@ -1,6 +1,16 @@
-/**
- * 
- */
+const core = require('@actions/core');
+const github = require('@actions/github');
+
+(async () => {
+    try {
+        // Pass the GitHub context and core to your existing module
+        await module.exports({ github, context: github.context, core });
+    } catch (error) {
+        core.setFailed(error.message);
+    }
+})();
+
+
 module.exports = async ({ github, context, core }) => {
     const branch = retrieveBranchTitle(context);
     if (!branch) {
