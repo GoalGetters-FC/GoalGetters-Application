@@ -9,6 +9,8 @@ import com.ggetters.app.core.sync.SyncScheduler
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.core.utils.DevClass
 import com.ggetters.app.data.local.DatabaseMaintenance
+import com.google.firebase.FirebaseApp
+import com.google.firebase.perf.FirebasePerformance
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +41,13 @@ class LocalApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         Clogger.i("DevClass", "Application started")
+
+        // Initialize Firebase
+        FirebaseApp.initializeApp(this)
+
+        // Enable Firebase Performance Monitoring
+        FirebasePerformance.getInstance().isPerformanceCollectionEnabled = !BuildConfig.DEBUG
+        Clogger.i("FirebasePerf", "Performance Monitoring enabled: ${!BuildConfig.DEBUG}")
 
         authenticationListener.listen()
 
