@@ -25,8 +25,9 @@ import com.google.firebase.firestore.IgnoreExtraProperties
 @Entity(
     tableName = "team",
     indices = [
-        Index(value = ["id"], unique = true),
-        Index(value = ["code"], unique = true),
+        Index(value = ["code"], unique = true),  // team join codes
+        Index(value = ["name"]),                 // team name search
+        Index(value = ["is_active"])             // quick active team lookup
     ]
 )
 data class Team constructor(

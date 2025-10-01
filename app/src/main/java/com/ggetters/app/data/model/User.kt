@@ -22,9 +22,11 @@ import java.time.LocalDate
         )
     ],
     indices = [
-        Index(value = ["id"], unique = true),
-        Index(value = ["auth_id", "team_id"], unique = true),
-        Index(value = ["team_id"])
+        Index(value = ["auth_id", "team_id"], unique = true), // membership constraint
+        Index(value = ["team_id"]),                          // team roster lookups
+        Index(value = ["role"]),                             // filtering by role
+        Index(value = ["status"]),                           // filtering by active/inactive
+        Index(value = ["team_id", "role"])                   // combined team+role
     ]
 )
 data class User(

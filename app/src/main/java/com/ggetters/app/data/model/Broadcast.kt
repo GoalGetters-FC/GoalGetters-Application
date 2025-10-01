@@ -35,9 +35,11 @@ import java.util.UUID
     ],
     indices = [
         Index(value = ["id"], unique = true),
-        Index("user_id"),
-        Index("team_id"),
-        Index("conference_id")
+        Index("user_id"),             // who sent it
+        Index("team_id"),             // team feed lookups
+        Index("conference_id"),       // conference scoping
+        Index("category"),            // filter by type
+        Index("created_at")           // ordering by timestamp
     ]
 )
 data class Broadcast(
