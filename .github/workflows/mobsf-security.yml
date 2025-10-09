@@ -16,7 +16,7 @@ jobs:
       contents: read
       security-events: write
       pull-requests: write
-      
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
           
           if [ -f "mobsfscan.sarif" ]; then
             echo "SARIF report generated successfully."
-            
+          
             FINDINGS_COUNT=$(jq '.runs[0].results // [] | length' mobsfscan.sarif)
             echo "Number of findings: $FINDINGS_COUNT"
             if [ "$FINDINGS_COUNT" -gt 0 ]; then
@@ -54,7 +54,7 @@ jobs:
         if: always()
         with:
           sarif_file: mobsfscan.sarif
-          
+
       - name: Output as Artifact
         uses: actions/upload-artifact@v4
         with:
