@@ -1,0 +1,56 @@
+name: SonarQube
+
+# ------------------------------------------------------------------------------
+
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+
+
+# ------------------------------------------------------------------------------
+
+
+jobs:
+  
+  # Job
+  sonar-scanning:
+    name: Build and analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      
+      # Step
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      
+      # Step
+      - name: Configure the Android Environment
+        uses: ./.github/actions/setup-android-environment
+        with:
+          java-distros: 'temurin'
+          java-version: '17'
+          enable-secrets: 'true'
+          enable-caching: 'true'
+          set-secret-for-firebase: ${{ secrets.GOOGLE_SERVICES_JSON }}
+
+      # Step
+      - name: Cache SonarQube Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      # Step
+      - name: Assemble & Analyze Source
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew assembleDebug sonar --info
+
+
+# ------------------------------------------------------------------------------
