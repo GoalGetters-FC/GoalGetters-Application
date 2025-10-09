@@ -1,49 +1,56 @@
 name: SonarQube
+
+# ------------------------------------------------------------------------------
+
+
 on:
   push:
     branches:
       - main
-      - staging
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
+
+
+# ------------------------------------------------------------------------------
+
+
 jobs:
-  build:
+  
+  # Job
+  sonar-scanning:
     name: Build and analyze
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      
+      # Step
+      - uses: actions/checkout@v5
         with:
-          fetch-depth: 0  
-          
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+          fetch-depth: 0
+      
+      # Step
+      - name: Configure the Android Environment
+        uses: ./.github/actions/setup-android-environment
         with:
-          java-version: 17
-          distribution: temurin
-          
-      - name: Cache SonarQube packages
+          java-distros: 'temurin'
+          java-version: '17'
+          enable-secrets: 'true'
+          enable-caching: 'true'
+          set-secret-for-firebase: ${{ secrets.GOOGLE_SERVICES_JSON }}
+
+      # Step
+      - name: Cache SonarQube Packages
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-          
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
-          
-      - name: Ensure gradlew is executable
-        run: chmod +x ./gradlew
-        
-      - name: Restore google-services.json
-        run: |
-          mkdir -p app
-          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > app/google-services.json
-        
-      - name: Build and analyze
+
+      # Step
+      - name: Assemble & Analyze Source
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew assembleDebug sonar --info
+
+
+# ------------------------------------------------------------------------------

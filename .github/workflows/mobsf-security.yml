@@ -1,34 +1,49 @@
 name: MobSF Analysis
 
+
+# ------------------------------------------------------------------------------
+
+
 on:
   push:
-    branches: [ 'topic/devops' ]
+    branches:
+      - main
   pull_request:
-    branches: [ main, staging ]
+    branches: [ main ]
+
+
+# ------------------------------------------------------------------------------
+
 
 jobs:
-  mobsf-scan:
+  
+  # Job
+  mobsf-scanning:
     name: MobSF Security
-    
     runs-on: ubuntu-latest
-    
     permissions:
       contents: read
       security-events: write
       pull-requests: write
-      
+    timeout-minutes: 15
     steps:
+      
+      # Step
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
+      # Step
       - name: Install PYTHON
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.11'
+          cache: 'pip'
 
+      # Step
       - name: Install MOB-SF
         run: pip install mobsfscan
 
+      # Step
       - name: Analysis
         id: scan
         run: |
@@ -36,7 +51,7 @@ jobs:
           
           if [ -f "mobsfscan.sarif" ]; then
             echo "SARIF report generated successfully."
-            
+          
             FINDINGS_COUNT=$(jq '.runs[0].results // [] | length' mobsfscan.sarif)
             echo "Number of findings: $FINDINGS_COUNT"
             if [ "$FINDINGS_COUNT" -gt 0 ]; then
@@ -49,21 +64,27 @@ jobs:
             echo "FAILED=true" >> $GITHUB_OUTPUT
           fi
 
+      # Step
       - name: Output in Security
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: mobsfscan.sarif
-          
+
+      # Step
       - name: Output as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: mobsfscan-sarif
           path: mobsfscan.sarif
 
-      - name: Triage
+      # Step
+      - name: Notify
         if: steps.scan.outputs.FAILED == 'true'
         run: |
           echo "Log:"
           echo "❌ MobSF scan failed due to security findings or an error."
           echo "   Check the logs and the uploaded SARIF report.          "
+
+
+# ------------------------------------------------------------------------------
