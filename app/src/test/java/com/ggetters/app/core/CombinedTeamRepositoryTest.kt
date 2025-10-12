@@ -81,10 +81,14 @@ class CombinedTeamRepositoryTest {
             composition = TeamComposition.UNISEX_FEMALE
         )
 
+        val mixed = Team(
+            name = "Team C",
+            composition = TeamComposition.ANYONE
+        )
 
         assertEquals(TeamComposition.UNISEX_MALE, unisexMale.composition)
         assertEquals(TeamComposition.UNISEX_FEMALE, unisexFemale.composition)
-
+        assertEquals(TeamComposition.ANYONE, mixed.composition)
     }
 
     @Test
@@ -94,10 +98,19 @@ class CombinedTeamRepositoryTest {
             denomination = TeamDenomination.OPEN
         )
 
+        val youth = Team(
+            name = "Team B",
+            denomination = TeamDenomination. U10
+        )
 
+        val senior = Team(
+            name = "Team C",
+            denomination = TeamDenomination.U18
+        )
 
         assertEquals(TeamDenomination.OPEN, open.denomination)
-
+        assertEquals(TeamDenomination.U10, youth.denomination)
+        assertEquals(TeamDenomination.U18, senior.denomination)
     }
 
     @Test
