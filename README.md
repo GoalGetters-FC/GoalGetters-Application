@@ -1,4 +1,6 @@
-### **Project README (GoalGetters-Application/README.md)**
+<p align="center">
+  <img width="512" height="512" alt="image" src="https://github.com/user-attachments/assets/bac2b779-3d26-444b-8425-d04963fd4a3f" />
+</p>
 
 # ⚽ GoalGetters FC — Club Management Application
 
