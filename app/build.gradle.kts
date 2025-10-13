@@ -133,7 +133,7 @@ dependencies {
     implementation(libs.firebase.crashlytics.ndk)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore.ktx)
-    implementation("com.google.firebase:firebase-perf")
+    implementation(libs.firebase.perf)
 
     // Room
 
