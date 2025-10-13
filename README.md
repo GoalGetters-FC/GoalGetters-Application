@@ -89,10 +89,11 @@ This repository’s detailed documentation (sprints, architecture, videos) is ho
 
 | Member      | Student No. | Role           |
 | ----------- | ----------- | -------------- |
-| Dean Gibson | ST10326084  | Lead Developer |
-| M. Pieterse | —           | UI/Testing     |
-| F. —        | —           | Backend/Sync   |
-| M. —        | —           | Documentation  |
+| Dean Gibson | ST10326084  |                |
+| Matt        | —           |                |
+| Fortune     | —           |                |
+| Musa        | —           |                |
+
 
 ---
 
