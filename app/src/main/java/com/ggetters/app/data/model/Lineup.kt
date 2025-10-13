@@ -32,8 +32,9 @@ import java.util.UUID
         )
     ],
     indices = [
-        Index("event_id"),
-        Index("created_by")
+        Index("event_id"),                        // main lookup
+        Index("created_by"),                      // secondary
+        Index(value = ["event_id", "created_by"]) // combined (optional, if used often)
     ]
 )
 data class Lineup(
