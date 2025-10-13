@@ -246,3 +246,35 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
         db.execSQL("CREATE INDEX IF NOT EXISTS index_lineup_created_by ON lineup(created_by)")
     }
 }
+
+/** DB v5 -> v6: align indices across entities with updated @Entity annotations. */
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // USER
+        db.execSQL("DROP INDEX IF EXISTS index_user_id") // redundant
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_user_role ON user(role)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_user_status ON user(status)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_user_team_id_role ON user(team_id, role)")
+
+        // TEAM
+        db.execSQL("DROP INDEX IF EXISTS index_team_id") // redundant
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_team_name ON team(name)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_team_is_active ON team(is_active)")
+
+        // EVENT
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_event_category ON event(category)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_event_start_at ON event(start_at)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_event_team_id_start_at ON event(team_id, start_at)")
+
+        // ATTENDANCE
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_attendance_event_id ON attendance(event_id)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_attendance_event_id_player_id ON attendance(event_id, player_id)")
+
+        // LINEUP
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_lineup_event_id_created_by ON lineup(event_id, created_by)")
+
+        // BROADCAST
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_broadcast_category ON broadcast(category)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_broadcast_created_at ON broadcast(created_at)")
+    }
+}
