@@ -1,128 +1,112 @@
-# Sprint 9: Performance and Scalability Report
+### **Project README (GoalGetters-Application/README.md)**
 
-## Overview
+# ⚽ GoalGetters FC — Club Management Application
 
-GoalGetters FC is an offline-first Android app built with **Kotlin**, **RoomDB**, and **Firebase Firestore** for real-time data sync and authentication. This sprint focused on improving performance, stability, and scalability using Firebase Performance Monitoring, Crashlytics, and optimized local database schema design.
-
----
-
-## 1. Performance Testing
-
-Firebase Performance Monitoring was integrated to trace and benchmark key repository operations. Custom traces confirmed areas of improvement and validated performance gains.
-
-### Sample Trace Results
-
-| Operation                 | Duration | Notes                                         |
-| ------------------------- | -------- | --------------------------------------------- |
-| `teamrepo_sync`           | 1.80 s   | Heaviest sync task involving Firestore merges |
-| `attendance_sync`         | 345 ms   | Acceptable latency for event-level sync       |
-| `attendance_upsert`       | 263 ms   | Post-optimization stable below 300 ms         |
-| `userrepo_hydrateForTeam` | 122 ms   | Reduced by indexing Room table                |
-| `userrepo_sync`           | 121 ms   | Efficient with batched Firestore writes       |
-| `attendance_getById`      | 2 ms     | Local read speed optimal via Room             |
-| `attendance_getByEventId` | 763 μs   | Near-instant cached retrieval                 |
+GoalGetters FC is a **mobile-first, offline-first football club management app** built with **Kotlin Android**.
+It unifies player tracking, attendance, lineup planning, and communication — replacing spreadsheets and chats with one hub.
 
 ---
 
-## 2. Code and Database Optimizations
+## 🚀 Features
 
-### a. Indexed Entities
+### Coaches
 
-Indices were added to the RoomDB schema to improve query lookup times and avoid full table scans.
+* Create/manage teams with join codes
+* Plan matches and training sessions
+* Track attendance, goals, cards, substitutions
+* Send push alerts to players and parents
 
-```kotlin
-@Entity(
-    tableName = "user",
-    foreignKeys = [
-        ForeignKey(
-            entity = Team::class,
-            parentColumns = ["id"],
-            childColumns = ["team_id"],
-            onDelete = ForeignKey.CASCADE,
-            onUpdate = ForeignKey.CASCADE
-        )
-    ],
-    indices = [
-        Index(value = ["id"], unique = true),
-        Index(value = ["auth_id", "team_id"], unique = true),
-        Index(value = ["team_id"])
-    ]
-)
+### Players
+
+* View sessions and matches
+* Log attendance and see season stats
+
+### Parents
+
+* View only their child’s data
+* Receive push notifications for schedule changes
+
+### Supporters
+
+* View public fixtures and results only
+
+---
+
+## 🧩 Architecture
+
+| Layer         | Technology                         |
+| ------------- | ---------------------------------- |
+| UI            | Kotlin (MVVM) with XML/Compose     |
+| Local Storage | RoomDB (offline-first)             |
+| Cloud         | Firebase Firestore                 |
+| Auth          | Firebase Auth (Email + Google SSO) |
+| Sync          | WorkManager two-way sync           |
+| Notifications | Firebase Cloud Messaging           |
+| Analytics     | Firebase Performance + Crashlytics |
+
+---
+
+## 🧠 How It Works
+
+1. **Offline-first RoomDB** stores all core entities locally.
+2. **SyncManager (WorkManager)** uploads dirty entities to Firestore when online.
+3. **Firestore listeners** stream remote updates back to RoomDB.
+4. **Cloud Functions + FCM** send push alerts to the right users.
+
+---
+
+## ⚙️ Getting Started
+
+### Prerequisites
+
+* Android Studio Jellyfish (or newer)
+* Firebase project (Firestore, Auth, FCM, Performance)
+* Google Services JSON configured in `/app`
+
+### Setup
+
+```bash
+git clone https://github.com/GoalGetters-FC/GoalGetters-Application.git
+cd GoalGetters-Application
 ```
 
-**Result:** Hydration and user-sync calls dropped from ~350ms to ~120ms.
-
-### b. Repository Caching
-
-RoomDB now acts as a first-level cache. Reads resolve locally, while writes flag records as `dirty` for deferred Firestore sync via `WorkManager`. This minimizes remote reads and improves offline performance.
-
-### c. Query Streamlining
-
-* Replaced multiple per-document Firestore reads with batch retrievals.
-* Limited snapshot listeners to active sessions only.
-* Reduced redundant LiveData observers.
+1. Open in **Android Studio**
+2. Add your **google-services.json** file
+3. Sync Gradle
+4. Run on emulator or device
 
 ---
 
-## 3. Crash and Stability Improvements
+## 🦯 Project Wiki
 
-Firebase Crashlytics logs showed three recurring issues prior to this sprint:
+This repository’s detailed documentation (sprints, architecture, videos) is hosted in the **Wiki**.
 
-* `RoomConnectionManager.onMigrate`: Fixed by updating migration logic.
-* `RoomConnectionManager.checkIdentity`: Caused by missing composite key, now resolved with proper indexing.
-* `HomeTeamViewModel.getCurrentUserAuthId`: Fixed null pointer via safe calls and defensive coding.
-
-**Crash-free session rate:** Improved from **~70%** to **87%** in the last 90 days.
+🔗 [Open the GoalGetters Wiki →](https://github.com/GoalGetters-FC/GoalGetters-Application/wiki)
 
 ---
 
-## 4. Caching and Sync Strategy
+## 👥 Team
 
-### Local Caching (RoomDB)
-
-* Player, Team, and Attendance entities cached offline.
-* Auto-sync triggered by WorkManager when network available.
-* Data flagged via `isDirty` column until Firestore sync confirms success.
-
-### Remote Sync (Firestore)
-
-* Firestore serves as source of truth for multi-device consistency.
-* addSnapshotListener() merges remote updates into RoomDB in real time.
+| Member      | Student No. | Role           |
+| ----------- | ----------- | -------------- |
+| Dean Gibson | ST10326084  | Lead Developer |
+| M. Pieterse | —           | UI/Testing     |
+| F. —        | —           | Backend/Sync   |
+| M. —        | —           | Documentation  |
 
 ---
 
-## 5. Scalability & Auto-Scaling Configuration
+## 📚 References
 
-Since the project uses Firebase (no custom backend), scaling is handled automatically by Google Cloud Infrastructure:
-
-* **Firestore:** Serverless scaling for high concurrent reads/writes.
-* **Cloud Functions:** Auto-scales based on invocations (used for push notifications).
-* **FCM:** Handles unlimited concurrent message delivery.
-
----
-
-## 6. Video Walkthrough (to upload)
-
-**Content Outline:**
-
-1. Show Firebase dashboard traces.
-2. Show RoomDB schema changes.
-3. Demonstrate offline caching + sync cycle.
-4. Review Crashlytics improvement.
-5. Summarize scalability architecture.
+* Android Developers. (2025). *Dependency injection in Android.*
+  [https://developer.android.com/training/dependency-injection](https://developer.android.com/training/dependency-injection)
+* App Dev Insights. (2024). *Repository Design Pattern in Kotlin.*
+  [https://medium.com/@appdevinsights/repository-design-pattern-in-kotlin-1d1aeff1ad40](https://medium.com/@appdevinsights/repository-design-pattern-in-kotlin-1d1aeff1ad40)
+* Firebase Docs. (2025). *Offline data and Firestore sync.*
+  [https://firebase.google.com/docs/firestore/manage-data/enable-offline](https://firebase.google.com/docs/firestore/manage-data/enable-offline)
 
 ---
 
-## 7. GitHub Repository
-
-**Repository:** [GoalGetters FC - Android](https://github.com/GoalGettersFC/goalgetters-android)
-**Status:** Public
-**Branch:** `staging` (Sprint 9 release)
+> For sprint-by-sprint progress and videos, visit the [Wiki](https://github.com/GoalGetters-FC/GoalGetters-Application/wiki).
 
 ---
-
-## References
-
-* Android Developers. (2025). *Offline persistence and caching with Room*. [online] Available at: [https://developer.android.com/training/data-storage/room](https://developer.android.com/training/data-storage/room)
-* Firebase Docs. (2025). *Performance Monitoring and Crashlytics*. [online] Available at: [https://firebase.google.com/docs](https://firebase.google.com/docs)
-* App Dev Insights. (2024). *Repository Design Pattern in Kotlin*. Medium. [online] Available at: [https://medium.com/@appdevinsights/repository-design-pattern-in-kotlin-1d1aeff1ad40](https://medium.com/@appdevinsights/repository-design-pattern-in-kotlin-1d1aeff1ad40)
