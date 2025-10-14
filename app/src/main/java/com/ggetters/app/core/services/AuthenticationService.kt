@@ -293,7 +293,11 @@ class AuthenticationService @Inject constructor(
         is FirebaseNetworkException -> AuthenticationError.NETWORK
         is FirebaseAuthInvalidUserException -> AuthenticationError.INVALID_USER_STATUS
         is FirebaseAuthInvalidCredentialsException -> AuthenticationError.INVALID_CREDENTIALS
-        else -> AuthenticationError.UNKNOWN
+        else -> {
+            // Log the actual error message for debugging
+            Clogger.e(TAG, "Unmapped authentication error: ${error.message}", error)
+            AuthenticationError.UNKNOWN
+        }
     }
 
 

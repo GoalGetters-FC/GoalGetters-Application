@@ -166,12 +166,22 @@ class SignInActivity : AppCompatActivity(), Clickable {
             model.form.onPasswordChanged(text)
         }
 
-        // Error UI
+        // Error UI and Button State
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.form.formState.collect { state ->
                     binds.etIdentity.setLayoutError(state.identity.error?.toString())
                     binds.etPassword.setLayoutError(state.password.error?.toString())
+                }
+            }
+        }
+        
+        // Button state management
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.form.isFormValid.collect { isValid ->
+                    binds.btSignIn.isEnabled = isValid
+                    binds.btSignIn.alpha = if (isValid) 1.0f else 0.6f
                 }
             }
         }

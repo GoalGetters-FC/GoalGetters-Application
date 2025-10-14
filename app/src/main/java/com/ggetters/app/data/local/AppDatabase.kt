@@ -30,6 +30,7 @@ import com.ggetters.app.data.local.migrations.MIGRATION_2_3
 import com.ggetters.app.data.local.migrations.MIGRATION_3_4
 import com.ggetters.app.data.local.migrations.MIGRATION_4_5
 import com.ggetters.app.data.local.migrations.MIGRATION_5_6
+import com.ggetters.app.data.local.migrations.MIGRATION_6_7
 
 /**
  * Fresh baseline schema (v1). No migrations registered.
@@ -45,7 +46,7 @@ import com.ggetters.app.data.local.migrations.MIGRATION_5_6
         Lineup::class,
         PerformanceLog::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 @TypeConverters(
@@ -76,13 +77,13 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance =
                     Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, DATABASE_NAME)
                         .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
-                            MIGRATION_5_6
+                            MIGRATION_5_6, MIGRATION_6_7
                         )
                         .apply {
                             if (BuildConfig.DEBUG) {
                                 // Dev safety nets; keep if you like
-                                fallbackToDestructiveMigration()
-                                fallbackToDestructiveMigrationOnDowngrade()
+                                fallbackToDestructiveMigration(true)
+                                fallbackToDestructiveMigrationOnDowngrade(true)
                             }
                         }
                         .build()

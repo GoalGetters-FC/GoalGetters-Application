@@ -36,7 +36,12 @@ class OfflineUserRepository @Inject constructor(
         dao.upsert(entity)
     }
 
-    override suspend fun delete(entity: User) = dao.deleteByIdInTeam(entity.id, entity.teamId)
+    override suspend fun delete(entity: User) = entity.teamId?.let { teamId ->
+        dao.deleteByIdInTeam(entity.id, teamId)
+    } ?: run {
+        // If no teamId, just delete by ID
+        dao.deleteById(entity.id)
+    }
 
     override suspend fun deleteAll() { /* optional global wipe */ }
 

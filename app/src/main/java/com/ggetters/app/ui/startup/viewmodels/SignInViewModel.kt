@@ -63,7 +63,7 @@ class SignInViewModel @Inject constructor(
                 withTimeout(milliseconds) {
                     authService.signInAsync(
                         email = form.formState.value.identity.value.trim(),
-                        password = form.formState.value.identity.value.trim()
+                        password = form.formState.value.password.value.trim()
                     )
                 }
             }.apply {
@@ -80,9 +80,22 @@ class SignInViewModel @Inject constructor(
                         TAG, "Attempt to authenticate was a failure!"
                     )
 
-                    _uiState.value = Failure(
-                        exception.message.toString()
-                    )
+                    val errorMessage = when {
+                        exception.message?.contains("incorrect", ignoreCase = true) == true -> 
+                            "Incorrect email or password. Please check your credentials and try again."
+                        exception.message?.contains("network", ignoreCase = true) == true -> 
+                            "Network error. Please check your internet connection and try again."
+                        exception.message?.contains("timeout", ignoreCase = true) == true -> 
+                            "Request timed out. Please try again."
+                        exception.message?.contains("user not found", ignoreCase = true) == true -> 
+                            "No account found with this email address. Please sign up first."
+                        exception.message?.contains("too many requests", ignoreCase = true) == true -> 
+                            "Too many failed attempts. Please try again later."
+                        else -> 
+                            "Sign-in failed. Please check your credentials and try again."
+                    }
+
+                    _uiState.value = Failure(errorMessage)
                 }
             }
         }
