@@ -15,6 +15,7 @@ import com.ggetters.app.data.local.dao.BroadcastDao
 import com.ggetters.app.data.local.dao.BroadcastStatusDao
 import com.ggetters.app.data.local.dao.EventDao
 import com.ggetters.app.data.local.dao.LineupDao
+import com.ggetters.app.data.local.dao.NotificationDao
 import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
 import com.ggetters.app.data.model.Attendance
@@ -22,6 +23,7 @@ import com.ggetters.app.data.model.Broadcast
 import com.ggetters.app.data.model.BroadcastStatus
 import com.ggetters.app.data.model.Event
 import com.ggetters.app.data.model.Lineup
+import com.ggetters.app.data.model.Notification
 import com.ggetters.app.data.model.PerformanceLog
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.data.model.User
@@ -31,6 +33,7 @@ import com.ggetters.app.data.local.migrations.MIGRATION_3_4
 import com.ggetters.app.data.local.migrations.MIGRATION_4_5
 import com.ggetters.app.data.local.migrations.MIGRATION_5_6
 import com.ggetters.app.data.local.migrations.MIGRATION_6_7
+import com.ggetters.app.data.local.migrations.MIGRATION_7_8
 
 /**
  * Fresh baseline schema (v1). No migrations registered.
@@ -44,9 +47,10 @@ import com.ggetters.app.data.local.migrations.MIGRATION_6_7
         Event::class,
         Attendance::class,
         Lineup::class,
+        Notification::class,
         PerformanceLog::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = true
 )
 @TypeConverters(
@@ -64,6 +68,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun eventDao(): EventDao
     abstract fun attendanceDao(): AttendanceDao
     abstract fun lineupDao(): LineupDao
+    abstract fun notificationDao(): NotificationDao
 
     companion object {
         @Volatile
@@ -77,7 +82,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance =
                     Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, DATABASE_NAME)
                         .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
-                            MIGRATION_5_6, MIGRATION_6_7
+                            MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8
                         )
                         .apply {
                             if (BuildConfig.DEBUG) {

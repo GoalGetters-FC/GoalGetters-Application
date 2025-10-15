@@ -10,6 +10,7 @@ import com.ggetters.app.data.local.AppDatabase
 import com.ggetters.app.data.local.dao.AttendanceDao
 import com.ggetters.app.data.local.dao.BroadcastDao
 import com.ggetters.app.data.local.dao.BroadcastStatusDao
+import com.ggetters.app.data.local.dao.NotificationDao
 import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
 import com.ggetters.app.data.local.dao.EventDao
@@ -142,8 +143,9 @@ object DataModule {
     @Singleton
     fun provideLineupDao(db: AppDatabase): LineupDao = db.lineupDao()
 
+    @Provides
+    @Singleton
+    fun provideNotificationDao(db: AppDatabase): NotificationDao = db.notificationDao()
 
-    // TODO: Backend - Add AttendanceDao provider
-    // TODO: Backend - Add LineupDao provider
     // TODO: Backend - Add PerformanceLogDao provider
 }

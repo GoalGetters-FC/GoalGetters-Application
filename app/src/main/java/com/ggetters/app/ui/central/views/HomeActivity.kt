@@ -28,6 +28,7 @@ import com.ggetters.app.databinding.ActivityHomeBinding
 import com.ggetters.app.ui.central.models.AppbarTheme
 import com.ggetters.app.ui.central.models.HomeUiConfiguration
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
+import com.ggetters.app.ui.central.views.AccountFragment
 import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.management.views.TeamsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -262,9 +263,8 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun profileFragmentForCurrentUser(): Fragment {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        // If uid is null/blank, pass blank – PlayerProfileFragment will call loadCurrentUser()
-        return PlayerProfileFragment.newInstance(uid ?: "", startEditing = false)
+        // Return the new AccountFragment for the current logged-in user
+        return AccountFragment()
     }
 
     private fun setupOptionsLongClick(bottomNav: BottomNavigationView) {
