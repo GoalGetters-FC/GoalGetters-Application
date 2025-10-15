@@ -82,114 +82,214 @@
             android:layout_marginTop="8dp" />
 
         <!-- First Name -->
-        <com.google.android.material.textfield.TextInputLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:hintEnabled="false"
-            app:boxStrokeColor="@color/input_border"
-            app:hintTextColor="@color/text_secondary"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etFirstName"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:hint="First Name"
-                android:inputType="textPersonName"
-                android:fontFamily="@font/variable_inter"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:enabled="false" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="First Name"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etFirstName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter first name"
+                    android:inputType="textPersonName"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
+                    android:enabled="false" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Last Name -->
-        <com.google.android.material.textfield.TextInputLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:hintEnabled="false"
-            app:boxStrokeColor="@color/input_border"
-            app:hintTextColor="@color/text_secondary"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etLastName"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:hint="Last Name"
-                android:inputType="textPersonName"
-                android:fontFamily="@font/variable_inter"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:enabled="false" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Last Name"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etLastName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter last name"
+                    android:inputType="textPersonName"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
+                    android:enabled="false" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Email -->
-        <com.google.android.material.textfield.TextInputLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:hintEnabled="false"
-            app:boxStrokeColor="@color/input_border"
-            app:hintTextColor="@color/text_secondary"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etEmail"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:hint="Email"
-                android:inputType="textEmailAddress"
-                android:fontFamily="@font/variable_inter"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:enabled="false" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Email"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter email address"
+                    android:inputType="textEmailAddress"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
+                    android:enabled="false" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Alias -->
-        <com.google.android.material.textfield.TextInputLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:hintEnabled="false"
-            app:boxStrokeColor="@color/input_border"
-            app:hintTextColor="@color/text_secondary"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etAlias"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:hint="Alias"
-                android:inputType="text"
-                android:fontFamily="@font/variable_inter"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:enabled="false" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Alias"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAlias"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter alias/nickname"
+                    android:inputType="text"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
+                    android:enabled="false" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Date of Birth -->
-        <com.google.android.material.textfield.TextInputLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:hintEnabled="false"
-            app:boxStrokeColor="@color/input_border"
-            app:hintTextColor="@color/text_secondary"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etDateOfBirth"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:hint="Date of Birth (YYYY-MM-DD)"
-                android:inputType="date"
-                android:fontFamily="@font/variable_inter"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:enabled="false" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date of Birth"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDateOfBirth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="YYYY-MM-DD"
+                    android:inputType="date"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
+                    android:enabled="false" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Football Information Section -->
         <TextView
@@ -204,74 +304,134 @@
             android:layout_marginTop="8dp" />
 
         <!-- Position -->
-        <com.google.android.material.textfield.TextInputLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:hintEnabled="false"
-            app:boxStrokeColor="@color/input_border"
-            app:hintTextColor="@color/text_secondary"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etPosition"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:hint="Position"
-                android:inputType="text"
-                android:fontFamily="@font/variable_inter"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:enabled="false" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Position"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPosition"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter playing position"
+                    android:inputType="text"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
+                    android:enabled="false" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Role Selection (Editable) -->
-        <com.google.android.material.textfield.TextInputLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:hintEnabled="false"
-            app:boxStrokeColor="@color/input_border"
-            app:hintTextColor="@color/text_secondary"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etRole"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:hint="Role"
-                android:inputType="none"
-                android:fontFamily="@font/variable_inter"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:enabled="false"
-                android:clickable="false"
-                android:focusable="false" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Role"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etRole"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Select your role"
+                    android:inputType="none"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
+                    android:enabled="false"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Status -->
-        <com.google.android.material.textfield.TextInputLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:hintEnabled="false"
-            app:boxStrokeColor="@color/input_border"
-            app:hintTextColor="@color/text_secondary"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/tvStatus"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:hint="Status"
-                android:inputType="none"
-                android:fontFamily="@font/variable_inter"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:enabled="false"
-                android:clickable="false"
-                android:focusable="false" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Status"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tvStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Player status"
+                    android:inputType="none"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
+                    android:enabled="false"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Team Information Section -->
         <TextView
@@ -285,61 +445,115 @@
             android:layout_marginBottom="20dp"
             android:layout_marginTop="8dp" />
 
-        <!-- Team Name -->
-        <LinearLayout
+        <!-- Team Information Card -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#F8F9FA"
+            app:contentPadding="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:text="Team Name"
-                android:textSize="14sp"
-                android:textColor="@color/text_secondary"
-                android:fontFamily="@font/variable_inter"
-                android:layout_marginBottom="4dp" />
+                android:layout_width="match_parent">
 
-            <TextView
-                android:id="@+id/tvTeamName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Loading..."
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:fontFamily="@font/variable_inter"
-                android:background="@drawable/rounded_background"
-                android:padding="12dp" />
-        </LinearLayout>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_marginBottom="12dp">
 
-        <!-- Team Code -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="32dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Team Information"
+                        android:textSize="14sp"
+                        android:textColor="#4B4D4F"
+                        android:textFontWeight="600"
+                        android:fontFamily="@font/variable_inter"
+                        android:layout_gravity="center_vertical" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Team Code"
-                android:textSize="14sp"
-                android:textColor="@color/text_secondary"
-                android:fontFamily="@font/variable_inter"
-                android:layout_marginBottom="4dp" />
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
 
-            <TextView
-                android:id="@+id/tvTeamCode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Loading..."
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:fontFamily="@font/variable_inter"
-                android:background="@drawable/rounded_background"
-                android:padding="12dp" />
-        </LinearLayout>
+                    <ImageView
+                        android:src="@drawable/ic_unicons_group_24"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        app:tint="#4B4D4F" />
+                </LinearLayout>
+
+                <!-- Team Name -->
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Team:"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:fontFamily="@font/variable_inter"
+                        android:layout_gravity="center_vertical" />
+
+                    <Space
+                        android:layout_width="8dp"
+                        android:layout_height="0dp" />
+
+                    <TextView
+                        android:id="@+id/tvTeamName"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Loading..."
+                        android:textSize="14sp"
+                        android:textColor="#161620"
+                        android:textFontWeight="500"
+                        android:fontFamily="@font/variable_inter"
+                        android:layout_gravity="center_vertical" />
+                </LinearLayout>
+
+                <!-- Team Code -->
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Code:"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:fontFamily="@font/variable_inter"
+                        android:layout_gravity="center_vertical" />
+
+                    <Space
+                        android:layout_width="8dp"
+                        android:layout_height="0dp" />
+
+                    <TextView
+                        android:id="@+id/tvTeamCode"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Loading..."
+                        android:textSize="14sp"
+                        android:textColor="#161620"
+                        android:textFontWeight="500"
+                        android:fontFamily="@font/variable_inter"
+                        android:layout_gravity="center_vertical" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Action Buttons -->
         <LinearLayout
@@ -347,44 +561,62 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="end"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="20dp">
 
             <!-- Edit Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEdit"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Edit"
-                android:layout_marginEnd="12dp"
+                android:layout_height="48dp"
+                android:text="Edit Profile"
+                android:layout_marginEnd="8dp"
+                android:textSize="14sp"
                 android:textColor="@color/white"
+                android:textFontWeight="600"
+                android:fontFamily="@font/variable_inter"
                 app:backgroundTint="@color/primary"
-                app:cornerRadius="8dp"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_unicons_settings_24"
+                app:iconTint="@color/white"
+                android:minWidth="120dp"
                 style="@style/Widget.MaterialComponents.Button" />
 
             <!-- Save Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSave"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:text="Save"
                 android:visibility="gone"
-                android:layout_marginEnd="12dp"
+                android:layout_marginEnd="8dp"
+                android:textSize="14sp"
                 android:textColor="@color/white"
+                android:textFontWeight="600"
+                android:fontFamily="@font/variable_inter"
                 app:backgroundTint="@color/success"
-                app:cornerRadius="8dp"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_unicons_check_24"
+                app:iconTint="@color/white"
+                android:minWidth="100dp"
                 style="@style/Widget.MaterialComponents.Button" />
 
             <!-- Cancel Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:text="Cancel"
                 android:visibility="gone"
+                android:textSize="14sp"
                 android:textColor="@color/text_secondary"
-                app:strokeColor="@color/divider"
+                android:textFontWeight="600"
+                android:fontFamily="@font/variable_inter"
+                app:strokeColor="#E0E0E0"
                 app:strokeWidth="1dp"
-                app:cornerRadius="8dp"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_unicons_times_24"
+                app:iconTint="@color/text_secondary"
+                android:minWidth="100dp"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
         </LinearLayout>
 
@@ -392,16 +624,19 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDeleteAccount"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:text="Delete Account"
             android:textColor="@color/error"
+            android:textSize="14sp"
+            android:textFontWeight="600"
+            android:fontFamily="@font/variable_inter"
             android:icon="@drawable/ic_unicons_trash_24"
             android:iconTint="@color/error"
             android:backgroundTint="@color/white"
             app:strokeColor="@color/error"
             app:strokeWidth="1dp"
-            app:cornerRadius="8dp"
-            android:layout_marginTop="16dp"
+            app:cornerRadius="24dp"
+            android:layout_marginTop="8dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
                 </LinearLayout>
