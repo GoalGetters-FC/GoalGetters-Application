@@ -51,8 +51,12 @@ class AccountFragment : Fragment() {
 
     // Football Information
     private lateinit var positionInput: EditText
-    private lateinit var roleText: TextView
+    private lateinit var roleInput: EditText
     private lateinit var statusText: TextView
+    
+    // Header elements
+    private lateinit var userNameHeader: TextView
+    private lateinit var userRoleHeader: TextView
 
     // Team Information
     private lateinit var teamNameText: TextView
@@ -82,14 +86,18 @@ class AccountFragment : Fragment() {
 
         sharedModel.useViewConfiguration(
             HomeUiConfiguration(
-                appBarColor = AppbarTheme.WHITE,
-                appBarTitle = "Account",
+                appBarColor = AppbarTheme.NIGHT,
+                appBarTitle = "",
                 appBarShown = true,
             )
         )
     }
 
     private fun setupViews(view: View) {
+        // Header elements
+        userNameHeader = view.findViewById(R.id.tv_user_name_header)
+        userRoleHeader = view.findViewById(R.id.tv_user_role_header)
+        
         // Personal Information
         firstNameInput = view.findViewById(R.id.etFirstName)
         lastNameInput = view.findViewById(R.id.etLastName)
@@ -99,7 +107,7 @@ class AccountFragment : Fragment() {
 
         // Football Information
         positionInput = view.findViewById(R.id.etPosition)
-        roleText = view.findViewById(R.id.tvRole)
+        roleInput = view.findViewById(R.id.etRole)
         statusText = view.findViewById(R.id.tvStatus)
 
         // Team Information
@@ -115,6 +123,34 @@ class AccountFragment : Fragment() {
         // Initially disable all inputs
         setInputsEnabled(false)
         updateButtonVisibility()
+        
+        // Setup role selection click listener
+        setupRoleSelection()
+    }
+    
+    private fun setupRoleSelection() {
+        roleInput.setOnClickListener {
+            if (isEditMode) {
+                showRoleSelectionDialog()
+            }
+        }
+    }
+    
+    private fun showRoleSelectionDialog() {
+        val roles = UserRole.values()
+        val roleNames = roles.map { it.name.replace("_", " ").lowercase().replaceFirstChar { char -> char.uppercase() } }.toTypedArray()
+        
+        val currentRoleIndex = roles.indexOfFirst { it.name.replace("_", " ").lowercase().replaceFirstChar { char -> char.uppercase() } == roleInput.text.toString() }
+        
+        AlertDialog.Builder(requireContext(), R.style.Theme_GoalGetters_Dialog)
+            .setTitle("Select Role")
+            .setSingleChoiceItems(roleNames, currentRoleIndex) { dialog, which ->
+                val selectedRole = roles[which]
+                roleInput.setText(roleNames[which])
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun setupClickListeners() {
@@ -146,9 +182,11 @@ class AccountFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 activeModel.activeTeam.collect { team ->
                     if (team != null) {
+                        // Update team information section
                         teamNameText.text = team.name
                         teamCodeText.text = "Code: ${team.code}"
                     } else {
+                        // Update team information section
                         teamNameText.text = "No active team"
                         teamCodeText.text = ""
                     }
@@ -158,6 +196,10 @@ class AccountFragment : Fragment() {
     }
 
     private fun populateUserData(user: User) {
+        // Update header
+        userNameHeader.text = user.fullName().ifBlank { user.alias.ifBlank { "User Account" } }
+        userRoleHeader.text = user.role.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }
+        
         // Personal Information
         firstNameInput.setText(user.name)
         lastNameInput.setText(user.surname)
@@ -174,19 +216,22 @@ class AccountFragment : Fragment() {
 
         // Football Information
         positionInput.setText(user.position?.name ?: "")
-        roleText.text = user.role.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }
-        statusText.text = user.status?.name?.lowercase()?.replaceFirstChar { it.uppercase() } ?: "Active"
+        roleInput.setText(user.role.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() })
+        statusText.setText(user.status?.name?.lowercase()?.replaceFirstChar { it.uppercase() } ?: "Active")
     }
 
     private fun showPlaceholderData() {
+        userNameHeader.text = "User Account"
+        userRoleHeader.text = "Account Settings"
+        
         firstNameInput.setText("")
         lastNameInput.setText("")
         emailInput.setText("")
         aliasInput.setText("")
         dateOfBirthInput.setText("")
         positionInput.setText("")
-        roleText.text = "Player"
-        statusText.text = "Active"
+        roleInput.setText("Player")
+        statusText.setText("Active")
         teamNameText.text = "No team"
         teamCodeText.text = ""
     }
@@ -221,12 +266,21 @@ class AccountFragment : Fragment() {
             return
         }
 
+        // Parse role from display text
+        val roleText = roleInput.text.toString().trim()
+        val selectedRole = try {
+            UserRole.valueOf(roleText.uppercase().replace(" ", "_"))
+        } catch (e: Exception) {
+            currentUser.role // Keep current role if parsing fails
+        }
+
         // Create updated user
         val updatedUser = currentUser.copy(
             name = firstNameInput.text.toString().trim(),
             surname = lastNameInput.text.toString().trim(),
             email = emailInput.text.toString().trim(),
             alias = aliasInput.text.toString().trim(),
+            role = selectedRole,
             dateOfBirth = dateOfBirthInput.text.toString().trim().takeIf { it.isNotEmpty() }?.let { dateStr ->
                 try {
                     LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
@@ -261,6 +315,9 @@ class AccountFragment : Fragment() {
         aliasInput.isEnabled = enabled
         dateOfBirthInput.isEnabled = enabled
         positionInput.isEnabled = enabled
+        roleInput.isEnabled = enabled
+        roleInput.isClickable = enabled
+        roleInput.isFocusable = enabled
     }
 
     private fun updateButtonVisibility() {
