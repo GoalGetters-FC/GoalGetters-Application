@@ -37,8 +37,11 @@ import java.util.UUID
         )
     ],
     indices = [
-        Index(value = ["team_id"]),
-        Index(value = ["creator_id"])
+        Index(value = ["team_id"]),                     // team-level queries
+        Index(value = ["creator_id"]),                  // who created
+        Index(value = ["category"]),                    // filter by type
+        Index(value = ["start_at"]),                    // ordering by date
+        Index(value = ["team_id", "start_at"])          // fastest for dashboards
     ]
 )
 
