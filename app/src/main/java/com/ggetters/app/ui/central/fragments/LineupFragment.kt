@@ -736,6 +736,10 @@ class LineupFragment : Fragment() {
 
     private fun showMatchEventsBottomSheet() {
         val bottomSheet = MatchEventsBottomSheet.newInstance()
+        // Pass match ID to the bottom sheet
+        bottomSheet.arguments = Bundle().apply {
+            putString("event_id", matchId)
+        }
         bottomSheet.show(parentFragmentManager, "MatchEventsBottomSheet")
     }
 }

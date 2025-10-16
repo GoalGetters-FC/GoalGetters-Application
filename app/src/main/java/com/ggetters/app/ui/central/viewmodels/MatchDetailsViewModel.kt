@@ -84,8 +84,13 @@ class MatchDetailsViewModel @Inject constructor(
 
     fun addTimelineEvent(event: MatchEvent) {
         viewModelScope.launch {
-            runCatching { matchRepo.addEvent(event) }
-                .onFailure { _error.value = "Failed to add event: ${it.message}" }
+            try {
+                // Add the event to the timeline
+                // Score will be automatically updated via the repository's matchDetailsFlow
+                matchRepo.addEvent(event)
+            } catch (e: Exception) {
+                _error.value = "Failed to add event: ${e.message}"
+            }
         }
     }
 

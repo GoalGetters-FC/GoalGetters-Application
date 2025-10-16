@@ -6,43 +6,72 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Spinner
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.TextView
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.ggetters.app.R
-import com.ggetters.app.data.model.CardType
-import com.ggetters.app.data.model.GoalType
+import kotlinx.coroutines.launch
 import com.ggetters.app.data.model.MatchEvent
 import com.ggetters.app.data.model.MatchEventType
-import com.ggetters.app.data.model.RosterPlayer
-import com.ggetters.app.ui.central.adapters.PlayerSelectionAdapter
-import com.ggetters.app.ui.shared.extensions.getEventDescription
+import com.ggetters.app.data.model.RSVPStatus
+import com.ggetters.app.ui.central.viewmodels.MatchEventViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.UUID
 
+/**
+ * Bottom sheet for recording specific match events (goals, cards, substitutions).
+ * Provides forms for different event types with appropriate fields.
+ */
 @AndroidEntryPoint
 class RecordEventBottomSheet : BottomSheetDialogFragment() {
 
-    private var matchId: String = ""
-    private var currentMinute: Int = 0
+    private val viewModel: MatchEventViewModel by viewModels()
 
-    // Selections
-    private var selectedEventType: MatchEventType? = null
-    private var selectedPlayer: RosterPlayer? = null
-    private var selectedGoalType: GoalType? = null
-    private var selectedCardType: CardType? = null
-    private var selectedPlayerOut: RosterPlayer? = null
-    private var selectedPlayerIn: RosterPlayer? = null
+    private var matchId: String = ""
+    private var eventType: String = ""
+
+    // UI Components
+    private lateinit var eventTypeTitle: TextView
+    private lateinit var eventTypeDescription: TextView
+    private lateinit var minuteInput: EditText
+    private lateinit var playerSpinner: Spinner
+    private lateinit var goalTypeSpinner: Spinner
+    private lateinit var cardTypeSpinner: Spinner
+    private lateinit var substituteInSpinner: Spinner
+    private lateinit var substituteOutSpinner: Spinner
+    private lateinit var notesInput: EditText
+    private lateinit var recordButton: Button
+    private lateinit var cancelButton: Button
+
+    // Dynamic layouts for different event types
+    private lateinit var playerSelectionLayout: LinearLayout
+    private lateinit var goalTypeLayout: LinearLayout
+    private lateinit var cardTypeLayout: LinearLayout
+    private lateinit var substitutionLayout: LinearLayout
+    private lateinit var notesLayout: LinearLayout
 
     companion object {
-        fun newInstance(matchId: String, currentMinute: Int): RecordEventBottomSheet {
+        fun newInstance(matchId: String, eventType: String): RecordEventBottomSheet {
             return RecordEventBottomSheet().apply {
-                this.matchId = matchId
-                this.currentMinute = currentMinute
+                arguments = Bundle().apply {
+                    putString("match_id", matchId)
+                    putString("event_type", eventType)
+                }
             }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            matchId = it.getString("match_id", "")
+            eventType = it.getString("event_type", "")
         }
     }
 
@@ -50,193 +79,228 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.bottom_sheet_record_event, container, false)
+    ): View? {
+        return inflater.inflate(R.layout.bottom_sheet_record_event, container, false)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupEventTypeSelection()
-        setupPlayerSelection()
-        setupActionButtons()
+        
+        initViews(view)
+        setupEventType()
+        setupPlayerSpinner()
+        observeViewModel()
     }
 
-    private fun setupEventTypeSelection() {
-        val spinner = view?.findViewById<Spinner>(R.id.eventTypeSpinner) ?: return
-        val options = listOf("Select Event Type") + MatchEventType.values().map { it.name.replace("_", " ") }
+    private fun initViews(view: View) {
+        eventTypeTitle = view.findViewById(R.id.eventTypeTitle)
+        eventTypeDescription = view.findViewById(R.id.eventTypeDescription)
+        minuteInput = view.findViewById(R.id.minuteInput)
+        playerSpinner = view.findViewById(R.id.playerSpinner)
+        goalTypeSpinner = view.findViewById(R.id.goalTypeSpinner)
+        cardTypeSpinner = view.findViewById(R.id.cardTypeSpinner)
+        substituteInSpinner = view.findViewById(R.id.substituteInSpinner)
+        substituteOutSpinner = view.findViewById(R.id.substituteOutSpinner)
+        notesInput = view.findViewById(R.id.notesInput)
+        recordButton = view.findViewById(R.id.recordButton)
+        cancelButton = view.findViewById(R.id.cancelButton)
 
-        spinner.adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            options
-        ).apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+        // Dynamic layouts
+        playerSelectionLayout = view.findViewById(R.id.playerSelectionLayout)
+        goalTypeLayout = view.findViewById(R.id.goalTypeLayout)
+        cardTypeLayout = view.findViewById(R.id.cardTypeLayout)
+        substitutionLayout = view.findViewById(R.id.substitutionLayout)
+        notesLayout = view.findViewById(R.id.notesLayout)
 
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-                selectedEventType = if (pos > 0) MatchEventType.values()[pos - 1] else null
-                updateUIForEventType()
+        recordButton.setOnClickListener { recordEvent() }
+        cancelButton.setOnClickListener { dismiss() }
+    }
+
+    private fun setupEventType() {
+        val (title, description) = getEventTypeInfo(eventType)
+        eventTypeTitle.text = title
+        eventTypeDescription.text = description
+
+        // Show/hide appropriate layouts based on event type
+        when (eventType) {
+            "goal" -> {
+                playerSelectionLayout.visibility = View.VISIBLE
+                goalTypeLayout.visibility = View.VISIBLE
+                cardTypeLayout.visibility = View.GONE
+                substitutionLayout.visibility = View.GONE
+                notesLayout.visibility = View.VISIBLE
+                setupGoalTypeSpinner()
             }
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                selectedEventType = null
+            "yellow_card", "red_card" -> {
+                playerSelectionLayout.visibility = View.VISIBLE
+                goalTypeLayout.visibility = View.GONE
+                cardTypeLayout.visibility = View.VISIBLE
+                substitutionLayout.visibility = View.GONE
+                notesLayout.visibility = View.VISIBLE
+                setupCardTypeSpinner()
+            }
+            "substitution" -> {
+                playerSelectionLayout.visibility = View.GONE
+                goalTypeLayout.visibility = View.GONE
+                cardTypeLayout.visibility = View.GONE
+                substitutionLayout.visibility = View.VISIBLE
+                notesLayout.visibility = View.VISIBLE
+            }
+            "injury", "other" -> {
+                playerSelectionLayout.visibility = View.VISIBLE
+                goalTypeLayout.visibility = View.GONE
+                cardTypeLayout.visibility = View.GONE
+                substitutionLayout.visibility = View.GONE
+                notesLayout.visibility = View.VISIBLE
             }
         }
     }
 
-    private fun setupPlayerSelection() {
-        // TODO: Replace with actual roster from repository
-        val samplePlayers = listOf(
-            RosterPlayer("1", "John Smith", 1, "GK", status = com.ggetters.app.data.model.RSVPStatus.AVAILABLE),
-            RosterPlayer("2", "Mike Johnson", 2, "LB", status = com.ggetters.app.data.model.RSVPStatus.AVAILABLE),
-            RosterPlayer("3", "David Wilson", 3, "CB", status = com.ggetters.app.data.model.RSVPStatus.AVAILABLE)
-        )
+    private fun setupPlayerSpinner() {
+        // Load available players for this match
+        viewModel.loadAvailablePlayers(matchId)
+    }
 
-        val recycler = view?.findViewById<RecyclerView>(R.id.playerRecyclerView) ?: return
-        recycler.layoutManager = LinearLayoutManager(context)
-        recycler.adapter = PlayerSelectionAdapter(samplePlayers) { player ->
-            selectedPlayer = player
-            updateUIForEventType()
+    private fun observeViewModel() {
+        // Observe StateFlow using lifecycleScope
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.availablePlayers.collect { players ->
+                setupPlayerSpinnerData(players)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.eventRecorded.collect { success ->
+                if (success) {
+                    showSuccessMessage()
+                    dismiss()
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.error.collect { error ->
+                if (!error.isNullOrBlank()) {
+                    showErrorMessage(error)
+                }
+            }
         }
     }
 
-    private fun updateUIForEventType() {
-        val goalLayout = view?.findViewById<View>(R.id.goalTypeLayout)
-        val cardLayout = view?.findViewById<View>(R.id.cardTypeLayout)
-        val subsLayout = view?.findViewById<View>(R.id.substitutionLayout)
-        val recordButton = view?.findViewById<MaterialButton>(R.id.btnRecordEvent)
-
-        goalLayout?.visibility = View.GONE
-        cardLayout?.visibility = View.GONE
-        subsLayout?.visibility = View.GONE
-
-        when (selectedEventType) {
-            MatchEventType.GOAL -> {
-                goalLayout?.visibility = View.VISIBLE
-                setupGoalTypeSelection()
-            }
-            MatchEventType.YELLOW_CARD, MatchEventType.RED_CARD -> {
-                cardLayout?.visibility = View.VISIBLE
-                setupCardTypeSelection()
-            }
-            MatchEventType.SUBSTITUTION -> {
-                subsLayout?.visibility = View.VISIBLE
-                setupSubstitutionSelection()
-            }
-            else -> Unit
-        }
-
-        recordButton?.isEnabled = selectedEventType != null && selectedPlayer != null
-    }
-
-    private fun setupGoalTypeSelection() {
-        val spinner = view?.findViewById<Spinner>(R.id.goalTypeSpinner) ?: return
-        val options = listOf("Select Goal Type") + GoalType.values().map { it.name.replace("_", " ") }
-
-        spinner.adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            options
-        ).apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-                selectedGoalType = if (pos > 0) GoalType.values()[pos - 1] else null
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) { selectedGoalType = null }
-        }
-    }
-
-    private fun setupCardTypeSelection() {
-        val spinner = view?.findViewById<Spinner>(R.id.cardTypeSpinner) ?: return
-        val options = listOf("Select Card Type") + CardType.values().map { it.name.replace("_", " ") }
-
-        spinner.adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            options
-        ).apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-                selectedCardType = if (pos > 0) CardType.values()[pos - 1] else null
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) { selectedCardType = null }
-        }
-    }
-
-    private fun setupSubstitutionSelection() {
-        // TODO: Replace with actual substitutes
-        val substitutes = listOf(
-            RosterPlayer("12", "Ryan Hernandez", 12, "GK", status = com.ggetters.app.data.model.RSVPStatus.AVAILABLE),
-            RosterPlayer("13", "Brandon Torres", 13, "CB", status = com.ggetters.app.data.model.RSVPStatus.AVAILABLE)
-        )
-
-        val outRv = view?.findViewById<RecyclerView>(R.id.playerOutRecyclerView)
-        val inRv = view?.findViewById<RecyclerView>(R.id.playerInRecyclerView)
-
-        outRv?.layoutManager = LinearLayoutManager(context)
-        outRv?.adapter = PlayerSelectionAdapter(selectedPlayer?.let { listOf(it) } ?: emptyList()) {
-            selectedPlayerOut = it
-        }
-
-        inRv?.layoutManager = LinearLayoutManager(context)
-        inRv?.adapter = PlayerSelectionAdapter(substitutes) {
-            selectedPlayerIn = it
-        }
-    }
-
-    private fun setupActionButtons() {
-        view?.findViewById<MaterialButton>(R.id.btnRecordEvent)?.setOnClickListener { recordEvent() }
-        view?.findViewById<MaterialButton>(R.id.btnCancel)?.setOnClickListener { dismiss() }
+    private fun setupPlayerSpinnerData(players: List<com.ggetters.app.data.model.User>) {
+        val playerNames = players.map { "${it.name} ${it.surname}" }
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, playerNames)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        playerSpinner.adapter = adapter
+        substituteInSpinner.adapter = adapter
+        substituteOutSpinner.adapter = adapter
     }
 
     private fun recordEvent() {
-        val event = when (selectedEventType) {
-            MatchEventType.GOAL -> MatchEvent(
-                matchId = matchId,
-                eventType = MatchEventType.GOAL,
-                minute = currentMinute,
-                playerId = selectedPlayer?.playerId,
-                playerName = selectedPlayer?.playerName,
-                details = mapOf("goalType" to (selectedGoalType?.name ?: GoalType.OPEN_PLAY.name)),
-                createdBy = "Coach"
-            )
-            MatchEventType.YELLOW_CARD -> MatchEvent(
-                matchId = matchId,
-                eventType = MatchEventType.YELLOW_CARD,
-                minute = currentMinute,
-                playerId = selectedPlayer?.playerId,
-                playerName = selectedPlayer?.playerName,
-                details = mapOf("cardType" to (selectedCardType?.name ?: CardType.YELLOW.name)),
-                createdBy = "Coach"
-            )
-            MatchEventType.RED_CARD -> MatchEvent(
-                matchId = matchId,
-                eventType = MatchEventType.RED_CARD,
-                minute = currentMinute,
-                playerId = selectedPlayer?.playerId,
-                playerName = selectedPlayer?.playerName,
-                details = mapOf("cardType" to (selectedCardType?.name ?: CardType.RED.name)),
-                createdBy = "Coach"
-            )
-            MatchEventType.SUBSTITUTION -> MatchEvent(
-                matchId = matchId,
-                eventType = MatchEventType.SUBSTITUTION,
-                minute = currentMinute,
-                playerId = selectedPlayerOut?.playerId,
-                playerName = selectedPlayerOut?.playerName,
-                details = mapOf(
-                    "playerOut" to (selectedPlayerOut?.playerName ?: ""),
-                    "playerIn" to (selectedPlayerIn?.playerName ?: "")
-                ),
-                createdBy = "Coach"
-            )
+        val minute = minuteInput.text.toString().toIntOrNull()
+        if (minute == null || minute < 0 || minute > 120) {
+            showErrorMessage("Please enter a valid minute (0-120)")
+            return
+        }
+
+        val selectedPlayerId = when {
+            playerSelectionLayout.visibility == View.VISIBLE -> {
+                val selectedPlayer = playerSpinner.selectedItemPosition
+                if (selectedPlayer >= 0) {
+                    viewModel.availablePlayers.value?.get(selectedPlayer)?.id
+                } else null
+            }
             else -> null
         }
 
-        if (event != null) {
-            // TODO: Save event to repository (Room + Firestore)
-            Snackbar.make(requireView(), "Event recorded: ${event.getEventDescription()}", Snackbar.LENGTH_SHORT).show()
-            dismiss()
-        } else {
-            Snackbar.make(requireView(), "Please select all required fields", Snackbar.LENGTH_SHORT).show()
+        val event = createMatchEvent(selectedPlayerId, minute)
+        
+        viewModel.recordEvent(event)
+    }
+
+    private fun createMatchEvent(playerId: String?, minute: Int): MatchEvent {
+        val eventTypeEnum = when (eventType) {
+            "goal" -> MatchEventType.GOAL
+            "yellow_card" -> MatchEventType.YELLOW_CARD
+            "red_card" -> MatchEventType.RED_CARD
+            "substitution" -> MatchEventType.SUBSTITUTION
+            "injury" -> MatchEventType.MATCH_START // Using as placeholder
+            "other" -> MatchEventType.SCORE_UPDATE // Using as placeholder
+            else -> MatchEventType.SCORE_UPDATE
         }
+
+        val details = mutableMapOf<String, Any>()
+        
+        when (eventType) {
+            "goal" -> {
+                goalTypeSpinner.selectedItem?.toString()?.let { details["goalType"] = it }
+            }
+            "yellow_card", "red_card" -> {
+                cardTypeSpinner.selectedItem?.toString()?.let { details["cardType"] = it }
+            }
+            "substitution" -> {
+                val subInIndex = substituteInSpinner.selectedItemPosition
+                val subOutIndex = substituteOutSpinner.selectedItemPosition
+                if (subInIndex >= 0 && subOutIndex >= 0) {
+                    val subInPlayer = viewModel.availablePlayers.value?.get(subInIndex)
+                    val subOutPlayer = viewModel.availablePlayers.value?.get(subOutIndex)
+                    details["substituteIn"] = subInPlayer?.id ?: ""
+                    details["substituteOut"] = subOutPlayer?.id ?: ""
+                }
+            }
+        }
+        
+        notesInput.text.toString().takeIf { it.isNotBlank() }?.let { 
+            details["notes"] = it 
+        }
+
+        return MatchEvent(
+            id = UUID.randomUUID().toString(),
+            matchId = matchId,
+            eventType = eventTypeEnum,
+            minute = minute,
+            playerId = playerId,
+            playerName = viewModel.availablePlayers.value?.find { it.id == playerId }?.let { 
+                "${it.name} ${it.surname}" 
+            },
+            teamId = null, // TODO: Get from current team
+            teamName = null, // TODO: Get from current team
+            details = details,
+            createdBy = "current_user" // TODO: Get from auth
+        )
+    }
+
+    private fun getEventTypeInfo(eventType: String): Pair<String, String> {
+        return when (eventType) {
+            "goal" -> "⚽ Record Goal" to "Record a goal scored during the match"
+            "yellow_card" -> "🟨 Yellow Card" to "Issue a yellow card to a player"
+            "red_card" -> "🟥 Red Card" to "Issue a red card to a player"
+            "substitution" -> "🔄 Substitution" to "Make a player substitution"
+            "injury" -> "🦵 Injury" to "Record a player injury"
+            "other" -> "📝 Other Event" to "Record other match events"
+            else -> "📝 Record Event" to "Record a match event"
+        }
+    }
+
+    private fun showSuccessMessage() {
+        Snackbar.make(requireView(), "Event recorded successfully!", Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun showErrorMessage(message: String) {
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show()
+    }
+    
+    private fun setupGoalTypeSpinner() {
+        val goalTypes = listOf("Open Play", "Penalty", "Free Kick", "Header", "Own Goal")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, goalTypes)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        goalTypeSpinner.adapter = adapter
+    }
+    
+    private fun setupCardTypeSpinner() {
+        val cardTypes = listOf("Foul", "Unsporting Behavior", "Dissent", "Time Wasting", "Other")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, cardTypes)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        cardTypeSpinner.adapter = adapter
     }
 }

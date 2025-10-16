@@ -59,40 +59,34 @@ class MatchEventsBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun handleEventSelection(eventType: MatchEventType) {
-        when (eventType.id) {
-            "goal" -> showGoalEvent()
-            "substitution" -> showSubstitutionEvent()
-            "yellow_card" -> showCardEvent("Yellow Card")
-            "red_card" -> showCardEvent("Red Card")
-            "injury" -> showInjuryEvent()
-            "other" -> showOtherEvent()
-        }
         dismiss()
+        
+        // Get match ID from arguments or parent fragment
+        val matchId = getMatchIdFromParent()
+        if (matchId.isBlank()) {
+            showSnackbar("Unable to determine match ID")
+            return
+        }
+        
+        // Open the appropriate event recording sheet
+        when (eventType.id) {
+            "goal" -> showRecordEventSheet(matchId, "goal")
+            "substitution" -> showRecordEventSheet(matchId, "substitution")
+            "yellow_card" -> showRecordEventSheet(matchId, "yellow_card")
+            "red_card" -> showRecordEventSheet(matchId, "red_card")
+            "injury" -> showRecordEventSheet(matchId, "injury")
+            "other" -> showRecordEventSheet(matchId, "other")
+        }
     }
 
-    private fun showGoalEvent() {
-        // TODO: Implement goal event tracking
-        showSnackbar("Goal tracking coming soon")
+    private fun getMatchIdFromParent(): String {
+        // Try to get match ID from this bottom sheet's arguments
+        return arguments?.getString("event_id") ?: ""
     }
 
-    private fun showSubstitutionEvent() {
-        // TODO: Implement substitution tracking
-        showSnackbar("Substitution tracking coming soon")
-    }
-
-    private fun showCardEvent(cardType: String) {
-        // TODO: Implement card event tracking
-        showSnackbar("$cardType tracking coming soon")
-    }
-
-    private fun showInjuryEvent() {
-        // TODO: Implement injury tracking
-        showSnackbar("Injury tracking coming soon")
-    }
-
-    private fun showOtherEvent() {
-        // TODO: Implement other event tracking
-        showSnackbar("Other event tracking coming soon")
+    private fun showRecordEventSheet(matchId: String, eventType: String) {
+        val recordSheet = RecordEventBottomSheet.newInstance(matchId, eventType)
+        recordSheet.show(parentFragmentManager, "RecordEventBottomSheet")
     }
 
     private fun showSnackbar(message: String) {
