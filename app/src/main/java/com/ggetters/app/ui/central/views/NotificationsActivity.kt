@@ -10,6 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +26,7 @@ import com.ggetters.app.data.model.AttendanceCounts
 import com.ggetters.app.ui.central.viewmodels.NotificationsViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.util.*
 import android.widget.ImageButton
 
@@ -93,148 +97,57 @@ class NotificationsActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.notificationsRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // TODO: Backend - Fetch notifications from backend with proper data structure
-        // TODO: Backend - Implement notification pagination for large datasets
-        // TODO: Backend - Add notification caching for offline access
-        // TODO: Backend - Implement notification sync across devices
-        val notifications = listOf(
-            // General Text Notification (matches image)
+        // Observe notifications from ViewModel
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.notifications.collect { notifications ->
+                    allNotifications = notifications.map { notification ->
+                        // Convert Notification to NotificationItem for compatibility
             NotificationItem(
-                id = 1,
-                title = "Reminder",
-                subtitle = "Shin guards reminder",
-                message = "Don't forget to pack your shin guards for tomorrow!",
-                isSeen = false,
-                type = NotificationType.ADMIN_MESSAGE,
-                timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
-                sender = "Coach",
-                linkedEventType = LinkedEventType.ANNOUNCEMENT,
-                linkedEventId = "announcement_001"
-            ),
-            
-            // Results Summary Notification (matches image)
-            NotificationItem(
-                id = 2,
-                title = "Match Results",
-                subtitle = "Summary of results",
-                message = "Summary of results.",
-                isSeen = false,
-                type = NotificationType.POST_MATCH_SUMMARY,
-                timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
-                sender = "System",
-                linkedEventType = LinkedEventType.MATCH_RESULTS,
-                linkedEventId = "match_001",
-                data = mapOf(
-                    "homeScore" to "15",
-                    "awayScore" to "2",
-                    "homeTeam" to "Home",
-                    "awayTeam" to "Away"
-                )
-            ),
-            
-            // Scheduled Event Notification (matches image)
-            NotificationItem(
-                id = 3,
-                title = "New Practice",
-                subtitle = "Practice scheduled",
-                message = "New practice scheduled!",
-                isSeen = false,
-                type = NotificationType.PRACTICE_NOTIFICATION,
-                timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
-                sender = "Coach",
-                linkedEventType = LinkedEventType.PRACTICE,
-                linkedEventId = "practice_001",
-                eventDate = System.currentTimeMillis() + 86400000, // Tomorrow
-                attendanceCounts = AttendanceCounts(8, 3, 2, 13)
-            ),
-            
-            // Long Text Notification (matches image)
-            NotificationItem(
-                id = 4,
-                title = "Parent Pickup",
-                subtitle = "Important notice",
-                message = "Parents: remember to pick up your players from the front not the back. Thanks.",
-                isSeen = true,
-                type = NotificationType.ANNOUNCEMENT,
-                timestamp = System.currentTimeMillis() + 86400000, // Future date
-                sender = "Coach",
-                linkedEventType = LinkedEventType.ANNOUNCEMENT,
-                linkedEventId = "announcement_002"
-            ),
-            
-            // Game RSVP Notification with attendance counts
-            NotificationItem(
-                id = 5,
-                title = "Match vs Tigers FC",
-                subtitle = "RSVP Request",
-                message = "Please confirm your availability for the upcoming match.",
-                isSeen = false,
-                type = NotificationType.GAME_NOTIFICATION,
-                timestamp = System.currentTimeMillis() - 7200000, // 2 hours ago
-                sender = "Coach",
-                linkedEventType = LinkedEventType.GAME,
-                linkedEventId = "game_001",
-                venue = "Main Stadium",
-                eventDate = System.currentTimeMillis() + 86400000, // Tomorrow
-                opponent = "Tigers FC",
+                            id = notification.id.hashCode(),
+                            title = notification.title,
+                            subtitle = notification.subtitle,
+                            message = notification.message,
+                            isSeen = notification.isSeen,
+                            type = notification.type,
+                            timestamp = notification.createdAt.toEpochMilli(),
+                            sender = notification.sender,
+                            linkedEventType = notification.linkedEventType,
+                            linkedEventId = notification.linkedEventId,
+                            data = emptyMap() // Convert data string to map if needed
+                        )
+                    }
+                    filteredNotifications = allNotifications
+                    notificationAdapter.updateNotifications(filteredNotifications.toMutableList())
+                }
+            }
+        }
 
-                attendanceCounts = AttendanceCounts(12, 2, 1, 15)
-            ),
-            
-            // Game Reminder Notification
-            NotificationItem(
-                id = 6,
-                title = "Reminder: Match today",
-                subtitle = "Home match against Greenfield United",
-                message = "Your team has a match this weekend at the home ground. Please arrive 30 minutes early.",
-                isSeen = true,
-                type = NotificationType.GAME_REMINDER,
-                timestamp = System.currentTimeMillis() - 3600000, // 1 hour ago
-                sender = "System",
-                linkedEventType = LinkedEventType.GAME,
-                linkedEventId = "game_002",
-                venue = "Home Ground",
-                eventDate = System.currentTimeMillis() + 7200000, // 2 hours from now
-                opponent = "Greenfield United",
-                countdownTime = System.currentTimeMillis() + 7200000
-            ),
-            
-            // Practice RSVP Notification
-            NotificationItem(
-                id = 7,
-                title = "Training Session Tomorrow",
-                subtitle = "RSVP Request",
-                message = "Team practice scheduled for tomorrow at 3 PM. Focus on passing drills.",
-                isSeen = false,
-                type = NotificationType.PRACTICE_NOTIFICATION,
-                timestamp = System.currentTimeMillis() - 86400000, // 1 day ago
-                sender = "Coach",
-                linkedEventType = LinkedEventType.PRACTICE,
-                linkedEventId = "practice_002",
-                venue = "Field 2",
-                eventDate = System.currentTimeMillis() + 86400000, // Tomorrow
+        // Observe loading state
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.isLoading.collect { isLoading ->
+                    // Show/hide loading indicator
+                    if (isLoading) {
+                        // Show loading
+                    } else {
+                        // Hide loading
+                    }
+                }
+            }
+        }
 
-                attendanceCounts = AttendanceCounts(10, 3, 2, 15)
-            ),
-            
-            // Pinned Announcement
-            NotificationItem(
-                id = 8,
-                title = "Team Announcement",
-                subtitle = "Important team meeting",
-                message = "Team meeting this Friday at 6 PM to discuss upcoming tournament strategy.",
-                isSeen = false,
-                type = NotificationType.ANNOUNCEMENT,
-                timestamp = System.currentTimeMillis() - 3600000, // 1 hour ago
-                sender = "Coach",
-                isPinned = true,
-                linkedEventType = LinkedEventType.ANNOUNCEMENT,
-                linkedEventId = "announcement_003"
-            )
-        )
-
-        allNotifications = notifications.sortedByDescending { it.timestamp } // Newest first
-        filteredNotifications = allNotifications
+        // Observe error state
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.error.collect { error ->
+                    error?.let {
+                        Snackbar.make(findViewById(android.R.id.content), error, Snackbar.LENGTH_LONG).show()
+                        model.clearError()
+                    }
+                }
+            }
+        }
         
         notificationAdapter = NotificationAdapter(
             filteredNotifications.toMutableList(),
@@ -332,12 +245,11 @@ class NotificationsActivity : AppCompatActivity() {
 
 
     private fun handleMarkAsSeen(notification: NotificationItem) {
-        // TODO: Backend - Mark notification as seen/unseen in backend
-        // TODO: Backend - Implement notification read status synchronization
-        // TODO: Backend - Add notification analytics for engagement tracking
-        // TODO: Backend - Implement bulk read/unread operations
-        notification.isSeen = !notification.isSeen
-        notificationAdapter.notifyDataSetChanged()
+        // Find the original notification ID from the repository
+        val originalNotification = allNotifications.find { it.id == notification.id }
+        if (originalNotification != null) {
+            model.markAsSeen(originalNotification.id.toString(), !notification.isSeen)
+        }
         
         val action = if (notification.isSeen) "marked as read" else "marked as unread"
         Snackbar.make(
@@ -348,12 +260,11 @@ class NotificationsActivity : AppCompatActivity() {
     }
 
     private fun handlePinNotification(notification: NotificationItem) {
-        // TODO: Backend - Pin/unpin notification in backend
-        // TODO: Backend - Implement pinned notification persistence
-        // TODO: Backend - Add pinned notification limits and management
-        // TODO: Backend - Implement pinned notification sync across devices
-        notification.isPinned = !notification.isPinned
-        notificationAdapter.notifyDataSetChanged()
+        // Find the original notification ID from the repository
+        val originalNotification = allNotifications.find { it.id == notification.id }
+        if (originalNotification != null) {
+            model.pinNotification(originalNotification.id.toString(), !notification.isPinned)
+        }
         
         val action = if (notification.isPinned) "pinned" else "unpinned"
         Snackbar.make(
@@ -395,13 +306,11 @@ class NotificationsActivity : AppCompatActivity() {
             .setTitle("Delete Notification")
             .setMessage("Are you sure you want to delete this notification?")
             .setPositiveButton("Delete") { _, _ ->
-                // TODO: Backend - Delete notification from backend
-                // TODO: Backend - Implement soft delete for notification recovery
-                // TODO: Backend - Add notification deletion analytics
-                // TODO: Backend - Implement bulk delete operations
-                allNotifications = allNotifications.filter { it.id != notification.id }
-                filteredNotifications = filteredNotifications.filter { it.id != notification.id }
-                notificationAdapter.updateNotifications(filteredNotifications.toMutableList())
+                // Find the original notification ID from the repository
+                val originalNotification = allNotifications.find { it.id == notification.id }
+                if (originalNotification != null) {
+                    model.deleteNotification(originalNotification.id.toString())
+                }
                 Snackbar.make(findViewById(android.R.id.content), "Notification deleted", Snackbar.LENGTH_SHORT).show()
             }
             .setNegativeButton("Cancel", null)

@@ -34,6 +34,9 @@ interface UserDao {
     @Query("DELETE FROM user WHERE id = :id AND team_id = :teamId")
     suspend fun deleteByIdInTeam(id: String, teamId: String)
 
+    @Query("DELETE FROM user WHERE id = :id")
+    suspend fun deleteById(id: String)
+
     @Query("DELETE FROM user WHERE team_id = :teamId")
     suspend fun deleteAllInTeam(teamId: String)
 

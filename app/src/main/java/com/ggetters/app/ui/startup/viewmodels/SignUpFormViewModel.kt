@@ -8,6 +8,7 @@ import com.ggetters.app.core.validation.statute.string.AsEmailAddress
 import com.ggetters.app.core.validation.statute.string.AsFirebaseCredential
 import com.ggetters.app.core.validation.statute.string.ExcludeWhitespace
 import com.ggetters.app.core.validation.statute.string.NotEmpty
+import com.ggetters.app.core.validation.statute.string.PasswordMatchStringValidationLaw
 import com.ggetters.app.ui.shared.models.ValidatableForm
 import com.ggetters.app.ui.startup.models.SignUpFormState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -84,8 +85,19 @@ class SignUpFormViewModel @Inject constructor() : ViewModel(), ValidatableForm {
         value: String
     ) {
         _formState.update { current ->
+            val updatedConfirm = current.passwordConfirm.copy(value = value)
+            // Apply password matching validation
+            val passwordMatchRule = PasswordMatchStringValidationLaw(current.passwordDefault.value)
+            val confirmField = updatedConfirm.copy(
+                rules = listOf(
+                    NotEmpty(), 
+                    AsFirebaseCredential(),
+                    passwordMatchRule
+                )
+            ).applyValidation()
+            
             current.copy(
-                passwordConfirm = current.passwordConfirm.copy(value = value).applyValidation()
+                passwordConfirm = confirmField
             )
         }
     }
@@ -95,13 +107,13 @@ class SignUpFormViewModel @Inject constructor() : ViewModel(), ValidatableForm {
 
 
     override val isFormValid = formState.map { field ->
+        val passwordsMatch = field.passwordDefault.value.trim() == field.passwordConfirm.value.trim()
+        val confirmPasswordValid = field.passwordConfirm.value.isNotEmpty() && passwordsMatch
+        
         listOf(
             field.identity, //
             field.passwordDefault, //
-            field.passwordConfirm, //
-        ).all {
-            it.isValid
-        }
+        ).all { it.isValid } && confirmPasswordValid
     }.stateIn(
         viewModelScope, SharingStarted.Eagerly, false
     )

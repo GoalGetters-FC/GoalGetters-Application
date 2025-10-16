@@ -1,5 +1,6 @@
 package com.ggetters.app.data.repository.user
 
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.remote.firestore.UserFirestore
@@ -22,8 +23,22 @@ class OnlineUserRepository @Inject constructor(
 
     suspend fun getById(teamId: String, id: String): User? = fs.getById(teamId, id)
 
-    override suspend fun upsert(entity: User) { fs.upsert(entity.teamId, entity) }
-    override suspend fun delete(entity: User) { fs.delete(entity.teamId, entity.id) }
+    override suspend fun upsert(entity: User) { 
+        entity.teamId?.let { teamId ->
+            fs.upsert(teamId, entity) 
+        } ?: run {
+            // If no teamId, skip online upsert (user not assigned to team yet)
+            Clogger.w("OnlineUserRepo", "Skipping upsert for user ${entity.id} - no teamId assigned")
+        }
+    }
+    override suspend fun delete(entity: User) { 
+        entity.teamId?.let { teamId ->
+            fs.delete(teamId, entity.id) 
+        } ?: run {
+            // If no teamId, skip online delete
+            Clogger.w("OnlineUserRepo", "Skipping delete for user ${entity.id} - no teamId assigned")
+        }
+    }
 
     override suspend fun deleteAll() { /* prob broken */ }
     override suspend fun sync() { /* no-op */ }
@@ -40,5 +55,11 @@ class OnlineUserRepository @Inject constructor(
 
     override suspend fun getLocalByAuthId(authId: String): User? = null
     override suspend fun insertLocal(user: User) { /* no-op */ }
-    override suspend fun insertRemote(user: User) { fs.upsert(user.teamId, user) }
+    override suspend fun insertRemote(user: User) { 
+        user.teamId?.let { teamId ->
+            fs.upsert(teamId, user) 
+        } ?: run {
+            Clogger.w("OnlineUserRepo", "Skipping remote insert for user ${user.id} - no teamId assigned")
+        }
+    }
 }

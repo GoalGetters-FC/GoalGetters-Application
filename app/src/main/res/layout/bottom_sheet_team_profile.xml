@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bottom_sheet_background">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Team Profile"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:fontFamily="@font/variable_inter" />
+
+        <ImageView
+            android:id="@+id/btnClose"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_unicons_times_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/text_secondary" />
+
+    </LinearLayout>
+
+    <!-- Team Information -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="24dp">
+
+        <!-- Team Avatar -->
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_unicons_soccer_24"
+            android:background="@drawable/circle_background"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Team Name -->
+        <TextView
+            android:id="@+id/tvTeamName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Team Name"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:fontFamily="@font/variable_inter"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Team Code -->
+        <TextView
+            android:id="@+id/tvTeamCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Code: ABC123"
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary"
+            android:fontFamily="@font/variable_inter"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Team Composition -->
+        <TextView
+            android:id="@+id/tvTeamComposition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Composition: Mixed"
+            android:textSize="14sp"
+            android:textColor="@color/text_tertiary"
+            android:fontFamily="@font/variable_inter"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Team Denomination -->
+        <TextView
+            android:id="@+id/tvTeamDenomination"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Type: Open"
+            android:textSize="14sp"
+            android:textColor="@color/text_tertiary"
+            android:fontFamily="@font/variable_inter" />
+
+    </LinearLayout>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEditTeam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit Team"
+            android:backgroundTint="@color/primary"
+            style="@style/Widget.MaterialComponents.Button" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
