@@ -24,7 +24,7 @@ class ValidationBuilder<T> private constructor(
 
     fun register(law: ValidationLaw<T>) = apply {
         laws.add(law)
-    }
+    } 
 
 
     fun validate(): Final<Unit, ValidationError> {
