@@ -92,7 +92,6 @@
                 android:textColor="@color/black"
                 android:textColorHint="@color/text_secondary"
                 android:fontFamily="@font/variable_inter"
-                android:hint="Enter opponent team name"
                 android:inputType="textCapWords" />
 
         </com.google.android.material.textfield.TextInputLayout>

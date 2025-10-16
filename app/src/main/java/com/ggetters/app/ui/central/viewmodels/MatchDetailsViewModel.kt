@@ -88,9 +88,29 @@ class MatchDetailsViewModel @Inject constructor(
                 // Add the event to the timeline
                 // Score will be automatically updated via the repository's matchDetailsFlow
                 matchRepo.addEvent(event)
+                
+                // Handle substitutions by updating lineup
+                if (event.eventType == com.ggetters.app.data.model.MatchEventType.SUBSTITUTION) {
+                    handleSubstitutionEvent(event)
+                }
             } catch (e: Exception) {
                 _error.value = "Failed to add event: ${e.message}"
             }
+        }
+    }
+    
+    private suspend fun handleSubstitutionEvent(event: MatchEvent) {
+        try {
+            val playerInId = event.details["substituteIn"] as? String
+            val playerOutId = event.details["substituteOut"] as? String
+            
+            if (playerInId != null && playerOutId != null) {
+                // TODO: Inject LineupViewModel to handle the substitution
+                // For now, we'll just log the substitution
+                android.util.Log.d("MatchDetailsViewModel", "Substitution: $playerInId in for $playerOutId")
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("MatchDetailsViewModel", "Failed to handle substitution event: ${e.message}")
         }
     }
 

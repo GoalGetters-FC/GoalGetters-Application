@@ -245,4 +245,48 @@ class LineupViewModel @Inject constructor(
             saveLineup(cachedEventId)
         }
     }
+    
+    /**
+     * Handle player substitution - swap players between pitch and bench
+     */
+    fun handleSubstitution(playerInId: String, playerOutId: String) {
+        viewModelScope.launch {
+            try {
+                val currentPositions = _positionedPlayers.value.toMutableMap()
+                val currentPlayers = _players.value.toMutableList()
+                
+                // Find the player being subbed out (on pitch)
+                val playerOutPosition = currentPositions.entries.find { it.value?.id == playerOutId }?.key
+                val playerIn = currentPlayers.find { it.id == playerInId }
+                val playerOut = currentPlayers.find { it.id == playerOutId }
+                
+                if (playerOutPosition != null && playerIn != null && playerOut != null) {
+                    // Update player status - mark subbed out player as substituted
+                    val updatedPlayers = currentPlayers.map { player ->
+                        when {
+                            player.id == playerOutId -> player.copy(isSubstituted = true)
+                            player.id == playerInId -> player.copy(isSubstituted = false)
+                            else -> player
+                        }
+                    }
+                    _players.value = updatedPlayers
+                    
+                    // Put the new player in the position
+                    currentPositions[playerOutPosition] = playerIn
+                    _positionedPlayers.value = currentPositions
+                    
+                    // Persist the changes
+                    saveCurrentLineup()
+                    
+                    Clogger.d("LineupViewModel", "Substitution completed: ${playerIn.playerName} in for ${playerOut.playerName}")
+                } else {
+                    Clogger.e("LineupViewModel", "Substitution failed: Could not find players or position")
+                    _error.value = "Substitution failed: Could not find players or position"
+                }
+            } catch (e: Exception) {
+                Clogger.e("LineupViewModel", "Failed to handle substitution: ${e.message}")
+                _error.value = "Failed to handle substitution"
+            }
+        }
+    }
 }

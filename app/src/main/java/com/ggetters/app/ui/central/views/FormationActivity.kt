@@ -155,8 +155,22 @@ class FormationActivity : AppCompatActivity() {
     private fun createSampleAvailablePlayers(): List<RosterPlayer> {
         // TODO: Backend - Get from intent or repository
         return listOf(
-            RosterPlayer("1", "John Smith", 1,"GK", RSVPStatus.AVAILABLE),
-            RosterPlayer("2", "Mike Johnson", 11,"CB", RSVPStatus.AVAILABLE),
+            RosterPlayer(
+                id = "1",
+                playerId = "1", 
+                playerName = "John Smith", 
+                jerseyNumber = 1, 
+                position = "GK", 
+                status = RSVPStatus.AVAILABLE
+            ),
+            RosterPlayer(
+                id = "2",
+                playerId = "2", 
+                playerName = "Mike Johnson", 
+                jerseyNumber = 11, 
+                position = "CB", 
+                status = RSVPStatus.AVAILABLE
+            ),
         )
     }
 

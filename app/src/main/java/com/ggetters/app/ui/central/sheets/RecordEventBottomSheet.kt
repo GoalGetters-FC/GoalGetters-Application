@@ -19,6 +19,7 @@ import com.ggetters.app.data.model.MatchEvent
 import com.ggetters.app.data.model.MatchEventType
 import com.ggetters.app.data.model.RSVPStatus
 import com.ggetters.app.ui.central.viewmodels.MatchEventViewModel
+import com.ggetters.app.ui.shared.extensions.getFullName
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -244,8 +245,12 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
                 if (subInIndex >= 0 && subOutIndex >= 0) {
                     val subInPlayer = viewModel.availablePlayers.value?.get(subInIndex)
                     val subOutPlayer = viewModel.availablePlayers.value?.get(subOutIndex)
+                    
+                    // Store both IDs and names for proper display
                     details["substituteIn"] = subInPlayer?.id ?: ""
                     details["substituteOut"] = subOutPlayer?.id ?: ""
+                    details["playerIn"] = subInPlayer?.getFullName() ?: "Unknown"
+                    details["playerOut"] = subOutPlayer?.getFullName() ?: "Unknown"
                 }
             }
         }
