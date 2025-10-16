@@ -18,8 +18,8 @@ android {
         applicationId = "com.ggetters.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 11
-        versionName = "2025w39b"
+        versionCode = 12
+        versionName = "2025w42a"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -135,9 +135,6 @@ dependencies {
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.perf)
-
-    // Room
-
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.hilt.navigation.compose)
@@ -145,9 +142,11 @@ dependencies {
     implementation(libs.lottie)
     implementation(libs.gson)
     implementation(libs.hilt.android)
-    testImplementation(libs.junit)
+
     kapt(libs.androidx.room.compiler)
     kapt(libs.hilt.android.compiler)
+
+    testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
