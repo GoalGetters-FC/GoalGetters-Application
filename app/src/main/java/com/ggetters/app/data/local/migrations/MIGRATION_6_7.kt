@@ -12,19 +12,17 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * - This allows users to sign up without being assigned to a team initially
  */
 val MIGRATION_6_7 = Migration(6, 7) { database ->
-    // Disable foreign key constraints temporarily
     database.execSQL("PRAGMA foreign_keys = OFF")
-    
-    // Create a new table with nullable team_id
+
     database.execSQL("""
         CREATE TABLE user_new (
             id TEXT NOT NULL PRIMARY KEY,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
-            stained_at TEXT,
+            created_at INTEGER NOT NULL,
+            updated_at INTEGER NOT NULL,
+            stained_at INTEGER,
             auth_id TEXT NOT NULL,
             team_id TEXT,
-            joined_at TEXT,
+            joined_at INTEGER,
             role TEXT NOT NULL,
             name TEXT NOT NULL,
             surname TEXT NOT NULL,
@@ -39,29 +37,26 @@ val MIGRATION_6_7 = Migration(6, 7) { database ->
             FOREIGN KEY(team_id) REFERENCES team(id) ON DELETE CASCADE ON UPDATE CASCADE
         )
     """)
-    
-    // Copy data from old table to new table, converting empty team_id to NULL
+
     database.execSQL("""
         INSERT INTO user_new 
         SELECT 
             id, created_at, updated_at, stained_at, auth_id,
-            CASE WHEN team_id = '' THEN NULL ELSE team_id END as team_id,
+            CASE WHEN team_id = '' THEN NULL ELSE team_id END AS team_id,
             joined_at, role, name, surname, alias, date_of_birth,
             email, position, number, status, health_weight, health_height
         FROM user
     """)
-    
-    // Drop old table and rename new table
+
     database.execSQL("DROP TABLE user")
     database.execSQL("ALTER TABLE user_new RENAME TO user")
-    
-    // Create new indices
+
     database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_user_auth_id ON user (auth_id)")
     database.execSQL("CREATE INDEX IF NOT EXISTS index_user_team_id ON user (team_id)")
     database.execSQL("CREATE INDEX IF NOT EXISTS index_user_role ON user (role)")
     database.execSQL("CREATE INDEX IF NOT EXISTS index_user_status ON user (status)")
     database.execSQL("CREATE INDEX IF NOT EXISTS index_user_team_id_role ON user (team_id, role)")
-    
-    // Re-enable foreign key constraints
+
     database.execSQL("PRAGMA foreign_keys = ON")
 }
+
