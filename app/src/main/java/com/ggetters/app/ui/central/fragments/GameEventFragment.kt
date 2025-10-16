@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.EventFormData
@@ -41,24 +39,9 @@ class GameEventFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        setupTeamVsTeamDropdown(view)
         setupDateTimePickers(view)
     }
 
-    private fun setupTeamVsTeamDropdown(view: View) {
-        val teamVsTeamInput = view.findViewById<AutoCompleteTextView>(R.id.gameTeamVsTeamInput)
-        
-        // Sample team options - TODO: Load from backend
-        val teamOptions = arrayOf(
-            "T1 v T1 (Hollywood 200)",
-            "Goal Getters FC v Eagles FC",
-            "Goal Getters FC v Tigers FC",
-            "Goal Getters FC v Lions FC"
-        )
-        
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, teamOptions)
-        teamVsTeamInput.setAdapter(adapter)
-    }
 
     private fun setupDateTimePickers(view: View) {
         val dateInput = view.findViewById<TextInputEditText>(R.id.gameDateInput)
@@ -159,12 +142,18 @@ class GameEventFragment : Fragment() {
     }
 
     fun collectFormData(): EventFormData {
-        val teamVs = view?.findViewById<AutoCompleteTextView>(R.id.gameTeamVsTeamInput)
-            ?.text?.toString()
+        val opponent = view?.findViewById<TextInputEditText>(R.id.gameOpponentInput)
+            ?.text?.toString()?.trim()
+        
+        // Create title from opponent name if provided
+        val title = view?.findViewById<TextInputEditText>(R.id.gameTitleInput)
+            ?.text?.toString()?.trim()
+            ?.ifBlank { 
+                opponent?.let { "vs $it" } ?: "Match"
+            } ?: "Match"
 
         return EventFormData(
-            title = view?.findViewById<TextInputEditText>(R.id.gameTitleInput)
-                ?.text?.toString().orEmpty().ifBlank { teamVs.orEmpty() },
+            title = title,
             description = view?.findViewById<TextInputEditText>(R.id.gameDescriptionInput)
                 ?.text?.toString(),
             location = view?.findViewById<TextInputEditText>(R.id.gameLocationInput)
