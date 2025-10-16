@@ -91,6 +91,7 @@ class MatchDetailsViewModel @Inject constructor(
                 
                 // Handle substitutions by updating lineup
                 if (event.eventType == com.ggetters.app.data.model.MatchEventType.SUBSTITUTION) {
+                    android.util.Log.d("MatchDetailsViewModel", "Processing substitution event: ${event.details}")
                     handleSubstitutionEvent(event)
                 }
             } catch (e: Exception) {
@@ -105,12 +106,18 @@ class MatchDetailsViewModel @Inject constructor(
             val playerOutId = event.details["substituteOut"] as? String
             
             if (playerInId != null && playerOutId != null) {
-                // TODO: Inject LineupViewModel to handle the substitution
-                // For now, we'll just log the substitution
-                android.util.Log.d("MatchDetailsViewModel", "Substitution: $playerInId in for $playerOutId")
+                // Update attendance status to reflect substitution
+                // Mark the subbed-out player as unavailable (substituted)
+                matchRepo.setRSVP(event.matchId, playerOutId, com.ggetters.app.data.model.RSVPStatus.UNAVAILABLE)
+                
+                // Ensure the subbed-in player is available
+                matchRepo.setRSVP(event.matchId, playerInId, com.ggetters.app.data.model.RSVPStatus.AVAILABLE)
+                
+                android.util.Log.d("MatchDetailsViewModel", "Substitution processed: $playerInId in for $playerOutId")
             }
         } catch (e: Exception) {
             android.util.Log.e("MatchDetailsViewModel", "Failed to handle substitution event: ${e.message}")
+            _error.value = "Failed to process substitution: ${e.message}"
         }
     }
 

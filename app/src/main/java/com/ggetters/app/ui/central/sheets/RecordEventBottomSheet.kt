@@ -251,6 +251,9 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
                     details["substituteOut"] = subOutPlayer?.id ?: ""
                     details["playerIn"] = subInPlayer?.getFullName() ?: "Unknown"
                     details["playerOut"] = subOutPlayer?.getFullName() ?: "Unknown"
+                    
+                    // Debug logging
+                    android.util.Log.d("RecordEventBottomSheet", "Substitution details: ${details}")
                 }
             }
         }

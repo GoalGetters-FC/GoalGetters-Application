@@ -386,12 +386,12 @@ class LineupFragment : Fragment() {
                 // Get the previous list of available players to detect changes
                 val previousAvailablePlayers = availablePlayers.toSet()
                 
-                // Filter for players marked as PRESENT (status = 0 in attendance) and not substituted out
+                // Filter for players marked as PRESENT (status = 0 in attendance)
                 // Attendance status mapping: 0=Present, 1=Absent, 2=Late, 3=Excused
+                // Note: Substituted players will have their status changed to UNAVAILABLE
                 availablePlayers = players.filter { player ->
-                    // Check if player is marked as present in attendance and not substituted out
-                    val isAvailable = player.status == RSVPStatus.AVAILABLE && !player.isSubstituted
-                    Clogger.d("LineupFragment", "Player ${player.playerName}: status=${player.status}, isSubstituted=${player.isSubstituted}, available=$isAvailable")
+                    val isAvailable = player.status == RSVPStatus.AVAILABLE
+                    Clogger.d("LineupFragment", "Player ${player.playerName}: status=${player.status}, available=$isAvailable")
                     isAvailable
                 }
                 

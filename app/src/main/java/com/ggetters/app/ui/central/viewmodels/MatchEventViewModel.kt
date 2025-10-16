@@ -70,6 +70,42 @@ class MatchEventViewModel @Inject constructor(
                 _eventRecorded.value = false
                 _error.value = null
                 
+                // If this is a substitution, immediately reflect it in attendance so UI updates
+                if (event.eventType == com.ggetters.app.data.model.MatchEventType.SUBSTITUTION) {
+                    val playerInId = event.details["substituteIn"] as? String
+                    val playerOutId = event.details["substituteOut"] as? String
+                    if (!playerInId.isNullOrBlank() && !playerOutId.isNullOrBlank()) {
+                        runCatching {
+                            // Update out player -> UNAVAILABLE (2), in player -> AVAILABLE (0)
+                            val outExisting = attendanceRepository.getById(event.matchId, playerOutId)
+                            val outUpdated = (outExisting?.copy(status = 2)
+                                ?: com.ggetters.app.data.model.Attendance(
+                                    eventId = event.matchId,
+                                    playerId = playerOutId,
+                                    status = 2,
+                                    recordedBy = "system"
+                                ))
+                            attendanceRepository.upsert(outUpdated)
+
+                            val inExisting = attendanceRepository.getById(event.matchId, playerInId)
+                            val inUpdated = (inExisting?.copy(status = 0)
+                                ?: com.ggetters.app.data.model.Attendance(
+                                    eventId = event.matchId,
+                                    playerId = playerInId,
+                                    status = 0,
+                                    recordedBy = "system"
+                                ))
+                            attendanceRepository.upsert(inUpdated)
+                            
+                            // Force immediate UI update by triggering roster refresh
+                            // This ensures the LineupFragment immediately reflects the changes
+                            Clogger.d("MatchEventViewModel", "Substitution attendance updated - roster should refresh")
+                        }.onFailure {
+                            _error.value = "Substitution applied, but failed to update roster: ${it.message}"
+                        }
+                    }
+                }
+
                 matchEventRepository.insertEvent(event)
                 _eventRecorded.value = true
             } catch (e: Exception) {
