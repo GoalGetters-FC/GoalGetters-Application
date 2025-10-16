@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bottom_sheet_background">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Contact Developers"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:fontFamily="@font/variable_inter" />
+
+        <ImageView
+            android:id="@+id/btnClose"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_unicons_times_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/text_secondary" />
+
+    </LinearLayout>
+
+    <!-- Contact Information -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get in touch with our development team"
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary"
+            android:fontFamily="@font/variable_inter"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Email Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Send Email"
+            android:icon="@drawable/ic_unicons_envelope_24"
+            android:backgroundTint="@color/primary"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.MaterialComponents.Button" />
+
+        <!-- Website Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnWebsite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Visit Website"
+            android:icon="@drawable/ic_unicons_arrow_right_24"
+            android:backgroundTint="@color/white"
+            app:strokeColor="@color/primary"
+            app:strokeWidth="1dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+    </LinearLayout>
+
+</LinearLayout>

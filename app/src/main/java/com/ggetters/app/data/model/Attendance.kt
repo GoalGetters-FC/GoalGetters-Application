@@ -29,7 +29,9 @@ import java.time.Instant
         )
     ],
     indices = [
-        Index("player_id")
+        Index("event_id"),                     // 🔑 speeds up getByEventId
+        Index("player_id"),                    // 🔑 speeds up getByUserId
+        Index(value = ["event_id","player_id"]) // 🔑 covers composite queries
     ]
 )
 data class Attendance(

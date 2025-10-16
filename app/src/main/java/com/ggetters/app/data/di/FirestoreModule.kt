@@ -4,6 +4,7 @@ package com.ggetters.app.data.di
 import com.ggetters.app.data.remote.FirestorePathProvider
 import com.ggetters.app.data.remote.firestore.BroadcastFirestore
 import com.ggetters.app.data.remote.firestore.BroadcastStatusFirestore
+import com.ggetters.app.data.remote.firestore.NotificationFirestore
 import com.ggetters.app.data.remote.firestore.TeamFirestore
 import com.ggetters.app.data.remote.firestore.UserFirestore
 import com.ggetters.app.data.remote.firestore.EventFirestore
@@ -64,5 +65,9 @@ object FirestoreModule {
     @Provides @Singleton
     fun provideEventFirestore(paths: FirestorePathProvider): EventFirestore =
         EventFirestore(paths)
+
+    @Provides @Singleton
+    fun provideNotificationFirestore(firestore: FirebaseFirestore): NotificationFirestore =
+        NotificationFirestore(firestore)
 
 }

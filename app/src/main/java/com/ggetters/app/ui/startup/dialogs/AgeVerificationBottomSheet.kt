@@ -11,6 +11,9 @@ import com.ggetters.app.ui.startup.views.OnboardingActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class AgeVerificationBottomSheet : BottomSheetDialogFragment() {
+    
+    var onAgeVerified: ((Boolean) -> Unit)? = null
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.BottomSheetDialogFragment)
@@ -25,11 +28,12 @@ class AgeVerificationBottomSheet : BottomSheetDialogFragment() {
 
         yesButton.setOnClickListener {
             // TODO: Backend - Log analytics event for age check (over 18)
-            startActivity(Intent(requireContext(), OnboardingActivity::class.java))
+            onAgeVerified?.invoke(true)
             dismiss()
         }
         noButton.setOnClickListener {
             // TODO: Backend - Log analytics event for age check (under 18)
+            onAgeVerified?.invoke(false)
             AgeNoticeBottomSheet().show(parentFragmentManager, "AgeNoticeBottomSheet")
             dismiss()
         }

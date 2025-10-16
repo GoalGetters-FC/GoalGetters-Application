@@ -28,6 +28,7 @@ sealed interface ValidationError : FinalError {
         INCLUDE_CUSTOM_CHARACTERS,
         EXCLUDE_CUSTOM_CHARACTERS,
         INVALID_EMAIL_ADDRESS,
+        PASSWORDS_DONT_MATCH,
     }
 
 

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bottom_sheet_background">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Notification Settings"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:fontFamily="@font/variable_inter" />
+
+        <ImageView
+            android:id="@+id/btnClose"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_unicons_times_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/text_secondary" />
+
+    </LinearLayout>
+
+    <!-- Notification Options -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="24dp">
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchMatchReminders"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Match Reminders"
+            android:textColor="@color/black"
+            android:fontFamily="@font/variable_inter"
+            android:layout_marginBottom="16dp" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchTeamUpdates"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Team Updates"
+            android:textColor="@color/black"
+            android:fontFamily="@font/variable_inter"
+            android:layout_marginBottom="16dp" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchEventNotifications"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event Notifications"
+            android:textColor="@color/black"
+            android:fontFamily="@font/variable_inter"
+            android:layout_marginBottom="16dp" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchPushNotifications"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Push Notifications"
+            android:textColor="@color/black"
+            android:fontFamily="@font/variable_inter" />
+
+    </LinearLayout>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save Settings"
+            android:backgroundTint="@color/primary"
+            style="@style/Widget.MaterialComponents.Button" />
+
+    </LinearLayout>
+
+</LinearLayout>
+

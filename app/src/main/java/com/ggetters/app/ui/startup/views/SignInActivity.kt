@@ -24,6 +24,8 @@ import com.ggetters.app.ui.shared.models.UiState.Failure
 import com.ggetters.app.ui.shared.models.UiState.Loading
 import com.ggetters.app.ui.shared.models.UiState.Success
 import com.ggetters.app.ui.startup.viewmodels.SignInViewModel
+import com.ggetters.app.ui.startup.views.OnboardingActivity
+import com.ggetters.app.ui.central.views.HomeActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -52,6 +54,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
         setupTouchListeners()
         setupForm()
         observe()
+        observeNavigation()
     }
 
 
@@ -72,10 +75,7 @@ class SignInActivity : AppCompatActivity(), Clickable {
                 Clogger.d(
                     TAG, "Success..."
                 )
-
-                startActivity(Intent(this, OnboardingActivity::class.java))
-                overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
-                finishAffinity()
+                // Navigation will be handled by navigationState observer
             }
 
             is Failure -> {
@@ -93,6 +93,21 @@ class SignInActivity : AppCompatActivity(), Clickable {
                 Clogger.w(
                     TAG, "Unhandled state: ${state.javaClass::class.java.simpleName}"
                 )
+            }
+        }
+    }
+    
+    private fun observeNavigation() = model.navigationState.observe(this) { state ->
+        when (state) {
+            is SignInViewModel.NavigationState.ToOnboarding -> {
+                startActivity(Intent(this, OnboardingActivity::class.java))
+                overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
+                finishAffinity()
+            }
+            is SignInViewModel.NavigationState.ToHome -> {
+                startActivity(Intent(this, HomeActivity::class.java))
+                overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
+                finishAffinity()
             }
         }
     }
@@ -166,12 +181,22 @@ class SignInActivity : AppCompatActivity(), Clickable {
             model.form.onPasswordChanged(text)
         }
 
-        // Error UI
+        // Error UI and Button State
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.form.formState.collect { state ->
                     binds.etIdentity.setLayoutError(state.identity.error?.toString())
                     binds.etPassword.setLayoutError(state.password.error?.toString())
+                }
+            }
+        }
+        
+        // Button state management
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.form.isFormValid.collect { isValid ->
+                    binds.btSignIn.isEnabled = isValid
+                    binds.btSignIn.alpha = if (isValid) 1.0f else 0.6f
                 }
             }
         }

@@ -18,8 +18,8 @@ android {
         applicationId = "com.ggetters.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 11
-        versionName = "2025w39b"
+        versionCode = 12
+        versionName = "2025w42a"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -53,7 +53,7 @@ android {
 
             return properties.getProperty(property) ?: ""
         }
-        
+
         buildConfigField(
             type = "String",
             name = "GOOGLE_SERVER_CLIENT_ID",
@@ -122,44 +122,35 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-
-    // Jetpack Compose
-
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.navigation.compose)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.core.splashscreen)
-
-    // Firebase
-
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics.ndk)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore.ktx)
-
-    // Room
-
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.perf)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
-
-    // Hilt
-
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
     implementation(libs.hilt.navigation.compose)
-    implementation("androidx.hilt:hilt-work:1.2.0")
-
-    // Lottie
-
+    implementation(libs.androidx.hilt.work)
     implementation(libs.lottie)
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.gson)
+    implementation(libs.hilt.android)
+
+    kapt(libs.androidx.room.compiler)
+    kapt(libs.hilt.android.compiler)
+
+    testImplementation(libs.junit)
+
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }

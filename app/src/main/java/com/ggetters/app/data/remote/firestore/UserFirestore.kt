@@ -118,33 +118,17 @@ class UserFirestore @Inject constructor(
 
     /** Stream the current user's full name (name + surname) across all teams. */
     fun observeFullNameForAuth(authId: String): Flow<String?> = callbackFlow {
-        val q = db.collectionGroup("users")
-            .whereEqualTo("authId", authId)
-            .limit(1)
-
-        val sub = q.addSnapshotListener { snap, err ->
-            if (err != null) {
-                // Don't crash the channel; just emit null (fallback will handle it)
-                com.ggetters.app.core.utils.Clogger.e("UserFirestore", "FullName listen failed", err)
-                trySend(null).isSuccess
-                return@addSnapshotListener
-            }
-            val doc = snap?.documents?.firstOrNull()
-            val full = buildFull(doc)
-            trySend(full).isSuccess
-        }
-        awaitClose { sub.remove() }
+        // For now, just emit null to avoid Firestore index issues
+        // TODO: Implement proper user lookup when team context is available
+        trySend(null).isSuccess
     }
 
 
     /** One-shot fetch of the current user's full name (name + surname). */
     suspend fun fetchFullNameForAuth(authId: String): String? {
-        val res = db.collectionGroup("users")
-            .whereEqualTo("authId", authId)
-            .limit(1)
-            .get()
-            .await()
-        return buildFull(res.documents.firstOrNull())
+        // For now, return null to avoid Firestore index issues
+        // TODO: Implement proper user lookup when team context is available
+        return null
     }
 
     private fun buildFull(doc: DocumentSnapshot?): String? {
