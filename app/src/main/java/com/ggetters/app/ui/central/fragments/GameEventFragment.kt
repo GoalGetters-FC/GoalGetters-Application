@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.EventFormData
@@ -41,24 +39,9 @@ class GameEventFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        setupTeamVsTeamDropdown(view)
         setupDateTimePickers(view)
     }
 
-    private fun setupTeamVsTeamDropdown(view: View) {
-        val teamVsTeamInput = view.findViewById<AutoCompleteTextView>(R.id.gameTeamVsTeamInput)
-        
-        // Sample team options - TODO: Load from backend
-        val teamOptions = arrayOf(
-            "T1 v T1 (Hollywood 200)",
-            "Goal Getters FC v Eagles FC",
-            "Goal Getters FC v Tigers FC",
-            "Goal Getters FC v Lions FC"
-        )
-        
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, teamOptions)
-        teamVsTeamInput.setAdapter(adapter)
-    }
 
     private fun setupDateTimePickers(view: View) {
         val dateInput = view.findViewById<TextInputEditText>(R.id.gameDateInput)
@@ -78,7 +61,7 @@ class GameEventFragment : Fragment() {
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
+            ).apply { datePicker.minDate = System.currentTimeMillis() }.show()
         }
 
         // Start time picker
@@ -158,17 +141,45 @@ class GameEventFragment : Fragment() {
         ).show()
     }
 
-    fun collectFormData(): EventFormData {
-        val teamVs = view?.findViewById<AutoCompleteTextView>(R.id.gameTeamVsTeamInput)
-            ?.text?.toString()
+    fun collectFormData(): EventFormData? {
+        val opponent = view?.findViewById<TextInputEditText>(R.id.gameOpponentInput)
+            ?.text?.toString()?.trim()
+        
+        // Create title from opponent name if provided
+        val title = view?.findViewById<TextInputEditText>(R.id.gameTitleInput)
+            ?.text?.toString()?.trim()
+            ?.ifBlank { 
+                opponent?.let { "vs $it" } ?: "Match"
+            } ?: "Match"
+
+        // Validate not in the past
+        val startDateTime = if (date != null && start != null) {
+            java.time.ZonedDateTime.of(date, start, java.time.ZoneId.systemDefault())
+        } else null
+        if (startDateTime != null && startDateTime.toInstant().isBefore(java.time.Instant.now())) {
+            view?.findViewById<TextInputEditText>(R.id.gameDateInput)?.error = "Start time must be in the future"
+            return null
+        }
+
+        // Validate end time after start time
+        if (start != null && end != null && !end!!.isAfter(start)) {
+            view?.findViewById<TextInputEditText>(R.id.gameEndTimeInput)?.error = "End time must be after start"
+            return null
+        }
+
+        // Validate meet time at/before start
+        if (start != null && meet != null && meet!!.isAfter(start)) {
+            view?.findViewById<TextInputEditText>(R.id.gameMeetingTimeInput)?.error = "Meet time must be before start"
+            return null
+        }
 
         return EventFormData(
-            title = view?.findViewById<TextInputEditText>(R.id.gameTitleInput)
-                ?.text?.toString().orEmpty().ifBlank { teamVs.orEmpty() },
+            title = title,
             description = view?.findViewById<TextInputEditText>(R.id.gameDescriptionInput)
                 ?.text?.toString(),
             location = view?.findViewById<TextInputEditText>(R.id.gameLocationInput)
                 ?.text?.toString(),
+            opponent = opponent,
             date = date,
             start = start,
             end = end,

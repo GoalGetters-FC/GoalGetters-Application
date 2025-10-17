@@ -131,6 +131,7 @@ class ProfileFragment : Fragment() {
         contactDevelopersItem.setOnClickListener { showContactDevelopers() }
         helpFaqItem.setOnClickListener { showHelpAndFAQ() }
         logoutButton.setOnClickListener { showLogoutConfirmation() }
+        // Navigation handled by existing helpers; avoid dangling container IDs
     }
 
     /** Keep the team name in the header in sync with the active team. */

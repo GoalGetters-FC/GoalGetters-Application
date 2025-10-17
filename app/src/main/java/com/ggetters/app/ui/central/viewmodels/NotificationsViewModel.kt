@@ -85,6 +85,30 @@ class NotificationsViewModel @Inject constructor(
         observeUnreadCount()
     }
 
+    fun subscribeTopicsForCurrentUser(activeTeamId: String?) {
+        currentUserId?.let { uid ->
+            viewModelScope.launch {
+                try {
+                    notificationManagerService.subscribeToTopics(uid, activeTeamId)
+                } catch (e: Exception) {
+                    Clogger.e(TAG, "Failed to subscribe topics", e)
+                }
+            }
+        }
+    }
+
+    fun unsubscribeTopicsForCurrentUser(activeTeamId: String?) {
+        currentUserId?.let { uid ->
+            viewModelScope.launch {
+                try {
+                    notificationManagerService.unsubscribeFromTopics(uid, activeTeamId)
+                } catch (e: Exception) {
+                    Clogger.e(TAG, "Failed to unsubscribe topics", e)
+                }
+            }
+        }
+    }
+
     /**
      * Load notifications for the current user
      */

@@ -73,10 +73,30 @@ class LineupViewModel @Inject constructor(
                     )
                 }
 
-                // (Optional) You can also hydrate a saved lineup here (formation + positioned map)
-                // val saved = lineupRepo.getByEventId(eventId).firstOrNull()
-                // _formation.value = saved?.formation ?: "4-3-3"
-                // _positionedPlayers.value = saved?.spots?.toPositionMap(cachedTeamUsers) ?: emptyMap()
+                // Load saved lineup if it exists
+                val savedLineups = lineupRepo.getByEventId(eventId).first()
+                val savedLineup = savedLineups.firstOrNull()
+                if (savedLineup != null) {
+                    _formation.value = savedLineup.formation
+                    _positionedPlayers.value = savedLineup.spots.associate { spot ->
+                        val player = cachedTeamUsers.find { it.id == spot.userId }
+                        if (player != null) {
+                            val rsvp = byPlayer[player.id]
+                            val status = rsvpFromInt(rsvp?.status ?: 3)
+                            val rosterPlayer = RosterPlayer(
+                                playerId = player.id,
+                                playerName = player.getFullName(),
+                                jerseyNumber = spot.number,
+                                position = spot.position,
+                                status = status,
+                                profileImageUrl = null
+                            )
+                            spot.position to rosterPlayer
+                        } else {
+                            spot.position to null
+                        }
+                    }.filterValues { it != null } as Map<String, RosterPlayer>
+                }
 
             } catch (e: Exception) {
                 _error.value = e.message
@@ -92,7 +112,8 @@ class LineupViewModel @Inject constructor(
         _formation.value = newFormation
         // reset in-formation placements for now
         _positionedPlayers.value = emptyMap()
-        // TODO persist with lineupRepo when ready
+        // Persist formation change
+        saveCurrentLineup()
     }
 
     fun positionPlayer(player: RosterPlayer, position: String) {
@@ -105,7 +126,8 @@ class LineupViewModel @Inject constructor(
 
         updated[position] = player
         _positionedPlayers.value = updated
-        // TODO persist
+        // Persist player positioning
+        saveCurrentLineup()
     }
 
     fun swapPlayers(a: String, b: String) {
@@ -115,14 +137,16 @@ class LineupViewModel @Inject constructor(
         map[a] = pb
         map[b] = pa
         _positionedPlayers.value = map
-        // TODO persist
+        // Persist player swap
+        saveCurrentLineup()
     }
 
     fun removePlayerFromPosition(position: String) {
         val updated = _positionedPlayers.value.toMutableMap()
         updated[position] = null
         _positionedPlayers.value = updated
-        // TODO persist
+        // Persist player removal
+        saveCurrentLineup()
     }
 
     /**
@@ -159,8 +183,28 @@ class LineupViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                // TODO build Lineup(spots = …) and upsert
-                // lineupRepo.upsert(builtLineup)
+                
+                // Build lineup spots from positioned players
+                val spots = _positionedPlayers.value.mapNotNull { (position, player) ->
+                    player?.let { p ->
+                        com.ggetters.app.data.model.LineupSpot(
+                            userId = p.playerId,
+                            number = p.jerseyNumber,
+                            position = position,
+                            role = com.ggetters.app.data.model.SpotRole.STARTER
+                        )
+                    }
+                }
+                
+                // Create or update lineup
+                val lineup = com.ggetters.app.data.model.Lineup(
+                    eventId = eventId,
+                    formation = _formation.value,
+                    spots = spots,
+                    createdBy = "current_user" // TODO: Get from auth
+                )
+                
+                lineupRepo.upsert(lineup)
             } catch (e: Exception) {
                 _error.value = "Failed to save lineup: ${e.message}"
             } finally {
@@ -192,4 +236,57 @@ class LineupViewModel @Inject constructor(
     }
 
     fun clearError() { _error.value = null }
+    
+    /**
+     * Helper method to save the current lineup with the cached event ID
+     */
+    private fun saveCurrentLineup() {
+        if (cachedEventId.isNotBlank()) {
+            saveLineup(cachedEventId)
+        }
+    }
+    
+    /**
+     * Handle player substitution - swap players between pitch and bench
+     */
+    fun handleSubstitution(playerInId: String, playerOutId: String) {
+        viewModelScope.launch {
+            try {
+                val currentPositions = _positionedPlayers.value.toMutableMap()
+                val currentPlayers = _players.value.toMutableList()
+                
+                // Find the player being subbed out (on pitch)
+                val playerOutPosition = currentPositions.entries.find { it.value?.id == playerOutId }?.key
+                val playerIn = currentPlayers.find { it.id == playerInId }
+                val playerOut = currentPlayers.find { it.id == playerOutId }
+                
+                if (playerOutPosition != null && playerIn != null && playerOut != null) {
+                    // Update player status - mark subbed out player as substituted
+                    val updatedPlayers = currentPlayers.map { player ->
+                        when {
+                            player.id == playerOutId -> player.copy(isSubstituted = true)
+                            player.id == playerInId -> player.copy(isSubstituted = false)
+                            else -> player
+                        }
+                    }
+                    _players.value = updatedPlayers
+                    
+                    // Put the new player in the position
+                    currentPositions[playerOutPosition] = playerIn
+                    _positionedPlayers.value = currentPositions
+                    
+                    // Persist the changes
+                    saveCurrentLineup()
+                    
+                    Clogger.d("LineupViewModel", "Substitution completed: ${playerIn.playerName} in for ${playerOut.playerName}")
+                } else {
+                    Clogger.e("LineupViewModel", "Substitution failed: Could not find players or position")
+                    _error.value = "Substitution failed: Could not find players or position"
+                }
+            } catch (e: Exception) {
+                Clogger.e("LineupViewModel", "Failed to handle substitution: ${e.message}")
+                _error.value = "Failed to handle substitution"
+            }
+        }
+    }
 }
