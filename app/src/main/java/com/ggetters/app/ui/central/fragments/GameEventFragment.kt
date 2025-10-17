@@ -158,6 +158,7 @@ class GameEventFragment : Fragment() {
                 ?.text?.toString(),
             location = view?.findViewById<TextInputEditText>(R.id.gameLocationInput)
                 ?.text?.toString(),
+            opponent = opponent,
             date = date,
             start = start,
             end = end,

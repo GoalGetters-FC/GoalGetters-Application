@@ -149,6 +149,7 @@ class GeneralEventFragment : Fragment() {
                 ?.text?.toString(),
             location = view?.findViewById<TextInputEditText>(R.id.eventLocationInput)
                 ?.text?.toString(),
+            opponent = null,
             date = date,
             start = start,
             end = end,

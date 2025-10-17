@@ -44,7 +44,8 @@ class EventUpsertViewModel @Inject constructor(
         description: String?,
         startAt: Instant?,
         endAt: Instant?,
-        meetingAt: Instant? = null // NOTE: currently unused by Event model
+        meetingAt: Instant? = null, // NOTE: currently unused by Event model
+        opponent: String? = null
     ) = viewModelScope.launch {
         val team = teamRepo.getActiveTeam().first()
         if (team == null) {
@@ -62,11 +63,35 @@ class EventUpsertViewModel @Inject constructor(
 
         _state.value = UpsertState.Saving
 
+        // Derive opponent if the title starts with "vs ", and build "Home vs Opponent"
+        val normalizedTitle = title.trim()
+        val explicitOpponent = opponent?.trim().orEmpty()
+        val opponentFromTitle = if (category == EventCategory.MATCH && normalizedTitle.lowercase().startsWith("vs ")) {
+            normalizedTitle.removePrefix("vs ").trim()
+        } else null
+
+        val finalName = if (category == EventCategory.MATCH) {
+            val opponentName = when {
+                explicitOpponent.isNotBlank() -> explicitOpponent
+                opponentFromTitle?.isNotBlank() == true -> opponentFromTitle
+                else -> normalizedTitle
+            }
+            val homeName = team.name.ifBlank { "Home" }
+            if (opponentName.isBlank() || opponentName.equals("match", ignoreCase = true) || opponentName.equals("league", ignoreCase = true)) {
+                // No opponent provided – fall back to generic name
+                "Match"
+            } else {
+                "$homeName vs $opponentName"
+            }
+        } else {
+            normalizedTitle.ifBlank { defaultTitle(category) }
+        }
+
         // Build event
         val event = Event(
             id = UUID.randomUUID().toString(),
             teamId = team.id,
-            name = title.ifBlank { defaultTitle(category) },
+            name = finalName,
             category = category,
             location = location,
             description = description,
