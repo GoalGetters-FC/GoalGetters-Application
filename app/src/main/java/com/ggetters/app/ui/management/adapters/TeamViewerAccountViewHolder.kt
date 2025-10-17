@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Team
-import com.ggetters.app.databinding.ItemTeamViewerAccountBinding
+import com.ggetters.app.databinding.ItemTeamViewerTeamBinding
 
 /**
  * TODO: Conditionally render that a team is currently selected
@@ -14,9 +14,10 @@ import com.ggetters.app.databinding.ItemTeamViewerAccountBinding
  * TODO: Bind the number of users in the team
  */
 class TeamViewerAccountViewHolder(
-    private val binding: ItemTeamViewerAccountBinding,
+    private val binding: ItemTeamViewerTeamBinding,
     private val onSelectClicked: (Team) -> Unit,
     private val onDeleteClicked: (Team) -> Unit,
+    private val onClick: (Team) -> Unit,
 ) : RecyclerView.ViewHolder(binding.root) {
     companion object {
         private const val TAG = "TeamViewerAccountViewHolder"
@@ -33,17 +34,21 @@ class TeamViewerAccountViewHolder(
 
         // Apply the objects information to the view
         binding.apply {
+            cvContainer.setOnClickListener {
+                onClick(item)
+            }
+
             ivOptions.setOnClickListener {
                 showPopupMenu(it, item)
             }
 
             tvTeamName.text = item.name
-            
+
             // Set role (Coach/Player) - for now showing Coach for first team, Player for second
             tvTeamRole.text = if (item.name.contains("U15a")) "Coach" else "Full-time Player"
-            
+
             // Set member count - for now showing 15 for first team, 8 for second
-            tvTeamCount.text = if (item.name.contains("U15a")) "15 members" else "8 members"
+            //tvTeamCount.text = if (item.name.contains("U15a")) "15 members" else "8 members"
         }
     }
 

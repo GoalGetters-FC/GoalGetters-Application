@@ -29,21 +29,27 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class TeamViewerActivity : AppCompatActivity(), Clickable {
 
+    companion object {
+        private const val TAG = "TeamViewerActivity"
+    }
+
     private lateinit var binds: ActivityTeamViewerBinding
     private val model: TeamViewerViewModel by viewModels()
     private lateinit var adapter: TeamViewerAccountAdapter
 
+    // --- Lifecycle ---
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Clogger.d("TeamViewerActivity", "Created new instance")
+        Clogger.d(TAG, "Created new instance of TeamViewerActivity")
+
         setupBindings()
         setupLayoutUi()
-        setupRecyclerView()
         setupTouchListeners()
+        setupRecyclerView()
         observe()
     }
 
-    // --- Observe ViewModel state ---
+    // --- Observe ViewModel ---
     private fun observe() {
         lifecycleScope.launch {
             model.teams.collectLatest { teams -> adapter.update(teams) }
@@ -60,18 +66,19 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         }
     }
 
-    // --- Recycler Callbacks ---
-
-    private fun onItemOptionSelectClicked(team: Team) {
-        model.switchTo(team)
-        Toast.makeText(this, "Switched to ${team.name}", Toast.LENGTH_SHORT).show()
-
+    // --- Recycler callbacks ---
+    private fun onItemClicked(team: Team) {
         val intent = Intent(this, TeamDetailActivity::class.java).apply {
             putExtra(TeamDetailActivity.EXTRA_TEAM_ID, team.id)
             putExtra(TeamDetailActivity.EXTRA_TEAM_NAME, team.name)
         }
         startActivity(intent)
         overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
+    }
+
+    private fun onItemOptionSelectClicked(team: Team) {
+        model.switchTo(team)
+        Toast.makeText(this, "Switched to ${team.name}", Toast.LENGTH_SHORT).show()
     }
 
     private fun onItemOptionDeleteClicked(team: Team) {
@@ -92,8 +99,7 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
     }
 
     // --- Sheet callbacks ---
-
-    private fun onCreateTeamSheetSubmitted(teamName: String) {
+    private fun onFormTeamSheetSubmitted(teamName: String) {
         val authId = FirebaseAuth.getInstance().currentUser?.uid
         if (authId == null) {
             Toast.makeText(this, "Not signed in", Toast.LENGTH_SHORT).show()
@@ -106,44 +112,42 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         model.joinByCode(teamCode, userCode)
     }
 
-    // --- Button Handlers ---
-
+    // --- Touch listeners ---
     override fun setupTouchListeners() {
-        binds.backButton.setOnClickListener {
+        binds.fab.setOnClickListener(this)
+        binds.appBar.setNavigationOnClickListener {
             finish()
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
 
-        binds.linkTeamButton.setOnClickListener {
-            JoinTeamBottomSheet(this::onJoinTeamSheetSubmitted)
-                .show(supportFragmentManager, JoinTeamBottomSheet.TAG)
-        }
-
-        binds.linkTeamButton.setOnLongClickListener {
-            Toast.makeText(this, "Starting sync…", Toast.LENGTH_SHORT).show()
-            model.syncTeams()
-            true
-        }
-
-        binds.createTeamButton.setOnClickListener {
-            CreateTeamBottomSheet(this::onCreateTeamSheetSubmitted)
-                .show(supportFragmentManager, CreateTeamBottomSheet.TAG)
-        }
-
-        binds.createTeamButton.setOnLongClickListener {
-            val authId = FirebaseAuth.getInstance().currentUser?.uid
-            if (authId == null) {
-                Toast.makeText(this, "Not signed in", Toast.LENGTH_SHORT).show()
-                return@setOnLongClickListener true
+        binds.bottomBar.setOnMenuItemClickListener { menuItem ->
+            Clogger.d(TAG, "Clicked menu-item: ${menuItem.itemId}")
+            when (menuItem.itemId) {
+                R.id.nav_item_team_viewer_help -> {
+                    // TODO: Help/FAQ
+                }
+                R.id.nav_item_team_viewer_code -> {
+                    JoinTeamBottomSheet(this::onJoinTeamSheetSubmitted)
+                        .show(supportFragmentManager, JoinTeamBottomSheet.TAG)
+                }
+                else -> Clogger.w(TAG, "Unhandled menu click: ${menuItem.itemId}")
             }
-            model.createDebugTeam(authId)
-            Toast.makeText(this, "Debug team seeded", Toast.LENGTH_SHORT).show()
             true
         }
     }
 
-    // --- UI Setup ---
+    // --- Click handling ---
+    override fun onClick(view: View?) = when (view?.id) {
+        binds.fab.id -> {
+            CreateTeamBottomSheet(this::onFormTeamSheetSubmitted)
+                .show(supportFragmentManager, CreateTeamBottomSheet.TAG)
+        }
+        else -> {
+            Clogger.w(TAG, "Unhandled click for: ${view?.id}")
+        }
+    }
 
+    // --- UI setup ---
     private fun setupBindings() {
         binds = ActivityTeamViewerBinding.inflate(layoutInflater)
     }
@@ -152,13 +156,8 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         setContentView(binds.root)
         enableEdgeToEdge()
 
-        setSupportActionBar(binds.toolbar)
+        setSupportActionBar(binds.appBar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Teams"
-        binds.toolbar.setNavigationOnClickListener {
-            finish()
-            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
-        }
 
         ViewCompat.setOnApplyWindowInsetsListener(binds.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -170,13 +169,10 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
     private fun setupRecyclerView() {
         adapter = TeamViewerAccountAdapter(
             onSelectClicked = this::onItemOptionSelectClicked,
-            onDeleteClicked = this::onItemOptionDeleteClicked
+            onDeleteClicked = this::onItemOptionDeleteClicked,
+            onClick = this::onItemClicked
         )
         binds.rvAccounts.layoutManager = LinearLayoutManager(this)
         binds.rvAccounts.adapter = adapter
-    }
-
-    override fun onClick(view: View?) {
-        Clogger.w("TeamViewerActivity", "Unhandled click for: ${view?.id}")
     }
 }

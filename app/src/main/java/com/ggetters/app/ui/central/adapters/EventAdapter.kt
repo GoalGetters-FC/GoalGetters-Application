@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Event
-import com.ggetters.app.databinding.ItemEventBinding
+import com.ggetters.app.databinding.ItemCalendarEventBinding
 import com.ggetters.app.ui.shared.adapters.KeyedDiffCallback
 
 class EventAdapter(
@@ -25,7 +25,7 @@ class EventAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
         if (DEV_VERBOSE_LOGGER) Clogger.d(TAG, "Constructing the ViewHolder")
         return EventViewHolder(
-            binding = ItemEventBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            binding = ItemCalendarEventBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             onClick = onClick,
             onLongClick = onLongClick
         )
