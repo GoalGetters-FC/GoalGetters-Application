@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        xmlns:tools="http://schemas.android.com/tools">
+        android:background="@android:color/transparent">
 
     <!-- Component -->
 
@@ -12,18 +13,19 @@
             android:clickable="true"
             android:focusable="true"
             android:background="?android:attr/selectableItemBackground"
-            app:cardBackgroundColor="@color/white"
+            app:cardBackgroundColor="@android:color/transparent"
             app:cardCornerRadius="24dp"
             app:strokeWidth="0dp"
             android:layout_gravity="center_vertical"
             android:layout_height="40dp"
             android:layout_width="40dp">
 
+        <!-- You can't see the icon, but it's there -->
         <ImageView
                 android:id="@+id/iv_menu_icon"
                 android:src="@drawable/xic_x24_uic_line_bell"
                 android:importantForAccessibility="no"
-                app:tint="#161620"
+                app:tint="@color/white"
                 android:layout_gravity="center"
                 android:layout_height="24dp"
                 android:layout_width="24dp" />
