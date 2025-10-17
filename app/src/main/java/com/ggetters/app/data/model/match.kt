@@ -142,7 +142,9 @@ enum class MatchEventType {
     MATCH_END,      // Match ended
     HALF_TIME,      // Half time break
 
-    SCORE_UPDATE    // Manual score update
+    SCORE_UPDATE,   // Manual score update
+    INJURY,         // Player injury event
+    OTHER           // Other miscellaneous event
 }
 
 

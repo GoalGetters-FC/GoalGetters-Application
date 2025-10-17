@@ -141,7 +141,7 @@ class GameEventFragment : Fragment() {
         ).show()
     }
 
-    fun collectFormData(): EventFormData {
+    fun collectFormData(): EventFormData? {
         val opponent = view?.findViewById<TextInputEditText>(R.id.gameOpponentInput)
             ?.text?.toString()?.trim()
         
@@ -158,18 +158,19 @@ class GameEventFragment : Fragment() {
         } else null
         if (startDateTime != null && startDateTime.toInstant().isBefore(java.time.Instant.now())) {
             view?.findViewById<TextInputEditText>(R.id.gameDateInput)?.error = "Start time must be in the future"
-            return EventFormData(
-                title = title,
-                description = view?.findViewById<TextInputEditText>(R.id.gameDescriptionInput)
-                    ?.text?.toString(),
-                location = view?.findViewById<TextInputEditText>(R.id.gameLocationInput)
-                    ?.text?.toString(),
-                opponent = opponent,
-                date = date,
-                start = start,
-                end = end,
-                meet = meet
-            )
+            return null
+        }
+
+        // Validate end time after start time
+        if (start != null && end != null && !end!!.isAfter(start)) {
+            view?.findViewById<TextInputEditText>(R.id.gameEndTimeInput)?.error = "End time must be after start"
+            return null
+        }
+
+        // Validate meet time at/before start
+        if (start != null && meet != null && meet!!.isAfter(start)) {
+            view?.findViewById<TextInputEditText>(R.id.gameMeetingTimeInput)?.error = "Meet time must be before start"
+            return null
         }
 
         return EventFormData(

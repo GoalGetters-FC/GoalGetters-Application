@@ -225,8 +225,8 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
             "yellow_card" -> MatchEventType.YELLOW_CARD
             "red_card" -> MatchEventType.RED_CARD
             "substitution" -> MatchEventType.SUBSTITUTION
-            "injury" -> MatchEventType.MATCH_START // Using as placeholder
-            "other" -> MatchEventType.SCORE_UPDATE // Using as placeholder
+            "injury" -> MatchEventType.INJURY
+            "other" -> MatchEventType.OTHER
             else -> MatchEventType.SCORE_UPDATE
         }
 

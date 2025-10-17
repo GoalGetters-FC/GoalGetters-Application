@@ -110,8 +110,8 @@ class NotificationService : FirebaseMessagingService() {
                 firebaseAuth.currentUser?.let { user ->
                     try {
                         // Basic topic strategy: per-user and global
-                        FirebaseMessaging.getInstance().subscribeToTopic("user_${'$'}{user.uid}")
-                        FirebaseMessaging.getInstance().subscribeToTopic("goal_getters")
+                        FirebaseMessaging.getInstance().subscribeToTopic("user_${'$'}{user.uid}").await()
+                        FirebaseMessaging.getInstance().subscribeToTopic("goal_getters").await()
                         Clogger.d(TAG, "Subscribed to topics for user ${'$'}{user.uid}")
                     } catch (e: Exception) {
                         Clogger.e(TAG, "Failed subscribing to topics", e)
@@ -207,7 +207,7 @@ class NotificationService : FirebaseMessagingService() {
                 .document(token)
                 .set(mapOf(
                     "token" to token,
-                    "createdAt" to java.time.Instant.now(),
+                    "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
                     "platform" to "android"
                 ))
                 .await()
@@ -236,15 +236,15 @@ class NotificationManagerService @Inject constructor(
     suspend fun subscribeToTopics(userId: String, teamId: String?) {
         try {
             // Subscribe to user-specific topic
-            FirebaseMessaging.getInstance().subscribeToTopic("user_$userId")
+            FirebaseMessaging.getInstance().subscribeToTopic("user_$userId").await()
             
             // Subscribe to team-specific topic if available
             teamId?.let {
-                FirebaseMessaging.getInstance().subscribeToTopic("team_$it")
+                FirebaseMessaging.getInstance().subscribeToTopic("team_$it").await()
             }
             
             // Subscribe to general app topic
-            FirebaseMessaging.getInstance().subscribeToTopic("goal_getters")
+            FirebaseMessaging.getInstance().subscribeToTopic("goal_getters").await()
             
             Clogger.d(TAG, "Subscribed to FCM topics for user $userId")
         } catch (e: Exception) {

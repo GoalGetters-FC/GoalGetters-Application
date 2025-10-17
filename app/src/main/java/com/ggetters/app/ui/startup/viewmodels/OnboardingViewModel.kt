@@ -119,8 +119,12 @@ class OnboardingViewModel @Inject constructor(
                 teamRepository.joinOrCreateTeam(code)
             }
             teamRepository.setActiveTeam(joined)
-            // Defer destructive sync deletes; perform a non-destructive refresh first
+            // Sync changes; if it fails, proceed but inform the user and log
             runCatching { teamRepository.sync() }
+                .onFailure { e ->
+                    Clogger.w(TAG, "Sync failed after joining team, will retry later")
+                    _events.send(UiEvent.Toast("Team joined, but sync pending. Check connection."))
+                }
             joined
         }.onSuccess { team ->
             Clogger.i(TAG, "Joined team ${team.name} (${team.id}); set active")

@@ -129,6 +129,16 @@ class MatchEventAdapter(
                     backgroundColor = ContextCompat.getColor(itemView.context, R.color.info_light)
                     iconColor = ContextCompat.getColor(itemView.context, R.color.info)
                 }
+                MatchEventType.INJURY -> {
+                    iconText = "🩺"
+                    backgroundColor = ContextCompat.getColor(itemView.context, R.color.warning_light)
+                    iconColor = ContextCompat.getColor(itemView.context, R.color.warning)
+                }
+                MatchEventType.OTHER -> {
+                    iconText = "📝"
+                    backgroundColor = ContextCompat.getColor(itemView.context, R.color.surface_variant)
+                    iconColor = ContextCompat.getColor(itemView.context, R.color.on_surface)
+                }
             }
             
             eventIcon.text = iconText

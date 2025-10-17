@@ -14,7 +14,7 @@ interface MatchEventDao {
     @Query("SELECT * FROM match_events WHERE matchId = :matchId ORDER BY minute DESC, timestamp DESC")
     fun getEventsByMatchId(matchId: String): Flow<List<MatchEventEntity>>
     
-    @Query("SELECT * FROM match_events WHERE matchId = :matchId AND eventType = :eventType ORDER BY minute DESC")
+    @Query("SELECT * FROM match_events WHERE matchId = :matchId AND eventType = :eventType ORDER BY minute DESC, timestamp DESC")
     fun getEventsByMatchIdAndType(matchId: String, eventType: String): Flow<List<MatchEventEntity>>
     
     @Query("SELECT * FROM match_events WHERE id = :eventId")

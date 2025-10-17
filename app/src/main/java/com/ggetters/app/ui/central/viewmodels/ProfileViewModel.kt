@@ -34,20 +34,20 @@ class ProfileViewModel @Inject constructor(
         teamRepo.getActiveTeam()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    /** Current logged-in user (observed; persists across restarts after sync) */
+    /** Current logged-in user (snapshot at collection; safe and simple) */
     val currentUser: StateFlow<User?> =
-        teamRepo.getActiveTeam().flatMapLatest { activeTeam ->
+        kotlinx.coroutines.flow.flow {
             val uid = FirebaseAuth.getInstance().currentUser?.uid
-            if (activeTeam == null || uid == null) {
-                kotlinx.coroutines.flow.flowOf(null)
-            } else {
-                userRepo.all().map { users -> users.firstOrNull { it.id == uid } }
-            }
+            val user = if (uid != null) userRepo.getById(uid) else null
+            emit(user)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     init {
         // Ensure user data is synced from remote on start so profile persists across restarts
-        viewModelScope.launch { runCatching { userRepo.sync() } }
+        viewModelScope.launch {
+            runCatching { userRepo.sync() }
+                .onFailure { Clogger.e(TAG, "Failed to sync user data on init: ${it.message}", it) }
+        }
     }
 
     fun logout() = authService.logout()

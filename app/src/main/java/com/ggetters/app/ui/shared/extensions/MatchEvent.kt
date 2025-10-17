@@ -23,4 +23,6 @@ fun MatchEvent.getEventDescription(): String = when (eventType) {
         val away = details["awayScore"] as? Int ?: 0
         "Score updated: $home - $away"
     }
+    MatchEventType.INJURY -> "Injury: ${playerName ?: "Unknown"}"
+    MatchEventType.OTHER -> details["notes"] as? String ?: "Other event"
 }

@@ -60,7 +60,15 @@ class GeneralEventFragment : Fragment() {
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
-            ).apply { datePicker.minDate = System.currentTimeMillis() }.show()
+            ).apply {
+                val startOfToday = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }.timeInMillis
+                datePicker.minDate = startOfToday
+            }.show()
         }
 
         // Start time picker
@@ -141,7 +149,17 @@ class GeneralEventFragment : Fragment() {
         ).show()
     }
 
-    fun collectFormData(): EventFormData {
+    fun collectFormData(): EventFormData? {
+        // Validation: end after start, meet before start (when provided)
+        if (start != null && end != null && !end!!.isAfter(start)) {
+            view?.findViewById<TextInputEditText>(R.id.eventEndTimeInput)?.error = "End time must be after start"
+            return null
+        }
+        if (start != null && meet != null && meet!!.isAfter(start)) {
+            view?.findViewById<TextInputEditText>(R.id.eventMeetingTimeInput)?.error = "Meet time must be before start"
+            return null
+        }
+
         return EventFormData(
             title = view?.findViewById<TextInputEditText>(R.id.eventTitleInput)
                 ?.text?.toString().orEmpty(),
