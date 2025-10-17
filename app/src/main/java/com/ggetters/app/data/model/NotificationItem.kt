@@ -2,6 +2,7 @@ package com.ggetters.app.data.model
 
 data class NotificationItem(
     val id: Int,
+    val sourceId: String, // Original repository/Firestore ID
     val title: String,
     val subtitle: String,
     val message: String,

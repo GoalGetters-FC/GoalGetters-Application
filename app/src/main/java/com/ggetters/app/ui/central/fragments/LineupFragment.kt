@@ -388,8 +388,8 @@ class LineupFragment : Fragment() {
                 
                 // Filter for players marked as PRESENT (status = 0 in attendance)
                 // Attendance status mapping: 0=Present, 1=Absent, 2=Late, 3=Excused
+                // Note: Substituted players will have their status changed to UNAVAILABLE
                 availablePlayers = players.filter { player ->
-                    // Check if player is marked as present in attendance
                     val isAvailable = player.status == RSVPStatus.AVAILABLE
                     Clogger.d("LineupFragment", "Player ${player.playerName}: status=${player.status}, available=$isAvailable")
                     isAvailable
@@ -736,6 +736,10 @@ class LineupFragment : Fragment() {
 
     private fun showMatchEventsBottomSheet() {
         val bottomSheet = MatchEventsBottomSheet.newInstance()
+        // Pass match ID to the bottom sheet
+        bottomSheet.arguments = Bundle().apply {
+            putString("event_id", matchId)
+        }
         bottomSheet.show(parentFragmentManager, "MatchEventsBottomSheet")
     }
 }

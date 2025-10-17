@@ -122,44 +122,51 @@ class SignInViewModel @Inject constructor(
     private fun checkUserTeamStatus(userId: String) {
         viewModelScope.launch {
             try {
-                // Check if user exists in local database
+                // Ensure latest team data before making decisions
+                runCatching { teamRepository.sync() }
+
+                // 1) Prefer an already active team if present locally
+                val activeTeam = teamRepository.getActiveTeam().first()
+                if (activeTeam != null) {
+                    Clogger.d(TAG, "Active team already set: ${'$'}{activeTeam.name}")
+                    _navigationState.value = NavigationState.ToHome
+                    _uiState.value = Success
+                    return@launch
+                }
+
+                // 2) Fall back to user's stored teamId
                 val user = userRepository.getById(userId)
-                
                 if (user != null && !user.teamId.isNullOrBlank()) {
-                    // User has a team assigned - set it as active and go to home
-                    Clogger.d(TAG, "User has team assigned: ${user.teamId}")
-                    
-                    // Set the user's team as active
                     val team = teamRepository.getById(user.teamId)
                     if (team != null) {
                         teamRepository.setActiveTeam(team)
-                        Clogger.d(TAG, "Set active team: ${team.name}")
+                        Clogger.d(TAG, "Set active team from user.teamId: ${'$'}{team.name}")
+                        _navigationState.value = NavigationState.ToHome
+                        _uiState.value = Success
+                        return@launch
                     }
-                    
+                }
+
+                // 3) Otherwise choose a team from the user's teams list
+                val userTeams = teamRepository.getTeamsForCurrentUser().first()
+                if (userTeams.isNotEmpty()) {
+                    val firstTeam = userTeams.first()
+                    teamRepository.setActiveTeam(firstTeam)
+                    Clogger.d(TAG, "Set first available team as active: ${'$'}{firstTeam.name}")
+
+                    // Update user's teamId if missing
+                    if (user != null && user.teamId.isNullOrBlank()) {
+                        val updatedUser = user.copy(teamId = firstTeam.id)
+                        userRepository.upsert(updatedUser)
+                    }
+
                     _navigationState.value = NavigationState.ToHome
                     _uiState.value = Success
                 } else {
-                    // Check if user has any teams available
-                    val userTeams = teamRepository.getTeamsForCurrentUser().first()
-                    
-                    if (userTeams.isNotEmpty()) {
-                        // User has teams but none assigned - set first team as active
-                        val firstTeam = userTeams.first()
-                        teamRepository.setActiveTeam(firstTeam)
-                        Clogger.d(TAG, "Set first available team as active: ${firstTeam.name}")
-                        
-                        // Update user's teamId
-                        val updatedUser = user?.copy(teamId = firstTeam.id) ?: return@launch
-                        userRepository.upsert(updatedUser)
-                        
-                        _navigationState.value = NavigationState.ToHome
-                        _uiState.value = Success
-                    } else {
-                        // User doesn't have any teams - go to onboarding
-                        Clogger.d(TAG, "User doesn't have any teams - going to onboarding")
-                        _navigationState.value = NavigationState.ToOnboarding
-                        _uiState.value = Success
-                    }
+                    // 4) No teams → onboarding
+                    Clogger.d(TAG, "User has no teams - navigating to onboarding")
+                    _navigationState.value = NavigationState.ToOnboarding
+                    _uiState.value = Success
                 }
             } catch (e: Exception) {
                 Clogger.e(TAG, "Error checking user team status: ${e.message}", e)

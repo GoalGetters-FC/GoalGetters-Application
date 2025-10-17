@@ -15,6 +15,7 @@ import com.ggetters.app.data.local.dao.BroadcastDao
 import com.ggetters.app.data.local.dao.BroadcastStatusDao
 import com.ggetters.app.data.local.dao.EventDao
 import com.ggetters.app.data.local.dao.LineupDao
+import com.ggetters.app.data.local.dao.MatchEventDao
 import com.ggetters.app.data.local.dao.NotificationDao
 import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
@@ -27,6 +28,7 @@ import com.ggetters.app.data.model.Notification
 import com.ggetters.app.data.model.PerformanceLog
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.data.model.User
+import com.ggetters.app.data.local.entity.MatchEventEntity
 import com.ggetters.app.data.local.migrations.MIGRATION_1_2
 import com.ggetters.app.data.local.migrations.MIGRATION_2_3
 import com.ggetters.app.data.local.migrations.MIGRATION_3_4
@@ -34,6 +36,7 @@ import com.ggetters.app.data.local.migrations.MIGRATION_4_5
 import com.ggetters.app.data.local.migrations.MIGRATION_5_6
 import com.ggetters.app.data.local.migrations.MIGRATION_6_7
 import com.ggetters.app.data.local.migrations.MIGRATION_7_8
+import com.ggetters.app.data.local.migrations.MIGRATION_8_9
 
 /**
  * Fresh baseline schema (v1). No migrations registered.
@@ -48,9 +51,10 @@ import com.ggetters.app.data.local.migrations.MIGRATION_7_8
         Attendance::class,
         Lineup::class,
         Notification::class,
-        PerformanceLog::class
+        PerformanceLog::class,
+        MatchEventEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = true
 )
 @TypeConverters(
@@ -69,6 +73,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun attendanceDao(): AttendanceDao
     abstract fun lineupDao(): LineupDao
     abstract fun notificationDao(): NotificationDao
+    abstract fun matchEventDao(): MatchEventDao
 
     companion object {
         @Volatile
@@ -82,7 +87,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance =
                     Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, DATABASE_NAME)
                         .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
-                            MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8
+                            MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9
                         )
                         .apply {
                             if (BuildConfig.DEBUG) {

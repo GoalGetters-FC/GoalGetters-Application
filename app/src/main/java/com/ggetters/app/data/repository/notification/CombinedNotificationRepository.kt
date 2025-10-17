@@ -4,6 +4,7 @@ import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Notification
 import com.ggetters.app.data.model.NotificationType
 import com.google.firebase.auth.FirebaseAuth
+import com.ggetters.app.data.remote.firestore.NotificationFirestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -13,7 +14,8 @@ import javax.inject.Inject
 class CombinedNotificationRepository @Inject constructor(
     private val offline: OfflineNotificationRepository,
     private val online: OnlineNotificationRepository,
-    private val firebaseAuth: FirebaseAuth
+    private val firebaseAuth: FirebaseAuth,
+    private val notificationFirestore: NotificationFirestore
 ) : NotificationRepository {
 
     override fun all(): Flow<List<Notification>> {
@@ -93,11 +95,9 @@ class CombinedNotificationRepository @Inject constructor(
 
     override suspend fun markAsSeen(notificationId: String, isSeen: Boolean) {
         val currentUserId = firebaseAuth.currentUser?.uid ?: return
-        
         offline.markAsSeen(notificationId, isSeen)
         try {
-            // Online repository needs userId, so we'll handle this differently
-            // For now, just update offline
+            notificationFirestore.markAsSeen(currentUserId, notificationId, isSeen)
         } catch (e: Exception) {
             Clogger.e("CombinedNotificationRepo", "Failed to mark as seen online", e)
         }
@@ -105,11 +105,9 @@ class CombinedNotificationRepository @Inject constructor(
 
     override suspend fun markAsPinned(notificationId: String, isPinned: Boolean) {
         val currentUserId = firebaseAuth.currentUser?.uid ?: return
-        
         offline.markAsPinned(notificationId, isPinned)
         try {
-            // Online repository needs userId, so we'll handle this differently
-            // For now, just update offline
+            notificationFirestore.markAsPinned(currentUserId, notificationId, isPinned)
         } catch (e: Exception) {
             Clogger.e("CombinedNotificationRepo", "Failed to mark as pinned online", e)
         }

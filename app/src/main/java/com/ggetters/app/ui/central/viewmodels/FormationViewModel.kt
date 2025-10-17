@@ -233,7 +233,14 @@ class FormationViewModel @Inject constructor(
      */
     private fun createSamplePlayers(): List<RosterPlayer> {
         return listOf(
-            RosterPlayer("1", "John Smith", 11, "GK", RSVPStatus.AVAILABLE),
+            RosterPlayer(
+                id = "1",
+                playerId = "1", 
+                playerName = "John Smith", 
+                jerseyNumber = 11, 
+                position = "GK", 
+                status = RSVPStatus.AVAILABLE
+            ),
         )
     }
 }

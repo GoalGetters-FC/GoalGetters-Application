@@ -22,6 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.time.Instant
 import java.util.UUID
 import javax.inject.Inject
@@ -105,6 +106,17 @@ class NotificationService : FirebaseMessagingService() {
             try {
                 // Register token with server
                 registerTokenWithServer(token)
+                // Subscribe to topics for current user/team
+                firebaseAuth.currentUser?.let { user ->
+                    try {
+                        // Basic topic strategy: per-user and global
+                        FirebaseMessaging.getInstance().subscribeToTopic("user_${'$'}{user.uid}").await()
+                        FirebaseMessaging.getInstance().subscribeToTopic("goal_getters").await()
+                        Clogger.d(TAG, "Subscribed to topics for user ${'$'}{user.uid}")
+                    } catch (e: Exception) {
+                        Clogger.e(TAG, "Failed subscribing to topics", e)
+                    }
+                }
             } catch (e: Exception) {
                 Clogger.e(TAG, "Failed to register token with server", e)
             }
@@ -185,10 +197,25 @@ class NotificationService : FirebaseMessagingService() {
     }
 
     private suspend fun registerTokenWithServer(token: String) {
-        // TODO: Implement token registration with your backend
-        // This would typically involve sending the token to your server
-        // along with the user ID for FCM topic subscription
-        Clogger.d(TAG, "Token registration with server not implemented yet")
+        // Persist token under users/{uid}/fcmTokens/{token}
+        val uid = firebaseAuth.currentUser?.uid ?: return
+        try {
+            com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(uid)
+                .collection("fcmTokens")
+                .document(token)
+                .set(mapOf(
+                    "token" to token,
+                    "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
+                    "platform" to "android"
+                ))
+                .await()
+            Clogger.d(TAG, "Token saved to Firestore for user ${'$'}uid")
+        } catch (e: Exception) {
+            Clogger.e(TAG, "Failed to save token to Firestore", e)
+            throw e
+        }
     }
 }
 
@@ -209,15 +236,15 @@ class NotificationManagerService @Inject constructor(
     suspend fun subscribeToTopics(userId: String, teamId: String?) {
         try {
             // Subscribe to user-specific topic
-            FirebaseMessaging.getInstance().subscribeToTopic("user_$userId")
+            FirebaseMessaging.getInstance().subscribeToTopic("user_$userId").await()
             
             // Subscribe to team-specific topic if available
             teamId?.let {
-                FirebaseMessaging.getInstance().subscribeToTopic("team_$it")
+                FirebaseMessaging.getInstance().subscribeToTopic("team_$it").await()
             }
             
             // Subscribe to general app topic
-            FirebaseMessaging.getInstance().subscribeToTopic("goal_getters")
+            FirebaseMessaging.getInstance().subscribeToTopic("goal_getters").await()
             
             Clogger.d(TAG, "Subscribed to FCM topics for user $userId")
         } catch (e: Exception) {

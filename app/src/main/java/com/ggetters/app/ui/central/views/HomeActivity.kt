@@ -265,6 +265,29 @@ class HomeActivity : AppCompatActivity() {
         // Default fragment is set in onCreate
     }
 
+    // Public helper to navigate to a specific bottom-nav tab programmatically
+    fun navigateToTab(menuItemId: Int) {
+        val bottomNav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNavigationView)
+        val newTabIndex = when (menuItemId) {
+            R.id.nav_calendar -> 0
+            R.id.nav_team_players -> 1
+            R.id.nav_player_profile -> 2
+            R.id.nav_profile -> 3
+            else -> currentTabIndex
+        }
+        val fragment = when (menuItemId) {
+            R.id.nav_calendar -> HomeCalendarFragment()
+            R.id.nav_team_players -> HomeTeamFragment()
+            R.id.nav_player_profile -> profileFragmentForCurrentUser()
+            R.id.nav_profile -> HomeSettingsFragment()
+            else -> null
+        }
+        fragment?.let {
+            switchFragmentWithDirection(it, newTabIndex)
+            bottomNav.selectedItemId = menuItemId
+        }
+    }
+
     private fun profileFragmentForCurrentUser(): Fragment {
         // Return the new AccountFragment for the current logged-in user
         return AccountFragment()

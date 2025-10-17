@@ -134,14 +134,24 @@ class AddEventActivity : AppCompatActivity() {
             }
 
             Clogger.i("AddEventActivity", "formData.date=${formData.date}, start=${formData.start}, end=${formData.end}, meet=${formData.meet}")
+            // Build title favoring explicit opponent when MATCH
+            val finalTitle = if (category == EventCategory.MATCH) {
+                val opp = formData.opponent?.takeIf { it.isNotBlank() }
+                when {
+                    opp != null -> "vs ${'$'}opp" // Always normalize to "vs Opponent" for matches
+                    else -> formData.title
+                }
+            } else formData.title
+
             upsertVm.save(
                 category = category,
-                title = formData.title,
+                title = finalTitle,
                 location = formData.location,
                 description = formData.description,
                 startAt = startAt,
                 endAt = endAt,
-                meetingAt = meetAt
+                meetingAt = meetAt,
+                opponent = formData.opponent
             )
         }
     }

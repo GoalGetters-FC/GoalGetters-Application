@@ -71,13 +71,13 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Team vs Team Dropdown -->
+        <!-- Opponent -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            android:hint="Team vs Team"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:hint="Opponent"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
@@ -85,14 +85,14 @@
             app:boxStrokeColor="@color/divider"
             app:hintTextColor="@color/text_secondary">
 
-            <AutoCompleteTextView
-                android:id="@+id/gameTeamVsTeamInput"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/gameOpponentInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
                 android:textColorHint="@color/text_secondary"
                 android:fontFamily="@font/variable_inter"
-                android:inputType="none" />
+                android:inputType="textCapWords" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

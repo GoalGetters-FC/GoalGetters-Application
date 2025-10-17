@@ -3,6 +3,9 @@ package com.ggetters.app.ui.central.views
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.os.Build
+import android.Manifest
+import android.content.pm.PackageManager
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
@@ -10,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -55,6 +59,7 @@ class NotificationsActivity : AppCompatActivity() {
         supportPostponeEnterTransition()
         supportStartPostponedEnterTransition()
 
+        requestNotificationPermissionIfNeeded()
         setupWindowInsets()
         setupHeader()
         setupNotifications()
@@ -93,9 +98,40 @@ class NotificationsActivity : AppCompatActivity() {
         }
     }
 
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            if (!granted) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1001) {
+            val granted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+            if (granted) {
+                Snackbar.make(findViewById(android.R.id.content), "Notifications enabled", Snackbar.LENGTH_SHORT).show()
+                // Optionally subscribe now if user just granted
+                model.subscribeTopicsForCurrentUser(activeTeamId = null)
+            } else {
+                Snackbar.make(findViewById(android.R.id.content), "Notifications permission denied", Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun setupNotifications() {
         val recyclerView = findViewById<RecyclerView>(R.id.notificationsRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Subscribe to topics for current user/team if available
+        // TODO: Replace null with active teamId from your app state
+        model.subscribeTopicsForCurrentUser(activeTeamId = null)
 
         // Observe notifications from ViewModel
         lifecycleScope.launch {
@@ -103,8 +139,9 @@ class NotificationsActivity : AppCompatActivity() {
                 model.notifications.collect { notifications ->
                     allNotifications = notifications.map { notification ->
                         // Convert Notification to NotificationItem for compatibility
-            NotificationItem(
+                        NotificationItem(
                             id = notification.id.hashCode(),
+                            sourceId = notification.id,
                             title = notification.title,
                             subtitle = notification.subtitle,
                             message = notification.message,
@@ -114,7 +151,11 @@ class NotificationsActivity : AppCompatActivity() {
                             sender = notification.sender,
                             linkedEventType = notification.linkedEventType,
                             linkedEventId = notification.linkedEventId,
-                            data = emptyMap() // Convert data string to map if needed
+                            // Attempt to parse notification.data JSON string to a Map for UI cards
+                            data = try { 
+                                val json = org.json.JSONObject(notification.data)
+                                json.keys().asSequence().associateWith { key -> json.get(key) }
+                            } catch (e: Exception) { emptyMap<String, Any>() }
                         )
                     }
                     filteredNotifications = allNotifications
@@ -245,11 +286,7 @@ class NotificationsActivity : AppCompatActivity() {
 
 
     private fun handleMarkAsSeen(notification: NotificationItem) {
-        // Find the original notification ID from the repository
-        val originalNotification = allNotifications.find { it.id == notification.id }
-        if (originalNotification != null) {
-            model.markAsSeen(originalNotification.id.toString(), !notification.isSeen)
-        }
+        model.markAsSeen(notification.sourceId, !notification.isSeen)
         
         val action = if (notification.isSeen) "marked as read" else "marked as unread"
         Snackbar.make(
@@ -260,11 +297,7 @@ class NotificationsActivity : AppCompatActivity() {
     }
 
     private fun handlePinNotification(notification: NotificationItem) {
-        // Find the original notification ID from the repository
-        val originalNotification = allNotifications.find { it.id == notification.id }
-        if (originalNotification != null) {
-            model.pinNotification(originalNotification.id.toString(), !notification.isPinned)
-        }
+        model.pinNotification(notification.sourceId, !notification.isPinned)
         
         val action = if (notification.isPinned) "pinned" else "unpinned"
         Snackbar.make(
@@ -275,7 +308,7 @@ class NotificationsActivity : AppCompatActivity() {
     }
 
     private fun handleViewLinkedEvent(notification: NotificationItem) {
-        // TODO: Backend - Navigate to linked event
+        // Navigate to linked event
         handleNotificationClick(notification)
     }
 
@@ -306,11 +339,7 @@ class NotificationsActivity : AppCompatActivity() {
             .setTitle("Delete Notification")
             .setMessage("Are you sure you want to delete this notification?")
             .setPositiveButton("Delete") { _, _ ->
-                // Find the original notification ID from the repository
-                val originalNotification = allNotifications.find { it.id == notification.id }
-                if (originalNotification != null) {
-                    model.deleteNotification(originalNotification.id.toString())
-                }
+                model.deleteNotification(notification.sourceId)
                 Snackbar.make(findViewById(android.R.id.content), "Notification deleted", Snackbar.LENGTH_SHORT).show()
             }
             .setNegativeButton("Cancel", null)
