@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="vertical"
+        android:layout_marginBottom="12dp"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+    <com.google.android.material.card.MaterialCardView
+            android:id="@+id/eventContainer"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent">
+
+            <androidx.coordinatorlayout.widget.CoordinatorLayout
+                    android:background="@drawable/circle_background"
+                    android:backgroundTint="#F5F6F7"
+                    android:layout_height="48dp"
+                    android:layout_width="48dp">
+
+                <ImageView
+                        android:id="@+id/eventTypeIcon"
+                        android:src="@drawable/xic_x36_uic_line_trophy"
+                        android:importantForAccessibility="no"
+                        app:tint="#161620"
+                        android:layout_gravity="center"
+                        android:layout_height="24dp"
+                        android:layout_width="24dp" />
+
+            </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+            <Space
+                    android:layout_height="0dp"
+                    android:layout_width="16dp" />
+
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp">
+
+                <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent">
+
+                    <TextView
+                            android:id="@+id/eventTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Dev Team vs Testers"
+                            android:textColor="#161620"
+                            android:textSize="16sp"
+                            android:textFontWeight="500"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:fontFamily="@font/variable_inter"
+                            tools:ignore="HardcodedText" />
+
+                    <Space
+                            android:layout_height="0dp"
+                            android:layout_width="8dp" />
+
+                </LinearLayout>
+
+                <Space
+                        android:layout_height="4dp"
+                        android:layout_width="0dp" />
+
+                <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent">
+
+                    <TextView
+                            android:id="@+id/eventTime"
+                            android:text="15:00"
+                            android:textColor="#161620"
+                            android:textSize="11sp"
+                            android:textFontWeight="500"
+                            android:fontFamily="@font/variable_inter"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            tools:ignore="HardcodedText" />
+
+                    <Space
+                            android:layout_height="0dp"
+                            android:layout_width="4dp" />
+
+                    <TextView
+                            android:text="|"
+                            android:textColor="#161620"
+                            android:textSize="11sp"
+                            android:textFontWeight="500"
+                            android:fontFamily="@font/variable_inter"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            tools:ignore="HardcodedText" />
+
+                    <Space
+                            android:layout_height="0dp"
+                            android:layout_width="4dp" />
+
+                    <TextView
+                            android:id="@+id/eventVenue"
+                            android:text="Buccaneer Stadium"
+                            android:textColor="#161620"
+                            android:textSize="11sp"
+                            android:textFontWeight="500"
+                            android:fontFamily="@font/variable_inter"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            tools:ignore="HardcodedText" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>
