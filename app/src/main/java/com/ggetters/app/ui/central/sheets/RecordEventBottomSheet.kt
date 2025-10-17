@@ -129,9 +129,11 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
                 goalTypeLayout.visibility = View.VISIBLE
                 // Clear hidden inputs to avoid hidden-data leakage
                 (view?.findViewById<android.widget.Spinner>(R.id.cardTypeSpinner))?.setSelection(0)
+                view?.findViewById<android.widget.EditText>(R.id.notesInput)?.setText("")
                 cardTypeLayout.visibility = View.GONE
                 (view?.findViewById<android.widget.Spinner>(R.id.substituteInSpinner))?.setSelection(0)
                 (view?.findViewById<android.widget.Spinner>(R.id.substituteOutSpinner))?.setSelection(0)
+                view?.findViewById<android.widget.EditText>(R.id.notesInput)?.setText("")
                 substitutionLayout.visibility = View.GONE
                 notesLayout.visibility = View.VISIBLE
                 setupGoalTypeSpinner()
@@ -150,6 +152,7 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
                 playerSelectionLayout.visibility = View.GONE
                 goalTypeLayout.visibility = View.GONE
                 (view?.findViewById<android.widget.Spinner>(R.id.cardTypeSpinner))?.setSelection(0)
+                view?.findViewById<android.widget.EditText>(R.id.notesInput)?.setText("")
                 cardTypeLayout.visibility = View.GONE
                 substitutionLayout.visibility = View.VISIBLE
                 notesLayout.visibility = View.VISIBLE
@@ -161,6 +164,7 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
                 cardTypeLayout.visibility = View.GONE
                 (view?.findViewById<android.widget.Spinner>(R.id.substituteInSpinner))?.setSelection(0)
                 (view?.findViewById<android.widget.Spinner>(R.id.substituteOutSpinner))?.setSelection(0)
+                view?.findViewById<android.widget.EditText>(R.id.notesInput)?.setText("")
                 substitutionLayout.visibility = View.GONE
                 notesLayout.visibility = View.VISIBLE
             }

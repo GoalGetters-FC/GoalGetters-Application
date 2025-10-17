@@ -79,8 +79,11 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
                     opponentLayout.visibility = View.VISIBLE
                 }
                 else -> {
-                    // Clear opponent text when hiding to avoid hidden-data leakage
-                    view.findViewById<TextInputEditText>(R.id.eventOpponentInput)?.setText("")
+                    // Clear opponent text and error when hiding to avoid hidden-data leakage
+                    view.findViewById<TextInputEditText>(R.id.eventOpponentInput)?.apply {
+                        setText("")
+                        error = null
+                    }
                     opponentLayout.visibility = View.GONE
                 }
             }
