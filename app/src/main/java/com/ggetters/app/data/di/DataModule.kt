@@ -15,6 +15,7 @@ import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
 import com.ggetters.app.data.local.dao.EventDao
 import com.ggetters.app.data.local.dao.LineupDao
+import com.ggetters.app.data.local.dao.MatchEventDao
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
@@ -146,6 +147,10 @@ object DataModule {
     @Provides
     @Singleton
     fun provideNotificationDao(db: AppDatabase): NotificationDao = db.notificationDao()
+
+    @Provides
+    @Singleton
+    fun provideMatchEventDao(db: AppDatabase): MatchEventDao = db.matchEventDao()
 
     // TODO: Backend - Add PerformanceLogDao provider
 }

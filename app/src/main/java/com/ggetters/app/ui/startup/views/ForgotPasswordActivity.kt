@@ -64,6 +64,8 @@ class ForgotPasswordActivity : AppCompatActivity(), Clickable {
                 Toast.makeText(
                     this, "Sent!", Toast.LENGTH_SHORT
                 ).show()
+                finish()
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
             }
 
             is Failure -> {
@@ -116,11 +118,14 @@ class ForgotPasswordActivity : AppCompatActivity(), Clickable {
             model.form.onIdentityChanged(text)
         }
 
-        // Error UI
+        // Error UI + button state
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.form.formState.collect { state ->
                     binds.etIdentity.setLayoutError(state.identity.error?.toString())
+                    val enabled = state.identity.error == null && state.identity.value.isNotBlank()
+                    binds.btSubmit.isEnabled = enabled
+                    binds.btSubmit.alpha = if (enabled) 1.0f else 0.6f
                 }
             }
         }

@@ -59,6 +59,7 @@ enum class MatchStatus {
  *  - Lineup assignment (position, starter/bench/reserve)
  */
 data class RosterPlayer(
+    val id: String = "",                  // Player ID (same as playerId for compatibility)
     val playerId: String,
     val playerName: String,
     val jerseyNumber: Int,
@@ -70,7 +71,8 @@ data class RosterPlayer(
 
     // Lineup details
     val lineupRole: SpotRole? = null,     // e.g., STARTER, BENCH, RESERVE
-    val lineupPosition: String? = null    // e.g., "CB", "GK"
+    val lineupPosition: String? = null,   // e.g., "CB", "GK"
+    val isSubstituted: Boolean = false    // Track if player has been substituted out
 )
 
 /**
@@ -140,7 +142,9 @@ enum class MatchEventType {
     MATCH_END,      // Match ended
     HALF_TIME,      // Half time break
 
-    SCORE_UPDATE    // Manual score update
+    SCORE_UPDATE,   // Manual score update
+    INJURY,         // Player injury event
+    OTHER           // Other miscellaneous event
 }
 
 

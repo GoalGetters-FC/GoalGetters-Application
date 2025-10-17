@@ -133,7 +133,6 @@
                         android:layout_width="match_parent"
                         android:focusable="false"
                         android:clickable="true"
-                        android:hint="Tap to select date"
                         android:textColorHint="#80000000" />
 
             </com.google.android.material.textfield.TextInputLayout>

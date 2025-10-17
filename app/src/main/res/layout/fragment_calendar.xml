@@ -27,7 +27,7 @@
                     android:orientation="horizontal"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="12dp"
-                    android:background="@color/surface_elevated">
+                    android:background="#F5F6F7">
 
                 <TextView
                         android:layout_width="0dp"
@@ -115,6 +115,7 @@
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="12dp"
                     android:clipToPadding="false"
+                    android:background="#F5F6F7"
                     android:overScrollMode="never" />
 
         </LinearLayout>
@@ -126,7 +127,6 @@
                 android:layout_height="0dp"
                 android:layout_weight="0.4"
                 android:orientation="vertical"
-                android:background="@color/surface_elevated"
                 android:elevation="4dp"
                 android:clipToPadding="false">
 
@@ -137,11 +137,10 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="20dp"
-                    android:paddingVertical="12dp"
-                    android:background="@color/surface_elevated">
+                    android:paddingVertical="12dp">
 
                 <ImageView
-                        android:src="@drawable/ic_unicons_calendar_24"
+                        android:src="@drawable/xic_x16_uic_line_calender"
                         android:importantForAccessibility="no"
                         android:gravity="center_vertical"
                         android:layout_marginEnd="12dp"
@@ -175,6 +174,8 @@
                         android:scrollbars="vertical"
                         android:fadingEdge="vertical"
                         android:fadingEdgeLength="24dp"
+                        android:paddingVertical="12dp"
+                        android:paddingHorizontal="20dp"
                         android:overScrollMode="ifContentScrolls"
                         android:visibility="gone" />
 
@@ -185,34 +186,36 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:gravity="center"
+                        android:padding="20dp"
                         android:visibility="visible">
 
                     <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:src="@drawable/ic_unicons_calendar_24"
-                            android:layout_marginBottom="12dp"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/xic_x24_uic_line_meeting_board"
+                            android:layout_marginBottom="10dp"
                             android:alpha="0.6"
-                            app:tint="@color/text_tertiary" />
+                            app:tint="#B1B3BC" />
 
                     <TextView
                             android:id="@+id/noEventsText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="No events scheduled"
+                            android:text="Time to polish your boots"
                             android:textSize="16sp"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="#B1B3BC"
                             android:gravity="center"
-                            android:textStyle="bold"
+                            android:textFontWeight="700"
                             android:fontFamily="@font/variable_inter"
-                            android:layout_marginBottom="4dp" />
+                            android:layout_marginBottom="10dp" />
 
                     <TextView
                             android:layout_width="wrap_content"
+                            android:maxWidth="255dp"
                             android:layout_height="wrap_content"
-                            android:text="Tap the + button to add an event"
-                            android:textSize="14sp"
-                            android:textColor="@color/text_tertiary"
+                            android:text="It looks like you don't have any events scheduled for today. Check back tomorrow for fresh fixtures or tap the + button to add an event!"
+                            android:textSize="11sp"
+                            android:textColor="#B1B3BC"
                             android:gravity="center"
                             android:fontFamily="@font/variable_inter" />
 

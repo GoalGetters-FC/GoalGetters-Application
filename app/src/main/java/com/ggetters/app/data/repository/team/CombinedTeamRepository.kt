@@ -67,10 +67,8 @@ class CombinedTeamRepository @Inject constructor(
             Clogger.i("Sync", "Pulled ${remote.size} remote teams")
             trace.putMetric("teams_pulled", remote.size.toLong())
 
-            val toDelete = offline.getAllLocal()
-                .filter { it.id !in remoteIds && !it.isStained() && it.id !in pushedIds }
-            toDelete.forEach { offline.deleteByIdLocal(it.id) }
-            trace.putMetric("teams_deleted_local", toDelete.size.toLong())
+            // Be conservative: skip local deletion to avoid accidental disappearance
+            trace.putMetric("teams_deleted_local", 0)
 
             val merged = remote.map { r ->
                 localSnapshot[r.id]?.let { r.copy(isActive = it.isActive) } ?: r
