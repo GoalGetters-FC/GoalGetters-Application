@@ -148,6 +148,24 @@ class PlayerProfileFragment : Fragment() {
     }
 
     private fun setupViews(view: View) {
+        // Toolbar back navigation: return to previously selected tab
+        view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
+            .setNavigationOnClickListener {
+                (activity as? HomeActivity)?.let { host ->
+                    // If this fragment was opened from a bottom-nav tab, pop the back stack first
+                    val fm = host.supportFragmentManager
+                    if (fm.backStackEntryCount > 0) fm.popBackStack()
+
+                    // Determine the desired tab based on where the user came from, if provided
+                    val originTabId = arguments?.getInt("origin_tab_id")
+                    if (originTabId != null) {
+                        host.navigateToTab(originTabId)
+                    } else {
+                        // Fallback: keep current tab selection, just finish this fragment
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
+                    }
+                }
+            }
         playerAvatar = view.findViewById(R.id.playerAvatar)
         playerName   = view.findViewById(R.id.playerName)
         playerAge    = view.findViewById(R.id.playerAge)
