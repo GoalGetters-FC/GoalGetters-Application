@@ -127,7 +127,11 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
             "goal" -> {
                 playerSelectionLayout.visibility = View.VISIBLE
                 goalTypeLayout.visibility = View.VISIBLE
+                // Clear hidden inputs to avoid hidden-data leakage
+                (view?.findViewById<android.widget.Spinner>(R.id.cardTypeSpinner))?.setSelection(0)
                 cardTypeLayout.visibility = View.GONE
+                (view?.findViewById<android.widget.Spinner>(R.id.substituteInSpinner))?.setSelection(0)
+                (view?.findViewById<android.widget.Spinner>(R.id.substituteOutSpinner))?.setSelection(0)
                 substitutionLayout.visibility = View.GONE
                 notesLayout.visibility = View.VISIBLE
                 setupGoalTypeSpinner()
@@ -136,6 +140,8 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
                 playerSelectionLayout.visibility = View.VISIBLE
                 goalTypeLayout.visibility = View.GONE
                 cardTypeLayout.visibility = View.VISIBLE
+                (view?.findViewById<android.widget.Spinner>(R.id.substituteInSpinner))?.setSelection(0)
+                (view?.findViewById<android.widget.Spinner>(R.id.substituteOutSpinner))?.setSelection(0)
                 substitutionLayout.visibility = View.GONE
                 notesLayout.visibility = View.VISIBLE
                 setupCardTypeSpinner()
@@ -143,6 +149,7 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
             "substitution" -> {
                 playerSelectionLayout.visibility = View.GONE
                 goalTypeLayout.visibility = View.GONE
+                (view?.findViewById<android.widget.Spinner>(R.id.cardTypeSpinner))?.setSelection(0)
                 cardTypeLayout.visibility = View.GONE
                 substitutionLayout.visibility = View.VISIBLE
                 notesLayout.visibility = View.VISIBLE
@@ -150,7 +157,10 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
             "injury", "other" -> {
                 playerSelectionLayout.visibility = View.VISIBLE
                 goalTypeLayout.visibility = View.GONE
+                (view?.findViewById<android.widget.Spinner>(R.id.cardTypeSpinner))?.setSelection(0)
                 cardTypeLayout.visibility = View.GONE
+                (view?.findViewById<android.widget.Spinner>(R.id.substituteInSpinner))?.setSelection(0)
+                (view?.findViewById<android.widget.Spinner>(R.id.substituteOutSpinner))?.setSelection(0)
                 substitutionLayout.visibility = View.GONE
                 notesLayout.visibility = View.VISIBLE
             }

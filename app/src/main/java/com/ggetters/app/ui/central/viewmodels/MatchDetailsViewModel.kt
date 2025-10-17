@@ -91,7 +91,8 @@ class MatchDetailsViewModel @Inject constructor(
                 
                 // Handle substitutions by updating lineup
                 if (event.eventType == com.ggetters.app.data.model.MatchEventType.SUBSTITUTION) {
-                    android.util.Log.d("MatchDetailsViewModel", "Processing substitution event: ${event.details}")
+                    // Avoid logging sensitive event payloads
+                    android.util.Log.d("MatchDetailsViewModel", "Processing substitution event")
                     handleSubstitutionEvent(event)
                 }
             } catch (e: Exception) {
@@ -113,10 +114,10 @@ class MatchDetailsViewModel @Inject constructor(
                 // Ensure the subbed-in player is available
                 matchRepo.setRSVP(event.matchId, playerInId, com.ggetters.app.data.model.RSVPStatus.AVAILABLE)
                 
-                android.util.Log.d("MatchDetailsViewModel", "Substitution processed: $playerInId in for $playerOutId")
+                android.util.Log.d("MatchDetailsViewModel", "Substitution processed")
             }
         } catch (e: Exception) {
-            android.util.Log.e("MatchDetailsViewModel", "Failed to handle substitution event: ${e.message}")
+            android.util.Log.e("MatchDetailsViewModel", "Failed to handle substitution event")
             _error.value = "Failed to process substitution: ${e.message}"
         }
     }
