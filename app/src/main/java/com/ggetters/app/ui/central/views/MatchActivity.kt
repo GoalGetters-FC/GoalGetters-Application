@@ -77,6 +77,7 @@ class MatchActivity : AppCompatActivity() {
     private fun setupTabs() {
         val adapter = MatchPagerAdapter(this, eventId)
         viewPager.adapter = adapter
+        viewPager.offscreenPageLimit = 2
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when (position) {

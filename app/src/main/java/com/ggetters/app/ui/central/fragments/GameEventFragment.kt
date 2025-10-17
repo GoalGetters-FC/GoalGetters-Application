@@ -61,7 +61,7 @@ class GameEventFragment : Fragment() {
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
+            ).apply { datePicker.minDate = System.currentTimeMillis() }.show()
         }
 
         // Start time picker
@@ -151,6 +151,26 @@ class GameEventFragment : Fragment() {
             ?.ifBlank { 
                 opponent?.let { "vs $it" } ?: "Match"
             } ?: "Match"
+
+        // Validate not in the past
+        val startDateTime = if (date != null && start != null) {
+            java.time.ZonedDateTime.of(date, start, java.time.ZoneId.systemDefault())
+        } else null
+        if (startDateTime != null && startDateTime.toInstant().isBefore(java.time.Instant.now())) {
+            view?.findViewById<TextInputEditText>(R.id.gameDateInput)?.error = "Start time must be in the future"
+            return EventFormData(
+                title = title,
+                description = view?.findViewById<TextInputEditText>(R.id.gameDescriptionInput)
+                    ?.text?.toString(),
+                location = view?.findViewById<TextInputEditText>(R.id.gameLocationInput)
+                    ?.text?.toString(),
+                opponent = opponent,
+                date = date,
+                start = start,
+                end = end,
+                meet = meet
+            )
+        }
 
         return EventFormData(
             title = title,

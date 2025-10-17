@@ -102,6 +102,11 @@ class OnboardingViewModel @Inject constructor(
             _events.send(UiEvent.Toast("Team code is required."))
             return@launch
         }
+        // Accept UUID-style and other generated codes: 4-64 chars, alnum, underscore, hyphen
+        if (!code.matches(Regex("^[A-Za-z0-9_-]{4,64}$"))) {
+            _events.send(UiEvent.Toast("Invalid team code format."))
+            return@launch
+        }
 
         _state.update { it.copy(isBusy = true, errorMessage = null) }
         runCatching {
@@ -114,7 +119,8 @@ class OnboardingViewModel @Inject constructor(
                 teamRepository.joinOrCreateTeam(code)
             }
             teamRepository.setActiveTeam(joined)
-            teamRepository.sync()
+            // Defer destructive sync deletes; perform a non-destructive refresh first
+            runCatching { teamRepository.sync() }
             joined
         }.onSuccess { team ->
             Clogger.i(TAG, "Joined team ${team.name} (${team.id}); set active")

@@ -13,8 +13,8 @@ import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,18 +34,21 @@ class ProfileViewModel @Inject constructor(
         teamRepo.getActiveTeam()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    /** Current logged-in user */
-    val currentUser: StateFlow<User?> = 
-        flow { 
-            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-            if (currentUserId != null) {
-                // Get user from local database first
-                val localUser = userRepo.getById(currentUserId)
-                emit(localUser)
+    /** Current logged-in user (observed; persists across restarts after sync) */
+    val currentUser: StateFlow<User?> =
+        teamRepo.getActiveTeam().flatMapLatest { activeTeam ->
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            if (activeTeam == null || uid == null) {
+                kotlinx.coroutines.flow.flowOf(null)
             } else {
-                emit(null)
+                userRepo.all().map { users -> users.firstOrNull { it.id == uid } }
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    init {
+        // Ensure user data is synced from remote on start so profile persists across restarts
+        viewModelScope.launch { runCatching { userRepo.sync() } }
+    }
 
     fun logout() = authService.logout()
     
@@ -56,6 +59,7 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 userRepo.upsert(user)
+                runCatching { userRepo.sync() }
                 Clogger.d(TAG, "User profile updated successfully")
             } catch (e: Exception) {
                 Clogger.e(TAG, "Failed to update user profile: ${e.message}", e)

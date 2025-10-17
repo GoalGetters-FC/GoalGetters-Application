@@ -44,6 +44,7 @@ class CombinedMatchDetailsRepository @Inject constructor(
             val start: Instant = evt.startAt
                 .atZone(ZoneId.systemDefault())
                 .toInstant()
+            val end: Instant? = evt.endAt?.atZone(ZoneId.systemDefault())?.toInstant()
 
             // "Match vs Liverpool (Completed)" → "Liverpool"
             val awayName = parseOpponentFromName(evt.name, homeName)
@@ -67,7 +68,7 @@ class CombinedMatchDetailsRepository @Inject constructor(
                     .format(start),
                 homeScore = homeScore,
                 awayScore = awayScore,
-                status = inferStatusFromStartAndEvents(start, matchEvents),
+                status = inferStatusFromStartEndAndEvents(start, end, matchEvents),
                 rsvpStats = atts.toRsvpStats(),
                 playerAvailability = emptyList(), // (enrich later)
                 createdBy = evt.creatorId ?: "System"
@@ -183,6 +184,17 @@ class CombinedMatchDetailsRepository @Inject constructor(
         return when {
             now.isBefore(startTime) && events.isEmpty() -> com.ggetters.app.data.model.MatchStatus.SCHEDULED
             now.isBefore(startTime) && events.isNotEmpty() -> com.ggetters.app.data.model.MatchStatus.IN_PROGRESS // Live with events
+            now.isAfter(endTime) -> com.ggetters.app.data.model.MatchStatus.FULL_TIME
+            else -> com.ggetters.app.data.model.MatchStatus.IN_PROGRESS
+        }
+    }
+
+    private fun inferStatusFromStartEndAndEvents(start: Instant, end: Instant?, events: List<MatchEvent>): com.ggetters.app.data.model.MatchStatus {
+        val now = Instant.now()
+        val startTime = start
+        val endTime = end ?: start.plus(Duration.ofMinutes(90))
+        return when {
+            now.isBefore(startTime) && events.isEmpty() -> com.ggetters.app.data.model.MatchStatus.SCHEDULED
             now.isAfter(endTime) -> com.ggetters.app.data.model.MatchStatus.FULL_TIME
             else -> com.ggetters.app.data.model.MatchStatus.IN_PROGRESS
         }

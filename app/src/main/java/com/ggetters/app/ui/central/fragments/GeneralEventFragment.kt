@@ -60,7 +60,7 @@ class GeneralEventFragment : Fragment() {
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
+            ).apply { datePicker.minDate = System.currentTimeMillis() }.show()
         }
 
         // Start time picker
