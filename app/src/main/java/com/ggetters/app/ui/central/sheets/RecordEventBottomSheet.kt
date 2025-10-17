@@ -218,6 +218,21 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
             return
         }
 
+        // Additional validation for substitutions
+        if (eventType == "substitution") {
+            val players = viewModel.availablePlayers.value
+            val inIdx = substituteInSpinner.selectedItemPosition
+            val outIdx = substituteOutSpinner.selectedItemPosition
+            if (players == null || inIdx !in players.indices || outIdx !in players.indices) {
+                showErrorMessage("Select both players for substitution")
+                return
+            }
+            if (inIdx == outIdx) {
+                showErrorMessage("Sub-in and sub-out must be different players")
+                return
+            }
+        }
+
         val selectedPlayerId = when {
             playerSelectionLayout.visibility == View.VISIBLE -> {
                 val selectedPlayer = playerSpinner.selectedItemPosition
@@ -256,18 +271,16 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
             "substitution" -> {
                 val subInIndex = substituteInSpinner.selectedItemPosition
                 val subOutIndex = substituteOutSpinner.selectedItemPosition
-                if (subInIndex >= 0 && subOutIndex >= 0) {
-                    val subInPlayer = viewModel.availablePlayers.value?.get(subInIndex)
-                    val subOutPlayer = viewModel.availablePlayers.value?.get(subOutIndex)
-                    
+                val players = viewModel.availablePlayers.value
+                if (players != null && subInIndex in players.indices && subOutIndex in players.indices && subInIndex != subOutIndex) {
+                    val subInPlayer = players[subInIndex]
+                    val subOutPlayer = players[subOutIndex]
+
                     // Store both IDs and names for proper display
-                    details["substituteIn"] = subInPlayer?.id ?: ""
-                    details["substituteOut"] = subOutPlayer?.id ?: ""
-                    details["playerIn"] = subInPlayer?.getFullName() ?: "Unknown"
-                    details["playerOut"] = subOutPlayer?.getFullName() ?: "Unknown"
-                    
-                    // Debug logging
-                    android.util.Log.d("RecordEventBottomSheet", "Substitution details: ${details}")
+                    details["substituteIn"] = subInPlayer.id
+                    details["substituteOut"] = subOutPlayer.id
+                    details["playerIn"] = subInPlayer.getFullName()
+                    details["playerOut"] = subOutPlayer.getFullName()
                 }
             }
         }
