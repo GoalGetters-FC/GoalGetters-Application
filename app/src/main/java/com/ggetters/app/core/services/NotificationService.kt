@@ -22,6 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.time.Instant
 import java.util.UUID
 import javax.inject.Inject
@@ -105,6 +106,17 @@ class NotificationService : FirebaseMessagingService() {
             try {
                 // Register token with server
                 registerTokenWithServer(token)
+                // Subscribe to topics for current user/team
+                firebaseAuth.currentUser?.let { user ->
+                    try {
+                        // Basic topic strategy: per-user and global
+                        FirebaseMessaging.getInstance().subscribeToTopic("user_${'$'}{user.uid}")
+                        FirebaseMessaging.getInstance().subscribeToTopic("goal_getters")
+                        Clogger.d(TAG, "Subscribed to topics for user ${'$'}{user.uid}")
+                    } catch (e: Exception) {
+                        Clogger.e(TAG, "Failed subscribing to topics", e)
+                    }
+                }
             } catch (e: Exception) {
                 Clogger.e(TAG, "Failed to register token with server", e)
             }
@@ -185,10 +197,25 @@ class NotificationService : FirebaseMessagingService() {
     }
 
     private suspend fun registerTokenWithServer(token: String) {
-        // TODO: Implement token registration with your backend
-        // This would typically involve sending the token to your server
-        // along with the user ID for FCM topic subscription
-        Clogger.d(TAG, "Token registration with server not implemented yet")
+        // Persist token under users/{uid}/fcmTokens/{token}
+        val uid = firebaseAuth.currentUser?.uid ?: return
+        try {
+            com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(uid)
+                .collection("fcmTokens")
+                .document(token)
+                .set(mapOf(
+                    "token" to token,
+                    "createdAt" to java.time.Instant.now(),
+                    "platform" to "android"
+                ))
+                .await()
+            Clogger.d(TAG, "Token saved to Firestore for user ${'$'}uid")
+        } catch (e: Exception) {
+            Clogger.e(TAG, "Failed to save token to Firestore", e)
+            throw e
+        }
     }
 }
 

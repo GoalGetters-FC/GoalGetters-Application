@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ggetters.app.data.model.MatchEvent
 import com.ggetters.app.data.model.User
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.match.MatchEventRepository
 import com.ggetters.app.data.repository.user.UserRepository
@@ -75,7 +76,7 @@ class MatchEventViewModel @Inject constructor(
                     val playerInId = event.details["substituteIn"] as? String
                     val playerOutId = event.details["substituteOut"] as? String
                     if (!playerInId.isNullOrBlank() && !playerOutId.isNullOrBlank()) {
-                        runCatching {
+                        runCatching<Unit> {
                             // Update out player -> UNAVAILABLE (2), in player -> AVAILABLE (0)
                             val outExisting = attendanceRepository.getById(event.matchId, playerOutId)
                             val outUpdated = (outExisting?.copy(status = 2)
