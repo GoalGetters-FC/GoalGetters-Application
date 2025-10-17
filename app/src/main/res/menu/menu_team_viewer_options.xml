@@ -5,14 +5,14 @@
     <!-- Options -->
 
     <item
-            android:id="@+id/nav_item_team_viewer_back"
-            android:icon="@drawable/ic_unicons_close_24"
-            android:title="Back"
+            android:id="@+id/nav_item_team_viewer_help"
+            android:icon="@drawable/xic_x24_uic_line_shield_check"
+            android:title="@string/help_faq"
             app:showAsAction="always" />
 
     <item
             android:id="@+id/nav_item_team_viewer_code"
-            android:icon="@drawable/ic_unicons_link_24"
+            android:icon="@drawable/xic_x24_uic_line_link"
             android:title="Link a new team"
             app:showAsAction="ifRoom" />
 

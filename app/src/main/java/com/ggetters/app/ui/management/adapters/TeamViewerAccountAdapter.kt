@@ -5,10 +5,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Team
-import com.ggetters.app.databinding.ItemTeamViewerAccountBinding
+import com.ggetters.app.databinding.ItemTeamViewerTeamBinding
 import com.ggetters.app.ui.shared.adapters.KeyedDiffCallback
 
 class TeamViewerAccountAdapter(
+    private val onClick: (Team) -> Unit,
     private val onSelectClicked: (Team) -> Unit,
     private val onDeleteClicked: (Team) -> Unit,
 ) : ListAdapter<Team, TeamViewerAccountViewHolder>(KeyedDiffCallback<Team>()) {
@@ -30,9 +31,11 @@ class TeamViewerAccountAdapter(
 
         // Construct the binding and return the view holder
         return TeamViewerAccountViewHolder(
-            binding = ItemTeamViewerAccountBinding.inflate(
+            binding = ItemTeamViewerTeamBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
             ),
+
+            onClick = onClick,
             onSelectClicked = onSelectClicked,
             onDeleteClicked = onDeleteClicked,
         )
