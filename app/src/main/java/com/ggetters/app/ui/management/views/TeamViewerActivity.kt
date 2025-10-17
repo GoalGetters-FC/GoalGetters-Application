@@ -61,7 +61,8 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         }
         lifecycleScope.launch {
             model.busy.collectLatest { isBusy ->
-                binds.progress?.visibility = if (isBusy) View.VISIBLE else View.GONE
+                //binds.progress?.visibility = if (isBusy) View.VISIBLE else View.GONE
+                if (isBusy) Toast.makeText(this@TeamViewerActivity, "Syncing...", Toast.LENGTH_SHORT).show()
             }
         }
     }
