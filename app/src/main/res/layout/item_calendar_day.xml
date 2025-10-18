@@ -17,7 +17,7 @@
                 android:id="@+id/dayContainer"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="@drawable/day_background"
+                android:background="@drawable/calendar_day_background"
                 android:clickable="true"
                 android:focusable="true"
                 android:layout_marginBottom="2dp"
@@ -53,7 +53,7 @@
                     android:id="@+id/eventDot1"
                     android:layout_width="4dp"
                     android:layout_height="4dp"
-                    android:background="@drawable/event_dot_practice"
+                    android:background="@drawable/calendar_event_dot_practice"
                     android:visibility="gone"
                     android:layout_marginHorizontal="1dp" />
 
@@ -62,7 +62,7 @@
                     android:id="@+id/eventDot2"
                     android:layout_width="4dp"
                     android:layout_height="4dp"
-                    android:background="@drawable/event_dot_game"
+                    android:background="@drawable/calendar_event_dot_game"
                     android:visibility="gone"
                     android:layout_marginHorizontal="1dp" />
 
@@ -71,7 +71,7 @@
                     android:id="@+id/eventDot3"
                     android:layout_width="4dp"
                     android:layout_height="4dp"
-                    android:background="@drawable/event_dot_other"
+                    android:background="@drawable/calendar_event_dot_other"
                     android:visibility="gone"
                     android:layout_marginHorizontal="1dp" />
 

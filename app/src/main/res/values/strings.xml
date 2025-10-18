@@ -47,4 +47,6 @@
     <string name="assists">Assists:</string>
     <string name="yellow_cards">Yellow Cards:</string>
     <string name="red_cards">Red Cards:</string>
+    <string name="frag_home_calendar_no_events_skeleton_heading">Time to polish your boots</string>
+    <string name="frag_home_calendar_no_events_skeleton_message">It looks like you don\'t have any events scheduled for this day. Check back tomorrow for fresh fixtures or tap the + button to add an event!</string>
 </resources>

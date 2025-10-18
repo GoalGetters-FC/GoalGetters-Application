@@ -293,24 +293,24 @@ class HomeCalendarFragment : Fragment(), Clickable {
         val calendar = currentDate.clone() as Calendar
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
         val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
-        binds.selectedDateText.text = dateFormat.format(calendar.time)
+        binds.tvSelectedDate.text = dateFormat.format(calendar.time)
 
         if (events.isEmpty()) {
-            binds.rvSelectedDayEvents.visibility = View.GONE
-            binds.noEventsLayout.visibility = View.VISIBLE
+            binds.rvSelectedDateEvents.visibility = View.GONE
+            binds.cvSkeleton.visibility = View.VISIBLE
         } else {
-            binds.rvSelectedDayEvents.visibility = View.VISIBLE
-            binds.noEventsLayout.visibility = View.GONE
+            binds.rvSelectedDateEvents.visibility = View.VISIBLE
+            binds.cvSkeleton.visibility = View.GONE
             eventsAdapter.update(events)
         }
 
-        binds.selectedDayEventsSection.visibility = View.VISIBLE
+        binds.cvSelectedDateEvents.visibility = View.VISIBLE
     }
 
 
     private fun hideSelectedDayEvents() {
-        binds.rvSelectedDayEvents.visibility = View.GONE
-        binds.noEventsLayout.visibility = View.GONE
+        binds.rvSelectedDateEvents.visibility = View.GONE
+        binds.cvSkeleton.visibility = View.GONE
     }
 
     private fun showEventDetails(event: Event) {
@@ -393,7 +393,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             onLongClick = { event -> editEvent(event) }
         )
 
-        binds.rvSelectedDayEvents.apply {
+        binds.rvSelectedDateEvents.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = eventsAdapter
         }

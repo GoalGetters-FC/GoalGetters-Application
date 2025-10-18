@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white">
@@ -30,6 +31,7 @@
                     android:background="#F5F6F7">
 
                 <TextView
+                        android:id="@+id/tv_weekdays_header_slot_1"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -38,9 +40,11 @@
                         android:textColor="@color/text_secondary"
                         android:gravity="center"
                         android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter" />
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
 
                 <TextView
+                        android:id="@+id/tv_weekdays_header_slot_2"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -49,9 +53,11 @@
                         android:textColor="@color/text_secondary"
                         android:gravity="center"
                         android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter" />
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
 
                 <TextView
+                        android:id="@+id/tv_weekdays_header_slot_3"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -60,9 +66,11 @@
                         android:textColor="@color/text_secondary"
                         android:gravity="center"
                         android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter" />
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
 
                 <TextView
+                        android:id="@+id/tv_weekdays_header_slot_4"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -71,9 +79,11 @@
                         android:textColor="@color/text_secondary"
                         android:gravity="center"
                         android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter" />
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
 
                 <TextView
+                        android:id="@+id/tv_weekdays_header_slot_5"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -82,9 +92,11 @@
                         android:textColor="@color/text_secondary"
                         android:gravity="center"
                         android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter" />
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
 
                 <TextView
+                        android:id="@+id/tv_weekdays_header_slot_6"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -93,9 +105,11 @@
                         android:textColor="@color/text_secondary"
                         android:gravity="center"
                         android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter" />
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
 
                 <TextView
+                        android:id="@+id/tv_weekdays_header_slot_7"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -104,7 +118,8 @@
                         android:textColor="@color/text_secondary"
                         android:gravity="center"
                         android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter" />
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
 
             </LinearLayout>
 
@@ -122,7 +137,7 @@
 
         <!-- Event details section (40% of available height) -->
         <LinearLayout
-                android:id="@+id/selectedDayEventsSection"
+                android:id="@+id/cv_selected_date_events"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="0.4"
@@ -137,10 +152,11 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="20dp"
-                    android:paddingVertical="12dp">
+                    android:paddingVertical="12dp"
+                    tools:ignore="UseCompoundDrawables">
 
                 <ImageView
-                        android:src="@drawable/xic_x16_uic_line_calender"
+                        android:src="@drawable/xic_x18_uic_line_calender"
                         android:importantForAccessibility="no"
                         android:gravity="center_vertical"
                         android:layout_marginEnd="12dp"
@@ -148,15 +164,16 @@
                         android:layout_width="wrap_content" />
 
                 <TextView
-                        android:id="@+id/selectedDateText"
+                        android:id="@+id/tv_selected_date"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Date"
+                        android:text="2025/10/10"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/black"
-                        android:fontFamily="@font/variable_inter" />
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
 
             </LinearLayout>
 
@@ -167,7 +184,7 @@
 
                 <!-- Events RecyclerView -->
                 <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_selected_day_events"
+                        android:id="@+id/rv_selected_date_events"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:clipToPadding="false"
@@ -181,7 +198,7 @@
 
                 <!-- No events message with improved styling -->
                 <LinearLayout
-                        android:id="@+id/noEventsLayout"
+                        android:id="@+id/cv_skeleton"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="vertical"
@@ -190,6 +207,7 @@
                         android:visibility="visible">
 
                     <ImageView
+                            android:importantForAccessibility="no"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:src="@drawable/xic_x24_uic_line_meeting_board"
@@ -198,10 +216,10 @@
                             app:tint="#B1B3BC" />
 
                     <TextView
-                            android:id="@+id/noEventsText"
+                            android:id="@+id/tv_skeleton_heading"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Time to polish your boots"
+                            android:text="@string/frag_home_calendar_no_events_skeleton_heading"
                             android:textSize="16sp"
                             android:textColor="#B1B3BC"
                             android:gravity="center"
@@ -210,10 +228,11 @@
                             android:layout_marginBottom="10dp" />
 
                     <TextView
+                            android:id="@+id/tv_skeleton_message"
                             android:layout_width="wrap_content"
                             android:maxWidth="255dp"
                             android:layout_height="wrap_content"
-                            android:text="It looks like you don't have any events scheduled for today. Check back tomorrow for fresh fixtures or tap the + button to add an event!"
+                            android:text="@string/frag_home_calendar_no_events_skeleton_message"
                             android:textSize="11sp"
                             android:textColor="#B1B3BC"
                             android:gravity="center"
