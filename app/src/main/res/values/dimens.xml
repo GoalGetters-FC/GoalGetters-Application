@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="modal_sheet_inset_x">24dp</dimen>
+    <dimen name="modal_sheet_inset_yt">48dp</dimen>
+    <dimen name="modal_sheet_inset_yb">24dp</dimen>
+</resources>

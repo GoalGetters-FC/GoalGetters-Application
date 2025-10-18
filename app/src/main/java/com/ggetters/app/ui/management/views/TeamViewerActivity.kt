@@ -17,7 +17,7 @@ import com.ggetters.app.data.model.Team
 import com.ggetters.app.databinding.ActivityTeamViewerBinding
 import com.ggetters.app.ui.management.adapters.TeamViewerAccountAdapter
 import com.ggetters.app.ui.management.viewmodels.TeamViewerViewModel
-import com.ggetters.app.ui.shared.modals.CreateTeamBottomSheet
+import com.ggetters.app.ui.shared.modals.FormTeamBottomSheet
 import com.ggetters.app.ui.shared.modals.JoinTeamBottomSheet
 import com.ggetters.app.ui.shared.models.Clickable
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -140,8 +140,8 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
     // --- Click handling ---
     override fun onClick(view: View?) = when (view?.id) {
         binds.fab.id -> {
-            CreateTeamBottomSheet(this::onFormTeamSheetSubmitted)
-                .show(supportFragmentManager, CreateTeamBottomSheet.TAG)
+            FormTeamBottomSheet(this::onFormTeamSheetSubmitted)
+                .show(supportFragmentManager, FormTeamBottomSheet.TAG)
         }
         else -> {
             Clogger.w(TAG, "Unhandled click for: ${view?.id}")
