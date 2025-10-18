@@ -47,4 +47,15 @@
     <string name="assists">Assists:</string>
     <string name="yellow_cards">Yellow Cards:</string>
     <string name="red_cards">Red Cards:</string>
+    <string name="frag_home_calendar_no_events_skeleton_heading">Time to polish your boots</string>
+    <string name="frag_home_calendar_no_events_skeleton_message">It looks like you don\'t have any events scheduled for this day. Check back tomorrow for fresh fixtures or tap the + button to add an event!</string>
+    <string name="modal_sheet_text_input_hint_team_code">Team Code</string>
+    <string name="modal_sheet_text_input_hint_user_code">User Code</string>
+    <string name="modal_sheet_join_team_button_continue_text">Join the Team</string>
+    <string name="modal_sheet_join_team_message_text">If your coach has already created a team for you, enter your team and user code below to jump right onto the field!</string>
+    <string name="modal_sheet_join_team_heading_text">Join the Field</string>
+    <string name="modal_sheet_form_team_heading_text">Start a Formation</string>
+    <string name="modal_sheet_form_team_message_text">Form your new team and start playing! Enter a memorable name below, and watch the trophies pile up.</string>
+    <string name="modal_sheet_form_team_button_continue_text">Form the Team</string>
+    <string name="modal_sheet_text_input_hint_team_name">Team Name</string>
 </resources>
