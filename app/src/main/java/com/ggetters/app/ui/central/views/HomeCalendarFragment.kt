@@ -20,7 +20,7 @@ import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.CalendarDayItem
 import com.ggetters.app.data.model.Event
 import com.ggetters.app.data.model.EventCategory
-import com.ggetters.app.databinding.FragmentCalendarBinding
+import com.ggetters.app.databinding.FragmentHomeCalendarBinding
 import com.ggetters.app.ui.central.adapters.CalendarAdapter
 import com.ggetters.app.ui.central.adapters.EventAdapter
 import com.ggetters.app.ui.central.models.AppbarTheme
@@ -48,7 +48,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
     }
 
 
-    private lateinit var binds: FragmentCalendarBinding
+    private lateinit var binds: FragmentHomeCalendarBinding
     private lateinit var adapter: CalendarAdapter
     private lateinit var eventsAdapter: EventAdapter
 
@@ -450,7 +450,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
     private fun createBindings(
         inflater: LayoutInflater, container: ViewGroup?
     ): View {
-        binds = FragmentCalendarBinding.inflate(inflater, container, false)
+        binds = FragmentHomeCalendarBinding.inflate(inflater, container, false)
         return binds.root
     }
 

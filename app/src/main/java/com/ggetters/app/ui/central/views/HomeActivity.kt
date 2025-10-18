@@ -28,12 +28,10 @@ import com.ggetters.app.databinding.ActivityHomeBinding
 import com.ggetters.app.ui.central.models.AppbarTheme
 import com.ggetters.app.ui.central.models.HomeUiConfiguration
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
-import com.ggetters.app.ui.central.views.AccountFragment
 import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.management.views.TeamsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -289,8 +287,8 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun profileFragmentForCurrentUser(): Fragment {
-        // Return the new AccountFragment for the current logged-in user
-        return AccountFragment()
+        // Return the new HomeAccountFragment for the current logged-in user
+        return HomeAccountFragment()
     }
 
     private fun setupOptionsLongClick(bottomNav: BottomNavigationView) {
