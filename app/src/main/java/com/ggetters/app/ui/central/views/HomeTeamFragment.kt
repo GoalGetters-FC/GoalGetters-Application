@@ -51,7 +51,7 @@ class HomeTeamFragment : Fragment(), Clickable {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? = createBindings(inflater, container)
-    
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -82,13 +82,12 @@ class HomeTeamFragment : Fragment(), Clickable {
             launch {
                 activeModel.activeTeam.collect { team ->
                     if (team == null) {
-                        binds.tvTeamAlias.text = getString(R.string.no_active_team)
-                        binds.tvTeamSport.text = ""
+                        binds.widgetHeader.setHeadingText(getString(R.string.no_active_team))
                         binds.fab.isEnabled = false
                         adapter.update(emptyList())
                     } else {
-                        binds.tvTeamAlias.text = team.name
-                        binds.tvTeamSport.text = "Football (Soccer)"
+                        binds.widgetHeader.setHeadingText(team.name)
+                        binds.widgetHeader.setMessageText("Football (Soccer)")
                         binds.fab.isEnabled = true
                     }
                 }

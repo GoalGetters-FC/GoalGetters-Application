@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ModalBottomSheetJoinTeamBinding
 import com.ggetters.app.ui.shared.models.Clickable
@@ -21,6 +22,12 @@ class JoinTeamBottomSheet(
 
 
 // --- Lifecycle
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setStyle(STYLE_NORMAL, R.style.Widget_Local_ModalBottomSheet)
+        super.onCreate(savedInstanceState)
+    }
 
 
     override fun onCreateView(
