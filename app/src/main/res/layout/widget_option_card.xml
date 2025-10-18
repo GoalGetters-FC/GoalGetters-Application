@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <com.google.android.material.card.MaterialCardView
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent">
+
+            <androidx.coordinatorlayout.widget.CoordinatorLayout
+                    android:background="@drawable/circle_background"
+                    android:backgroundTint="#F5F6F7"
+                    android:layout_height="48dp"
+                    android:layout_width="48dp">
+
+                <ImageView
+                        android:id="@+id/iv_icon"
+                        tools:src="@drawable/xic_x36_uic_line_user"
+                        android:importantForAccessibility="no"
+                        app:tint="#161620"
+                        android:layout_gravity="center"
+                        android:layout_height="24dp"
+                        android:layout_width="24dp" />
+
+            </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+            <Space
+                    android:layout_height="0dp"
+                    android:layout_width="16dp" />
+
+            <TextView
+                    android:id="@+id/tv_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="Account"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textFontWeight="500"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:layout_gravity="center_vertical"
+                    android:fontFamily="@font/variable_inter" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</merge>
