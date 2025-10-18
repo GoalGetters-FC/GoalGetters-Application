@@ -10,7 +10,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
-import com.ggetters.app.databinding.FragmentSettingsBinding
+import com.ggetters.app.databinding.FragmentHomeSettingsBinding
 import com.ggetters.app.ui.central.models.AppbarTheme
 import com.ggetters.app.ui.central.models.HomeUiConfiguration
 import com.ggetters.app.ui.central.viewmodels.HomeSettingsViewModel
@@ -32,7 +32,7 @@ class HomeSettingsFragment : Fragment(), Clickable {
     private val sharedModel: HomeViewModel by activityViewModels()
 
 
-    private lateinit var binds: FragmentSettingsBinding
+    private lateinit var binds: FragmentHomeSettingsBinding
 
 
 // --- Lifecycle
@@ -51,8 +51,8 @@ class HomeSettingsFragment : Fragment(), Clickable {
 
         setupTouchListeners()
 
-        binds.tvHead.text = activeModel.getAuthAccount()?.email
-        binds.tvText.text = activeModel.getAuthAccount()?.email
+        binds.widgetHeader.setHeadingText(activeModel.getAuthAccount()?.email)
+        binds.widgetHeader.setMessageText(activeModel.getAuthAccount()?.email)
 
         sharedModel.useViewConfiguration(
             HomeUiConfiguration(
@@ -83,7 +83,7 @@ class HomeSettingsFragment : Fragment(), Clickable {
         binds.cvOptionSettings.id -> {}
         binds.cvOptionNotifications.id -> {
             startActivity(Intent(requireContext(), NotificationsActivity::class.java))
-        requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
+            requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
         }
 
         binds.cvOptionPrivacy.id -> {}
@@ -114,7 +114,7 @@ class HomeSettingsFragment : Fragment(), Clickable {
     private fun createBindings(
         inflater: LayoutInflater, container: ViewGroup?
     ): View {
-        binds = FragmentSettingsBinding.inflate(inflater, container, false)
+        binds = FragmentHomeSettingsBinding.inflate(inflater, container, false)
         return binds.root
     }
 }

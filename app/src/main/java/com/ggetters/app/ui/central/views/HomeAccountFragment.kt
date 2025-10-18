@@ -17,16 +17,15 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.User
-import com.ggetters.app.data.model.UserRole
-import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.data.model.UserPosition
+import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.ui.central.models.AppbarTheme
 import com.ggetters.app.ui.central.models.HomeUiConfiguration
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.central.viewmodels.ProfileViewModel
+import com.ggetters.app.ui.shared.components.HomeViewHeaderWidget
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -34,9 +33,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
-class AccountFragment : Fragment() {
+class HomeAccountFragment : Fragment() {
     companion object {
-        private const val TAG = "AccountFragment"
+        private const val TAG = "HomeAccountFragment"
     }
 
     private val activeModel: ProfileViewModel by viewModels()
@@ -53,10 +52,9 @@ class AccountFragment : Fragment() {
     private lateinit var positionInput: EditText
     private lateinit var roleInput: EditText
     private lateinit var statusText: TextView
-    
+
     // Header elements
-    private lateinit var userNameHeader: TextView
-    private lateinit var userRoleHeader: TextView
+    private lateinit var widgetHeader: HomeViewHeaderWidget
 
     // Team Information
     private lateinit var teamNameText: TextView
@@ -75,7 +73,7 @@ class AccountFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_account, container, false)
+    ): View? = inflater.inflate(R.layout.fragment_home_account, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -95,9 +93,8 @@ class AccountFragment : Fragment() {
 
     private fun setupViews(view: View) {
         // Header elements
-        userNameHeader = view.findViewById(R.id.tv_user_name_header)
-        userRoleHeader = view.findViewById(R.id.tv_user_role_header)
-        
+        widgetHeader = view.findViewById(R.id.widget_header)
+
         // Personal Information
         firstNameInput = view.findViewById(R.id.etFirstName)
         lastNameInput = view.findViewById(R.id.etLastName)
@@ -123,11 +120,11 @@ class AccountFragment : Fragment() {
         // Initially disable all inputs
         setInputsEnabled(false)
         updateButtonVisibility()
-        
+
         // Setup role selection click listener
         setupRoleSelection()
     }
-    
+
     private fun setupRoleSelection() {
         roleInput.setOnClickListener {
             if (isEditMode) {
@@ -135,13 +132,18 @@ class AccountFragment : Fragment() {
             }
         }
     }
-    
+
     private fun showRoleSelectionDialog() {
         val roles = UserRole.values()
-        val roleNames = roles.map { it.name.replace("_", " ").lowercase().replaceFirstChar { char -> char.uppercase() } }.toTypedArray()
-        
-        val currentRoleIndex = roles.indexOfFirst { it.name.replace("_", " ").lowercase().replaceFirstChar { char -> char.uppercase() } == roleInput.text.toString() }
-        
+        val roleNames = roles.map {
+            it.name.replace("_", " ").lowercase().replaceFirstChar { char -> char.uppercase() }
+        }.toTypedArray()
+
+        val currentRoleIndex = roles.indexOfFirst {
+            it.name.replace("_", " ").lowercase()
+                .replaceFirstChar { char -> char.uppercase() } == roleInput.text.toString()
+        }
+
         AlertDialog.Builder(requireContext(), R.style.Theme_GoalGetters_Dialog)
             .setTitle("Select Role")
             .setSingleChoiceItems(roleNames, currentRoleIndex) { dialog, which ->
@@ -197,9 +199,11 @@ class AccountFragment : Fragment() {
 
     private fun populateUserData(user: User) {
         // Update header
-        userNameHeader.text = user.fullName().ifBlank { user.alias.ifBlank { "User Account" } }
-        userRoleHeader.text = user.role.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }
-        
+        widgetHeader.setHeadingText(
+            user.fullName().ifBlank { user.alias.ifBlank { "User Account" } })
+        widgetHeader.setMessageText(
+            user.role.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() })
+
         // Personal Information
         firstNameInput.setText(user.name)
         lastNameInput.setText(user.surname)
@@ -216,14 +220,16 @@ class AccountFragment : Fragment() {
 
         // Football Information
         positionInput.setText(user.position?.name ?: "")
-        roleInput.setText(user.role.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() })
-        statusText.setText(user.status?.name?.lowercase()?.replaceFirstChar { it.uppercase() } ?: "Active")
+        roleInput.setText(
+            user.role.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() })
+        statusText.setText(user.status?.name?.lowercase()?.replaceFirstChar { it.uppercase() }
+            ?: "Active")
     }
 
     private fun showPlaceholderData() {
-        userNameHeader.text = "User Account"
-        userRoleHeader.text = "Account Settings"
-        
+        widgetHeader.setHeadingText("User Account")
+        widgetHeader.setMessageText("Account Settings")
+
         firstNameInput.setText("")
         lastNameInput.setText("")
         emailInput.setText("")
@@ -281,30 +287,32 @@ class AccountFragment : Fragment() {
             email = emailInput.text.toString().trim(),
             alias = aliasInput.text.toString().trim(),
             role = selectedRole,
-            dateOfBirth = dateOfBirthInput.text.toString().trim().takeIf { it.isNotEmpty() }?.let { dateStr ->
-                try {
-                    LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                } catch (e: Exception) {
-                    null
-                }
-            },
-            position = positionInput.text.toString().trim().takeIf { it.isNotEmpty() }?.let { posStr ->
-                try {
-                    UserPosition.valueOf(posStr.uppercase().replace(" ", "_"))
-                } catch (e: Exception) {
-                    UserPosition.UNKNOWN
-                }
-            },
+            dateOfBirth = dateOfBirthInput.text.toString().trim().takeIf { it.isNotEmpty() }
+                ?.let { dateStr ->
+                    try {
+                        LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                    } catch (e: Exception) {
+                        null
+                    }
+                },
+            position = positionInput.text.toString().trim().takeIf { it.isNotEmpty() }
+                ?.let { posStr ->
+                    try {
+                        UserPosition.valueOf(posStr.uppercase().replace(" ", "_"))
+                    } catch (e: Exception) {
+                        UserPosition.UNKNOWN
+                    }
+                },
             updatedAt = Instant.now()
         )
 
         // Save changes
         activeModel.updateUserProfile(updatedUser)
-        
+
         isEditMode = false
         setInputsEnabled(false)
         updateButtonVisibility()
-        
+
         Snackbar.make(requireView(), "Account updated successfully", Snackbar.LENGTH_SHORT).show()
     }
 
@@ -339,13 +347,20 @@ class AccountFragment : Fragment() {
         try {
             activeModel.deleteUserAccount()
             // Navigate to login screen after account deletion
-            val intent = Intent(requireContext(), com.ggetters.app.ui.startup.views.StartActivity::class.java)
+            val intent = Intent(
+                requireContext(),
+                com.ggetters.app.ui.startup.views.StartActivity::class.java
+            )
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             requireActivity().finish()
         } catch (e: Exception) {
             Clogger.e(TAG, "Error deleting account", e)
-            Snackbar.make(requireView(), "Error deleting account. Please try again.", Snackbar.LENGTH_LONG).show()
+            Snackbar.make(
+                requireView(),
+                "Error deleting account. Please try again.",
+                Snackbar.LENGTH_LONG
+            ).show()
         }
     }
 }

@@ -20,7 +20,7 @@ import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.CalendarDayItem
 import com.ggetters.app.data.model.Event
 import com.ggetters.app.data.model.EventCategory
-import com.ggetters.app.databinding.FragmentCalendarBinding
+import com.ggetters.app.databinding.FragmentHomeCalendarBinding
 import com.ggetters.app.ui.central.adapters.CalendarAdapter
 import com.ggetters.app.ui.central.adapters.EventAdapter
 import com.ggetters.app.ui.central.models.AppbarTheme
@@ -48,7 +48,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
     }
 
 
-    private lateinit var binds: FragmentCalendarBinding
+    private lateinit var binds: FragmentHomeCalendarBinding
     private lateinit var adapter: CalendarAdapter
     private lateinit var eventsAdapter: EventAdapter
 
@@ -293,24 +293,24 @@ class HomeCalendarFragment : Fragment(), Clickable {
         val calendar = currentDate.clone() as Calendar
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
         val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
-        binds.selectedDateText.text = dateFormat.format(calendar.time)
+        binds.tvSelectedDate.text = dateFormat.format(calendar.time)
 
         if (events.isEmpty()) {
-            binds.rvSelectedDayEvents.visibility = View.GONE
-            binds.noEventsLayout.visibility = View.VISIBLE
+            binds.rvSelectedDateEvents.visibility = View.GONE
+            binds.cvSkeleton.visibility = View.VISIBLE
         } else {
-            binds.rvSelectedDayEvents.visibility = View.VISIBLE
-            binds.noEventsLayout.visibility = View.GONE
+            binds.rvSelectedDateEvents.visibility = View.VISIBLE
+            binds.cvSkeleton.visibility = View.GONE
             eventsAdapter.update(events)
         }
 
-        binds.selectedDayEventsSection.visibility = View.VISIBLE
+        binds.cvSelectedDateEvents.visibility = View.VISIBLE
     }
 
 
     private fun hideSelectedDayEvents() {
-        binds.rvSelectedDayEvents.visibility = View.GONE
-        binds.noEventsLayout.visibility = View.GONE
+        binds.rvSelectedDateEvents.visibility = View.GONE
+        binds.cvSkeleton.visibility = View.GONE
     }
 
     private fun showEventDetails(event: Event) {
@@ -393,7 +393,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
             onLongClick = { event -> editEvent(event) }
         )
 
-        binds.rvSelectedDayEvents.apply {
+        binds.rvSelectedDateEvents.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = eventsAdapter
         }
@@ -450,7 +450,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
     private fun createBindings(
         inflater: LayoutInflater, container: ViewGroup?
     ): View {
-        binds = FragmentCalendarBinding.inflate(inflater, container, false)
+        binds = FragmentHomeCalendarBinding.inflate(inflater, container, false)
         return binds.root
     }
 

@@ -4,16 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ModalBottomSheetCreateTeamBinding
 import com.ggetters.app.ui.shared.models.Clickable
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class CreateTeamBottomSheet(
+class FormTeamBottomSheet(
     private val onSubmit: (String) -> Unit
 ) : BottomSheetDialogFragment(), Clickable {
     companion object {
-        const val TAG = "CreateTeamBottomSheet"
+        const val TAG = "FormTeamBottomSheet"
     }
 
 
@@ -21,6 +22,12 @@ class CreateTeamBottomSheet(
 
 
 // --- Lifecycle
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setStyle(STYLE_NORMAL, R.style.Widget_Local_ModalBottomSheet)
+        super.onCreate(savedInstanceState)
+    }
 
 
     override fun onCreateView(

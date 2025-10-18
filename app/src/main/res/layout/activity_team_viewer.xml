@@ -11,7 +11,7 @@
 
     <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/top_bar"
-            android:background="@android:color/transparent"
+            android:background="#161620"
             android:layout_gravity="top"
             android:layout_height="wrap_content"
             android:layout_width="match_parent">
@@ -20,6 +20,10 @@
                 android:id="@+id/app_bar"
                 app:title="Teams"
                 app:titleCentered="true"
+                app:titleTextColor="@color/white"
+                app:subtitleTextColor="@color/white"
+                app:navigationIconTint="@color/white"
+                app:navigationIcon="@drawable/xic_x24_uic_line_angle_left"
                 android:minHeight="?attr/actionBarSize"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent" />
@@ -30,8 +34,9 @@
 
     <androidx.core.widget.NestedScrollView
             android:id="@+id/svContainer"
-            android:layout_marginBottom="80dp"
             android:fillViewport="true"
+            android:background="#FFFFFF"
+            android:layout_marginBottom="80dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -41,7 +46,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_accounts"
-                tools:listitem="@layout/item_user"
+                tools:listitem="@layout/item_team_viewer_team"
                 android:padding="16dp"
                 android:layout_height="match_parent"
                 android:layout_width="match_parent" />
@@ -52,8 +57,9 @@
 
     <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/bottom_bar"
-            android:layout_gravity="bottom"
+            android:fitsSystemWindows="true"
             app:menu="@menu/menu_team_viewer_options"
+            android:layout_gravity="bottom"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:backgroundTint="@color/white"

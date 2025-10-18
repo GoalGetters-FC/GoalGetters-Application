@@ -14,41 +14,12 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent">
 
-        <LinearLayout
-                android:orientation="vertical"
-                android:paddingTop="16dp"
-                android:paddingBottom="32dp"
-                android:paddingHorizontal="28dp"
+        <com.ggetters.app.ui.shared.components.HomeViewHeaderWidget
+                android:id="@+id/widget_header"
+                tools:widget_heading="Matthew Pieterse"
+                tools:widget_message="Full-Time Player"
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent">
-
-            <TextView
-                    android:id="@+id/tv_team_alias"
-                    android:text="U18 Johannesburg"
-                    android:textColor="#FFFFFF"
-                    android:textSize="24sp"
-                    android:textFontWeight="600"
-                    android:fontFamily="@font/variable_inter"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    tools:ignore="HardcodedText" />
-
-            <Space
-                    android:layout_height="8dp"
-                    android:layout_width="0dp" />
-
-            <TextView
-                    android:id="@+id/tv_team_sport"
-                    android:text="Football (Soccer)"
-                    android:textColor="#FFFFFF"
-                    android:textSize="16sp"
-                    android:textFontWeight="500"
-                    android:fontFamily="@font/variable_inter"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    tools:ignore="HardcodedText" />
-
-        </LinearLayout>
+                android:layout_width="match_parent" />
 
         <com.google.android.material.card.MaterialCardView
                 app:contentPadding="0dp"

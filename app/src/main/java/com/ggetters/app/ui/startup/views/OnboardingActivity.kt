@@ -16,7 +16,7 @@ import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivityOnboardingBinding
 import com.ggetters.app.ui.central.views.HomeActivity
-import com.ggetters.app.ui.shared.modals.CreateTeamBottomSheet
+import com.ggetters.app.ui.shared.modals.FormTeamBottomSheet
 import com.ggetters.app.ui.shared.modals.JoinTeamBottomSheet
 import com.ggetters.app.ui.shared.models.Clickable
 import com.ggetters.app.ui.startup.viewmodels.OnboardingViewModel
@@ -100,8 +100,8 @@ class OnboardingActivity : AppCompatActivity(), Clickable {
 
     override fun onClick(view: View?) = when (view?.id) {
         binds.btMakeTeam.id -> {
-            CreateTeamBottomSheet(this::onCreateTeamSheetSubmitted)
-                .show(supportFragmentManager, CreateTeamBottomSheet.TAG)
+            FormTeamBottomSheet(this::onCreateTeamSheetSubmitted)
+                .show(supportFragmentManager, FormTeamBottomSheet.TAG)
         }
         binds.btJoinTeam.id -> {
             JoinTeamBottomSheet(this::onJoinTeamSheetSubmitted)
