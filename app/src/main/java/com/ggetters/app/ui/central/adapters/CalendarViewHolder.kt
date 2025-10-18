@@ -17,7 +17,7 @@ class CalendarViewHolder(
 
     companion object {
         private const val TAG = "CalendarViewHolder"
-        private const val DEV_VERBOSE_LOGGER = true
+        private const val DEV_VERBOSE_LOGGER = false
     }
 
     fun bind(item: CalendarDayItem) {
