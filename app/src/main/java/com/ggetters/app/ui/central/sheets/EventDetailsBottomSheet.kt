@@ -31,7 +31,6 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setStyle(STYLE_NORMAL, R.style.BottomSheetDialogFragment)
 
         setEnterTransition(android.transition.Fade())
         setExitTransition(android.transition.Fade())
@@ -56,6 +55,7 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
 
     private fun setupEventDetails(view: View, event: Event) {
         val eventCategory = view.findViewById<TextView>(R.id.eventCategory)
+        val eventCategoryIcon = view.findViewById<com.google.android.material.card.MaterialCardView>(R.id.eventCategoryIcon)
         val eventName = view.findViewById<TextView>(R.id.eventName)
         val eventStyle = view.findViewById<TextView>(R.id.eventStyle)
         val eventDate = view.findViewById<TextView>(R.id.eventDate)
@@ -63,8 +63,9 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
         val eventLocation = view.findViewById<TextView>(R.id.eventLocation)
         val eventDescription = view.findViewById<TextView>(R.id.eventDescription)
         val eventCreatedBy = view.findViewById<TextView>(R.id.eventCreatedBy)
-        val editButton = view.findViewById<Button>(R.id.editButton)
-        val deleteButton = view.findViewById<Button>(R.id.deleteButton)
+        val editButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.editButton)
+        val deleteButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.deleteButton)
+        val descriptionContainer = view.findViewById<View>(R.id.descriptionContainer)
 
         // Formatters
         val dateFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.getDefault())
@@ -72,6 +73,23 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
 
         // --- Bind Data ---
         eventCategory.text = event.category.displayName
+        
+        // Set category icon background color based on event type
+        when (event.category) {
+            EventCategory.MATCH -> {
+                eventCategoryIcon.setCardBackgroundColor(android.graphics.Color.parseColor("#FF6B35")) // Orange for games
+            }
+            EventCategory.PRACTICE -> {
+                eventCategoryIcon.setCardBackgroundColor(android.graphics.Color.parseColor("#4CAF50")) // Green for practice
+            }
+            EventCategory.TRAINING -> {
+                eventCategoryIcon.setCardBackgroundColor(android.graphics.Color.parseColor("#FF9800")) // Orange for training
+            }
+            EventCategory.OTHER -> {
+                eventCategoryIcon.setCardBackgroundColor(android.graphics.Color.parseColor("#2196F3")) // Blue for other events
+            }
+        }
+        
         eventName.text = event.name
         eventStyle.text = event.style.displayName
         eventDate.text = dateFormatter.format(event.startAt)
@@ -88,10 +106,10 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
         eventCreatedBy.text = "Created by ${event.creatorId ?: "Unknown"}"
 
         if (!event.description.isNullOrBlank()) {
-            eventDescription.visibility = View.VISIBLE
+            descriptionContainer.visibility = View.VISIBLE
             eventDescription.text = event.description
         } else {
-            eventDescription.visibility = View.GONE
+            descriptionContainer.visibility = View.GONE
         }
 
         // Edit/Delete buttons (stubbed for now)
