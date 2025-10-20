@@ -110,6 +110,7 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
             eventDescription.text = event.description
         } else {
             descriptionContainer.visibility = View.GONE
+            eventDescription.text = "" // Clear text to prevent data leakage
         }
 
         // Edit/Delete buttons (stubbed for now)
