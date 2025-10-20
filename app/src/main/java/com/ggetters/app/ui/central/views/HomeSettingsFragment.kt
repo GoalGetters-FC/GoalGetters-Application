@@ -86,9 +86,10 @@ class HomeSettingsFragment : Fragment(), Clickable {
             requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
         }
 
-        binds.cvOptionPrivacy.id -> {}
-        binds.cvOptionContact.id -> {}
-        binds.cvOptionFaq.id -> {}
+        binds.cvOptionPrivacy.id -> openUrl("https://www.goalgettersfc.co.za/privacy")
+        binds.cvOptionContact.id -> openUrl("https://github.com/GoalGetters-FC/GoalGetters-Application/issues")
+        binds.cvOptionFaq.id -> openUrl("https://help.goalgettersfc.co.za/")
+
         binds.btLogout.id -> {
             activeModel.logout()
         }
@@ -117,4 +118,15 @@ class HomeSettingsFragment : Fragment(), Clickable {
         binds = FragmentHomeSettingsBinding.inflate(inflater, container, false)
         return binds.root
     }
+
+
+// --- Helpers
+
+    private fun openUrl(url: String) {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = android.net.Uri.parse(url)
+        }
+        startActivity(intent)
+    }
+
 }

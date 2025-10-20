@@ -37,3 +37,9 @@ class HomeSettingsViewModel @Inject constructor(
     fun getAuthAccount() = authService.getCurrentUser()
     fun logout() = authService.logout()
 }
+
+// https://help.goalgettersfc.co.za/ help website
+
+// https://www.goalgettersfc.co.za/ // main website
+
+// https://github.com/GoalGetters-FC/GoalGetters-Application/issues // issues tracker
