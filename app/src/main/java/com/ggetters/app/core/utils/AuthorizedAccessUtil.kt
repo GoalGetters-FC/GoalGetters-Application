@@ -2,7 +2,7 @@ package com.ggetters.app.core.utils
 
 import com.ggetters.app.data.model.UserRole
 
-object RoleAccess {
+object AuthorizedAccessUtil {
 
     /** Returns true if the user can perform write/edit actions. */
     fun canEdit(role: UserRole?): Boolean {
