@@ -1,197 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface">
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="16dp">
 
-    <LinearLayout
+    <!-- Attendance Summary Card -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_marginBottom="12dp"
+        app:cardCornerRadius="24dp"
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="#F8F9FA"
+        app:contentPadding="16dp"
+        app:cardElevation="4dp">
 
-        <!-- Present Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="24dp">
+            android:orientation="vertical">
 
-            <!-- Section Header -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Attendance Overview"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#161620"
+                android:fontFamily="@font/variable_inter"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Summary Stats -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Present -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@drawable/indicator_available"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/presentCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Present (0)"
+                        android:textSize="14sp"
+                        android:textColor="#4B4D4F"
+                        android:fontFamily="@font/variable_inter" />
+
+                </LinearLayout>
+
+                <!-- Absent -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@drawable/indicator_unavailable"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/absentCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Absent (0)"
+                        android:textSize="14sp"
+                        android:textColor="#4B4D4F"
+                        android:fontFamily="@font/variable_inter" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginTop="8dp">
 
-                <TextView
-                    android:id="@+id/presentSectionTitle"
+                <!-- Late -->
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Present (0)"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/on_surface"
-                    android:fontFamily="@font/variable_inter" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                <View
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:background="@drawable/indicator_available"
-                    android:layout_marginEnd="4dp" />
+                    <View
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@drawable/indicator_maybe"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/lateCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Late (0)"
+                        android:textSize="14sp"
+                        android:textColor="#4B4D4F"
+                        android:fontFamily="@font/variable_inter" />
+
+                </LinearLayout>
+
+                <!-- Excused -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@color/outline"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/excusedCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Excused (0)"
+                        android:textSize="14sp"
+                        android:textColor="#4B4D4F"
+                        android:fontFamily="@font/variable_inter" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
-            <!-- Players List -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/presentRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:itemCount="3"
-                tools:listitem="@layout/item_attendance_player" />
-
         </LinearLayout>
 
-        <!-- Absent Section -->
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Players List Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:cardCornerRadius="24dp"
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="#F8F9FA"
+        app:contentPadding="16dp"
+        app:cardElevation="4dp">
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="24dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <!-- Section Header -->
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:text="Players"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#161620"
+                android:fontFamily="@font/variable_inter"
+                android:layout_marginBottom="12dp" />
 
-                <TextView
-                    android:id="@+id/absentSectionTitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Absent (0)"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/on_surface"
-                    android:fontFamily="@font/variable_inter" />
-
-                <View
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:background="@drawable/indicator_unavailable"
-                    android:layout_marginEnd="4dp" />
-
-            </LinearLayout>
-
-            <!-- Players List -->
+            <!-- Unified Players List -->
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/absentRecyclerView"
+                android:id="@+id/attendanceRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:nestedScrollingEnabled="false"
-                tools:itemCount="2"
+                tools:itemCount="20"
                 tools:listitem="@layout/item_attendance_player" />
 
         </LinearLayout>
 
-        <!-- Late Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="24dp">
+    </com.google.android.material.card.MaterialCardView>
 
-            <!-- Section Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
-
-                <TextView
-                    android:id="@+id/lateSectionTitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Late (0)"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/on_surface"
-                    android:fontFamily="@font/variable_inter" />
-
-                <View
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:background="@drawable/indicator_maybe"
-                    android:layout_marginEnd="4dp" />
-
-            </LinearLayout>
-
-            <!-- Players List -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/lateRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:itemCount="1"
-                tools:listitem="@layout/item_attendance_player" />
-
-        </LinearLayout>
-
-        <!-- Excused Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="24dp">
-
-            <!-- Section Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
-
-                <TextView
-                    android:id="@+id/excusedSectionTitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Excused (0)"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/on_surface"
-                    android:fontFamily="@font/variable_inter" />
-
-                <View
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:background="@color/outline"
-                    android:layout_marginEnd="4dp" />
-
-            </LinearLayout>
-
-            <!-- Players List -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/excusedRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:itemCount="1"
-                tools:listitem="@layout/item_attendance_player" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>

@@ -3,6 +3,7 @@ package com.ggetters.app.ui.central.views
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -12,7 +13,7 @@ import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.EventCategory
 import com.ggetters.app.ui.central.fragments.GameEventFragment
 import com.ggetters.app.ui.central.fragments.PracticeEventFragment
-import com.ggetters.app.ui.central.fragments.GeneralEventFragment
+import com.ggetters.app.ui.central.fragments.OtherEventFragment
 import com.ggetters.app.ui.central.viewmodels.EventFormPickers
 import com.ggetters.app.ui.central.viewmodels.EventUpsertViewModel
 import com.ggetters.app.ui.central.models.UpsertState
@@ -33,12 +34,13 @@ class AddEventActivity : AppCompatActivity() {
     // Store fragment references
     private val gameFragment = GameEventFragment()
     private val practiceFragment = PracticeEventFragment()
-    private val generalFragment = GeneralEventFragment()
+    private val otherFragment = OtherEventFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_event)
 
+        setupStatusBar()
         setupViews()
         setupViewPager()
         setupTabLayout()
@@ -65,6 +67,18 @@ class AddEventActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupStatusBar() {
+        // Enable edge-to-edge display but keep status bar visible
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // Set up window insets controller for dark status bar (since we have dark header)
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = false // Dark status bar icons for dark background
+
+        // Set status bar to match the dark header color
+        window.statusBarColor = android.graphics.Color.parseColor("#161620")
+    }
+
     private fun setupViews() {
         eventTypeViewPager = findViewById(R.id.eventTypeViewPager)
         eventTypeTabLayout = findViewById(R.id.eventTypeTabLayout)
@@ -79,8 +93,8 @@ class AddEventActivity : AppCompatActivity() {
     private fun setupTabLayout() {
         TabLayoutMediator(eventTypeTabLayout, eventTypeViewPager) { tab, position ->
             when (position) {
-                0 -> { tab.text = "Game"; tab.setIcon(R.drawable.ic_unicons_trophy_24) }
-                1 -> { tab.text = "Practice"; tab.setIcon(R.drawable.ic_unicons_whistle_24) }
+                0 -> { tab.text = "Game"; tab.setIcon(R.drawable.ic_game_modern_24) }
+                1 -> { tab.text = "Practice"; tab.setIcon(R.drawable.ic_practice_modern_24) }
                 2 -> { tab.text = "Event"; tab.setIcon(R.drawable.ic_unicons_calendar_24) }
             }
         }.attach()
@@ -102,7 +116,7 @@ class AddEventActivity : AppCompatActivity() {
             val fragment = when (currentItem) {
                 0 -> gameFragment
                 1 -> practiceFragment
-                2 -> generalFragment
+                2 -> otherFragment
                 else -> practiceFragment
             }
             
@@ -111,7 +125,7 @@ class AddEventActivity : AppCompatActivity() {
             val formData = when (fragment) {
                 is GameEventFragment -> fragment.collectFormData()
                 is PracticeEventFragment -> fragment.collectFormData()
-                is GeneralEventFragment -> fragment.collectFormData()
+                is OtherEventFragment -> fragment.collectFormData()
                 else -> null
             }
 
@@ -163,7 +177,7 @@ class AddEventActivity : AppCompatActivity() {
         override fun createFragment(position: Int): Fragment = when (position) {
             0 -> gameFragment
             1 -> practiceFragment
-            2 -> generalFragment
+            2 -> otherFragment
             else -> practiceFragment
         }
     }

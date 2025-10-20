@@ -1,56 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface">
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="16dp">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <!-- Formation Selector and Search -->
-    <LinearLayout
+    <!-- Formation Selector and Search Card -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="16dp">
+        android:layout_marginBottom="12dp"
+        app:cardCornerRadius="24dp"
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="#F8F9FA"
+        app:contentPadding="16dp"
+        app:cardElevation="4dp">
 
-        <!-- Formation Spinner -->
-        <Spinner
-            android:id="@+id/formationSpinner"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/formation_spinner_background"
-            android:padding="12dp"
-            tools:listitem="@layout/item_formation_spinner" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <!-- Search Button -->
-        <ImageButton
-            android:id="@+id/searchButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_unicons_search_alt_24"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Search players"
-            app:tint="@color/on_surface_variant" />
+            <!-- Formation Spinner -->
+            <Spinner
+                android:id="@+id/formationSpinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/formation_spinner_background"
+                android:padding="12dp"
+                tools:listitem="@layout/item_formation_spinner" />
 
-    </LinearLayout>
+            <!-- Search Button -->
+            <ImageButton
+                android:id="@+id/searchButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_unicons_search_alt_24"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Search players"
+                app:tint="#4B4D4F" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Football Pitch -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="12dp"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:layout_marginBottom="12dp"
+        app:cardCornerRadius="24dp"
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="@color/pitch_green_dark"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/pitch_green_dark">
+        app:contentPadding="16dp">
 
         <com.ggetters.app.ui.central.views.components.FormationPitchView
             android:id="@+id/pitchView"
@@ -61,38 +71,54 @@
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Available Players Grid -->
-    <LinearLayout
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="16dp">
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        app:cardCornerRadius="24dp"
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="#F8F9FA"
+        app:contentPadding="16dp"
+        app:cardElevation="4dp">
 
-        <!-- Section Header -->
-        <TextView
-            android:id="@+id/squadCountText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Squad (0/0)"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/on_surface"
-            android:fontFamily="@font/variable_inter"
-            android:layout_marginBottom="12dp" />
-
-        <!-- Players Grid -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/playersRecyclerView"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxHeight="200dp"
-            android:scrollbars="vertical"
-            tools:itemCount="20"
-            tools:listitem="@layout/item_lineup_player_grid" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-    </LinearLayout>
+            <!-- Section Header -->
+            <TextView
+                android:id="@+id/squadCountText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Squad (0/0)"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#161620"
+                android:fontFamily="@font/variable_inter"
+                android:layout_marginBottom="12dp" />
 
-</LinearLayout>
+            <!-- ScrollView for Players Grid -->
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:scrollbars="vertical"
+                android:fadeScrollbars="false">
+
+                <!-- Players Grid -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/playersRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:itemCount="20"
+                    tools:listitem="@layout/item_lineup_player_grid" />
+
+            </ScrollView>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Match Events FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -100,10 +126,10 @@
         style="@style/Widget.Local.FloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="16dp"
         android:src="@drawable/xic_x24_uic_line_plus"
         android:contentDescription="Track Match Events"
         android:importantForAccessibility="no" />
 
-</FrameLayout>
+</LinearLayout>

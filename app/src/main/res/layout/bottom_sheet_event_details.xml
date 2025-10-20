@@ -7,207 +7,316 @@
     android:background="@drawable/bottom_sheet_background"
     android:padding="24dp">
 
-    <!-- Header -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="24dp">
-
-        <TextView
-            android:id="@+id/eventCategory"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:text="MATCH"
-            android:textSize="14sp"
-            android:gravity="center"
-            android:background="@drawable/event_icon_background"
-            android:layout_marginEnd="16dp"
-            android:textStyle="bold"
-            android:textColor="@color/black" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/eventName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Team Training"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginBottom="2dp" />
-
-            <TextView
-                android:id="@+id/eventStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Standard"
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary"
-                android:layout_marginBottom="4dp" />
-
-            <TextView
-                android:id="@+id/eventCreatedBy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Created by user123"
-                android:textSize="14sp"
-                android:textColor="@color/text_disabled" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <!-- Event Details -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginBottom="24dp">
-
-        <!-- Date -->
-        <LinearLayout
+        <!-- Header Card -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="20dp"
+            app:cardElevation="4dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="📅"
-                android:textSize="16sp"
-                android:layout_marginEnd="12dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/eventDate"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="December 15, 2025"
-                android:textSize="16sp"
-                android:textColor="@color/black" />
+                <!-- Event Category Icon -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/eventCategoryIcon"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginEnd="16dp"
+                    app:cardCornerRadius="28dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="#F8F9FA"
+                    app:contentPadding="0dp">
 
-        </LinearLayout>
+                    <TextView
+                        android:id="@+id/eventCategory"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="MATCH"
+                        android:textSize="12sp"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:fontFamily="@font/variable_inter" />
 
-        <!-- Time -->
-        <LinearLayout
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Event Info -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/eventName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Team Training"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="#161620"
+                        android:fontFamily="@font/variable_inter"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/eventStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Standard"
+                        android:textSize="14sp"
+                        android:textColor="#4B4D4F"
+                        android:fontFamily="@font/variable_inter"
+                        android:layout_marginBottom="6dp" />
+
+                    <TextView
+                        android:id="@+id/eventCreatedBy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Created by user123"
+                        android:textSize="12sp"
+                        android:textColor="#999999"
+                        android:fontFamily="@font/variable_inter" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Event Details Card -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="20dp"
+            app:cardElevation="4dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="🕒"
-                android:textSize="16sp"
-                android:layout_marginEnd="12dp" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/eventTime"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="18:30"
-                android:textSize="16sp"
-                android:textColor="@color/black" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Event Details"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#161620"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="16dp" />
 
-        </LinearLayout>
+                <!-- Date -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:cardCornerRadius="16dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="#F8F9FA"
+                    app:contentPadding="16dp">
 
-        <!-- Location -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📍"
-                android:textSize="16sp"
-                android:layout_marginEnd="12dp" />
+                        <ImageView
+                            android:src="@drawable/ic_unicons_calendar_24"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            app:tint="#4B4D4F"
+                            android:layout_marginEnd="12dp" />
 
-            <TextView
-                android:id="@+id/eventLocation"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Sports Complex A"
-                android:textSize="16sp"
-                android:textColor="@color/black" />
+                        <TextView
+                            android:id="@+id/eventDate"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="December 15, 2025"
+                            android:textSize="16sp"
+                            android:textColor="#161620"
+                            android:fontFamily="@font/variable_inter" />
 
-        </LinearLayout>
+                    </LinearLayout>
 
-        <!-- Description -->
-        <LinearLayout
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Time -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:cardCornerRadius="16dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="#F8F9FA"
+                    app:contentPadding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:src="@drawable/ic_unicons_clock_24"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            app:tint="#4B4D4F"
+                            android:layout_marginEnd="12dp" />
+
+                        <TextView
+                            android:id="@+id/eventTime"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="18:30"
+                            android:textSize="16sp"
+                            android:textColor="#161620"
+                            android:fontFamily="@font/variable_inter" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Location -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="16dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="#F8F9FA"
+                    app:contentPadding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:src="@drawable/ic_unicons_map_pin_24"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            app:tint="#4B4D4F"
+                            android:layout_marginEnd="12dp" />
+
+                        <TextView
+                            android:id="@+id/eventLocation"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Sports Complex A"
+                            android:textSize="16sp"
+                            android:textColor="#161620"
+                            android:fontFamily="@font/variable_inter" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Description Card (Conditional) -->
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/descriptionContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:layout_marginBottom="20dp"
+            android:visibility="gone"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="20dp"
+            app:cardElevation="4dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📝 Description"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_disabled"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/eventDescription"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Optional description text"
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:background="@drawable/rounded_input_background"
-                android:padding="12dp" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Description"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#161620"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:id="@+id/eventDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Optional description text"
+                    android:textSize="16sp"
+                    android:textColor="#4B4D4F"
+                    android:fontFamily="@font/variable_inter"
+                    android:lineSpacingExtra="4dp"
+                    android:background="@drawable/rounded_input_background"
+                    android:padding="16dp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/deleteButton"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="Delete"
+                android:textColor="@color/error"
+                android:textSize="14sp"
+                android:textFontWeight="600"
+                android:fontFamily="@font/variable_inter"
+                android:backgroundTint="@color/white"
+                app:strokeColor="@color/error"
+                app:strokeWidth="1dp"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_unicons_trash_24"
+                app:iconTint="@color/error"
+                android:layout_marginEnd="12dp"
+                android:minWidth="100dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/editButton"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="Edit"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textFontWeight="600"
+                android:fontFamily="@font/variable_inter"
+                app:backgroundTint="@color/primary"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_unicons_settings_24"
+                app:iconTint="@color/white"
+                android:minWidth="100dp"
+                style="@style/Widget.MaterialComponents.Button" />
 
         </LinearLayout>
-
-    </LinearLayout>
-
-    <!-- Action Buttons -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end">
-
-        <Button
-            android:id="@+id/deleteButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Delete"
-            android:textColor="@color/error"
-            android:backgroundTint="@color/white"
-            android:background="@drawable/button_border"
-            android:layout_marginEnd="8dp"
-            style="@style/Widget.MaterialComponents.Button" />
-
-        <Button
-            android:id="@+id/editButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Edit"
-            android:textColor="@color/black"
-            android:backgroundTint="@color/primary"
-            android:background="@drawable/button_border"
-            style="@style/Widget.MaterialComponents.Button" />
-
-    </LinearLayout>
 
 </LinearLayout>
