@@ -75,20 +75,13 @@ class EventDetailsBottomSheet : BottomSheetDialogFragment() {
         eventCategory.text = event.category.displayName
         
         // Set category icon background color based on event type
-        when (event.category) {
-            EventCategory.MATCH -> {
-                eventCategoryIcon.setCardBackgroundColor(android.graphics.Color.parseColor("#FF6B35")) // Orange for games
-            }
-            EventCategory.PRACTICE -> {
-                eventCategoryIcon.setCardBackgroundColor(android.graphics.Color.parseColor("#4CAF50")) // Green for practice
-            }
-            EventCategory.TRAINING -> {
-                eventCategoryIcon.setCardBackgroundColor(android.graphics.Color.parseColor("#FF9800")) // Orange for training
-            }
-            EventCategory.OTHER -> {
-                eventCategoryIcon.setCardBackgroundColor(android.graphics.Color.parseColor("#2196F3")) // Blue for other events
-            }
+        val colorRes = when (event.category) {
+            EventCategory.MATCH -> R.color.event_match
+            EventCategory.PRACTICE -> R.color.event_practice
+            EventCategory.TRAINING -> R.color.event_training
+            EventCategory.OTHER -> R.color.event_other
         }
+        eventCategoryIcon.setCardBackgroundColor(requireContext().getColor(colorRes))
         
         eventName.text = event.name
         eventStyle.text = event.style.displayName

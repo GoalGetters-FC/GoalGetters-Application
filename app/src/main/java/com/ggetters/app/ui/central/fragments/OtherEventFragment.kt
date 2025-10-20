@@ -10,17 +10,12 @@ import androidx.fragment.app.Fragment
 import com.ggetters.app.R
 import com.ggetters.app.ui.central.models.EventFormData
 import com.google.android.material.textfield.TextInputEditText
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class OtherEventFragment : Fragment() {
-
-    private var selectedDate: Date? = null
-    private var selectedStartTime: String? = null
-    private var selectedEndTime: String? = null
-    private var selectedMeetingTime: String? = null
 
     private var date: LocalDate? = null
     private var start: LocalTime? = null
@@ -49,55 +44,44 @@ class OtherEventFragment : Fragment() {
 
         // Date picker
         dateInput.setOnClickListener {
-            showDatePicker { selectedDate ->
-                this.selectedDate = selectedDate
-                this.date = LocalDate.of(
-                    selectedDate.year + 1900, // Date.getYear() returns year - 1900
-                    selectedDate.month + 1,   // Date.getMonth() returns 0-11
-                    selectedDate.date
-                )
-                val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                dateInput.setText(formatter.format(selectedDate))
+            showDatePicker { year, month, dayOfMonth ->
+                this.date = LocalDate.of(year, month, dayOfMonth)
+                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault())
+                dateInput.setText(date?.format(formatter))
             }
         }
 
         // Start time picker
         startTimeInput.setOnClickListener {
             showTimePicker { hour, minute ->
-                this.selectedStartTime = String.format("%02d:%02d", hour, minute)
                 this.start = LocalTime.of(hour, minute)
-                startTimeInput.setText(selectedStartTime)
+                startTimeInput.setText(String.format("%02d:%02d", hour, minute))
             }
         }
 
         // End time picker
         endTimeInput.setOnClickListener {
             showTimePicker { hour, minute ->
-                this.selectedEndTime = String.format("%02d:%02d", hour, minute)
                 this.end = LocalTime.of(hour, minute)
-                endTimeInput.setText(selectedEndTime)
+                endTimeInput.setText(String.format("%02d:%02d", hour, minute))
             }
         }
 
         // Meeting time picker
         meetingTimeInput.setOnClickListener {
             showTimePicker { hour, minute ->
-                this.selectedMeetingTime = String.format("%02d:%02d", hour, minute)
                 this.meet = LocalTime.of(hour, minute)
-                meetingTimeInput.setText(selectedMeetingTime)
+                meetingTimeInput.setText(String.format("%02d:%02d", hour, minute))
             }
         }
     }
 
-    private fun showDatePicker(onDateSelected: (Date) -> Unit) {
+    private fun showDatePicker(onDateSelected: (Int, Int, Int) -> Unit) {
         val calendar = Calendar.getInstance()
         val datePickerDialog = DatePickerDialog(
             requireContext(),
             { _, year, month, dayOfMonth ->
-                val selectedDate = Calendar.getInstance().apply {
-                    set(year, month, dayOfMonth)
-                }.time
-                onDateSelected(selectedDate)
+                onDateSelected(year, month + 1, dayOfMonth) // month+1 since Calendar.MONTH is 0-based
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
