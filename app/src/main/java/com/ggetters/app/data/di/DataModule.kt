@@ -5,17 +5,19 @@ import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.room.RoomDatabase
 import com.ggetters.app.core.services.AuthenticationService
+import com.ggetters.app.core.services.AuthorizationService
 import com.ggetters.app.core.services.ConfigurationsService
 import com.ggetters.app.data.local.AppDatabase
 import com.ggetters.app.data.local.dao.AttendanceDao
 import com.ggetters.app.data.local.dao.BroadcastDao
 import com.ggetters.app.data.local.dao.BroadcastStatusDao
-import com.ggetters.app.data.local.dao.NotificationDao
-import com.ggetters.app.data.local.dao.TeamDao
-import com.ggetters.app.data.local.dao.UserDao
 import com.ggetters.app.data.local.dao.EventDao
 import com.ggetters.app.data.local.dao.LineupDao
 import com.ggetters.app.data.local.dao.MatchEventDao
+import com.ggetters.app.data.local.dao.NotificationDao
+import com.ggetters.app.data.local.dao.TeamDao
+import com.ggetters.app.data.local.dao.UserDao
+import com.ggetters.app.data.repository.user.CombinedUserRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
@@ -63,25 +65,34 @@ object DataModule {
     @Provides
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
-    
-    
+
+
     @Provides
     @Singleton
     fun provideConfigurationService(
         @ApplicationContext ctx: Context
     ): ConfigurationsService = ConfigurationsService(ctx)
-    
-    
+
+
     @Provides
     @Singleton
     fun provideCredentialManager(
         @ApplicationContext ctx: Context
     ): CredentialManager = CredentialManager.create(ctx)
 
-    
+
     @Provides
     @Singleton
-    fun provideAuthService(firebaseAuth: FirebaseAuth): AuthenticationService = AuthenticationService(firebaseAuth)
+    fun provideAuthService(firebaseAuth: FirebaseAuth): AuthenticationService =
+        AuthenticationService(firebaseAuth)
+
+
+    @Provides
+    @Singleton
+    fun provideRbacService(
+        auth: AuthenticationService,
+        data: CombinedUserRepository
+    ): AuthorizationService = AuthorizationService(auth, data)
 
 
     /**
@@ -133,7 +144,7 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideEventDao(db: AppDatabase): EventDao = 
+    fun provideEventDao(db: AppDatabase): EventDao =
         db.eventDao()
 
     @Provides
