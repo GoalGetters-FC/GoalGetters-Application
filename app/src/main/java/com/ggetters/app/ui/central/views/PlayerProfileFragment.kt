@@ -4,13 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AutoCompleteTextView
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import android.widget.ImageButton
 import com.ggetters.app.R
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.model.UserRole
@@ -47,6 +48,7 @@ class PlayerProfileFragment : Fragment() {
     private var currentPlayer: User? = null
 
     // Header
+    private lateinit var backButton: ImageButton
     private lateinit var playerAvatar: ImageView
     private lateinit var playerName: TextView
     private lateinit var playerAge: TextView
@@ -57,8 +59,8 @@ class PlayerProfileFragment : Fragment() {
     private lateinit var playerEmailInput: TextInputEditText
     private lateinit var playerDateOfBirthInput: TextInputEditText
     private lateinit var playerContactInput: TextInputEditText
-    private lateinit var playerStatusDropdown: AutoCompleteTextView
-    private lateinit var playerRoleDropdown: AutoCompleteTextView
+    private lateinit var playerStatusDropdown: TextInputEditText
+    private lateinit var playerRoleDropdown: TextInputEditText
 
     // Statistics (placeholders)
     private lateinit var statsGoals: TextView
@@ -68,17 +70,22 @@ class PlayerProfileFragment : Fragment() {
     private lateinit var statsRedCards: TextView
     private lateinit var statsCleanSheets: TextView
 
-    // Action rows & buttons
-    private lateinit var actionsRow: ViewGroup
-    private lateinit var editActionsRow: View
+    // Action buttons
     private lateinit var btnEditProfile: MaterialButton
-    private lateinit var btnSendMessage: MaterialButton
-    private lateinit var btnViewHistory: MaterialButton
     private lateinit var btnCancelEdit: MaterialButton
     private lateinit var btnSaveProfile: MaterialButton
     private lateinit var btnDeleteProfile: MaterialButton
 
     private val userRole = "coach" // TODO: inject/derive real role
+
+    private fun setupStatusBar() {
+        // Hide the system status bar to use our custom header
+        requireActivity().window.statusBarColor = android.graphics.Color.parseColor("#161620")
+        
+        // Set up window insets controller for dark status bar
+        val windowInsetsController = WindowCompat.getInsetsController(requireActivity().window, requireActivity().window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = false // Dark status bar icons for dark background
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,6 +103,7 @@ class PlayerProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupStatusBar()
         setupViews(view)
         setupRoleVisibility()
         setupActions()
@@ -126,46 +134,26 @@ class PlayerProfileFragment : Fragment() {
         when (userRole) {
             "coach", "assistant" -> {
                 btnEditProfile.visibility = View.VISIBLE
-                btnSendMessage.visibility = View.VISIBLE
-                btnViewHistory.visibility = View.VISIBLE
+                btnDeleteProfile.visibility = View.VISIBLE
             }
             "player" -> {
                 btnEditProfile.visibility = View.VISIBLE
-                btnSendMessage.visibility = View.VISIBLE
-                btnViewHistory.visibility = View.VISIBLE
+                btnDeleteProfile.visibility = View.GONE
             }
             "guardian" -> {
                 btnEditProfile.visibility = View.GONE
-                btnSendMessage.visibility = View.VISIBLE
-                btnViewHistory.visibility = View.VISIBLE
+                btnDeleteProfile.visibility = View.GONE
             }
             else -> {
                 btnEditProfile.visibility = View.GONE
-                btnSendMessage.visibility = View.GONE
-                btnViewHistory.visibility = View.GONE
+                btnDeleteProfile.visibility = View.GONE
             }
         }
     }
 
     private fun setupViews(view: View) {
-        // Toolbar back navigation: return to previously selected tab
-        view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
-            .setNavigationOnClickListener {
-                (activity as? HomeActivity)?.let { host ->
-                    // If this fragment was opened from a bottom-nav tab, pop the back stack first
-                    val fm = host.supportFragmentManager
-                    if (fm.backStackEntryCount > 0) fm.popBackStack()
-
-                    // Determine the desired tab based on where the user came from, if provided
-                    val originTabId = arguments?.getInt("origin_tab_id")
-                    if (originTabId != null) {
-                        host.navigateToTab(originTabId)
-                    } else {
-                        // Fallback: keep current tab selection, just finish this fragment
-                        requireActivity().onBackPressedDispatcher.onBackPressed()
-                    }
-                }
-            }
+        // Header
+        backButton = view.findViewById(R.id.backButton)
         playerAvatar = view.findViewById(R.id.playerAvatar)
         playerName   = view.findViewById(R.id.playerName)
         playerAge    = view.findViewById(R.id.playerAge)
@@ -185,26 +173,59 @@ class PlayerProfileFragment : Fragment() {
         statsRedCards     = view.findViewById(R.id.statsRedCards)
         statsCleanSheets  = view.findViewById(R.id.statsCleanSheets)
 
-        actionsRow     = view.findViewById(R.id.actionsRow)
-        editActionsRow = view.findViewById(R.id.editActionsRow)
-
         btnEditProfile   = view.findViewById(R.id.btnEditProfile)
-        btnSendMessage   = view.findViewById(R.id.btnSendMessage)
-        btnViewHistory   = view.findViewById(R.id.btnViewHistory)
         btnCancelEdit    = view.findViewById(R.id.btnCancelEdit)
         btnSaveProfile   = view.findViewById(R.id.btnSaveProfile)
         btnDeleteProfile = view.findViewById(R.id.btnDeleteProfile)
 
-        // Dropdowns
-        val statusOptions = listOf(UserStatus.ACTIVE.name, UserStatus.INJURY.name)
-        val roleOptions   = UserRole.values().map { it.name }
-        playerStatusDropdown.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, statusOptions))
-        playerRoleDropdown.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, roleOptions))
+        // Setup dropdowns with click listeners for selection dialogs
+        setupDropdowns()
 
         setupDatePicker()
     }
 
+    private fun setupDropdowns() {
+        val statusOptions = listOf(UserStatus.ACTIVE.name, UserStatus.INJURY.name)
+        val roleOptions = UserRole.values().map { it.name }
+
+        playerStatusDropdown.setOnClickListener {
+            if (isEditing) {
+                showSelectionDialog("Select Status", statusOptions) { selected ->
+                    playerStatusDropdown.setText(selected)
+                }
+            }
+        }
+
+        playerRoleDropdown.setOnClickListener {
+            if (isEditing) {
+                showSelectionDialog("Select Role", roleOptions) { selected ->
+                    playerRoleDropdown.setText(selected)
+                }
+            }
+        }
+    }
+
+    private fun showSelectionDialog(title: String, options: List<String>, onSelected: (String) -> Unit) {
+        val builder = android.app.AlertDialog.Builder(requireContext())
+        builder.setTitle(title)
+            .setItems(options.toTypedArray()) { _, which ->
+                onSelected(options[which])
+            }
+            .show()
+    }
+
     private fun setupActions() {
+        // Back button - use proper fragment navigation
+        backButton.setOnClickListener {
+            // Use the fragment's parent fragment manager to pop back stack
+            if (parentFragmentManager.backStackEntryCount > 0) {
+                parentFragmentManager.popBackStack()
+            } else {
+                // If no back stack, use the activity's back press dispatcher
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+        }
+
         // Edit toggle
         btnEditProfile.setOnClickListener { setEditing(!isEditing) }
 
@@ -230,12 +251,6 @@ class PlayerProfileFragment : Fragment() {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        btnSendMessage.setOnClickListener {
-            Snackbar.make(requireView(), "Messaging coming soon", Snackbar.LENGTH_SHORT).show()
-        }
-        btnViewHistory.setOnClickListener {
-            Snackbar.make(requireView(), "History coming soon", Snackbar.LENGTH_SHORT).show()
-        }
     }
 
     private fun displayPlayerInfo(player: User) {
@@ -248,8 +263,8 @@ class PlayerProfileFragment : Fragment() {
         playerDateOfBirthInput.setText(player.dateOfBirth?.format(DateTimeFormatter.ISO_DATE) ?: "")
         playerContactInput.setText("") // no contact field in User
 
-        playerStatusDropdown.setText(player.status?.name ?: UserStatus.ACTIVE.name, false)
-        playerRoleDropdown.setText(player.role.name, false)
+        playerStatusDropdown.setText(player.status?.name ?: UserStatus.ACTIVE.name)
+        playerRoleDropdown.setText(player.role.name)
 
         // Stats placeholders
         statsGoals.text       = "0"
@@ -279,8 +294,9 @@ class PlayerProfileFragment : Fragment() {
             dd.alpha = if (enabled) 1f else 0.6f
         }
 
-        actionsRow.visibility     = if (enabled) View.GONE else View.VISIBLE
-        editActionsRow.visibility = if (enabled) View.VISIBLE else View.GONE
+        btnEditProfile.visibility = if (enabled) View.GONE else View.VISIBLE
+        btnSaveProfile.visibility = if (enabled) View.VISIBLE else View.GONE
+        btnCancelEdit.visibility = if (enabled) View.VISIBLE else View.GONE
 
         btnEditProfile.text = if (enabled) "Cancel Edit" else "Edit Profile"
 
@@ -350,3 +366,4 @@ class PlayerProfileFragment : Fragment() {
         dialog.show()
     }
 }
+

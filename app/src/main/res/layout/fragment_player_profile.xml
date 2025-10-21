@@ -1,376 +1,545 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:fillViewport="true">
+    android:background="#161620">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
 
-        <!-- Header with back button -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
-            app:title="Player Profile"
-            app:titleTextColor="@color/black"
-            app:titleCentered="true"
-            app:navigationIcon="@drawable/ic_unicons_arrow_left"
-            app:navigationIconTint="@color/black" />
-
-        <!-- Player Header Section -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="20dp">
-
-            <!-- Player Avatar -->
-            <ImageView
-                android:id="@+id/playerAvatar"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:background="@drawable/circle_background"
-                android:src="@drawable/ic_unicons_user_24"
-                android:scaleType="centerCrop"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <!-- Player Name -->
-            <TextView
-                android:id="@+id/playerName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="John Doe"
-                android:textColor="@color/black"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:fontFamily="@font/variable_inter"
-                app:layout_constraintStart_toEndOf="@id/playerAvatar"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/playerAvatar" />
-
-            <!-- Player Age -->
-            <TextView
-                android:id="@+id/playerAge"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:text="30 yo"
-                android:textColor="@color/text_secondary"
-                android:textSize="16sp"
-                android:fontFamily="@font/variable_inter"
-                app:layout_constraintStart_toEndOf="@id/playerAvatar"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/playerName" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- Player Details Form -->
+        <!-- Custom Header with Back Button and Centered Title -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:background="#161620"
+            android:paddingTop="48dp"
+            android:paddingBottom="20dp"
+            android:paddingHorizontal="20dp"
+            android:fitsSystemWindows="true">
 
-            <!-- General Section -->
-            <TextView
+            <!-- Back Button and Title Row -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="General"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginBottom="16dp"
-                android:fontFamily="@font/variable_inter" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
 
-            <!-- Player Status Dropdown -->
-            <com.google.android.material.textfield.TextInputLayout
+                <!-- Back Button -->
+                <ImageButton
+                    android:id="@+id/backButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_unicons_arrow_left"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Back"
+                    app:tint="#FFFFFF" />
+
+                <!-- Centered Title -->
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Player Profile"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:gravity="center" />
+
+                <!-- Spacer to balance the back button -->
+                <Space
+                    android:layout_width="48dp"
+                    android:layout_height="0dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Content Section -->
+        <com.google.android.material.card.MaterialCardView
+            app:contentPadding="0dp"
+            app:contentPaddingTop="8dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardPreventCornerOverlap="false"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.TopCorner40"
+            app:strokeWidth="0dp"
+            app:cardElevation="6dp"
+            android:elevation="6dp"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent">
+
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Player Status"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                android:layout_height="match_parent"
+                android:fillViewport="true">
 
-                <AutoCompleteTextView
-                    android:id="@+id/playerStatusDropdown"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Fulltime Player"
-                    android:inputType="none"
-                    android:enabled="false"
-                    android:clickable="false"
-                    android:focusable="false" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-            <!-- Player Role Dropdown -->
-            <com.google.android.material.textfield.TextInputLayout
+        <!-- Player Header Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Player Information"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:fontFamily="@font/variable_inter"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="0dp" />
+
+        <!-- Player Avatar and Basic Info -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#F8F9FA"
+            app:contentPadding="16dp">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:hint="Player Role"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                android:orientation="vertical">
 
-                <AutoCompleteTextView
-                    android:id="@+id/playerRoleDropdown"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Forward"
-                    android:inputType="none"
-                    android:enabled="false"
-                    android:clickable="false"
-                    android:focusable="false" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
 
-            <!-- Player Details Section -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Player Details"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginBottom="16dp"
-                android:fontFamily="@font/variable_inter" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Player Profile"
+                        android:textSize="14sp"
+                        android:textColor="#4B4D4F"
+                        android:textFontWeight="600"
+                        android:fontFamily="@font/variable_inter"
+                        android:layout_gravity="center_vertical" />
 
-            <!-- Player Name Input -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <ImageView
+                        android:src="@drawable/ic_unicons_user_24"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        app:tint="#4B4D4F" />
+                </LinearLayout>
+
+                <!-- Player Avatar and Name -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:id="@+id/playerAvatar"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@drawable/circle_background"
+                        android:src="@drawable/ic_unicons_user_24"
+                        android:scaleType="centerCrop"
+                        android:layout_marginEnd="16dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/playerName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="John Doe"
+                            android:textColor="#161620"
+                            android:textSize="18sp"
+                            android:textFontWeight="600"
+                            android:fontFamily="@font/variable_inter" />
+
+                        <TextView
+                            android:id="@+id/playerAge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="30 years old"
+                            android:textColor="#666666"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/variable_inter" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Player Name -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
+
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Player Name"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Player Name"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/playerNameInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="John Doe"
+                    android:hint="Enter player name"
                     android:inputType="textPersonName"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
                     android:enabled="false" />
-            </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <!-- Player Number Input -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+        <!-- Player Number -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
+
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Player Number"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Player Number"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/playerNumberInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="10"
+                    android:hint="Enter player number"
                     android:inputType="number"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
                     android:enabled="false" />
-            </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <!-- Player Email Input -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+        <!-- Player Email -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
+
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Player Email"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Email"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/playerEmailInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="john.doe@example.com"
+                    android:hint="Enter email address"
                     android:inputType="textEmailAddress"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
                     android:enabled="false" />
-            </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <!-- Date of Birth Input -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+        <!-- Date of Birth -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
+
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:hint="Date of Birth"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date of Birth"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/playerDateOfBirthInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="1995-03-15"
+                    android:hint="YYYY-MM-DD"
                     android:inputType="date"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
                     android:enabled="false" />
-            </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <!-- Player Contact Input -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+        <!-- Player Contact -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
+
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:hint="Player Contact"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Phone Number"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/playerContactInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="+1 234 567 8900"
+                    android:hint="Enter phone number"
                     android:inputType="phone"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
                     android:enabled="false" />
-            </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        </LinearLayout>
-
-        <!-- Status Chips -->
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fillViewport="true"
-            android:scrollbars="none"
-            android:paddingHorizontal="20dp"
-            android:paddingBottom="16dp">
-
-            <com.google.android.material.chip.ChipGroup
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:singleLine="true">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipCaptain"
-                    style="@style/Widget.MaterialComponents.Chip.Entry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Captain"
-                    android:visibility="gone"
-                    app:chipIcon="@drawable/ic_unicons_hat_24"
-                    app:chipIconTint="@color/yellow"
-                    app:chipBackgroundColor="@color/yellow"
-                    android:textColor="@color/black"
-                    android:fontFamily="@font/variable_inter"
-                    android:minHeight="28dp"
-                    android:textSize="13sp" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipNew"
-                    style="@style/Widget.MaterialComponents.Chip.Entry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="New"
-                    android:visibility="gone"
-                    app:chipIcon="@drawable/ic_unicons_user_plus_16"
-                    app:chipIconTint="@color/info"
-                    app:chipBackgroundColor="@color/info_light"
-                    android:textColor="@color/black"
-                    android:fontFamily="@font/variable_inter"
-                    android:minHeight="28dp"
-                    android:textSize="13sp" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipInjured"
-                    style="@style/Widget.MaterialComponents.Chip.Entry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Injured"
-                    android:visibility="gone"
-                    app:chipIcon="@drawable/ic_unicons_archive_alt"
-                    app:chipIconTint="@color/error"
-                    app:chipBackgroundColor="@color/error_light"
-                    android:textColor="@color/error_dark"
-                    android:fontFamily="@font/variable_inter"
-                    android:minHeight="28dp"
-                    android:textSize="13sp" />
-
-            </com.google.android.material.chip.ChipGroup>
-        </HorizontalScrollView>
-
-        <!-- Contact Information Card -->
+        <!-- Player Status -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white">
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Contact Information"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/variable_inter"
-                    android:layout_marginBottom="12dp" />
-
-                <TextView
-                    android:id="@+id/playerEmail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Email: john.doe@example.com"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp"
+                    android:text="Player Status"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
                     android:fontFamily="@font/variable_inter"
                     android:layout_marginBottom="8dp" />
 
-                <TextView
-                    android:id="@+id/playerPhone"
-                    android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/playerStatusDropdown"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Phone: +1 234 567 8900"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp"
+                    android:hint="Select player status"
+                    android:inputType="none"
                     android:fontFamily="@font/variable_inter"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/playerJoinedDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Joined: 2024-01-15"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/variable_inter" />
-
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
+                    android:enabled="false"
+                    android:clickable="false"
+                    android:focusable="false" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- Player Role -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="16dp"
+            android:clickable="false"
+            android:focusable="false">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Player Role"
+                    android:textSize="12sp"
+                    android:textColor="#4B4D4F"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/playerRoleDropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Select player role"
+                    android:inputType="none"
+                    android:fontFamily="@font/variable_inter"
+                    android:textColor="#161620"
+                    android:textSize="16sp"
+                    android:textColorHint="#999999"
+                    android:background="@android:color/transparent"
+                    android:enabled="false"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Statistics Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Season Statistics"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:fontFamily="@font/variable_inter"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="8dp" />
 
         <!-- Statistics Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white">
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="24dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#F8F9FA"
+            app:contentPadding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Season Statistics"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/variable_inter"
-                    android:layout_marginBottom="16dp" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Performance Stats"
+                        android:textSize="14sp"
+                        android:textColor="#4B4D4F"
+                        android:textFontWeight="600"
+                        android:fontFamily="@font/variable_inter"
+                        android:layout_gravity="center_vertical" />
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <ImageView
+                        android:src="@drawable/ic_unicons_chart_24"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        app:tint="#4B4D4F" />
+                </LinearLayout>
 
                 <GridLayout
                     android:layout_width="match_parent"
@@ -379,221 +548,270 @@
                     android:rowCount="3">
 
                     <!-- Goals -->
-                    <TextView
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:text="Goals"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/variable_inter"
-                        android:layout_marginBottom="8dp" />
+                        android:orientation="vertical"
+                        android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:id="@+id/statsGoals"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:text="15"
-                        android:textColor="@color/black"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter"
-                        android:layout_marginBottom="8dp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Goals"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/variable_inter"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:id="@+id/statsGoals"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="15"
+                            android:textColor="#161620"
+                            android:textSize="18sp"
+                            android:textFontWeight="600"
+                            android:fontFamily="@font/variable_inter" />
+
+                    </LinearLayout>
 
                     <!-- Assists -->
-                    <TextView
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:text="Assists"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/variable_inter"
-                        android:layout_marginBottom="8dp" />
+                        android:orientation="vertical"
+                        android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:id="@+id/statsAssists"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:text="8"
-                        android:textColor="@color/black"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter"
-                        android:layout_marginBottom="8dp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Assists"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/variable_inter"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:id="@+id/statsAssists"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="8"
+                            android:textColor="#161620"
+                            android:textSize="18sp"
+                            android:textFontWeight="600"
+                            android:fontFamily="@font/variable_inter" />
+
+                    </LinearLayout>
 
                     <!-- Matches -->
-                    <TextView
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:text="Matches"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/variable_inter"
-                        android:layout_marginBottom="8dp" />
+                        android:orientation="vertical"
+                        android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:id="@+id/statsMatches"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:text="25"
-                        android:textColor="@color/black"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter"
-                        android:layout_marginBottom="8dp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Matches"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/variable_inter"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:id="@+id/statsMatches"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="25"
+                            android:textColor="#161620"
+                            android:textSize="18sp"
+                            android:textFontWeight="600"
+                            android:fontFamily="@font/variable_inter" />
+
+                    </LinearLayout>
 
                     <!-- Yellow Cards -->
-                    <TextView
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:text="Yellow Cards"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/variable_inter"
-                        android:layout_marginBottom="8dp" />
+                        android:orientation="vertical"
+                        android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:id="@+id/statsYellowCards"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:text="2"
-                        android:textColor="@color/black"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter"
-                        android:layout_marginBottom="8dp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Yellow Cards"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/variable_inter"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:id="@+id/statsYellowCards"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2"
+                            android:textColor="#161620"
+                            android:textSize="18sp"
+                            android:textFontWeight="600"
+                            android:fontFamily="@font/variable_inter" />
+
+                    </LinearLayout>
 
                     <!-- Red Cards -->
-                    <TextView
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:text="Red Cards"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/variable_inter"
-                        android:layout_marginBottom="8dp" />
+                        android:orientation="vertical"
+                        android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:id="@+id/statsRedCards"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:text="0"
-                        android:textColor="@color/black"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter"
-                        android:layout_marginBottom="8dp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Red Cards"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/variable_inter"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:id="@+id/statsRedCards"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="#161620"
+                            android:textSize="18sp"
+                            android:textFontWeight="600"
+                            android:fontFamily="@font/variable_inter" />
+
+                    </LinearLayout>
 
                     <!-- Clean Sheets -->
-                    <TextView
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:text="Clean Sheets"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/variable_inter"
-                        android:layout_marginBottom="8dp" />
+                        android:orientation="vertical"
+                        android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:id="@+id/statsCleanSheets"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:text="11"
-                        android:textColor="@color/black"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter"
-                        android:layout_marginBottom="8dp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Clean Sheets"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/variable_inter"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:id="@+id/statsCleanSheets"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="11"
+                            android:textColor="#161620"
+                            android:textSize="18sp"
+                            android:textFontWeight="600"
+                            android:fontFamily="@font/variable_inter" />
+
+                    </LinearLayout>
 
                 </GridLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Action Buttons (view mode) -->
+        <!-- Action Buttons -->
         <LinearLayout
-            android:id="@+id/actionsRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
-            android:paddingHorizontal="20dp"
-            android:paddingBottom="20dp">
+            android:gravity="end"
+            android:layout_marginBottom="20dp">
 
+            <!-- Edit Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEditProfile"
-                style="@style/Widget.GoalGetters.Button.Outlined"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:text="Edit Profile"
-                android:icon="@drawable/ic_unicons_settings_24"
-                android:iconTint="#007AFF"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginEnd="8dp"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:textFontWeight="600"
+                android:fontFamily="@font/variable_inter"
+                app:backgroundTint="@color/primary"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_unicons_settings_24"
+                app:iconTint="@color/white"
+                android:minWidth="120dp"
+                style="@style/Widget.MaterialComponents.Button" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSendMessage"
-                style="@style/Widget.GoalGetters.Button.Outlined"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Send Message"
-                android:icon="@drawable/ic_unicons_message_24"
-                android:iconTint="#007AFF"
-                android:layout_marginEnd="8dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnViewHistory"
-                style="@style/Widget.GoalGetters.Button.Outlined"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="View History"
-                android:icon="@drawable/ic_unicons_chart_24"
-                android:iconTint="#007AFF" />
-        </LinearLayout>
-
-        <!-- Edit mode actions -->
-        <LinearLayout
-            android:id="@+id/editActionsRow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:paddingHorizontal="20dp"
-            android:paddingBottom="20dp"
-            android:visibility="gone">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDeleteProfile"
-                style="@style/Widget.GoalGetters.Button.Outlined"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Delete"
-                android:layout_marginEnd="8dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCancelEdit"
-                style="@style/Widget.GoalGetters.Button.Outlined"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cancel"
-                android:layout_marginEnd="8dp" />
-
+            <!-- Save Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveProfile"
-                style="@style/Widget.GoalGetters.Button.Filled"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Save Changes" />
+                android:layout_height="48dp"
+                android:text="Save"
+                android:visibility="gone"
+                android:layout_marginEnd="8dp"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:textFontWeight="600"
+                android:fontFamily="@font/variable_inter"
+                app:backgroundTint="@color/success"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_unicons_check_24"
+                app:iconTint="@color/white"
+                android:minWidth="100dp"
+                style="@style/Widget.MaterialComponents.Button" />
+
+            <!-- Cancel Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="Cancel"
+                android:visibility="gone"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:textFontWeight="600"
+                android:fontFamily="@font/variable_inter"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="1dp"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_unicons_times_24"
+                app:iconTint="@color/text_secondary"
+                android:minWidth="100dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
         </LinearLayout>
 
+        <!-- Delete Player Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDeleteProfile"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Delete Player"
+            android:textColor="@color/error"
+            android:textSize="14sp"
+            android:textFontWeight="600"
+            android:fontFamily="@font/variable_inter"
+            android:icon="@drawable/ic_unicons_trash_24"
+            android:iconTint="@color/error"
+            android:backgroundTint="@color/white"
+            app:strokeColor="@color/error"
+            app:strokeWidth="1dp"
+            app:cornerRadius="24dp"
+            android:layout_marginTop="8dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                </LinearLayout>
+            </ScrollView>
+        </com.google.android.material.card.MaterialCardView>
+
     </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
