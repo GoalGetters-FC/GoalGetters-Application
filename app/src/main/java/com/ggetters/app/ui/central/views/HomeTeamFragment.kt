@@ -23,9 +23,11 @@ import com.ggetters.app.ui.central.models.HomeUiConfiguration
 import com.ggetters.app.ui.central.viewmodels.HomeTeamViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.shared.models.Clickable
+import com.ggetters.app.ui.shared.viewmodels.AuthViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+
 
 @AndroidEntryPoint
 class HomeTeamFragment : Fragment(), Clickable {
@@ -39,6 +41,7 @@ class HomeTeamFragment : Fragment(), Clickable {
 
     private val activeModel: HomeTeamViewModel by viewModels()
     private val sharedModel: HomeViewModel by activityViewModels()
+    private val authViewModel: AuthViewModel by viewModels()
 
 
     private lateinit var binds: FragmentHomeTeamBinding
@@ -173,6 +176,8 @@ class HomeTeamFragment : Fragment(), Clickable {
         inflater: LayoutInflater, container: ViewGroup?
     ): View {
         binds = FragmentHomeTeamBinding.inflate(inflater, container, false)
+        binds.lifecycleOwner = viewLifecycleOwner
+        binds.authSource = authViewModel
         return binds.root
     }
 }

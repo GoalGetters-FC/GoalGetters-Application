@@ -15,7 +15,13 @@ class AuthorizationService
     }
 
 
-// --- Function
+// --- Variables
+
+
+    val userCollection = data.allForActiveTeam()
+
+
+// --- Functions
 
 
     /**

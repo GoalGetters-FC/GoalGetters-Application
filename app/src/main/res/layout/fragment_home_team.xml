@@ -1,59 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        tools:context=".ui.central.views.HomeTeamFragment"
-        android:background="#161620"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent">
+        tools:context=".ui.central.views.HomeTeamFragment">
+
+    <data>
+
+        <variable
+                name="authSource"
+                type="com.ggetters.app.ui.shared.viewmodels.AuthViewModel" />
+    </data>
 
     <!-- UI -->
 
-    <LinearLayout
-            android:orientation="vertical"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:background="#161620"
             android:layout_height="match_parent"
             android:layout_width="match_parent">
 
-        <com.ggetters.app.ui.shared.components.HomeViewHeaderWidget
-                android:id="@+id/widget_header"
-                tools:widget_heading="Matthew Pieterse"
-                tools:widget_message="Full-Time Player"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent" />
-
-        <com.google.android.material.card.MaterialCardView
-                app:contentPadding="0dp"
-                app:contentPaddingTop="16dp"
-                app:cardBackgroundColor="#FFFFFF"
-                app:cardPreventCornerOverlap="false"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.TopCorner40"
-                app:strokeWidth="0dp"
-                app:cardElevation="6dp"
-                android:elevation="6dp"
+        <LinearLayout
+                android:orientation="vertical"
                 android:layout_height="match_parent"
                 android:layout_width="match_parent">
 
-            <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_users"
-                    tools:listitem="@layout/item_user"
-                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                    android:paddingHorizontal="16dp"
-                    android:layout_height="match_parent"
+            <com.ggetters.app.ui.shared.components.HomeViewHeaderWidget
+                    android:id="@+id/widget_header"
+                    tools:widget_heading="Matthew Pieterse"
+                    tools:widget_message="Full-Time Player"
+                    android:layout_height="wrap_content"
                     android:layout_width="match_parent" />
 
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+            <com.google.android.material.card.MaterialCardView
+                    app:contentPadding="0dp"
+                    app:contentPaddingTop="16dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardPreventCornerOverlap="false"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.TopCorner40"
+                    app:strokeWidth="0dp"
+                    app:cardElevation="6dp"
+                    android:elevation="6dp"
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent">
 
-    <!-- FAB -->
+                <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_users"
+                        tools:listitem="@layout/item_user"
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                        android:paddingHorizontal="16dp"
+                        android:layout_height="match_parent"
+                        android:layout_width="match_parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
-            style="@style/Widget.Local.FloatingActionButton"
-            android:src="@drawable/xic_x24_uic_line_plus"
-            android:importantForAccessibility="no"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <!-- FAB -->
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab"
+                app:visibleIfElevated="@{authSource.isElevatedBindable()}"
+                style="@style/Widget.Local.FloatingActionButton"
+                android:src="@drawable/xic_x24_uic_line_plus"
+                android:importantForAccessibility="no"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="16dp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

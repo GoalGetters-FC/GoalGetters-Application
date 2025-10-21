@@ -6,7 +6,7 @@
     <data>
 
         <variable
-                name="model"
+                name="authSource"
                 type="com.ggetters.app.ui.shared.viewmodels.AuthViewModel" />
     </data>
 
@@ -257,7 +257,7 @@
         <!-- Floating Action Button for adding events -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab"
-                app:visibleIfElevated="@{model.isElevatedBindable}"
+                app:visibleIfElevated="@{authSource.isElevatedBindable}"
                 style="@style/Widget.Local.FloatingActionButton"
                 android:src="@drawable/xic_x24_uic_line_plus"
                 android:importantForAccessibility="no"
