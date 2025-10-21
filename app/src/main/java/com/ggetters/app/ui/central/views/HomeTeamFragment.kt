@@ -86,12 +86,10 @@ class HomeTeamFragment : Fragment(), Clickable {
                 activeModel.activeTeam.collect { team ->
                     if (team == null) {
                         binds.widgetHeader.setHeadingText(getString(R.string.no_active_team))
-                        binds.fab.isEnabled = false
                         adapter.update(emptyList())
                     } else {
                         binds.widgetHeader.setHeadingText(team.name)
                         binds.widgetHeader.setMessageText("Football (Soccer)")
-                        binds.fab.isEnabled = true
                     }
                 }
             }

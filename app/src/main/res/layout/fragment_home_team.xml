@@ -57,7 +57,7 @@
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab"
-                app:visibleIfElevated="@{authSource.isElevatedBindable()}"
+                app:visibleIfElevated="@{authSource.isElevatedBindable}"
                 style="@style/Widget.Local.FloatingActionButton"
                 android:src="@drawable/xic_x24_uic_line_plus"
                 android:importantForAccessibility="no"

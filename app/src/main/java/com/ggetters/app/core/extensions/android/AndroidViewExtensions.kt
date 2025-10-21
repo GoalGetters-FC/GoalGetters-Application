@@ -11,3 +11,9 @@ import androidx.databinding.BindingAdapter
 fun View.setVisibleIfElevated(isElevated: Boolean) {
     visibility = if (isElevated) View.VISIBLE else View.GONE
 }
+
+
+@BindingAdapter("enabledIfElevated")
+fun View.setEnabledIfElevated(isElevated: Boolean) {
+    isEnabled = isElevated
+}
