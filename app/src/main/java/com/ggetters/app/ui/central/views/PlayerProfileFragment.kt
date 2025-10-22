@@ -85,6 +85,9 @@ class PlayerProfileFragment : Fragment() {
         // Set up window insets controller for dark status bar
         val windowInsetsController = WindowCompat.getInsetsController(requireActivity().window, requireActivity().window.decorView)
         windowInsetsController.isAppearanceLightStatusBars = false // Dark status bar icons for dark background
+        
+        // Use the same keyboard handling as the account tab
+        requireActivity().window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -182,6 +185,33 @@ class PlayerProfileFragment : Fragment() {
         setupDropdowns()
 
         setupDatePicker()
+        
+        // Setup focus listeners to scroll to focused fields
+        setupFocusListeners()
+    }
+
+    private fun setupFocusListeners() {
+        // Simple focus handling like the account tab
+        val inputFields = listOf(
+            playerNameInput,
+            playerNumberInput,
+            playerEmailInput,
+            playerDateOfBirthInput,
+            playerContactInput,
+            playerStatusDropdown,
+            playerRoleDropdown
+        )
+        
+        inputFields.forEach { field ->
+            field.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    // Simple scroll to field - let the system handle keyboard management
+                    field.post {
+                        field.requestFocus()
+                    }
+                }
+            }
+        }
     }
 
     private fun setupDropdowns() {
@@ -248,7 +278,13 @@ class PlayerProfileFragment : Fragment() {
         btnDeleteProfile.setOnClickListener {
             currentPlayer?.let { viewModel.deletePlayer(it) }
             Snackbar.make(requireView(), "Player deleted", Snackbar.LENGTH_SHORT).show()
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            // Navigate back to previous fragment instead of exiting app
+            if (parentFragmentManager.backStackEntryCount > 0) {
+                parentFragmentManager.popBackStack()
+            } else {
+                // If no back stack, just finish this fragment
+                parentFragmentManager.beginTransaction().remove(this).commit()
+            }
         }
 
     }
@@ -300,12 +336,12 @@ class PlayerProfileFragment : Fragment() {
 
         btnEditProfile.text = if (enabled) "Cancel Edit" else "Edit Profile"
 
-        val imm = requireActivity()
-            .getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+        // Simple keyboard handling like the account tab
         if (enabled) {
             playerNameInput.requestFocus()
-            imm.showSoftInput(playerNameInput, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
         } else {
+            val imm = requireActivity()
+                .getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
             imm.hideSoftInputFromWindow(requireView().windowToken, 0)
         }
     }
