@@ -225,8 +225,8 @@ class HomeCalendarFragment : Fragment(), Clickable {
                     dayNumber = day,
                     events = dayEvents,
                     isCurrentMonth = true,
-                    isToday = isToday,
-                    isSelected = isSelected
+                    isToday = isToday, // Always show today highlighting
+                    isSelected = false // Never highlight selected day
                 )
             )
         }
@@ -292,7 +292,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
     private fun showSelectedDayEvents(dayOfMonth: Int, events: List<Event>) {
         val calendar = currentDate.clone() as Calendar
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("d MMMM yyyy", Locale.getDefault())
         binds.tvSelectedDate.text = dateFormat.format(calendar.time)
 
         if (events.isEmpty()) {
