@@ -88,7 +88,15 @@ class TeamViewerViewModel @Inject constructor(
     fun joinByCode(teamCode: String, userCode: String?) = viewModelScope.launch(Dispatchers.IO) {
         try {
             _busy.value = true
-            val joined = repo.joinOrCreateTeam(teamCode.trim())
+            val code = teamCode.trim()
+            
+            // Validate 6-digit alphanumeric code
+            if (!code.matches(Regex("^[A-Z0-9]{6}$"))) {
+                _toast.emit("Team code must be 6 characters (letters and numbers only).")
+                return@launch
+            }
+            
+            val joined = repo.joinOrCreateTeam(code)
             repo.setActiveTeam(joined)
             repo.sync()
             _toast.emit("Joined ${joined.name}")

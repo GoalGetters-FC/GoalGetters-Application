@@ -68,7 +68,10 @@ class OnboardingViewModel @Inject constructor(
 
         _state.update { it.copy(isBusy = true, errorMessage = null) }
         runCatching {
-            val toCreate = Team(name = name) // ← ensure your Team has defaults for other fields
+            val toCreate = Team(name = name).apply {
+                // Generate team code from name
+                generateCode()
+            }
             val created: Team = teamRepository.createTeam(toCreate)
             teamRepository.setActiveTeam(created)
             teamRepository.sync()
@@ -102,9 +105,9 @@ class OnboardingViewModel @Inject constructor(
             _events.send(UiEvent.Toast("Team code is required."))
             return@launch
         }
-        // Accept UUID-style and other generated codes: 4-64 chars, alnum, underscore, hyphen
-        if (!code.matches(Regex("^[A-Za-z0-9_-]{4,64}$"))) {
-            _events.send(UiEvent.Toast("Invalid team code format."))
+        // Accept 6-digit alphanumeric codes (0-9, A-Z)
+        if (!code.matches(Regex("^[A-Z0-9]{6}$"))) {
+            _events.send(UiEvent.Toast("Team code must be 6 characters (letters and numbers only)."))
             return@launch
         }
 

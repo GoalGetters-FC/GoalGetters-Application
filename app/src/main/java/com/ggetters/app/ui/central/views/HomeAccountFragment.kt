@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -25,12 +26,14 @@ import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.central.viewmodels.ProfileViewModel
 import com.ggetters.app.ui.shared.components.HomeViewHeaderWidget
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import com.ggetters.app.core.utils.DateUtils
 
 @AndroidEntryPoint
 class HomeAccountFragment : Fragment() {
@@ -52,6 +55,7 @@ class HomeAccountFragment : Fragment() {
     private lateinit var positionInput: EditText
     private lateinit var roleInput: EditText
     private lateinit var statusText: TextView
+    private lateinit var cardPosition: MaterialCardView
 
     // Header elements
     private lateinit var widgetHeader: HomeViewHeaderWidget
@@ -59,6 +63,7 @@ class HomeAccountFragment : Fragment() {
     // Team Information
     private lateinit var teamNameText: TextView
     private lateinit var teamCodeText: TextView
+    private lateinit var btnShareTeamCode: ImageButton
 
     // Action Buttons
     private lateinit var editButton: MaterialButton
@@ -106,10 +111,12 @@ class HomeAccountFragment : Fragment() {
         positionInput = view.findViewById(R.id.etPosition)
         roleInput = view.findViewById(R.id.etRole)
         statusText = view.findViewById(R.id.tvStatus)
+        cardPosition = view.findViewById<MaterialCardView>(R.id.cardPosition)
 
         // Team Information
         teamNameText = view.findViewById(R.id.tvTeamName)
         teamCodeText = view.findViewById(R.id.tvTeamCode)
+        btnShareTeamCode = view.findViewById<ImageButton>(R.id.btnShareTeamCode)
 
         // Action Buttons
         editButton = view.findViewById(R.id.btnEdit)
@@ -123,6 +130,15 @@ class HomeAccountFragment : Fragment() {
 
         // Setup role selection click listener
         setupRoleSelection()
+        
+        // Setup date picker
+        setupDatePicker()
+        
+        // Setup role-based UI
+        setupRoleBasedUI()
+        
+        // Setup team code sharing
+        setupTeamCodeSharing()
     }
 
     private fun setupRoleSelection() {
@@ -161,6 +177,90 @@ class HomeAccountFragment : Fragment() {
         cancelButton.setOnClickListener { cancelEdit() }
         deleteAccountButton.setOnClickListener { showDeleteAccountConfirmation() }
     }
+    
+    private fun setupDatePicker() {
+        dateOfBirthInput.setOnClickListener {
+            showDatePicker()
+        }
+    }
+    
+    private fun showDatePicker() {
+        // Try to parse existing date, or use current date as fallback
+        val existingDate = dateOfBirthInput.text?.toString()?.let { dateStr ->
+            DateUtils.parseDate(dateStr)
+        } ?: DateUtils.getCurrentDate()
+        
+        val (year, month, day) = DateUtils.getDatePickerValues(existingDate)
+        
+        val dialog = android.app.DatePickerDialog(
+            requireContext(),
+            { _, y, m, d -> 
+                val selectedDate = DateUtils.createDateFromPicker(y, m, d)
+                dateOfBirthInput.setText(DateUtils.formatForDisplay(selectedDate))
+            },
+            year,
+            month,
+            day
+        )
+        
+        // Set reasonable date range (5 to 100 years old)
+        val calendar = java.util.Calendar.getInstance()
+        val currentYear = calendar.get(java.util.Calendar.YEAR)
+        val minYear = currentYear - 100
+        val maxYear = currentYear - 5
+        
+        dialog.datePicker.minDate = java.util.Calendar.getInstance().apply {
+            set(minYear, 0, 1)
+        }.timeInMillis
+        
+        dialog.datePicker.maxDate = java.util.Calendar.getInstance().apply {
+            set(maxYear, 11, 31)
+        }.timeInMillis
+        
+        dialog.show()
+    }
+    
+    private fun setupRoleBasedUI() {
+        // This will be called when user data is loaded
+    }
+    
+    private fun updateUIForRole(user: User) {
+        when (user.role) {
+            UserRole.COACH -> {
+                // Hide player-specific fields for coaches
+                cardPosition.visibility = View.GONE
+            }
+            UserRole.FULL_TIME_PLAYER, UserRole.PART_TIME_PLAYER, UserRole.COACH_PLAYER -> {
+                // Show player-specific fields for players
+                cardPosition.visibility = View.VISIBLE
+            }
+            else -> {
+                // Default: show all fields
+                cardPosition.visibility = View.VISIBLE
+            }
+        }
+    }
+    
+    private fun setupTeamCodeSharing() {
+        btnShareTeamCode.setOnClickListener {
+            shareTeamCode()
+        }
+    }
+    
+    private fun shareTeamCode() {
+        val teamCode = teamCodeText.text.toString()
+        if (teamCode.isNotBlank() && teamCode != "Loading...") {
+            val shareIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, "Join my team on GoalGetters FC!\n\nTeam Code: $teamCode\n\nDownload the app and use this code to join our team.")
+                putExtra(Intent.EXTRA_SUBJECT, "Join my team on GoalGetters FC")
+            }
+            
+            val shareChooser = Intent.createChooser(shareIntent, "Share Team Code")
+            startActivity(shareChooser)
+        }
+    }
 
     private fun observeUserData() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -169,6 +269,7 @@ class HomeAccountFragment : Fragment() {
                     if (user != null) {
                         originalUser = user
                         populateUserData(user)
+                        updateUIForRole(user)
                         Clogger.d(TAG, "User data loaded: ${user.fullName()}")
                     } else {
                         Clogger.w(TAG, "No user data found")
@@ -186,11 +287,15 @@ class HomeAccountFragment : Fragment() {
                     if (team != null) {
                         // Update team information section
                         teamNameText.text = team.name
-                        teamCodeText.text = "Code: ${team.code}"
+                        teamCodeText.text = team.code ?: "No code"
+                        
+                        // Show share button if team has a code
+                        btnShareTeamCode.visibility = if (team.code != null) View.VISIBLE else View.GONE
                     } else {
                         // Update team information section
                         teamNameText.text = "No active team"
                         teamCodeText.text = ""
+                        btnShareTeamCode.visibility = View.GONE
                     }
                 }
             }
@@ -212,8 +317,7 @@ class HomeAccountFragment : Fragment() {
 
         // Date of Birth
         user.dateOfBirth?.let { dateOfBirth ->
-            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-            dateOfBirthInput.setText(dateOfBirth.format(formatter))
+            dateOfBirthInput.setText(DateUtils.formatForDisplay(dateOfBirth))
         } ?: run {
             dateOfBirthInput.setText("")
         }
@@ -344,23 +448,25 @@ class HomeAccountFragment : Fragment() {
     }
 
     private fun deleteAccount() {
-        try {
-            activeModel.deleteUserAccount()
-            // Navigate to login screen after account deletion
-            val intent = Intent(
-                requireContext(),
-                com.ggetters.app.ui.startup.views.StartActivity::class.java
-            )
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            requireActivity().finish()
-        } catch (e: Exception) {
-            Clogger.e(TAG, "Error deleting account", e)
-            Snackbar.make(
-                requireView(),
-                "Error deleting account. Please try again.",
-                Snackbar.LENGTH_LONG
-            ).show()
+        lifecycleScope.launch {
+            try {
+                activeModel.deleteUserAccount()
+                // Navigate to login screen after account deletion
+                val intent = Intent(
+                    requireContext(),
+                    com.ggetters.app.ui.startup.views.StartActivity::class.java
+                )
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                requireActivity().finish()
+            } catch (e: Exception) {
+                Clogger.e(TAG, "Error deleting account", e)
+                Snackbar.make(
+                    requireView(),
+                    "Error deleting account. Please try again.",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
         }
     }
 }

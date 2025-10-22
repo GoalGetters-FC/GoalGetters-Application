@@ -253,14 +253,15 @@
                     android:id="@+id/etDateOfBirth"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="YYYY-MM-DD"
+                    android:hint="DD/MM/YYYY"
                     android:inputType="date"
                     android:fontFamily="@font/variable_inter"
                     android:textColor="#161620"
                     android:textSize="16sp"
                     android:textColorHint="#999999"
                     android:background="@android:color/transparent"
-                    android:enabled="false" />
+                    android:focusable="false"
+                    android:clickable="true" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -278,6 +279,7 @@
 
         <!-- Position -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardPosition"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -524,6 +526,16 @@
                         android:textFontWeight="500"
                         android:fontFamily="@font/variable_inter"
                         android:layout_gravity="center_vertical" />
+
+                    <ImageButton
+                        android:id="@+id/btnShareTeamCode"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginStart="8dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_share"
+                        android:contentDescription="Share team code"
+                        android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

@@ -59,10 +59,12 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 userRepo.upsert(user)
-                runCatching { userRepo.sync() }
-                Clogger.d(TAG, "User profile updated successfully")
+                // Ensure sync happens after update
+                userRepo.sync()
+                Clogger.d(TAG, "User profile updated and synced successfully")
             } catch (e: Exception) {
                 Clogger.e(TAG, "Failed to update user profile: ${e.message}", e)
+                throw e // Re-throw to allow UI to handle the error
             }
         }
     }
@@ -78,11 +80,14 @@ class ProfileViewModel @Inject constructor(
                     val user = userRepo.getById(currentUserId)
                     if (user != null) {
                         userRepo.delete(user)
-                        Clogger.d(TAG, "User account deleted successfully")
+                        // Sync deletion to remote
+                        userRepo.sync()
+                        Clogger.d(TAG, "User account deleted and synced successfully")
                     }
                 }
             } catch (e: Exception) {
                 Clogger.e(TAG, "Failed to delete user account: ${e.message}", e)
+                throw e // Re-throw to allow UI to handle the error
             }
         }
     }

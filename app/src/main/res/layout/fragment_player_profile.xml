@@ -235,6 +235,7 @@
 
         <!-- Player Number -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardPlayerNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -348,14 +349,15 @@
                     android:id="@+id/playerDateOfBirthInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="YYYY-MM-DD"
+                    android:hint="DD/MM/YYYY"
                     android:inputType="date"
                     android:fontFamily="@font/variable_inter"
                     android:textColor="#161620"
                     android:textSize="16sp"
                     android:textColorHint="#999999"
                     android:background="@android:color/transparent"
-                    android:enabled="false" />
+                    android:focusable="false"
+                    android:clickable="true" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

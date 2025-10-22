@@ -11,6 +11,8 @@ import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import android.widget.ImageButton
 import com.ggetters.app.R
 import com.ggetters.app.data.model.User
@@ -18,11 +20,14 @@ import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.ui.central.viewmodels.HomeProfileViewModel
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import com.ggetters.app.core.utils.DateUtils
+import com.ggetters.app.core.validation.UserValidationUtils
 
 @AndroidEntryPoint
 class PlayerProfileFragment : Fragment() {
@@ -61,6 +66,7 @@ class PlayerProfileFragment : Fragment() {
     private lateinit var playerContactInput: TextInputEditText
     private lateinit var playerStatusDropdown: TextInputEditText
     private lateinit var playerRoleDropdown: TextInputEditText
+    private lateinit var cardPlayerNumber: MaterialCardView
 
     // Statistics (placeholders)
     private lateinit var statsGoals: TextView
@@ -168,6 +174,7 @@ class PlayerProfileFragment : Fragment() {
         playerContactInput     = view.findViewById(R.id.playerContactInput)
         playerStatusDropdown   = view.findViewById(R.id.playerStatusDropdown)
         playerRoleDropdown     = view.findViewById(R.id.playerRoleDropdown)
+        cardPlayerNumber       = view.findViewById<MaterialCardView>(R.id.cardPlayerNumber)
 
         statsGoals        = view.findViewById(R.id.statsGoals)
         statsAssists      = view.findViewById(R.id.statsAssists)
@@ -268,23 +275,21 @@ class PlayerProfileFragment : Fragment() {
             if (validateInputs()) {
                 currentPlayer?.let { existing ->
                     val updated = buildUserFromInputs(existing)
-                    viewModel.updatePlayer(updated)
-                    Snackbar.make(requireView(), "Profile updated", Snackbar.LENGTH_SHORT).show()
-                    setEditing(false)
+                    lifecycleScope.launch {
+                        try {
+                            viewModel.updatePlayer(updated)
+                            setEditing(false)
+                            Snackbar.make(requireView(), "Player updated successfully", Snackbar.LENGTH_SHORT).show()
+                        } catch (e: Exception) {
+                            Snackbar.make(requireView(), "Failed to update player: ${e.message}", Snackbar.LENGTH_LONG).show()
+                        }
+                    }
                 }
             }
         }
 
         btnDeleteProfile.setOnClickListener {
-            currentPlayer?.let { viewModel.deletePlayer(it) }
-            Snackbar.make(requireView(), "Player deleted", Snackbar.LENGTH_SHORT).show()
-            // Navigate back to previous fragment instead of exiting app
-            if (parentFragmentManager.backStackEntryCount > 0) {
-                parentFragmentManager.popBackStack()
-            } else {
-                // If no back stack, just finish this fragment
-                parentFragmentManager.beginTransaction().remove(this).commit()
-            }
+            showDeletePlayerConfirmation()
         }
 
     }
@@ -296,11 +301,14 @@ class PlayerProfileFragment : Fragment() {
         playerNameInput.setText(player.fullName())
         playerNumberInput.setText(player.number?.toString() ?: "")
         playerEmailInput.setText(player.email ?: "")
-        playerDateOfBirthInput.setText(player.dateOfBirth?.format(DateTimeFormatter.ISO_DATE) ?: "")
+        playerDateOfBirthInput.setText(player.dateOfBirth?.let { DateUtils.formatForDisplay(it) } ?: "")
         playerContactInput.setText("") // no contact field in User
 
         playerStatusDropdown.setText(player.status?.name ?: UserStatus.ACTIVE.name)
         playerRoleDropdown.setText(player.role.name)
+        
+        // Update UI based on role
+        updateUIForRole(player)
 
         // Stats placeholders
         statsGoals.text       = "0"
@@ -347,11 +355,52 @@ class PlayerProfileFragment : Fragment() {
     }
 
     private fun validateInputs(): Boolean {
-        val name   = playerNameInput.text?.toString()?.trim().orEmpty()
-        val number = playerNumberInput.text?.toString()?.trim().orEmpty()
-        if (name.isEmpty()) { playerNameInput.error = "Name required"; return false }
-        if (number.isEmpty()) { playerNumberInput.error = "Number required"; return false }
+        val fullName = playerNameInput.text?.toString()?.trim().orEmpty()
+        val parts = fullName.split(" ", limit = 2)
+        val firstName = parts.getOrNull(0) ?: ""
+        val lastName = parts.getOrNull(1) ?: ""
+        val email = playerEmailInput.text?.toString()?.trim()
+        val number = playerNumberInput.text?.toString()?.trim()
+        val dateOfBirth = playerDateOfBirthInput.text?.toString()?.trim()
+        val phone = playerContactInput.text?.toString()?.trim()
+        val position = "" // Not implemented in current UI
+        val role = playerRoleDropdown.text?.toString()?.trim() ?: "FULL_TIME_PLAYER"
+        val status = playerStatusDropdown.text?.toString()?.trim() ?: "ACTIVE"
+        
+        val validation = UserValidationUtils.validateUserData(
+            firstName, lastName, email, number, dateOfBirth, phone, position, role, status
+        )
+        
+        if (!validation.isValid) {
+            // Clear previous errors
+            clearFieldErrors()
+            
+            // Show validation errors
+            val errorMessage = UserValidationUtils.getErrorMessage(validation.errors)
+            Snackbar.make(requireView(), errorMessage, Snackbar.LENGTH_LONG).show()
+            
+            // Set specific field errors
+            if (firstName.isBlank()) playerNameInput.error = "Name required"
+            if (email.isNullOrBlank()) playerEmailInput.error = "Email required"
+            if (!number.isNullOrBlank() && !UserValidationUtils.isValidPlayerNumber(number)) {
+                playerNumberInput.error = "Number must be 1-99"
+            }
+            if (!dateOfBirth.isNullOrBlank() && !UserValidationUtils.isValidDateOfBirth(dateOfBirth)) {
+                playerDateOfBirthInput.error = "Invalid date"
+            }
+            
+            return false
+        }
+        
         return true
+    }
+    
+    private fun clearFieldErrors() {
+        playerNameInput.error = null
+        playerEmailInput.error = null
+        playerNumberInput.error = null
+        playerDateOfBirthInput.error = null
+        playerContactInput.error = null
     }
 
     private fun buildUserFromInputs(existing: User): User {
@@ -369,7 +418,7 @@ class PlayerProfileFragment : Fragment() {
         }.getOrDefault(existing.status ?: UserStatus.ACTIVE)
 
         val dob = runCatching {
-            playerDateOfBirthInput.text?.toString()?.takeIf { it.isNotBlank() }?.let { LocalDate.parse(it) }
+            playerDateOfBirthInput.text?.toString()?.takeIf { it.isNotBlank() }?.let { DateUtils.parseDate(it) }
         }.getOrNull()
 
         return existing.copy(
@@ -385,21 +434,91 @@ class PlayerProfileFragment : Fragment() {
 
     private fun setupDatePicker() {
         playerDateOfBirthInput.setOnClickListener {
-            if (isEditing) showDatePicker()
+            showDatePicker()
         }
     }
 
     private fun showDatePicker() {
-        val cal = java.util.Calendar.getInstance()
+        // Try to parse existing date, or use current date as fallback
+        val existingDate = playerDateOfBirthInput.text?.toString()?.let { dateStr ->
+            DateUtils.parseDate(dateStr)
+        } ?: DateUtils.getCurrentDate()
+        
+        val (year, month, day) = DateUtils.getDatePickerValues(existingDate)
+        
         val dialog = android.app.DatePickerDialog(
             requireContext(),
-            { _, y, m, d -> playerDateOfBirthInput.setText(String.format("%04d-%02d-%02d", y, m + 1, d)) },
-            cal.get(java.util.Calendar.YEAR),
-            cal.get(java.util.Calendar.MONTH),
-            cal.get(java.util.Calendar.DAY_OF_MONTH)
+            { _, y, m, d -> 
+                val selectedDate = DateUtils.createDateFromPicker(y, m, d)
+                playerDateOfBirthInput.setText(DateUtils.formatForDisplay(selectedDate))
+            },
+            year,
+            month,
+            day
         )
-        dialog.datePicker.maxDate = System.currentTimeMillis()
+        
+        // Set reasonable date range (5 to 100 years old)
+        val calendar = java.util.Calendar.getInstance()
+        val currentYear = calendar.get(java.util.Calendar.YEAR)
+        val minYear = currentYear - 100
+        val maxYear = currentYear - 5
+        
+        dialog.datePicker.minDate = java.util.Calendar.getInstance().apply {
+            set(minYear, 0, 1)
+        }.timeInMillis
+        
+        dialog.datePicker.maxDate = java.util.Calendar.getInstance().apply {
+            set(maxYear, 11, 31)
+        }.timeInMillis
+        
         dialog.show()
+    }
+
+    private fun showDeletePlayerConfirmation() {
+        currentPlayer?.let { player ->
+            android.app.AlertDialog.Builder(requireContext())
+                .setTitle("Delete Player")
+                .setMessage("Are you sure you want to delete ${player.fullName()}? This action cannot be undone and will remove all associated data including attendance records and statistics.")
+                .setPositiveButton("Delete") { _, _ ->
+                    deletePlayer(player)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+    }
+
+    private fun deletePlayer(player: User) {
+        lifecycleScope.launch {
+            try {
+                viewModel.deletePlayer(player)
+                Snackbar.make(requireView(), "Player deleted successfully", Snackbar.LENGTH_SHORT).show()
+                // Navigate back to previous fragment
+                if (parentFragmentManager.backStackEntryCount > 0) {
+                    parentFragmentManager.popBackStack()
+                } else {
+                    parentFragmentManager.beginTransaction().remove(this@PlayerProfileFragment).commit()
+                }
+            } catch (e: Exception) {
+                Snackbar.make(requireView(), "Failed to delete player: ${e.message}", Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
+    
+    private fun updateUIForRole(player: User) {
+        when (player.role) {
+            UserRole.COACH -> {
+                // Hide player-specific fields for coaches
+                cardPlayerNumber.visibility = View.GONE
+            }
+            UserRole.FULL_TIME_PLAYER, UserRole.PART_TIME_PLAYER, UserRole.COACH_PLAYER -> {
+                // Show player-specific fields for players
+                cardPlayerNumber.visibility = View.VISIBLE
+            }
+            else -> {
+                // Default: show all fields
+                cardPlayerNumber.visibility = View.VISIBLE
+            }
+        }
     }
 }
 
