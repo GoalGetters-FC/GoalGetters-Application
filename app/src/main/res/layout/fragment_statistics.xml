@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#161620">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+        <!-- Custom Header with Close Button and Title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#161620"
+            android:paddingTop="48dp"
+            android:paddingBottom="20dp"
+            android:paddingHorizontal="20dp"
+            android:fitsSystemWindows="true">
+
+            <!-- Close Button and Title Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <!-- Close Button -->
+                <ImageButton
+                    android:id="@+id/closeButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_unicons_times_24"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Close"
+                    app:tint="#FFFFFF" />
+
+                <!-- Centered Title -->
+                <TextView
+                    android:id="@+id/titleText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Statistics"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:textFontWeight="600"
+                    android:fontFamily="@font/variable_inter"
+                    android:gravity="center" />
+
+                <!-- Spacer to balance the close button -->
+                <Space
+                    android:layout_width="48dp"
+                    android:layout_height="0dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Content Section -->
+        <com.google.android.material.card.MaterialCardView
+            app:contentPadding="0dp"
+            app:contentPaddingTop="8dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardPreventCornerOverlap="false"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.TopCorner40"
+            app:strokeWidth="0dp"
+            app:cardElevation="6dp"
+            android:elevation="6dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_width="match_parent">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true"
+                android:scrollbars="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- Attendance Donut Chart Section -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        app:cardCornerRadius="24dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#F8F9FA"
+                        app:contentPadding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <!-- Donut Chart Placeholder -->
+                            <View
+                                android:layout_width="120dp"
+                                android:layout_height="120dp"
+                                android:background="@drawable/donut_chart_background"
+                                android:layout_marginEnd="20dp" />
+
+                            <!-- Legend -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <!-- Scheduled -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical"
+                                    android:layout_marginBottom="12dp">
+
+                                    <View
+                                        android:layout_width="12dp"
+                                        android:layout_height="12dp"
+                                        android:background="@drawable/circle_green"
+                                        android:layout_marginEnd="8dp" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Scheduled"
+                                        android:textSize="14sp"
+                                        android:textColor="#4B4D4F"
+                                        android:fontFamily="@font/variable_inter"
+                                        android:layout_marginEnd="8dp" />
+
+                                    <TextView
+                                        android:id="@+id/scheduledCount"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="12"
+                                        android:textSize="16sp"
+                                        android:textFontWeight="600"
+                                        android:textColor="#161620"
+                                        android:fontFamily="@font/variable_inter" />
+
+                                </LinearLayout>
+
+                                <!-- Attended -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical"
+                                    android:layout_marginBottom="12dp">
+
+                                    <View
+                                        android:layout_width="12dp"
+                                        android:layout_height="12dp"
+                                        android:background="@drawable/circle_white"
+                                        android:layout_marginEnd="8dp" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Attended"
+                                        android:textSize="14sp"
+                                        android:textColor="#4B4D4F"
+                                        android:fontFamily="@font/variable_inter"
+                                        android:layout_marginEnd="8dp" />
+
+                                    <TextView
+                                        android:id="@+id/attendedCount"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="10"
+                                        android:textSize="16sp"
+                                        android:textFontWeight="600"
+                                        android:textColor="#161620"
+                                        android:fontFamily="@font/variable_inter" />
+
+                                </LinearLayout>
+
+                                <!-- Missed -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical">
+
+                                    <View
+                                        android:layout_width="12dp"
+                                        android:layout_height="12dp"
+                                        android:background="@drawable/circle_purple"
+                                        android:layout_marginEnd="8dp" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Missed"
+                                        android:textSize="14sp"
+                                        android:textColor="#4B4D4F"
+                                        android:fontFamily="@font/variable_inter"
+                                        android:layout_marginEnd="8dp" />
+
+                                    <TextView
+                                        android:id="@+id/missedCount"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="13"
+                                        android:textSize="16sp"
+                                        android:textFontWeight="600"
+                                        android:textColor="#161620"
+                                        android:fontFamily="@font/variable_inter" />
+
+                                </LinearLayout>
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Statistics Grid -->
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:columnCount="2"
+                        android:rowCount="3">
+
+                        <!-- Goals Card -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="8dp"
+                            app:cardCornerRadius="16dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="#FFFFFF"
+                            app:contentPadding="16dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_goals"
+                                    android:layout_marginBottom="8dp" />
+
+                                <TextView
+                                    android:id="@+id/goalsValue"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="2"
+                                    android:textSize="20sp"
+                                    android:textFontWeight="600"
+                                    android:textColor="#161620"
+                                    android:fontFamily="@font/variable_inter" />
+
+                            </LinearLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Assists Card -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="8dp"
+                            app:cardCornerRadius="16dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="#FFFFFF"
+                            app:contentPadding="16dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_assists"
+                                    android:layout_marginBottom="8dp" />
+
+                                <TextView
+                                    android:id="@+id/assistsValue"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="7"
+                                    android:textSize="20sp"
+                                    android:textFontWeight="600"
+                                    android:textColor="#161620"
+                                    android:fontFamily="@font/variable_inter" />
+
+                            </LinearLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Matches Card -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="8dp"
+                            app:cardCornerRadius="16dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="#FFFFFF"
+                            app:contentPadding="16dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_trophy"
+                                    android:layout_marginBottom="8dp" />
+
+                                <TextView
+                                    android:id="@+id/matchesValue"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="11"
+                                    android:textSize="20sp"
+                                    android:textFontWeight="600"
+                                    android:textColor="#161620"
+                                    android:fontFamily="@font/variable_inter" />
+
+                            </LinearLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Yellow Cards Card -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="8dp"
+                            app:cardCornerRadius="16dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="#FFFFFF"
+                            app:contentPadding="16dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_yellow_card"
+                                    android:layout_marginBottom="8dp" />
+
+                                <TextView
+                                    android:id="@+id/yellowCardsValue"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="126"
+                                    android:textSize="20sp"
+                                    android:textFontWeight="600"
+                                    android:textColor="#161620"
+                                    android:fontFamily="@font/variable_inter" />
+
+                            </LinearLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Weight Card -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="8dp"
+                            app:cardCornerRadius="16dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="#FFFFFF"
+                            app:contentPadding="16dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_weight"
+                                    android:layout_marginBottom="8dp" />
+
+                                <TextView
+                                    android:id="@+id/weightValue"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="83 kg"
+                                    android:textSize="20sp"
+                                    android:textFontWeight="600"
+                                    android:textColor="#161620"
+                                    android:fontFamily="@font/variable_inter" />
+
+                            </LinearLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Minutes Played Card -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="8dp"
+                            app:cardCornerRadius="16dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="#FFFFFF"
+                            app:contentPadding="16dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_clock"
+                                    android:layout_marginBottom="8dp" />
+
+                                <TextView
+                                    android:id="@+id/minutesValue"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="260 min"
+                                    android:textSize="20sp"
+                                    android:textFontWeight="600"
+                                    android:textColor="#161620"
+                                    android:fontFamily="@font/variable_inter" />
+
+                            </LinearLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                    </GridLayout>
+
+                </LinearLayout>
+
+            </ScrollView>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

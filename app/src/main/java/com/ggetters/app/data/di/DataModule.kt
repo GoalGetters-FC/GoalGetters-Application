@@ -11,6 +11,7 @@ import com.ggetters.app.data.local.dao.AttendanceDao
 import com.ggetters.app.data.local.dao.BroadcastDao
 import com.ggetters.app.data.local.dao.BroadcastStatusDao
 import com.ggetters.app.data.local.dao.NotificationDao
+import com.ggetters.app.data.local.dao.PlayerStatisticsDao
 import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
 import com.ggetters.app.data.local.dao.EventDao
@@ -151,6 +152,10 @@ object DataModule {
     @Provides
     @Singleton
     fun provideMatchEventDao(db: AppDatabase): MatchEventDao = db.matchEventDao()
+
+    @Provides
+    @Singleton
+    fun providePlayerStatisticsDao(db: AppDatabase): PlayerStatisticsDao = db.playerStatisticsDao()
 
     // TODO: Backend - Add PerformanceLogDao provider
 }

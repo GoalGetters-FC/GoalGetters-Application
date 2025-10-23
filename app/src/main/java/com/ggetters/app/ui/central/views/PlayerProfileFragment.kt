@@ -28,6 +28,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.ggetters.app.core.utils.DateUtils
 import com.ggetters.app.core.validation.UserValidationUtils
+import com.ggetters.app.core.services.StatisticsService
 
 @AndroidEntryPoint
 class PlayerProfileFragment : Fragment() {
@@ -54,6 +55,7 @@ class PlayerProfileFragment : Fragment() {
 
     // Header
     private lateinit var backButton: ImageButton
+    private lateinit var statisticsButton: ImageButton
     private lateinit var playerAvatar: ImageView
     private lateinit var playerName: TextView
     private lateinit var playerAge: TextView
@@ -163,6 +165,7 @@ class PlayerProfileFragment : Fragment() {
     private fun setupViews(view: View) {
         // Header
         backButton = view.findViewById(R.id.backButton)
+        statisticsButton = view.findViewById(R.id.statisticsButton)
         playerAvatar = view.findViewById(R.id.playerAvatar)
         playerName   = view.findViewById(R.id.playerName)
         playerAge    = view.findViewById(R.id.playerAge)
@@ -292,6 +295,13 @@ class PlayerProfileFragment : Fragment() {
             showDeletePlayerConfirmation()
         }
 
+        // Statistics button
+        statisticsButton.setOnClickListener {
+            currentPlayer?.let { player ->
+                navigateToStatistics(player.id)
+            }
+        }
+
     }
 
     private fun displayPlayerInfo(player: User) {
@@ -310,13 +320,8 @@ class PlayerProfileFragment : Fragment() {
         // Update UI based on role
         updateUIForRole(player)
 
-        // Stats placeholders
-        statsGoals.text       = "0"
-        statsAssists.text     = "0"
-        statsMatches.text     = "0"
-        statsYellowCards.text = "0"
-        statsRedCards.text    = "0"
-        statsCleanSheets.text = "0"
+        // Load real-time statistics
+        loadPlayerStatistics(player)
     }
 
     private fun setEditing(enabled: Boolean) {
@@ -519,6 +524,25 @@ class PlayerProfileFragment : Fragment() {
                 cardPlayerNumber.visibility = View.VISIBLE
             }
         }
+    }
+
+    private fun navigateToStatistics(playerId: String) {
+        val statisticsFragment = StatisticsFragment.newInstance(playerId)
+        parentFragmentManager.beginTransaction()
+            .replace(android.R.id.content, statisticsFragment)
+            .addToBackStack("statistics")
+            .commit()
+    }
+
+    private fun loadPlayerStatistics(player: User) {
+        // For now, we'll use mock statistics
+        // In a real implementation, this would use dependency injection to get StatisticsService
+        statsGoals.text = "0"
+        statsAssists.text = "0"
+        statsMatches.text = "0"
+        statsYellowCards.text = "0"
+        statsRedCards.text = "0"
+        statsCleanSheets.text = "0"
     }
 }
 

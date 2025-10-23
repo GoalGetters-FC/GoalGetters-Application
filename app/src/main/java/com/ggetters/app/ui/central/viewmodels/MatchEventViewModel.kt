@@ -8,6 +8,7 @@ import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.match.MatchEventRepository
 import com.ggetters.app.data.repository.user.UserRepository
+import com.ggetters.app.core.services.StatisticsService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +25,8 @@ import javax.inject.Inject
 class MatchEventViewModel @Inject constructor(
     private val matchEventRepository: MatchEventRepository,
     private val userRepository: UserRepository,
-    private val attendanceRepository: AttendanceRepository
+    private val attendanceRepository: AttendanceRepository,
+    private val statisticsService: StatisticsService
 ) : ViewModel() {
 
     private val _availablePlayers = MutableStateFlow<List<User>>(emptyList())
@@ -108,6 +110,10 @@ class MatchEventViewModel @Inject constructor(
                 }
 
                 matchEventRepository.insertEvent(event)
+                
+                // Update player statistics in real-time
+                statisticsService.updateStatisticsFromMatchEvent(event)
+                
                 _eventRecorded.value = true
             } catch (e: Exception) {
                 _error.value = "Failed to record event: ${e.message}"

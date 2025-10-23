@@ -51,10 +51,15 @@
                     android:fontFamily="@font/variable_inter"
                     android:gravity="center" />
 
-                <!-- Spacer to balance the back button -->
-                <Space
+                <!-- Statistics Button -->
+                <ImageButton
+                    android:id="@+id/statisticsButton"
                     android:layout_width="48dp"
-                    android:layout_height="0dp" />
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_statistics"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Statistics"
+                    app:tint="#FFFFFF" />
 
             </LinearLayout>
 
