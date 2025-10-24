@@ -146,6 +146,6 @@ class StatisticsFragment : Fragment() {
         matchesValue.text = stats.matches.toString()
         yellowCardsValue.text = stats.yellowCards.toString()
         redCardsValue.text = stats.redCards.toString()
-        minutesValue.text = "${stats.minutesPlayed} min"
+        minutesValue.text = stats.minutesPlayed.toString()
     }
 }

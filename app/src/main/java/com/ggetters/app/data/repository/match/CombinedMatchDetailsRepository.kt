@@ -193,8 +193,13 @@ class CombinedMatchDetailsRepository @Inject constructor(
         val now = Instant.now()
         val startTime = start
         val endTime = end ?: start.plus(Duration.ofMinutes(90))
+        
+        // If there are any events, the match is considered in progress
         return when {
-            now.isBefore(startTime) && events.isEmpty() -> com.ggetters.app.data.model.MatchStatus.SCHEDULED
+            events.isEmpty() && now.isBefore(startTime) -> com.ggetters.app.data.model.MatchStatus.SCHEDULED
+            now.isAfter(endTime) && events.isNotEmpty() -> com.ggetters.app.data.model.MatchStatus.FULL_TIME
+            events.isNotEmpty() -> com.ggetters.app.data.model.MatchStatus.IN_PROGRESS
+            now.isBefore(startTime) -> com.ggetters.app.data.model.MatchStatus.SCHEDULED
             now.isAfter(endTime) -> com.ggetters.app.data.model.MatchStatus.FULL_TIME
             else -> com.ggetters.app.data.model.MatchStatus.IN_PROGRESS
         }
@@ -206,9 +211,14 @@ class CombinedMatchDetailsRepository @Inject constructor(
         
         events.forEach { event ->
             if (event.eventType == com.ggetters.app.data.model.MatchEventType.GOAL) {
-                // For now, assume all goals are home team goals
-                // TODO: Implement proper team detection based on player data
-                homeScore++
+                // Check if it's an opponent goal
+                val isOpponentGoal = event.details["isOpponentGoal"] as? Boolean ?: false
+                
+                if (isOpponentGoal) {
+                    awayScore++
+                } else {
+                    homeScore++
+                }
             }
         }
         

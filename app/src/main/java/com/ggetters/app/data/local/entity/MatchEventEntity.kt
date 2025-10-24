@@ -5,6 +5,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Index
 import com.ggetters.app.data.model.MatchEvent
 import com.ggetters.app.data.model.MatchEventType
+import org.json.JSONObject
 
 /**
  * Room entity for MatchEvent.
@@ -38,6 +39,20 @@ data class MatchEventEntity(
      * Convert to domain model
      */
     fun toDomainModel(): MatchEvent {
+        // Parse JSON details
+        val detailsMap = mutableMapOf<String, Any>()
+        if (!details.isNullOrBlank()) {
+            try {
+                val json = JSONObject(details)
+                json.keys().forEach { key ->
+                    val value = json.get(key)
+                    detailsMap[key] = value
+                }
+            } catch (e: Exception) {
+                // If parsing fails, use empty map
+            }
+        }
+        
         return MatchEvent(
             id = id,
             matchId = matchId,
@@ -52,7 +67,7 @@ data class MatchEventEntity(
             playerName = playerName,
             teamId = teamId,
             teamName = teamName,
-            details = emptyMap(), // TODO: parse JSON details if needed
+            details = detailsMap,
             createdBy = createdBy,
             isConfirmed = isConfirmed
         )
@@ -63,6 +78,21 @@ data class MatchEventEntity(
          * Create entity from domain model
          */
         fun fromDomainModel(event: MatchEvent): MatchEventEntity {
+            // Serialize details to JSON
+            val detailsJson = if (event.details.isNotEmpty()) {
+                try {
+                    val json = JSONObject()
+                    event.details.forEach { (key, value) ->
+                        json.put(key, value)
+                    }
+                    json.toString()
+                } catch (e: Exception) {
+                    null
+                }
+            } else {
+                null
+            }
+            
             return MatchEventEntity(
                 id = event.id,
                 matchId = event.matchId,
@@ -73,7 +103,7 @@ data class MatchEventEntity(
                 playerName = event.playerName,
                 teamId = event.teamId,
                 teamName = event.teamName,
-                details = null, // TODO: serialize details to JSON if needed
+                details = detailsJson,
                 createdBy = event.createdBy,
                 isConfirmed = event.isConfirmed
             )
