@@ -51,7 +51,7 @@ class DevClass @Inject constructor(
         seed = false,
         logCounts = true,
         pushToRemote = false,
-        rehydrateFromRemote = true
+        rehydrateFromRemote = false
     )
 
     suspend fun init() {
