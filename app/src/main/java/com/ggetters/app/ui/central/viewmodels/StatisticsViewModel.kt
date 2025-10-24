@@ -16,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class StatisticsViewModel @Inject constructor(
     private val userRepository: CombinedUserRepository,
-    private val statisticsService: StatisticsService
+    private val statisticsService: StatisticsService,
+    private val teamRepository: com.ggetters.app.data.repository.team.TeamRepository
 ) : ViewModel() {
 
     private val _player = MutableLiveData<User?>()
@@ -37,13 +38,23 @@ class StatisticsViewModel @Inject constructor(
                 _loading.value = true
                 _error.value = null
 
+                // Get active team
+                val team = teamRepository.getActiveTeam().first()
+                val teamId = team?.id ?: ""
+
                 // Load player data
                 val player = userRepository.getById(playerId)
                 _player.value = player
 
+                // Ensure player has statistics record and recalculate if needed
+                statisticsService.ensurePlayerStatistics(playerId, teamId)
+
                 // Load real-time player statistics
                 val stats = statisticsService.getPlayerStatistics(playerId)
                 _statistics.value = stats
+                
+                // Start observing real-time updates
+                observePlayerStatistics(playerId)
 
             } catch (e: Exception) {
                 _error.value = "Failed to load statistics: ${e.message}"

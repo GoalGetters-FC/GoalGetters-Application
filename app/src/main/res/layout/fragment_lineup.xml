@@ -6,18 +6,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white"
-    android:padding="16dp">
+    android:padding="12dp">
 
     <!-- Formation Selector and Search Card -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        app:cardCornerRadius="24dp"
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="16dp"
         app:strokeWidth="0dp"
         app:cardBackgroundColor="#F8F9FA"
-        app:contentPadding="16dp"
-        app:cardElevation="4dp">
+        app:contentPadding="12dp"
+        app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,19 +54,19 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="4"
-        android:layout_marginBottom="12dp"
-        app:cardCornerRadius="24dp"
+        android:layout_weight="3"
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="16dp"
         app:strokeWidth="0dp"
         app:cardBackgroundColor="@color/pitch_green_dark"
-        app:cardElevation="4dp"
-        app:contentPadding="16dp">
+        app:cardElevation="2dp"
+        app:contentPadding="8dp">
 
         <com.ggetters.app.ui.central.views.components.FormationPitchView
             android:id="@+id/pitchView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="8dp" />
+            android:layout_margin="4dp" />
 
     </com.google.android.material.card.MaterialCardView>
 
@@ -74,12 +74,12 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
-        app:cardCornerRadius="24dp"
+        android:layout_weight="2.5"
+        app:cardCornerRadius="16dp"
         app:strokeWidth="0dp"
         app:cardBackgroundColor="#F8F9FA"
-        app:contentPadding="16dp"
-        app:cardElevation="4dp">
+        app:contentPadding="12dp"
+        app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -92,11 +92,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Squad (0/0)"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#161620"
                 android:fontFamily="@font/variable_inter"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="8dp" />
 
             <!-- ScrollView for Players Grid -->
             <ScrollView

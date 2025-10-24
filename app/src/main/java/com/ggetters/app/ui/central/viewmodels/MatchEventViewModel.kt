@@ -51,10 +51,12 @@ class MatchEventViewModel @Inject constructor(
                 val attendanceData = attendanceRepository.getByEventId(matchId).first()
                 val attendanceMap = attendanceData.associateBy { it.playerId }
                 
-                // Filter to only available players (status = 0)
+                // Filter to only available players (status = 0) and exclude coaches
                 val availablePlayers = allUsers.filter { user ->
                     val attendance = attendanceMap[user.id]
-                    attendance?.status == 0 // AVAILABLE
+                    val isAvailable = attendance?.status == 0 // AVAILABLE
+                    val isNotCoach = user.role != com.ggetters.app.data.model.UserRole.COACH
+                    isAvailable && isNotCoach
                 }
                 
                 _availablePlayers.value = availablePlayers

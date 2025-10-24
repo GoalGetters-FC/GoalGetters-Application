@@ -16,10 +16,10 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="#161620"
-            android:paddingTop="48dp"
+            android:paddingTop="16dp"
             android:paddingBottom="20dp"
             android:paddingHorizontal="20dp"
-            android:fitsSystemWindows="true">
+            android:fitsSystemWindows="false">
 
             <!-- Back Button and Title Row -->
             <LinearLayout

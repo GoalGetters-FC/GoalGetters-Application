@@ -279,8 +279,8 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
                     // Store both IDs and names for proper display
                     details["substituteIn"] = subInPlayer.id
                     details["substituteOut"] = subOutPlayer.id
-                    details["playerIn"] = subInPlayer.getFullName()
-                    details["playerOut"] = subOutPlayer.getFullName()
+                    details["playerIn"] = subInPlayer.fullName()
+                    details["playerOut"] = subOutPlayer.fullName()
                 }
             }
         }

@@ -111,12 +111,67 @@ class StatisticsService @Inject constructor(
         try {
             Clogger.d("StatisticsService", "Recalculating statistics for team $teamId")
             
-            // For now, we'll use a simplified approach
-            // In a real implementation, you would get team players and calculate their stats
-            Clogger.d("StatisticsService", "Statistics recalculation requested for team $teamId")
+            // Get all users in the team - we'll filter to players only
+            val users = userRepository.all().first()
+            val players = users.filter { it.teamId == teamId }
+            
+            players.forEach { player ->
+                recalculatePlayerStatistics(player.id, teamId)
+            }
+            
+            Clogger.d("StatisticsService", "Recalculated statistics for ${players.size} players")
             
         } catch (e: Exception) {
             Clogger.e("StatisticsService", "Failed to recalculate player statistics", e)
+        }
+    }
+    
+    /**
+     * Recalculates statistics for a specific player
+     */
+    suspend fun recalculatePlayerStatistics(playerId: String, teamId: String) {
+        try {
+            Clogger.d("StatisticsService", "Recalculating statistics for player $playerId")
+            
+            // Get all attendances for this player
+            val attendances = attendanceRepository.getByUserId(playerId).first()
+            
+            // Get all match events for this player
+            val allMatchEvents = mutableListOf<MatchEvent>()
+            val events = eventRepository.getByTeamId(teamId).first()
+            for (event in events) {
+                if (event.category == com.ggetters.app.data.model.EventCategory.MATCH) {
+                    val matchEvents = matchEventRepository.getEventsByMatchId(event.id).first()
+                    allMatchEvents.addAll(matchEvents.filter { it.playerId == playerId })
+                }
+            }
+            
+            // Calculate statistics
+            val stats = calculatePlayerStatisticsFromData(playerId, attendances, allMatchEvents)
+            
+            // Save to database
+            statisticsDao.upsert(stats)
+            
+            Clogger.d("StatisticsService", "Recalculated stats for player $playerId: $stats")
+            
+        } catch (e: Exception) {
+            Clogger.e("StatisticsService", "Failed to recalculate player statistics for $playerId", e)
+        }
+    }
+    
+    /**
+     * Ensures a player has a statistics record, creating one if needed
+     */
+    suspend fun ensurePlayerStatistics(playerId: String, teamId: String) {
+        val existing = statisticsDao.getByPlayerId(playerId)
+        if (existing == null) {
+            // Create initial empty statistics
+            val emptyStats = PlayerStatistics(playerId = playerId)
+            statisticsDao.upsert(emptyStats)
+            Clogger.d("StatisticsService", "Created initial statistics for player $playerId")
+            
+            // Recalculate from existing data
+            recalculatePlayerStatistics(playerId, teamId)
         }
     }
 
@@ -167,27 +222,43 @@ class StatisticsService @Inject constructor(
         }
     }
 
-    private suspend fun calculatePlayerStatistics(
+    /**
+     * Calculates player statistics from raw data
+     */
+    private suspend fun calculatePlayerStatisticsFromData(
         playerId: String,
-        events: List<com.ggetters.app.data.model.Event>,
-        attendances: List<Attendance>
+        attendances: List<Attendance>,
+        matchEvents: List<MatchEvent>
     ): PlayerStatistics {
         // Calculate attendance statistics
-        val playerAttendances = attendances.filter { it.playerId == playerId }
-        val scheduled = playerAttendances.size
-        val attended = playerAttendances.count { it.status == 0 }
-        val missed = playerAttendances.count { it.status in listOf(1, 2) }
+        val scheduled = attendances.size
+        val attended = attendances.count { it.status == 0 } // 0 = Present
+        val missed = attendances.count { it.status in listOf(1, 2) } // 1 = Absent, 2 = Late
         
         // Calculate match statistics from match events
-        // For now, we'll use simplified calculations
-        val goals = 0
-        val assists = 0
-        val yellowCards = 0
-        val redCards = 0
-        val matchesPlayed = 0
+        val goals = matchEvents.count { it.eventType == MatchEventType.GOAL }
+        val yellowCards = matchEvents.count { it.eventType == MatchEventType.YELLOW_CARD }
+        val redCards = matchEvents.count { it.eventType == MatchEventType.RED_CARD }
         
-        // Calculate minutes played (simplified - would need more complex logic for actual minutes)
-        val minutesPlayed = matchesPlayed * 90 // Assume 90 minutes per match
+        // Count assists from goal event details
+        val assists = matchEvents.count { event ->
+            event.eventType == MatchEventType.GOAL && 
+            event.details["assistId"] == playerId
+        }
+        
+        // Count unique matches where player had events
+        val matchesPlayed = matchEvents.map { it.matchId }.distinct().size
+        
+        // Calculate minutes played (simplified - assume 90 minutes per match unless substituted)
+        val substitutionEvents = matchEvents.filter { 
+            it.eventType == MatchEventType.SUBSTITUTION 
+        }
+        
+        // For simplicity, assume full match unless subbed off
+        val minutesPlayed = matchesPlayed * 90 // Could be enhanced with substitution timing
+        
+        // Get existing weight if available (preserve it during recalculation)
+        val existingWeight = statisticsDao.getByPlayerId(playerId)?.weight ?: 0.0
         
         return PlayerStatistics(
             playerId = playerId,
@@ -199,8 +270,8 @@ class StatisticsService @Inject constructor(
             matches = matchesPlayed,
             yellowCards = yellowCards,
             redCards = redCards,
-            cleanSheets = 0, // Would need goalkeeper-specific logic
-            weight = 0.0, // Would need to be set separately
+            cleanSheets = 0, // Would need goalkeeper-specific logic and opponent goals tracking
+            weight = existingWeight, // Preserve existing weight
             minutesPlayed = minutesPlayed
         )
     }

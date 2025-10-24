@@ -49,7 +49,7 @@ class StatisticsFragment : Fragment() {
     private lateinit var assistsValue: TextView
     private lateinit var matchesValue: TextView
     private lateinit var yellowCardsValue: TextView
-    private lateinit var weightValue: TextView
+    private lateinit var redCardsValue: TextView
     private lateinit var minutesValue: TextView
 
     private fun setupStatusBar() {
@@ -115,7 +115,7 @@ class StatisticsFragment : Fragment() {
         assistsValue = view.findViewById(R.id.assistsValue)
         matchesValue = view.findViewById(R.id.matchesValue)
         yellowCardsValue = view.findViewById(R.id.yellowCardsValue)
-        weightValue = view.findViewById(R.id.weightValue)
+        redCardsValue = view.findViewById(R.id.redCardsValue)
         minutesValue = view.findViewById(R.id.minutesValue)
     }
 
@@ -145,7 +145,7 @@ class StatisticsFragment : Fragment() {
         assistsValue.text = stats.assists.toString()
         matchesValue.text = stats.matches.toString()
         yellowCardsValue.text = stats.yellowCards.toString()
-        weightValue.text = "${stats.weight.toInt()} kg"
+        redCardsValue.text = stats.redCards.toString()
         minutesValue.text = "${stats.minutesPlayed} min"
     }
 }

@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import android.widget.ImageButton
 import com.ggetters.app.R
 import com.ggetters.app.data.model.User
@@ -29,9 +30,16 @@ import java.time.format.DateTimeFormatter
 import com.ggetters.app.core.utils.DateUtils
 import com.ggetters.app.core.validation.UserValidationUtils
 import com.ggetters.app.core.services.StatisticsService
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class PlayerProfileFragment : Fragment() {
+
+    @Inject
+    lateinit var statisticsService: StatisticsService
+    
+    @Inject
+    lateinit var teamRepository: com.ggetters.app.data.repository.team.TeamRepository
 
     companion object {
         private const val ARG_PLAYER_ID = "player_id" // need to pass the actual id from db
@@ -535,14 +543,45 @@ class PlayerProfileFragment : Fragment() {
     }
 
     private fun loadPlayerStatistics(player: User) {
-        // For now, we'll use mock statistics
-        // In a real implementation, this would use dependency injection to get StatisticsService
-        statsGoals.text = "0"
-        statsAssists.text = "0"
-        statsMatches.text = "0"
-        statsYellowCards.text = "0"
-        statsRedCards.text = "0"
-        statsCleanSheets.text = "0"
+        // Load real statistics from the database
+        lifecycleScope.launch {
+            try {
+                // Get active team
+                val team = teamRepository.getActiveTeam().first()
+                val teamId = team?.id ?: return@launch
+                
+                // Ensure statistics exist and are up to date
+                statisticsService.ensurePlayerStatistics(player.id, teamId)
+                
+                // Observe real-time statistics updates
+                statisticsService.getPlayerStatisticsFlow(player.id).collect { stats ->
+                    stats?.let {
+                        statsGoals.text = it.goals.toString()
+                        statsAssists.text = it.assists.toString()
+                        statsMatches.text = it.matches.toString()
+                        statsYellowCards.text = it.yellowCards.toString()
+                        statsRedCards.text = it.redCards.toString()
+                        statsCleanSheets.text = it.cleanSheets.toString()
+                    } ?: run {
+                        // Show zeros if no stats available
+                        statsGoals.text = "0"
+                        statsAssists.text = "0"
+                        statsMatches.text = "0"
+                        statsYellowCards.text = "0"
+                        statsRedCards.text = "0"
+                        statsCleanSheets.text = "0"
+                    }
+                }
+            } catch (e: Exception) {
+                // Show zeros on error
+                statsGoals.text = "0"
+                statsAssists.text = "0"
+                statsMatches.text = "0"
+                statsYellowCards.text = "0"
+                statsRedCards.text = "0"
+                statsCleanSheets.text = "0"
+            }
+        }
     }
 }
 
