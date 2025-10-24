@@ -376,9 +376,10 @@ class LineupFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        // Observe roster data changes - filter for PRESENT players only
+        // Observe roster data changes - filter for PRESENT players and track substituted players
         // This connects attendance data to lineup: only players marked as "Present" in attendance
         // will appear in the lineup bench and be available for positioning on the pitch
+        // Substituted players (UNAVAILABLE status) will be shown at the bottom of the bench, greyed out
         lifecycleScope.launchWhenStarted {
             rosterViewModel.players.collectLatest { players ->
                 Clogger.d("LineupFragment", "Received ${players.size} players from roster")
@@ -386,20 +387,19 @@ class LineupFragment : Fragment() {
                 // Get the previous list of available players to detect changes
                 val previousAvailablePlayers = availablePlayers.toSet()
                 
-                // Filter for players marked as PRESENT (status = 0 in attendance)
-                // Attendance status mapping: 0=Present, 1=Absent, 2=Late, 3=Excused
-                // Note: Substituted players will have their status changed to UNAVAILABLE
+                // Filter for players marked as AVAILABLE or UNAVAILABLE (substituted)
+                // Attendance status mapping: 0=Present/Available, 2=Unavailable (substituted)
                 availablePlayers = players.filter { player ->
-                    val isAvailable = player.status == RSVPStatus.AVAILABLE
-                    Clogger.d("LineupFragment", "Player ${player.playerName}: status=${player.status}, available=$isAvailable")
-                    isAvailable
+                    val isAvailableOrSubstituted = player.status == RSVPStatus.AVAILABLE || player.status == RSVPStatus.UNAVAILABLE
+                    Clogger.d("LineupFragment", "Player ${player.playerName}: status=${player.status}, available=$isAvailableOrSubstituted")
+                    isAvailableOrSubstituted
                 }
                 
                 val currentAvailablePlayers = availablePlayers.toSet()
-                Clogger.d("LineupFragment", "Filtered to ${availablePlayers.size} available players")
+                Clogger.d("LineupFragment", "Filtered to ${availablePlayers.size} available/substituted players")
                 
-                // Remove players from pitch who are no longer available
-                removeUnavailablePlayersFromPitch(previousAvailablePlayers, currentAvailablePlayers)
+                // Handle substitutions by auto-positioning the substitute player
+                handleSubstitutionChanges(previousAvailablePlayers, currentAvailablePlayers)
                 
                 updateAvailablePlayersGrid()
                 updatePitchFormation()
@@ -506,38 +506,65 @@ class LineupFragment : Fragment() {
             .show()
     }
 
-    private fun removeUnavailablePlayersFromPitch(previousAvailable: Set<RosterPlayer>, currentAvailable: Set<RosterPlayer>) {
-        // Find players who were available before but are no longer available
-        val playersToRemove = previousAvailable - currentAvailable
+    private fun handleSubstitutionChanges(previousAvailable: Set<RosterPlayer>, currentAvailable: Set<RosterPlayer>) {
+        // Detect substitutions: a player who was available and is now unavailable
+        val previouslyAvailableById = previousAvailable.associateBy { it.playerId }
+        val currentlyAvailableById = currentAvailable.associateBy { it.playerId }
         
-        if (playersToRemove.isNotEmpty()) {
-            Clogger.d("LineupFragment", "Removing ${playersToRemove.size} players from pitch: ${playersToRemove.map { it.playerName }}")
+        // Find players whose status changed from AVAILABLE to UNAVAILABLE (substituted out)
+        val playersSubstitutedOut = previouslyAvailableById.filter { (id, prevPlayer) ->
+            val currentPlayer = currentlyAvailableById[id]
+            prevPlayer.status == RSVPStatus.AVAILABLE && currentPlayer?.status == RSVPStatus.UNAVAILABLE
+        }.values
+        
+        // Find players whose status changed from UNAVAILABLE (or new) to AVAILABLE (substituted in)
+        val playersSubstitutedIn = currentlyAvailableById.filter { (id, currentPlayer) ->
+            val prevPlayer = previouslyAvailableById[id]
+            currentPlayer.status == RSVPStatus.AVAILABLE && (prevPlayer == null || prevPlayer.status == RSVPStatus.UNAVAILABLE)
+        }.values
+        
+        if (playersSubstitutedOut.isNotEmpty() || playersSubstitutedIn.isNotEmpty()) {
+            Clogger.d("LineupFragment", "Handling substitution: ${playersSubstitutedOut.size} out, ${playersSubstitutedIn.size} in")
             
-            // Remove these players from the pitch
             val currentPositions = pitchView.getPositionedPlayers().toMutableMap()
-            val positionsToClear = mutableListOf<String>()
             
-            currentPositions.forEach { (position, player) ->
-                if (player != null && playersToRemove.contains(player)) {
-                    positionsToClear.add(position)
-                    Clogger.d("LineupFragment", "Removing ${player.playerName} from position $position")
+            // Process each substitution
+            playersSubstitutedOut.forEach { playerOut ->
+                // Find where the player is positioned on the pitch
+                val playerOutPosition = currentPositions.entries.find { it.value?.playerId == playerOut.playerId }?.key
+                
+                if (playerOutPosition != null) {
+                    Clogger.d("LineupFragment", "Player ${playerOut.playerName} subbed out from position $playerOutPosition")
+                    
+                    // Find corresponding substitute (if any)
+                    // For now, we'll just remove the player and let the system auto-assign if there's a substitute
+                    // The substitution event should have been recorded, so we can match based on timing
+                    // For simplicity, we'll take the first available substitute
+                    val playerIn = playersSubstitutedIn.firstOrNull()
+                    
+                    if (playerIn != null) {
+                        // Auto-position the substitute in the same position
+                        currentPositions[playerOutPosition] = playerIn
+                        Clogger.d("LineupFragment", "Player ${playerIn.playerName} subbed in at position $playerOutPosition")
+                        
+                        // Show notification
+                        Snackbar.make(requireView(), 
+                            "Substitution: ${playerIn.playerName} ↔ ${playerOut.playerName}", 
+                            Snackbar.LENGTH_LONG).show()
+                    } else {
+                        // No substitute found, just remove the player from pitch
+                        currentPositions[playerOutPosition] = null
+                        Clogger.d("LineupFragment", "No substitute found, clearing position $playerOutPosition")
+                        
+                        Snackbar.make(requireView(), 
+                            "${playerOut.playerName} substituted out", 
+                            Snackbar.LENGTH_SHORT).show()
+                    }
                 }
-            }
-            
-            // Clear the positions
-            positionsToClear.forEach { position ->
-                currentPositions[position] = null
             }
             
             // Update the pitch view
             pitchView.setPlayers(currentPositions)
-            
-            // Show a snackbar to inform the user
-            if (positionsToClear.isNotEmpty()) {
-                Snackbar.make(requireView(), 
-                    "Removed ${positionsToClear.size} player(s) from lineup due to attendance change", 
-                    Snackbar.LENGTH_SHORT).show()
-            }
         }
     }
 
@@ -549,14 +576,25 @@ class LineupFragment : Fragment() {
             !positionedIds.contains(player.playerId)
         }
         
-        // Update the grid adapter with only available players
-        playersAdapter.updatePlayers(availableForBench)
+        // Sort players: Available players first, then substituted players (UNAVAILABLE) at the bottom
+        val sortedPlayers = availableForBench.sortedWith(
+            compareBy<RosterPlayer> { it.status == RSVPStatus.UNAVAILABLE }
+                .thenBy { it.playerName }
+        )
+        
+        // Update the grid adapter with sorted players (available first, substituted at bottom)
+        playersAdapter.updatePlayers(sortedPlayers)
         
         // Update squad count display
-        val totalSquad = availablePlayers.size
+        val activeCount = availablePlayers.count { it.status == RSVPStatus.AVAILABLE }
         val onPitch = positionedPlayers.size
-        val squadCountText = if (totalSquad == 0) {
+        val totalSquad = activeCount
+        val substitutedCount = availablePlayers.count { it.status == RSVPStatus.UNAVAILABLE }
+        
+        val squadCountText = if (totalSquad == 0 && substitutedCount == 0) {
             "No players marked as Present in Attendance"
+        } else if (substitutedCount > 0) {
+            "Squad (${totalSquad - onPitch}/$totalSquad) • $substitutedCount substituted"
         } else {
             "Squad (${totalSquad - onPitch}/$totalSquad)"
         }
