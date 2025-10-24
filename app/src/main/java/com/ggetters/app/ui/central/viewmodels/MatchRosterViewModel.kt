@@ -113,10 +113,10 @@ class MatchRosterViewModel @Inject constructor(
     }
 
     private fun RSVPStatus.toDbInt(): Int = when (this) {
-        RSVPStatus.AVAILABLE -> 0  // Present
-        RSVPStatus.UNAVAILABLE -> 1  // Absent
-        RSVPStatus.MAYBE -> 2  // Late
-        RSVPStatus.NOT_RESPONDED -> 3  // Excused
+        RSVPStatus.AVAILABLE -> 0      // Present
+        RSVPStatus.UNAVAILABLE -> 1    // Absent/Unavailable (consistent with RosterMapper)
+        RSVPStatus.MAYBE -> 2          // Late/Maybe
+        RSVPStatus.NOT_RESPONDED -> 3  // Excused/Not responded
     }
 
     /**

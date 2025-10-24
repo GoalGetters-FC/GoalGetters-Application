@@ -82,11 +82,12 @@ class CombinedMatchDetailsRepository @Inject constructor(
 
     override suspend fun setRSVP(matchId: String, playerId: String, status: RSVPStatus) {
         // Convert RSVPStatus to integer for Attendance model
+        // Must match RosterMapper mapping: 0=AVAILABLE, 1=UNAVAILABLE, 2=MAYBE, 3=NOT_RESPONDED
         val statusInt = when (status) {
-            RSVPStatus.AVAILABLE -> 0
-            RSVPStatus.MAYBE -> 1
-            RSVPStatus.UNAVAILABLE -> 2
-            RSVPStatus.NOT_RESPONDED -> 3
+            RSVPStatus.AVAILABLE -> 0      // Present
+            RSVPStatus.UNAVAILABLE -> 1    // Absent/Unavailable
+            RSVPStatus.MAYBE -> 2          // Late/Maybe
+            RSVPStatus.NOT_RESPONDED -> 3  // Excused/Not responded
         }
         
         // Get existing attendance or create new one

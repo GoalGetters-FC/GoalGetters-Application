@@ -81,16 +81,19 @@ class MatchEventViewModel @Inject constructor(
                     val playerOutId = event.details["substituteOut"] as? String
                     if (!playerInId.isNullOrBlank() && !playerOutId.isNullOrBlank()) {
                         runCatching<Unit> {
-                            // Update out player -> UNAVAILABLE (2), in player -> AVAILABLE (0)
+                            // Update out player -> UNAVAILABLE (1 = Absent/Unavailable), in player -> AVAILABLE (0 = Present)
+                            // Status mapping: 0=AVAILABLE, 1=UNAVAILABLE, 2=MAYBE, 3=NOT_RESPONDED
                             val outExisting = attendanceRepository.getById(event.matchId, playerOutId)
-                            val outUpdated = (outExisting?.copy(status = 2)
+                            val outUpdated = (outExisting?.copy(status = 1)
                                 ?: com.ggetters.app.data.model.Attendance(
                                     eventId = event.matchId,
                                     playerId = playerOutId,
-                                    status = 2,
+                                    status = 1,
                                     recordedBy = "system"
                                 ))
                             attendanceRepository.upsert(outUpdated)
+                            
+                            Clogger.d("MatchEventViewModel", "Subbed out player $playerOutId -> status=1 (UNAVAILABLE)")
 
                             val inExisting = attendanceRepository.getById(event.matchId, playerInId)
                             val inUpdated = (inExisting?.copy(status = 0)
@@ -101,6 +104,8 @@ class MatchEventViewModel @Inject constructor(
                                     recordedBy = "system"
                                 ))
                             attendanceRepository.upsert(inUpdated)
+                            
+                            Clogger.d("MatchEventViewModel", "Subbed in player $playerInId -> status=0 (AVAILABLE)")
                             
                             // Force immediate UI update by triggering roster refresh
                             // This ensures the LineupFragment immediately reflects the changes
