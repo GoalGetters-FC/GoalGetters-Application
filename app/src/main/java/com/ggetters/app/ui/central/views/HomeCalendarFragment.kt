@@ -30,6 +30,7 @@ import com.ggetters.app.ui.central.viewmodels.HomeCalendarViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeTeamViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.shared.models.Clickable
+import com.ggetters.app.ui.shared.viewmodels.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -47,6 +48,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
         private const val REQUEST_ADD_EVENT = 1001
     }
 
+    private val authViewModel: AuthViewModel by viewModels()
 
     private lateinit var binds: FragmentHomeCalendarBinding
     private lateinit var adapter: CalendarAdapter
@@ -451,6 +453,8 @@ class HomeCalendarFragment : Fragment(), Clickable {
         inflater: LayoutInflater, container: ViewGroup?
     ): View {
         binds = FragmentHomeCalendarBinding.inflate(inflater, container, false)
+        binds.lifecycleOwner = viewLifecycleOwner
+        binds.authSource = authViewModel
         return binds.root
     }
 
