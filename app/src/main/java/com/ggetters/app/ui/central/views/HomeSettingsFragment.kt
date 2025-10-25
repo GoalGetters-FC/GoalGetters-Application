@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.ggetters.app.R
+import com.ggetters.app.core.extensions.kotlin.openBrowserTo
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.FragmentHomeSettingsBinding
 import com.ggetters.app.ui.central.models.AppbarTheme
@@ -51,7 +52,7 @@ class HomeSettingsFragment : Fragment(), Clickable {
 
         setupTouchListeners()
 
-        binds.widgetHeader.setHeadingText(activeModel.getAuthAccount()?.email)
+        binds.widgetHeader.setHeadingText("Settings")
         binds.widgetHeader.setMessageText(activeModel.getAuthAccount()?.email)
 
         sharedModel.useViewConfiguration(
@@ -86,9 +87,17 @@ class HomeSettingsFragment : Fragment(), Clickable {
             requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
         }
 
-        binds.cvOptionPrivacy.id -> openUrl("https://www.goalgettersfc.co.za/privacy")
-        binds.cvOptionContact.id -> openUrl("https://github.com/GoalGetters-FC/GoalGetters-Application/issues")
-        binds.cvOptionFaq.id -> openUrl("https://help.goalgettersfc.co.za/")
+        binds.cvOptionPrivacy.id -> {
+            requireActivity().openBrowserTo("https://help.goalgettersfc.co.za/policy")
+        }
+        
+        binds.cvOptionContact.id -> {
+            requireActivity().openBrowserTo("https://goalgettersfc.co.za/contact/")
+        } 
+        
+        binds.cvOptionFaq.id -> {
+            requireActivity().openBrowserTo("https://help.goalgettersfc.co.za")
+        }
 
         binds.btLogout.id -> {
             activeModel.logout()

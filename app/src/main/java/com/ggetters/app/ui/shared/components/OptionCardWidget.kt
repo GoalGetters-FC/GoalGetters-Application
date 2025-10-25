@@ -26,6 +26,8 @@ class OptionCardWidget
     init {
         cardElevation = 0f
         maxCardElevation = 0f
+        isClickable = true
+        isFocusable = true
         val a = context.obtainStyledAttributes(attrs, R.styleable.OptionCardWidget)
         try {
             binds.tvText.text = a.getString(R.styleable.OptionCardWidget_widget_text) ?: ""

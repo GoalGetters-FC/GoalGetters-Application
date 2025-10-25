@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ggetters.app.R
+import com.ggetters.app.core.extensions.kotlin.openBrowserTo
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.databinding.ActivityTeamViewerBinding
@@ -126,7 +127,7 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
             Clogger.d(TAG, "Clicked menu-item: ${menuItem.itemId}")
             when (menuItem.itemId) {
                 R.id.nav_item_team_viewer_help -> {
-                    // TODO: Help/FAQ
+                    openBrowserTo("https://help.goalgettersfc.co.za/")
                 }
 
                 R.id.nav_item_team_viewer_code -> {

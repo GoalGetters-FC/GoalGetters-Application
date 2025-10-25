@@ -15,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.ggetters.app.R
 import com.ggetters.app.core.extensions.android.onTextUpdated
 import com.ggetters.app.core.extensions.android.setLayoutError
+import com.ggetters.app.core.extensions.kotlin.openBrowserTo
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivitySignUpBinding
 import com.ggetters.app.ui.shared.models.Clickable
@@ -116,11 +117,16 @@ class SignUpActivity : AppCompatActivity(), Clickable {
     override fun setupTouchListeners() {
         binds.tvSignIn.setOnClickListener(this)
         binds.btSignUp.setOnClickListener(this)
+        binds.tvFaq.setOnClickListener(this)
     }
 
 
     override fun onClick(view: View?) {
         when (view?.id) {
+            binds.tvFaq.id -> {
+                openBrowserTo("https://help.goalgettersfc.co.za/policy")
+            }
+            
             binds.tvSignIn.id -> {
                 startActivity(Intent(this, SignInActivity::class.java))
                 overridePendingTransition(R.anim.slide_in_left, R.anim.fade_out)
