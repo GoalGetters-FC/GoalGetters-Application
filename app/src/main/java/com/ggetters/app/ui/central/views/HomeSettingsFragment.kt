@@ -127,15 +127,4 @@ class HomeSettingsFragment : Fragment(), Clickable {
         binds = FragmentHomeSettingsBinding.inflate(inflater, container, false)
         return binds.root
     }
-
-
-// --- Helpers
-
-    private fun openUrl(url: String) {
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = android.net.Uri.parse(url)
-        }
-        startActivity(intent)
-    }
-
 }
