@@ -343,10 +343,12 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
         goalTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedGoalType = goalTypes[position]
-                playerSelectionLayout.visibility = if (selectedGoalType == "Opponent Goal") {
-                    View.GONE
+                if (selectedGoalType == "Opponent Goal") {
+                    playerSelectionLayout.visibility = View.GONE
+                    // Clear player selection data when hiding
+                    playerSpinner.setSelection(0)
                 } else {
-                    View.VISIBLE
+                    playerSelectionLayout.visibility = View.VISIBLE
                 }
             }
             

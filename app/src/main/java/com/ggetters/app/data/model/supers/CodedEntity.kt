@@ -72,7 +72,9 @@ interface CodedEntity {
                 TAG, "Unique code can only be generated for valid database entities."
             )
             
-            throw IllegalStateException()
+            throw IllegalStateException(
+                "CodedEntity.generateCode() can only be called on KeyedEntity types"
+            )
         }
     }
     

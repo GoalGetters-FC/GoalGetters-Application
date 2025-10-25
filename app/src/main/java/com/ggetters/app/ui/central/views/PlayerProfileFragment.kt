@@ -158,14 +158,19 @@ class PlayerProfileFragment : Fragment() {
             "player" -> {
                 btnEditProfile.visibility = View.VISIBLE
                 btnDeleteProfile.visibility = View.GONE
+                btnDeleteProfile.contentDescription = null
             }
             "guardian" -> {
                 btnEditProfile.visibility = View.GONE
                 btnDeleteProfile.visibility = View.GONE
+                btnEditProfile.contentDescription = null
+                btnDeleteProfile.contentDescription = null
             }
             else -> {
                 btnEditProfile.visibility = View.GONE
                 btnDeleteProfile.visibility = View.GONE
+                btnEditProfile.contentDescription = null
+                btnDeleteProfile.contentDescription = null
             }
         }
     }
@@ -351,9 +356,18 @@ class PlayerProfileFragment : Fragment() {
             dd.alpha = if (enabled) 1f else 0.6f
         }
 
-        btnEditProfile.visibility = if (enabled) View.GONE else View.VISIBLE
-        btnSaveProfile.visibility = if (enabled) View.VISIBLE else View.GONE
-        btnCancelEdit.visibility = if (enabled) View.VISIBLE else View.GONE
+        if (enabled) {
+            btnEditProfile.visibility = View.GONE
+            btnSaveProfile.visibility = View.VISIBLE
+            btnCancelEdit.visibility = View.VISIBLE
+            btnEditProfile.contentDescription = null
+        } else {
+            btnEditProfile.visibility = View.VISIBLE
+            btnSaveProfile.visibility = View.GONE
+            btnCancelEdit.visibility = View.GONE
+            btnSaveProfile.contentDescription = null
+            btnCancelEdit.contentDescription = null
+        }
 
         btnEditProfile.text = if (enabled) "Cancel Edit" else "Edit Profile"
 
@@ -520,8 +534,9 @@ class PlayerProfileFragment : Fragment() {
     private fun updateUIForRole(player: User) {
         when (player.role) {
             UserRole.COACH -> {
-                // Hide player-specific fields for coaches
+                // Hide player-specific fields for coaches and clear data
                 cardPlayerNumber.visibility = View.GONE
+                playerNumberInput.text = null
             }
             UserRole.FULL_TIME_PLAYER, UserRole.PART_TIME_PLAYER, UserRole.COACH_PLAYER -> {
                 // Show player-specific fields for players

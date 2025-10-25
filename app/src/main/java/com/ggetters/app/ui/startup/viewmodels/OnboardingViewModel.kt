@@ -3,6 +3,7 @@ package com.ggetters.app.ui.startup.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.core.utils.CodeGenerationUtils
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.data.repository.team.TeamRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,7 +29,8 @@ import kotlinx.coroutines.launch
  */
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val teamRepository: TeamRepository
+    private val teamRepository: TeamRepository,
+    private val codeGenerationUtils: CodeGenerationUtils
 ) : ViewModel() {
 
     companion object {
@@ -68,10 +70,9 @@ class OnboardingViewModel @Inject constructor(
 
         _state.update { it.copy(isBusy = true, errorMessage = null) }
         runCatching {
-            val toCreate = Team(name = name).apply {
-                // Generate team code from name
-                generateCode()
-            }
+            // Generate collision-safe team code
+            val teamCode = codeGenerationUtils.generateCollisionSafeTeamCode()
+            val toCreate = Team(name = name, code = teamCode)
             val created: Team = teamRepository.createTeam(toCreate)
             teamRepository.setActiveTeam(created)
             teamRepository.sync()

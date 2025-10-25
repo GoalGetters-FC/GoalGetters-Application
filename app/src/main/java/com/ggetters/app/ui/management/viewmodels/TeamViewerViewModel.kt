@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ggetters.app.core.sync.SyncManager
 import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.core.utils.CodeGenerationUtils
 import com.ggetters.app.data.model.*
 import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.event.EventRepository
@@ -26,7 +27,8 @@ class TeamViewerViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val syncManager: SyncManager,
     private val eventRepo: EventRepository,
-    private val attendanceRepo: AttendanceRepository
+    private val attendanceRepo: AttendanceRepository,
+    private val codeGenerationUtils: CodeGenerationUtils
 ) : ViewModel() {
 
     // Active user teams
@@ -298,9 +300,9 @@ class TeamViewerViewModel @Inject constructor(
     }
 
     // --- Helpers ---
-    private fun buildTeam(name: String): Team {
+    private suspend fun buildTeam(name: String): Team {
         val now = Instant.now()
-        val code = generateCode(name)
+        val code = codeGenerationUtils.generateCollisionSafeTeamCode()
         return Team(
             id = UUID.randomUUID().toString(),
             createdAt = now,

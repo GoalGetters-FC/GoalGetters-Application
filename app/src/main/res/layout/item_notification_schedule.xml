@@ -52,7 +52,7 @@
                     android:id="@+id/notificationTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="New practice scheduled!"
+                    android:text=""
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"
@@ -63,7 +63,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="2 days ago"
+                    android:text=""
                     android:textColor="@color/text_secondary"
                     android:textSize="14sp"
                     android:fontFamily="@font/variable_inter" />

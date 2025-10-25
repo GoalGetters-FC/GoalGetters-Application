@@ -92,7 +92,7 @@ class NotificationsActivity : AppCompatActivity() {
 
         // Observe notifications from ViewModel
         lifecycleScope.launch {
-            model.notifications.collect { notifications ->
+                model.notifications.collect { notifications ->
                 // Update adapter with new notifications
                 notificationAdapter.updateNotifications(notifications)
             }
@@ -100,22 +100,22 @@ class NotificationsActivity : AppCompatActivity() {
 
         // Observe loading state
         lifecycleScope.launch {
-            model.isLoading.collect { isLoading ->
+                model.isLoading.collect { isLoading ->
                 // TODO: Show/hide loading indicator
             }
         }
 
         // Observe error state
         lifecycleScope.launch {
-            model.error.collect { error ->
-                error?.let {
-                    Snackbar.make(findViewById(android.R.id.content), error, Snackbar.LENGTH_LONG).show()
-                    model.clearError()
+                model.error.collect { error ->
+                    error?.let {
+                        Snackbar.make(findViewById(android.R.id.content), error, Snackbar.LENGTH_LONG).show()
+                        model.clearError()
+                    }
                 }
             }
         }
-    }
-
+        
     private fun setupTestButton() {
         val testButton = findViewById<ImageButton>(R.id.testButton)
         testButton.setOnClickListener {
@@ -131,4 +131,4 @@ class NotificationsActivity : AppCompatActivity() {
             }
         }
     }
-}
+} 

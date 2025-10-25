@@ -227,8 +227,9 @@ class HomeAccountFragment : Fragment() {
     private fun updateUIForRole(user: User) {
         when (user.role) {
             UserRole.COACH -> {
-                // Hide player-specific fields for coaches
+                // Hide player-specific fields for coaches and clear data
                 cardPosition.visibility = View.GONE
+                positionInput.text = null
             }
             UserRole.FULL_TIME_PLAYER, UserRole.PART_TIME_PLAYER, UserRole.COACH_PLAYER -> {
                 // Show player-specific fields for players
@@ -290,12 +291,19 @@ class HomeAccountFragment : Fragment() {
                         teamCodeText.text = team.code ?: "No code"
                         
                         // Show share button if team has a code
-                        btnShareTeamCode.visibility = if (team.code != null) View.VISIBLE else View.GONE
+                        if (team.code != null) {
+                            btnShareTeamCode.visibility = View.VISIBLE
+                        } else {
+                            btnShareTeamCode.visibility = View.GONE
+                            // Clear any sensitive data from share button
+                            btnShareTeamCode.contentDescription = null
+                        }
                     } else {
                         // Update team information section
                         teamNameText.text = "No active team"
                         teamCodeText.text = ""
                         btnShareTeamCode.visibility = View.GONE
+                        btnShareTeamCode.contentDescription = null
                     }
                 }
             }

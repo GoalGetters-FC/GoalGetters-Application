@@ -103,7 +103,13 @@ class NotificationCardAdapter(
 
         protected fun setupCommonElements(notification: Notification) {
             // Set unread indicator visibility
-            unreadIndicator.visibility = if (notification.isSeen) View.GONE else View.VISIBLE
+            if (notification.isSeen) {
+                unreadIndicator.visibility = View.GONE
+                unreadIndicator.contentDescription = null
+            } else {
+                unreadIndicator.visibility = View.VISIBLE
+                unreadIndicator.contentDescription = "Unread notification"
+            }
 
             // Set notification icon based on type
             notificationIcon.setImageResource(getIconForType(notification.type))
@@ -222,8 +228,12 @@ class NotificationCardAdapter(
                 
             } catch (e: Exception) {
                 Clogger.e("NotificationCardAdapter", "Failed to parse score data", e)
-                // Hide score card if parsing fails
+                // Hide score card if parsing fails and clear sensitive data
                 scoreCard.visibility = View.GONE
+                homeLabel.text = ""
+                awayLabel.text = ""
+                homeScore.text = ""
+                awayScore.text = ""
             }
         }
     }
@@ -246,6 +256,7 @@ class NotificationCardAdapter(
             } catch (e: Exception) {
                 Clogger.e("NotificationCardAdapter", "Failed to parse schedule data", e)
                 scheduleCard.visibility = View.GONE
+                scheduleDateTime.text = ""
             }
         }
     }

@@ -97,6 +97,7 @@ class EventNotificationService @Inject constructor(
         val now = LocalDateTime.now()
         val eventTime = event.startAt
         val hoursUntilEvent = ChronoUnit.HOURS.between(now, eventTime)
+        val minutesUntilEvent = ChronoUnit.MINUTES.between(now, eventTime)
 
         // Schedule 24-hour reminder
         if (hoursUntilEvent >= 24) {
@@ -123,7 +124,7 @@ class EventNotificationService @Inject constructor(
         }
 
         // Schedule 30-minute reminder
-        if (hoursUntilEvent >= 0.5) {
+        if (minutesUntilEvent >= 30) {
             val reminderTime = eventTime.minusMinutes(30)
             scheduleReminderNotification(
                 event = event,
@@ -372,3 +373,5 @@ class EventNotificationService @Inject constructor(
         }
     }
 }
+
+

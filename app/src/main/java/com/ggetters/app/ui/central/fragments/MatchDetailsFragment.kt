@@ -194,6 +194,9 @@ class MatchDetailsFragment : Fragment() {
             scoreCard.setCardBackgroundColor(bgColor)
         } else {
             scoreCard.visibility = View.GONE
+            // Clear sensitive data when hiding
+            homeScoreText.text = ""
+            awayScoreText.text = ""
         }
     }
 

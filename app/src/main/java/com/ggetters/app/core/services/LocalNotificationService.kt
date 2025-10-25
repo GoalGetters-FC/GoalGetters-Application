@@ -15,12 +15,12 @@ import com.ggetters.app.data.model.NotificationType
 import com.ggetters.app.data.repository.notification.NotificationRepository
 import com.ggetters.app.ui.central.views.NotificationsActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.time.Instant
 import java.util.UUID
 import javax.inject.Inject
@@ -87,7 +87,7 @@ class LocalNotificationService @Inject constructor(
             teamId = teamId,
             linkedEventId = linkedEventId,
             linkedEventType = linkedEventType,
-            data = data.toString(), // Convert map to string for storage
+            data = JSONObject(data).toString(), // JSON string for storage
             createdAt = Instant.now()
         )
 
