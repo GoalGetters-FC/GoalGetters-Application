@@ -70,7 +70,8 @@ object UserValidationUtils {
         if (position.isBlank()) return true // Optional field
         
         val validPositions = listOf(
-            "GOALKEEPER", "DEFENDER", "MIDFIELDER", "FORWARD", "UNKNOWN"
+            "GOALKEEPER", "DEFENDER", "MIDFIELDER", "FORWARD", "UNKNOWN",
+            "CENTER_BACK", "FULL_BACK", "WINGER", "STRIKER"
         )
         return validPositions.contains(position.uppercase())
     }

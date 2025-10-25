@@ -197,9 +197,9 @@ class AccountEditBottomSheet : BottomSheetDialogFragment() {
             lifecycleScope.launch {
                 try {
                     profileViewModel.updateUserProfile(updatedUser)
-                    onUserUpdated?.invoke(updatedUser)
+            onUserUpdated?.invoke(updatedUser)
                     Snackbar.make(requireView(), "Profile updated successfully", Snackbar.LENGTH_SHORT).show()
-                    dismiss()
+            dismiss()
                 } catch (e: Exception) {
                     Snackbar.make(requireView(), "Failed to update profile: ${e.message}", Snackbar.LENGTH_LONG).show()
                 }

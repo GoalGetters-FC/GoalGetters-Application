@@ -61,21 +61,29 @@ interface CodedEntity {
      *         database type. This interface should only be used in conjunction 
      *         with keyed types, as it depends on the relevant metadata therein.
      */
-    fun generateCode() = if (this is KeyedEntity) {
-        code = generateAlphanumericCode(6)
-    } else {
-        Clogger.e(
-            TAG, "Unique code can only be generated for valid database entities."
-        )
-        
-        throw IllegalStateException()
+    fun generateCode() {
+        if (this is KeyedEntity) {
+            // Only generate if code is not already set to preserve idempotency
+            if (code == null) {
+                code = generateAlphanumericCode(6)
+            }
+        } else {
+            Clogger.e(
+                TAG, "Unique code can only be generated for valid database entities."
+            )
+            
+            throw IllegalStateException()
+        }
     }
     
     /**
      * Generates a random 6-digit alphanumeric code.
      * Uses uppercase letters and numbers (0-9, A-Z).
+     * 
+     * Note: This function is public as interface members cannot be private.
+     * For security-sensitive use cases, consider using SecureRandom.
      */
-    private fun generateAlphanumericCode(length: Int): String {
+    fun generateAlphanumericCode(length: Int): String {
         val chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         return (1..length)
             .map { chars.random() }

@@ -453,8 +453,6 @@ class HomeCalendarFragment : Fragment(), Clickable {
         inflater: LayoutInflater, container: ViewGroup?
     ): View {
         binds = FragmentHomeCalendarBinding.inflate(inflater, container, false)
-        binds.lifecycleOwner = viewLifecycleOwner
-        binds.authSource = authViewModel
         return binds.root
     }
 
