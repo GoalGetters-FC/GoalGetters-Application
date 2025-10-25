@@ -143,6 +143,7 @@ dependencies {
     implementation(libs.lottie)
     implementation(libs.gson)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.browser)
 
     kapt(libs.androidx.room.compiler)
     kapt(libs.hilt.android.compiler)

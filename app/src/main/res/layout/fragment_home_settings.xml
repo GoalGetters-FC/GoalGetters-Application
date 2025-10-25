@@ -41,6 +41,8 @@
                         android:id="@+id/cv_option_account"
                         app:widget_text="Account"
                         app:widget_icon="@drawable/xic_x36_uic_line_user"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent" />
 
@@ -52,6 +54,8 @@
                         android:id="@+id/cv_option_settings"
                         app:widget_text="Settings"
                         app:widget_icon="@drawable/xic_x36_uic_line_cog"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent" />
 
@@ -63,6 +67,8 @@
                         android:id="@+id/cv_option_notifications"
                         app:widget_text="Notifications"
                         app:widget_icon="@drawable/xic_x36_uic_line_bell"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent" />
 
@@ -74,6 +80,8 @@
                         android:id="@+id/cv_option_privacy"
                         app:widget_text="Privacy policy"
                         app:widget_icon="@drawable/xic_x36_uic_line_shield_check"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent" />
 
@@ -85,6 +93,8 @@
                         android:id="@+id/cv_option_contact"
                         app:widget_text="Contact the developers"
                         app:widget_icon="@drawable/xic_x36_uic_line_comment_alt_lines"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent" />
 
@@ -96,6 +106,8 @@
                         android:id="@+id/cv_option_faq"
                         app:widget_text="@string/help_faq"
                         app:widget_icon="@drawable/xic_x36_uic_line_question_circle"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent" />
 

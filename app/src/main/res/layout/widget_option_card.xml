@@ -8,8 +8,6 @@
             app:strokeWidth="0dp"
             app:cardBackgroundColor="#FFFFFF"
             app:contentPadding="12dp"
-            android:clickable="true"
-            android:focusable="true"
             android:background="?android:attr/selectableItemBackground"
             android:layout_height="wrap_content"
             android:layout_width="match_parent">
