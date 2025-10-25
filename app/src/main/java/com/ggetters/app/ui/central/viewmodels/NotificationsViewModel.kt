@@ -2,11 +2,10 @@ package com.ggetters.app.ui.central.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ggetters.app.core.services.NotificationManagerService
+import com.ggetters.app.core.services.LocalNotificationService
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Notification
 import com.ggetters.app.data.model.NotificationType
-import com.ggetters.app.data.model.RSVPStatus
 import com.ggetters.app.data.repository.notification.NotificationRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NotificationsViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository,
-    private val notificationManagerService: NotificationManagerService,
+    private val localNotificationService: LocalNotificationService,
     private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
     
@@ -85,29 +84,7 @@ class NotificationsViewModel @Inject constructor(
         observeUnreadCount()
     }
 
-    fun subscribeTopicsForCurrentUser(activeTeamId: String?) {
-        currentUserId?.let { uid ->
-            viewModelScope.launch {
-                try {
-                    notificationManagerService.subscribeToTopics(uid, activeTeamId)
-                } catch (e: Exception) {
-                    Clogger.e(TAG, "Failed to subscribe topics", e)
-                }
-            }
-        }
-    }
-
-    fun unsubscribeTopicsForCurrentUser(activeTeamId: String?) {
-        currentUserId?.let { uid ->
-            viewModelScope.launch {
-                try {
-                    notificationManagerService.unsubscribeFromTopics(uid, activeTeamId)
-                } catch (e: Exception) {
-                    Clogger.e(TAG, "Failed to unsubscribe topics", e)
-                }
-            }
-        }
-    }
+    // No need for FCM topic subscription with local notifications
 
     /**
      * Load notifications for the current user
@@ -138,7 +115,11 @@ class NotificationsViewModel @Inject constructor(
     fun markAsSeen(notificationId: String, isSeen: Boolean = true) {
         viewModelScope.launch {
             try {
-                notificationRepository.markAsSeen(notificationId, isSeen)
+                if (isSeen) {
+                    localNotificationService.markAsSeen(notificationId)
+                } else {
+                    notificationRepository.markAsSeen(notificationId, false)
+                }
                 Clogger.d(TAG, "Notification $notificationId marked as ${if (isSeen) "seen" else "unseen"}")
             } catch (e: Exception) {
                 Clogger.e(TAG, "Failed to mark notification as seen", e)
@@ -168,11 +149,8 @@ class NotificationsViewModel @Inject constructor(
     fun deleteNotification(notificationId: String) {
         viewModelScope.launch {
             try {
-                val notification = notificationRepository.getById(notificationId)
-                if (notification != null) {
-                    notificationRepository.delete(notification)
-                    Clogger.d(TAG, "Notification $notificationId deleted")
-                }
+                localNotificationService.deleteNotification(notificationId)
+                Clogger.d(TAG, "Notification $notificationId deleted")
             } catch (e: Exception) {
                 Clogger.e(TAG, "Failed to delete notification", e)
                 _error.value = "Failed to delete notification: ${e.message}"
@@ -197,21 +175,6 @@ class NotificationsViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Handle RSVP response for event notifications
-     */
-    fun handleRSVPResponse(notificationId: String, status: RSVPStatus) {
-        viewModelScope.launch {
-            try {
-                // TODO: Implement RSVP handling
-                // This would typically involve updating the event attendance
-                Clogger.d(TAG, "RSVP response handled: $status for notification $notificationId")
-            } catch (e: Exception) {
-                Clogger.e(TAG, "Failed to handle RSVP response", e)
-                _error.value = "Failed to handle RSVP: ${e.message}"
-            }
-        }
-    }
 
     /**
      * Search notifications
@@ -250,14 +213,22 @@ class NotificationsViewModel @Inject constructor(
     /**
      * Send notification to team
      */
-    fun sendNotificationToTeam(teamId: String, notification: Notification) {
-        viewModelScope.launch {
-            try {
-                val notificationIds = notificationManagerService.sendNotificationToTeam(teamId, notification)
-                Clogger.d(TAG, "Notification sent to team $teamId: ${notificationIds.size} recipients")
-            } catch (e: Exception) {
-                Clogger.e(TAG, "Failed to send notification to team", e)
-                _error.value = "Failed to send notification: ${e.message}"
+    fun sendNotificationToTeam(teamId: String, title: String, message: String, type: NotificationType) {
+        currentUserId?.let { userId ->
+            viewModelScope.launch {
+                try {
+                    localNotificationService.createNotification(
+                        title = title,
+                        message = message,
+                        type = type,
+                        userId = userId,
+                        teamId = teamId
+                    )
+                    Clogger.d(TAG, "Notification sent to team $teamId")
+                } catch (e: Exception) {
+                    Clogger.e(TAG, "Failed to send notification to team", e)
+                    _error.value = "Failed to send notification: ${e.message}"
+                }
             }
         }
     }
@@ -275,7 +246,8 @@ class NotificationsViewModel @Inject constructor(
     private fun observeUnreadCount() {
         viewModelScope.launch {
             try {
-                val count = notificationManagerService.getUnreadCount()
+                val userId = currentUserId ?: return@launch
+                val count = notificationRepository.getUnreadCount(userId)
                 _unreadCount.value = count
             } catch (e: Exception) {
                 Clogger.e(TAG, "Failed to get unread count", e)

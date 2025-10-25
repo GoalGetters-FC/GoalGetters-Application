@@ -41,10 +41,15 @@
             android:fontFamily="@font/variable_inter"
             android:gravity="center" />
 
-        <!-- Spacer to balance the layout -->
-        <View
+        <!-- Test Button -->
+        <ImageButton
+            android:id="@+id/testButton"
             android:layout_width="48dp"
-            android:layout_height="48dp" />
+            android:layout_height="48dp"
+            android:src="@drawable/ic_unicons_plus_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Test Notifications"
+            app:tint="@color/primary" />
 
     </LinearLayout>
 

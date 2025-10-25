@@ -9,6 +9,7 @@ import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.match.MatchEventRepository
 import com.ggetters.app.data.repository.user.UserRepository
 import com.ggetters.app.core.services.StatisticsService
+import com.ggetters.app.core.services.NotificationIntegrationService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +27,8 @@ class MatchEventViewModel @Inject constructor(
     private val matchEventRepository: MatchEventRepository,
     private val userRepository: UserRepository,
     private val attendanceRepository: AttendanceRepository,
-    private val statisticsService: StatisticsService
+    private val statisticsService: StatisticsService,
+    private val notificationIntegrationService: NotificationIntegrationService
 ) : ViewModel() {
 
     private val _availablePlayers = MutableStateFlow<List<User>>(emptyList())
@@ -120,6 +122,16 @@ class MatchEventViewModel @Inject constructor(
                 
                 // Update player statistics in real-time
                 statisticsService.updateStatisticsFromMatchEvent(event)
+                
+                // Create notification for match event
+                val currentUser = userRepository.getLocalByAuthId(com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "")
+                currentUser?.let { user ->
+                    notificationIntegrationService.createMatchEventNotification(
+                        event = event,
+                        userId = user.id,
+                        teamId = user.teamId ?: ""
+                    )
+                }
                 
                 _eventRecorded.value = true
             } catch (e: Exception) {

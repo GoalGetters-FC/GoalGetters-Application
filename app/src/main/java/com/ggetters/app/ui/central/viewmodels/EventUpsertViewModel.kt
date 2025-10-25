@@ -12,6 +12,7 @@ import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.event.EventRepository
 import com.ggetters.app.data.repository.team.TeamRepository
 import com.ggetters.app.data.repository.user.UserRepository
+import com.ggetters.app.core.services.EventNotificationService
 import com.ggetters.app.ui.central.models.UpsertState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +31,7 @@ class EventUpsertViewModel @Inject constructor(
     private val teamRepo: TeamRepository,
     private val userRepo: UserRepository,
     private val attendanceRepo: AttendanceRepository,
+    private val eventNotificationService: EventNotificationService
     // OPTIONAL: inject an auth provider to get the current UID
     // private val authRepo: AuthRepository
 ) : ViewModel() {
@@ -112,6 +114,21 @@ class EventUpsertViewModel @Inject constructor(
 
                 // 3) Pull fresh attendance locally (optional but keeps things consistent)
                 attendanceRepo.sync()
+            }
+
+            // 4) Create notification for the new event
+            try {
+                val currentUser = userRepo.getLocalByAuthId(com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "")
+                currentUser?.let { user ->
+                    eventNotificationService.createEventCreatedNotification(
+                        event = event,
+                        userId = user.id,
+                        teamId = team.id
+                    )
+                }
+            } catch (e: Exception) {
+                Clogger.e("EventUpsertVM", "Failed to create event notification: ${e.message}", e)
+                // Don't fail the entire operation if notification creation fails
             }
 
             _state.value = UpsertState.Saved(event.id)
