@@ -7,6 +7,7 @@ import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Notification
 import com.ggetters.app.data.model.NotificationType
 import com.ggetters.app.data.repository.notification.NotificationRepository
+import com.ggetters.app.data.repository.team.TeamRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,8 @@ import javax.inject.Inject
 class NotificationsViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository,
     private val localNotificationService: LocalNotificationService,
-    private val firebaseAuth: FirebaseAuth
+    private val firebaseAuth: FirebaseAuth,
+    private val teamRepository: TeamRepository
 ) : ViewModel() {
     
     companion object {
@@ -260,5 +262,17 @@ class NotificationsViewModel @Inject constructor(
      */
     fun refresh() {
         loadNotifications()
+    }
+    
+    /**
+     * Get current team ID for the logged-in user
+     */
+    suspend fun getCurrentTeamId(): String? {
+        return try {
+            teamRepository.getActiveTeam().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null).value?.id
+        } catch (e: Exception) {
+            Clogger.e(TAG, "Failed to get current team ID", e)
+            null
+        }
     }
 }

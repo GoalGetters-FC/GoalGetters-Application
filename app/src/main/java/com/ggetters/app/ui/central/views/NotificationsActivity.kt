@@ -16,13 +16,16 @@ import com.ggetters.app.core.services.ComprehensiveNotificationTestService
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class NotificationsActivity : AppCompatActivity() {
 
     private val model: NotificationsViewModel by viewModels()
     private lateinit var notificationAdapter: NotificationCardAdapter
-    private lateinit var comprehensiveTestService: ComprehensiveNotificationTestService
+    
+    @Inject
+    lateinit var comprehensiveTestService: ComprehensiveNotificationTestService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -122,10 +125,16 @@ class NotificationsActivity : AppCompatActivity() {
             // Create sample notifications for testing
             val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
             if (currentUser != null) {
-                // Get user's team ID (you might need to get this from your user repository)
-                val teamId = "test-team-id" // Replace with actual team ID
-                comprehensiveTestService.runComprehensiveNotificationTest(currentUser.uid, teamId)
-                Snackbar.make(findViewById(android.R.id.content), "Test notifications created!", Snackbar.LENGTH_SHORT).show()
+                // Get user's team ID from the model
+                lifecycleScope.launch {
+                    try {
+                        val teamId = model.getCurrentTeamId() ?: "test-team-id"
+                        comprehensiveTestService.runComprehensiveNotificationTest(currentUser.uid, teamId)
+                        Snackbar.make(findViewById(android.R.id.content), "Test notifications created!", Snackbar.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        Snackbar.make(findViewById(android.R.id.content), "Failed to create test notifications: ${e.message}", Snackbar.LENGTH_LONG).show()
+                    }
+                }
             } else {
                 Snackbar.make(findViewById(android.R.id.content), "Please log in to test notifications", Snackbar.LENGTH_SHORT).show()
             }
