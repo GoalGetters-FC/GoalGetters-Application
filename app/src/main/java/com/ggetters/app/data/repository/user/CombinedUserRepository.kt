@@ -125,8 +125,8 @@ class CombinedUserRepository @Inject constructor(
         }
     }
 
-    // Unused CrudRepository methods
-    override suspend fun getLocalByAuthId(authId: String): User? = null
+    // Get user by Firebase Auth ID (global across all teams)
+    override suspend fun getLocalByAuthId(authId: String): User? = offline.getLocalByAuthId(authId)
     override suspend fun insertLocal(user: User) = offline.insertLocal(user)
     override suspend fun insertRemote(user: User) = online.insertRemote(user)
 

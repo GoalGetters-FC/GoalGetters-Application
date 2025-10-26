@@ -8,6 +8,8 @@ import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.match.MatchEventRepository
 import com.ggetters.app.data.repository.user.UserRepository
+import com.ggetters.app.core.services.StatisticsService
+import com.ggetters.app.core.services.NotificationIntegrationService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +26,9 @@ import javax.inject.Inject
 class MatchEventViewModel @Inject constructor(
     private val matchEventRepository: MatchEventRepository,
     private val userRepository: UserRepository,
-    private val attendanceRepository: AttendanceRepository
+    private val attendanceRepository: AttendanceRepository,
+    private val statisticsService: StatisticsService,
+    private val notificationIntegrationService: NotificationIntegrationService
 ) : ViewModel() {
 
     private val _availablePlayers = MutableStateFlow<List<User>>(emptyList())
@@ -49,10 +53,12 @@ class MatchEventViewModel @Inject constructor(
                 val attendanceData = attendanceRepository.getByEventId(matchId).first()
                 val attendanceMap = attendanceData.associateBy { it.playerId }
                 
-                // Filter to only available players (status = 0)
+                // Filter to only available players (status = 0) and exclude coaches
                 val availablePlayers = allUsers.filter { user ->
                     val attendance = attendanceMap[user.id]
-                    attendance?.status == 0 // AVAILABLE
+                    val isAvailable = attendance?.status == 0 // AVAILABLE
+                    val isNotCoach = user.role != com.ggetters.app.data.model.UserRole.COACH
+                    isAvailable && isNotCoach
                 }
                 
                 _availablePlayers.value = availablePlayers
@@ -77,16 +83,19 @@ class MatchEventViewModel @Inject constructor(
                     val playerOutId = event.details["substituteOut"] as? String
                     if (!playerInId.isNullOrBlank() && !playerOutId.isNullOrBlank()) {
                         runCatching<Unit> {
-                            // Update out player -> UNAVAILABLE (2), in player -> AVAILABLE (0)
+                            // Update out player -> UNAVAILABLE (1 = Absent/Unavailable), in player -> AVAILABLE (0 = Present)
+                            // Status mapping: 0=AVAILABLE, 1=UNAVAILABLE, 2=MAYBE, 3=NOT_RESPONDED
                             val outExisting = attendanceRepository.getById(event.matchId, playerOutId)
-                            val outUpdated = (outExisting?.copy(status = 2)
+                            val outUpdated = (outExisting?.copy(status = 1)
                                 ?: com.ggetters.app.data.model.Attendance(
                                     eventId = event.matchId,
                                     playerId = playerOutId,
-                                    status = 2,
+                                    status = 1,
                                     recordedBy = "system"
                                 ))
                             attendanceRepository.upsert(outUpdated)
+                            
+                            Clogger.d("MatchEventViewModel", "Subbed out player $playerOutId -> status=1 (UNAVAILABLE)")
 
                             val inExisting = attendanceRepository.getById(event.matchId, playerInId)
                             val inUpdated = (inExisting?.copy(status = 0)
@@ -98,6 +107,8 @@ class MatchEventViewModel @Inject constructor(
                                 ))
                             attendanceRepository.upsert(inUpdated)
                             
+                            Clogger.d("MatchEventViewModel", "Subbed in player $playerInId -> status=0 (AVAILABLE)")
+                            
                             // Force immediate UI update by triggering roster refresh
                             // This ensures the LineupFragment immediately reflects the changes
                             Clogger.d("MatchEventViewModel", "Substitution attendance updated - roster should refresh")
@@ -108,6 +119,20 @@ class MatchEventViewModel @Inject constructor(
                 }
 
                 matchEventRepository.insertEvent(event)
+                
+                // Update player statistics in real-time
+                statisticsService.updateStatisticsFromMatchEvent(event)
+                
+                // Create notification for match event
+                val currentUser = userRepository.getLocalByAuthId(com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "")
+                currentUser?.let { user ->
+                    notificationIntegrationService.createMatchEventNotification(
+                        event = event,
+                        userId = user.id,
+                        teamId = user.teamId ?: ""
+                    )
+                }
+                
                 _eventRecorded.value = true
             } catch (e: Exception) {
                 _error.value = "Failed to record event: ${e.message}"

@@ -19,8 +19,12 @@ class CombinedNotificationRepository @Inject constructor(
 ) : NotificationRepository {
 
     override fun all(): Flow<List<Notification>> {
-        val currentUserId = firebaseAuth.currentUser?.uid ?: return offline.all()
-        return getAllForUser(currentUserId)
+        Clogger.w("CombinedNotificationRepo", "all() not implemented - use getAllForTeam() instead")
+        return offline.all()
+    }
+    
+    override fun getAllForTeam(teamId: String): Flow<List<Notification>> {
+        return offline.getAllForTeam(teamId)
     }
 
     override suspend fun getById(id: String): Notification? {

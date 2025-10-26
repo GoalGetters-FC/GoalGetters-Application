@@ -46,8 +46,13 @@ class AttendanceViewModel @Inject constructor(
 
                 val teamUsers = userRepo.all().first()
 
+                // Filter out coaches - only show players
+                val playersOnly = teamUsers.filter { user ->
+                    user.role != com.ggetters.app.data.model.UserRole.COACH
+                }
+
                 // 🔴 Fix: default Unknown = status=3, but treat consistently in Fragment
-                val merged = teamUsers.map { user ->
+                val merged = playersOnly.map { user ->
                     val attendance = attendanceMap[user.id] ?: Attendance(
                         eventId = eventId,
                         playerId = user.id,

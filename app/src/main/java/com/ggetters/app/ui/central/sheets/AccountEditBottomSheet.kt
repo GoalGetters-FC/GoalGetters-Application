@@ -22,6 +22,8 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import com.ggetters.app.core.utils.DateUtils
+import com.ggetters.app.core.validation.UserValidationUtils
 
 @AndroidEntryPoint
 class AccountEditBottomSheet : BottomSheetDialogFragment() {
@@ -85,8 +87,7 @@ class AccountEditBottomSheet : BottomSheetDialogFragment() {
             
             // Set date of birth if available
             user.dateOfBirth?.let { dateOfBirth ->
-                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                etDateOfBirth.setText(dateOfBirth.format(formatter).toString())
+                etDateOfBirth.setText(DateUtils.formatForDisplay(dateOfBirth))
             }
             
             // Set role
@@ -120,6 +121,11 @@ class AccountEditBottomSheet : BottomSheetDialogFragment() {
             btnDeleteAccount.setOnClickListener {
                 showDeleteAccountConfirmation()
             }
+            
+            // Date of birth picker
+            etDateOfBirth.setOnClickListener {
+                showDatePicker()
+            }
         }
     }
     
@@ -140,11 +146,7 @@ class AccountEditBottomSheet : BottomSheetDialogFragment() {
                     }
                 },
                 dateOfBirth = etDateOfBirth.text.toString().trim().takeIf { it.isNotEmpty() }?.let { dateStr ->
-                    try {
-                        LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                    } catch (e: Exception) {
-                        null
-                    }
+                    DateUtils.parseDate(dateStr)
                 },
                 role = when {
                     rbFullTimePlayer.isChecked -> UserRole.FULL_TIME_PLAYER
@@ -159,38 +161,118 @@ class AccountEditBottomSheet : BottomSheetDialogFragment() {
                 }
             )
             
-            // Validate required fields
-            if (updatedUser.name.isBlank()) {
-                etFirstName.error = "First name is required"
+            // Comprehensive validation
+            val validation = UserValidationUtils.validateUserData(
+                updatedUser.name,
+                updatedUser.surname,
+                updatedUser.email,
+                null, // No player number in account edit
+                etDateOfBirth.text.toString().trim(),
+                null, // No phone number in account edit
+                updatedUser.position?.name,
+                updatedUser.role.name,
+                updatedUser.status?.name ?: "ACTIVE"
+            )
+            
+            if (!validation.isValid) {
+                // Clear previous errors
+                clearFieldErrors()
+                
+                // Show validation errors
+                val errorMessage = UserValidationUtils.getErrorMessage(validation.errors)
+                Snackbar.make(requireView(), errorMessage, Snackbar.LENGTH_LONG).show()
+                
+                // Set specific field errors
+                if (updatedUser.name.isBlank()) etFirstName.error = "First name is required"
+                if (updatedUser.surname.isBlank()) etLastName.error = "Last name is required"
+                if (updatedUser.email.isNullOrBlank()) etEmail.error = "Email is required"
+                if (!etDateOfBirth.text.toString().trim().isBlank() && 
+                    !UserValidationUtils.isValidDateOfBirth(etDateOfBirth.text.toString().trim())) {
+                    etDateOfBirth.error = "Invalid date format"
+                }
+                
                 return
             }
             
-            if (updatedUser.surname.isBlank()) {
-                etLastName.error = "Last name is required"
-                return
-            }
-            
-            if (updatedUser.email.isNullOrBlank()) {
-                etEmail.error = "Email is required"
-                return
-            }
-            
+            lifecycleScope.launch {
+                try {
+                    profileViewModel.updateUserProfile(updatedUser)
             onUserUpdated?.invoke(updatedUser)
+                    Snackbar.make(requireView(), "Profile updated successfully", Snackbar.LENGTH_SHORT).show()
             dismiss()
+                } catch (e: Exception) {
+                    Snackbar.make(requireView(), "Failed to update profile: ${e.message}", Snackbar.LENGTH_LONG).show()
+                }
+            }
         }
     }
     
     private fun showDeleteAccountConfirmation() {
         android.app.AlertDialog.Builder(requireContext())
             .setTitle("Delete Account")
-            .setMessage("Are you sure you want to delete your account? This action cannot be undone.")
+            .setMessage("Are you sure you want to delete your account? This action cannot be undone and will remove all your data including attendance records, statistics, and team membership.")
             .setPositiveButton("Delete") { _, _ ->
-                profileViewModel.deleteUserAccount()
-                Snackbar.make(requireView(), "Account deletion requested", Snackbar.LENGTH_SHORT).show()
-                dismiss()
+                deleteUserAccount()
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+    
+    private fun deleteUserAccount() {
+        lifecycleScope.launch {
+            try {
+                profileViewModel.deleteUserAccount()
+                Snackbar.make(requireView(), "Account deleted successfully", Snackbar.LENGTH_SHORT).show()
+                dismiss()
+            } catch (e: Exception) {
+                Snackbar.make(requireView(), "Failed to delete account: ${e.message}", Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
+    
+    private fun showDatePicker() {
+        // Try to parse existing date, or use current date as fallback
+        val existingDate = binding.etDateOfBirth.text?.toString()?.let { dateStr ->
+            DateUtils.parseDate(dateStr)
+        } ?: DateUtils.getCurrentDate()
+        
+        val (year, month, day) = DateUtils.getDatePickerValues(existingDate)
+        
+        val dialog = android.app.DatePickerDialog(
+            requireContext(),
+            { _, y, m, d -> 
+                val selectedDate = DateUtils.createDateFromPicker(y, m, d)
+                binding.etDateOfBirth.setText(DateUtils.formatForDisplay(selectedDate))
+            },
+            year,
+            month,
+            day
+        )
+        
+        // Set reasonable date range (5 to 100 years old)
+        val calendar = java.util.Calendar.getInstance()
+        val currentYear = calendar.get(java.util.Calendar.YEAR)
+        val minYear = currentYear - 100
+        val maxYear = currentYear - 5
+        
+        dialog.datePicker.minDate = java.util.Calendar.getInstance().apply {
+            set(minYear, 0, 1)
+        }.timeInMillis
+        
+        dialog.datePicker.maxDate = java.util.Calendar.getInstance().apply {
+            set(maxYear, 11, 31)
+        }.timeInMillis
+        
+        dialog.show()
+    }
+    
+    private fun clearFieldErrors() {
+        binding.apply {
+            etFirstName.error = null
+            etLastName.error = null
+            etEmail.error = null
+            etDateOfBirth.error = null
+        }
     }
     
     override fun onDestroyView() {

@@ -31,6 +31,9 @@ interface UserDao {
     @Query("SELECT * FROM user WHERE auth_id = :authId AND team_id = :teamId LIMIT 1")
     suspend fun getByAuthIdAndTeam(authId: String, teamId: String): User?
 
+    @Query("SELECT * FROM user WHERE auth_id = :authId LIMIT 1")
+    suspend fun getByAuthId(authId: String): User?
+
     @Query("DELETE FROM user WHERE id = :id AND team_id = :teamId")
     suspend fun deleteByIdInTeam(id: String, teamId: String)
 

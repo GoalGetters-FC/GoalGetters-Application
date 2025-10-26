@@ -65,13 +65,13 @@ class CalendarViewHolder(
         when {
             calendarDay.isSelected -> {
                 binding.dayContainer.setBackgroundResource(R.drawable.calendar_day_selected_background)
-                binding.dayNumber.setTextColor(itemView.context.getColor(R.color.black))
+                binding.dayNumber.setTextColor(itemView.context.getColor(R.color.yellow))
                 binding.dayContainer.elevation = 4f
             }
             calendarDay.isToday -> {
                 binding.dayContainer.setBackgroundResource(R.drawable.calendar_day_today_background)
-                binding.dayNumber.setTextColor(itemView.context.getColor(R.color.black))
-                binding.dayContainer.elevation = 2f
+                binding.dayNumber.setTextColor(itemView.context.getColor(R.color.yellow))
+                binding.dayContainer.elevation = 3f
             }
             calendarDay.isCurrentMonth -> {
                 binding.dayContainer.setBackgroundResource(R.drawable.calendar_day_background)

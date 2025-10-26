@@ -48,7 +48,8 @@
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_code_team"
                 style="@style/Widget.Local.Input.Layout.EditText"
-                android:inputType="text"
+                android:inputType="textCapCharacters"
+                android:maxLength="6"
                 android:maxLines="1"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent" />

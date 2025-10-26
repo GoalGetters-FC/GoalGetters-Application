@@ -1,270 +1,257 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools">
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
 
-    <data>
-
-        <variable
-                name="authSource"
-                type="com.ggetters.app.ui.shared.viewmodels.AuthViewModel" />
-    </data>
-
-    <!-- UI -->
-
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <!-- Main calendar container with proper proportions -->
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white">
+            android:orientation="vertical">
 
-        <!-- Main calendar container with proper proportions -->
+        <!-- Header with month navigation -->
+
+        <!-- Calendar section (60% of available height) -->
         <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/white">
 
-            <!-- Header with month navigation -->
-
-            <!-- Calendar section (60% of available height) -->
+            <!-- Day headers -->
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:background="@color/white">
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="12dp"
+                    android:background="#F5F6F7">
 
-                <!-- Day headers -->
-                <LinearLayout
-                        android:layout_width="match_parent"
+                <TextView
+                        android:id="@+id/tv_weekdays_header_slot_1"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="12dp"
-                        android:background="#F5F6F7">
+                        android:layout_weight="1"
+                        android:text="SUN"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
 
-                    <TextView
-                            android:id="@+id/tv_weekdays_header_slot_1"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="SUN"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary"
-                            android:gravity="center"
-                            android:textStyle="bold"
-                            android:fontFamily="@font/variable_inter"
-                            tools:ignore="HardcodedText" />
-
-                    <TextView
-                            android:id="@+id/tv_weekdays_header_slot_2"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="MON"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary"
-                            android:gravity="center"
-                            android:textStyle="bold"
-                            android:fontFamily="@font/variable_inter"
-                            tools:ignore="HardcodedText" />
-
-                    <TextView
-                            android:id="@+id/tv_weekdays_header_slot_3"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="TUE"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary"
-                            android:gravity="center"
-                            android:textStyle="bold"
-                            android:fontFamily="@font/variable_inter"
-                            tools:ignore="HardcodedText" />
-
-                    <TextView
-                            android:id="@+id/tv_weekdays_header_slot_4"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="WED"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary"
-                            android:gravity="center"
-                            android:textStyle="bold"
-                            android:fontFamily="@font/variable_inter"
-                            tools:ignore="HardcodedText" />
-
-                    <TextView
-                            android:id="@+id/tv_weekdays_header_slot_5"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="THU"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary"
-                            android:gravity="center"
-                            android:textStyle="bold"
-                            android:fontFamily="@font/variable_inter"
-                            tools:ignore="HardcodedText" />
-
-                    <TextView
-                            android:id="@+id/tv_weekdays_header_slot_6"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="FRI"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary"
-                            android:gravity="center"
-                            android:textStyle="bold"
-                            android:fontFamily="@font/variable_inter"
-                            tools:ignore="HardcodedText" />
-
-                    <TextView
-                            android:id="@+id/tv_weekdays_header_slot_7"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="SAT"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary"
-                            android:gravity="center"
-                            android:textStyle="bold"
-                            android:fontFamily="@font/variable_inter"
-                            tools:ignore="HardcodedText" />
-
-                </LinearLayout>
-
-                <!-- Calendar grid with fixed height to prevent overflow -->
-                <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_calendar"
-                        android:layout_width="match_parent"
+                <TextView
+                        android:id="@+id/tv_weekdays_header_slot_2"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:paddingHorizontal="12dp"
-                        android:clipToPadding="false"
-                        android:background="#F5F6F7"
-                        android:overScrollMode="never" />
+                        android:layout_weight="1"
+                        android:text="MON"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
+
+                <TextView
+                        android:id="@+id/tv_weekdays_header_slot_3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="TUE"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
+
+                <TextView
+                        android:id="@+id/tv_weekdays_header_slot_4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="WED"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
+
+                <TextView
+                        android:id="@+id/tv_weekdays_header_slot_5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="THU"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
+
+                <TextView
+                        android:id="@+id/tv_weekdays_header_slot_6"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="FRI"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
+
+                <TextView
+                        android:id="@+id/tv_weekdays_header_slot_7"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="SAT"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
 
             </LinearLayout>
 
-            <!-- Event details section (40% of available height) -->
-            <LinearLayout
-                    android:id="@+id/cv_selected_date_events"
+            <!-- Calendar grid with fixed height to prevent overflow -->
+            <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_calendar"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="0.4"
-                    android:orientation="vertical"
-                    android:elevation="4dp"
-                    android:clipToPadding="false">
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="12dp"
+                    android:clipToPadding="false"
+                    android:background="#F5F6F7"
+                    android:overScrollMode="never" />
 
-                <!-- Header with selected date and event count -->
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingHorizontal="20dp"
-                        android:paddingVertical="12dp"
-                        tools:ignore="UseCompoundDrawables">
-
-                    <ImageView
-                            android:src="@drawable/xic_x18_uic_line_calender"
-                            android:importantForAccessibility="no"
-                            android:gravity="center_vertical"
-                            android:layout_marginEnd="12dp"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content" />
-
-                    <TextView
-                            android:id="@+id/tv_selected_date"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="2025/10/10"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/black"
-                            android:fontFamily="@font/variable_inter"
-                            tools:ignore="HardcodedText" />
-
-                </LinearLayout>
-
-                <!-- Events list container with proper scrolling -->
-                <FrameLayout
-                        android:layout_height="match_parent"
-                        android:layout_width="match_parent">
-
-                    <!-- Events RecyclerView -->
-                    <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/rv_selected_date_events"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:clipToPadding="false"
-                            android:scrollbars="vertical"
-                            android:fadingEdge="vertical"
-                            android:fadingEdgeLength="24dp"
-                            android:paddingVertical="12dp"
-                            android:paddingHorizontal="20dp"
-                            android:overScrollMode="ifContentScrolls"
-                            android:visibility="gone" />
-
-                    <!-- No events message with improved styling -->
-                    <LinearLayout
-                            android:id="@+id/cv_skeleton"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:padding="20dp"
-                            android:visibility="visible">
-
-                        <ImageView
-                                android:importantForAccessibility="no"
-                                android:layout_width="32dp"
-                                android:layout_height="32dp"
-                                android:src="@drawable/xic_x24_uic_line_meeting_board"
-                                android:layout_marginBottom="10dp"
-                                android:alpha="0.6"
-                                app:tint="#B1B3BC" />
-
-                        <TextView
-                                android:id="@+id/tv_skeleton_heading"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/frag_home_calendar_no_events_skeleton_heading"
-                                android:textSize="16sp"
-                                android:textColor="#B1B3BC"
-                                android:gravity="center"
-                                android:textFontWeight="700"
-                                android:fontFamily="@font/variable_inter"
-                                android:layout_marginBottom="10dp" />
-
-                        <TextView
-                                android:id="@+id/tv_skeleton_message"
-                                android:layout_width="wrap_content"
-                                android:maxWidth="255dp"
-                                android:layout_height="wrap_content"
-                                android:text="@string/frag_home_calendar_no_events_skeleton_message"
-                                android:textSize="11sp"
-                                android:textColor="#B1B3BC"
-                                android:gravity="center"
-                                android:fontFamily="@font/variable_inter" />
-
-                    </LinearLayout>
-                </FrameLayout>
-            </LinearLayout>
         </LinearLayout>
 
-        <!-- Floating Action Button for adding events -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab"
-                app:visibleIfElevated="@{authSource.isElevatedBindable}"
-                style="@style/Widget.Local.FloatingActionButton"
-                android:src="@drawable/xic_x24_uic_line_plus"
-                android:importantForAccessibility="no"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="16dp"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content" />
+        <!-- Event details section (40% of available height) -->
+        <LinearLayout
+                android:id="@+id/cv_selected_date_events"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.4"
+                android:orientation="vertical"
+                android:elevation="4dp"
+                android:clipToPadding="false">
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</layout>
+            <!-- Header with selected date and event count -->
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="12dp"
+                    tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                        android:src="@drawable/xic_x18_uic_line_calender"
+                        android:importantForAccessibility="no"
+                        android:gravity="center_vertical"
+                        android:layout_marginEnd="12dp"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content" />
+
+                <TextView
+                        android:id="@+id/tv_selected_date"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="28 October 2025"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/variable_inter"
+                        tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <!-- Events list container with proper scrolling -->
+            <FrameLayout
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent">
+
+                <!-- Events RecyclerView -->
+                <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_selected_date_events"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:scrollbars="vertical"
+                        android:fadingEdge="vertical"
+                        android:fadingEdgeLength="24dp"
+                        android:paddingVertical="12dp"
+                        android:paddingHorizontal="20dp"
+                        android:overScrollMode="ifContentScrolls"
+                        android:visibility="gone" />
+
+                <!-- No events message with improved styling -->
+                <LinearLayout
+                        android:id="@+id/cv_skeleton"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="20dp"
+                        android:visibility="visible">
+
+                    <ImageView
+                            android:importantForAccessibility="no"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/xic_x24_uic_line_meeting_board"
+                            android:layout_marginBottom="10dp"
+                            android:alpha="0.6"
+                            app:tint="#B1B3BC" />
+
+                    <TextView
+                            android:id="@+id/tv_skeleton_heading"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/frag_home_calendar_no_events_skeleton_heading"
+                            android:textSize="16sp"
+                            android:textColor="#B1B3BC"
+                            android:gravity="center"
+                            android:textFontWeight="700"
+                            android:fontFamily="@font/variable_inter"
+                            android:layout_marginBottom="10dp" />
+
+                    <TextView
+                            android:id="@+id/tv_skeleton_message"
+                            android:layout_width="wrap_content"
+                            android:maxWidth="255dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/frag_home_calendar_no_events_skeleton_message"
+                            android:textSize="11sp"
+                            android:textColor="#B1B3BC"
+                            android:gravity="center"
+                            android:fontFamily="@font/variable_inter" />
+
+                </LinearLayout>
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Floating Action Button for adding events -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            style="@style/Widget.Local.FloatingActionButton"
+            android:src="@drawable/xic_x24_uic_line_plus"
+            android:importantForAccessibility="no"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout> 

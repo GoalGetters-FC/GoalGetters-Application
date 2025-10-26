@@ -34,11 +34,13 @@ class ProfileViewModel @Inject constructor(
         teamRepo.getActiveTeam()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    /** Current logged-in user (snapshot at collection; safe and simple) */
+    /** Current logged-in user (snapshot at collection; safe and simple) 
+     * Uses authId-based lookup to get user data that persists across team switches
+     */
     val currentUser: StateFlow<User?> =
         kotlinx.coroutines.flow.flow {
             val uid = FirebaseAuth.getInstance().currentUser?.uid
-            val user = if (uid != null) userRepo.getById(uid) else null
+            val user = if (uid != null) userRepo.getLocalByAuthId(uid) else null
             emit(user)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
@@ -59,10 +61,12 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 userRepo.upsert(user)
-                runCatching { userRepo.sync() }
-                Clogger.d(TAG, "User profile updated successfully")
+                // Ensure sync happens after update
+                userRepo.sync()
+                Clogger.d(TAG, "User profile updated and synced successfully")
             } catch (e: Exception) {
                 Clogger.e(TAG, "Failed to update user profile: ${e.message}", e)
+                throw e // Re-throw to allow UI to handle the error
             }
         }
     }
@@ -78,11 +82,14 @@ class ProfileViewModel @Inject constructor(
                     val user = userRepo.getById(currentUserId)
                     if (user != null) {
                         userRepo.delete(user)
-                        Clogger.d(TAG, "User account deleted successfully")
+                        // Sync deletion to remote
+                        userRepo.sync()
+                        Clogger.d(TAG, "User account deleted and synced successfully")
                     }
                 }
             } catch (e: Exception) {
                 Clogger.e(TAG, "Failed to delete user account: ${e.message}", e)
+                throw e // Re-throw to allow UI to handle the error
             }
         }
     }
