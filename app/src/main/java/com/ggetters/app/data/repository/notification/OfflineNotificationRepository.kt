@@ -14,8 +14,12 @@ class OfflineNotificationRepository @Inject constructor(
 ) : NotificationRepository {
 
     override fun all(): Flow<List<Notification>> {
-        Clogger.w("OfflineNotificationRepo", "all() not implemented - use getAllForUser() instead")
-        return dao.getAllForUser("")
+        Clogger.w("OfflineNotificationRepo", "all() not implemented - use getAllForTeam() instead")
+        return dao.getAllForTeam("")
+    }
+    
+    override fun getAllForTeam(teamId: String): Flow<List<Notification>> {
+        return dao.getAllForTeam(teamId)
     }
 
     override suspend fun getById(id: String): Notification? {

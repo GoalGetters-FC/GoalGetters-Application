@@ -39,6 +39,9 @@ class NotificationsActivity : AppCompatActivity() {
         setupHeader()
         setupNotifications()
         setupTestButton()
+        
+        // Load notifications when activity starts
+        model.loadNotifications()
     }
 
     private fun setupWindowInsets() {

@@ -14,6 +14,11 @@ interface NotificationRepository {
     fun all(): Flow<List<Notification>>
     
     /**
+     * Get all notifications for a specific team
+     */
+    fun getAllForTeam(teamId: String): Flow<List<Notification>>
+    
+    /**
      * Get notification by ID
      */
     suspend fun getById(id: String): Notification?

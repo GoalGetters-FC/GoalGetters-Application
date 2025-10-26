@@ -13,8 +13,12 @@ class OnlineNotificationRepository @Inject constructor(
 ) : NotificationRepository {
 
     override fun all(): Flow<List<Notification>> {
-        Clogger.w("OnlineNotificationRepo", "all() not implemented - use getAllForUser() instead")
-        return firestore.observeForUser("")
+        Clogger.w("OnlineNotificationRepo", "all() not implemented - use getAllForTeam() instead")
+        return firestore.observeForTeam("")
+    }
+    
+    override fun getAllForTeam(teamId: String): Flow<List<Notification>> {
+        return firestore.observeForTeam(teamId)
     }
 
     override suspend fun getById(id: String): Notification? {
