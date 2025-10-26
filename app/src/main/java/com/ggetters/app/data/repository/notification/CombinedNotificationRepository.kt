@@ -91,7 +91,14 @@ class CombinedNotificationRepository @Inject constructor(
     }
 
     override fun getAllForUser(userId: String): Flow<List<Notification>> {
-        return offline.getAllForUser(userId)
+        Clogger.d("CombinedNotificationRepo", "Getting notifications for user: $userId")
+        return offline.getAllForUser(userId).map { notifications ->
+            Clogger.d("CombinedNotificationRepo", "Found ${notifications.size} notifications for user $userId")
+            notifications.forEach { notification ->
+                Clogger.d("CombinedNotificationRepo", "User notification: ${notification.title} - ${notification.message}")
+            }
+            notifications
+        }
     }
 
     override fun getUnreadForUser(userId: String): Flow<List<Notification>> {

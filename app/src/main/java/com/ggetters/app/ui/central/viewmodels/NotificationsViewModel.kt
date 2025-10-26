@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -92,6 +93,8 @@ class NotificationsViewModel @Inject constructor(
     )
 
     init {
+        // Start EventBus observer FIRST to catch any notifications emitted during initialization
+        observeNotificationEvents()
         loadNotifications()
         observeUnreadCount()
         observeRealTimeUpdates()
@@ -126,7 +129,7 @@ class NotificationsViewModel @Inject constructor(
                     ).value
                     
                     // Also load user-specific notifications (FCM notifications)
-                    val currentUserId = currentUserId.value
+                    val currentUserId = firebaseAuth.currentUser?.uid
                     val userNotifications = if (currentUserId != null) {
                         notificationRepository.getAllForUser(currentUserId).stateIn(
                             viewModelScope,
@@ -142,11 +145,60 @@ class NotificationsViewModel @Inject constructor(
                         .distinctBy { it.id }
                         .sortedByDescending { it.createdAt }
                     
-                    _notifications.value = allNotifications
                     Clogger.d(TAG, "Found ${allNotifications.size} notifications (${teamNotifications.size} team + ${userNotifications.size} user)")
+                    allNotifications.forEach { notification ->
+                        Clogger.d(TAG, "Notification: ${notification.title} - ${notification.message} (Team: ${notification.teamId}, User: ${notification.userId})")
+                    }
+                    
+                    // Merge with existing EventBus notifications to avoid overriding them
+                    val currentNotifications = _notifications.value.toMutableList()
+                    val mergedNotifications = (currentNotifications + allNotifications)
+                        .distinctBy { it.id }
+                        .sortedByDescending { it.createdAt }
+                    
+                    Clogger.d(TAG, "Merged notifications: ${mergedNotifications.size} total (${currentNotifications.size} existing + ${allNotifications.size} loaded)")
+                    _notifications.value = mergedNotifications
                 } else {
-                    Clogger.w(TAG, "No active team found")
-                    _notifications.value = emptyList()
+                    Clogger.w(TAG, "No active team found, loading user notifications only")
+                    
+                    // Load user-specific notifications even without a team
+                    val currentUserId = firebaseAuth.currentUser?.uid
+                    Clogger.d(TAG, "Loading user notifications for userId: $currentUserId")
+                    val userNotifications = if (currentUserId != null) {
+                        notificationRepository.getAllForUser(currentUserId).stateIn(
+                            viewModelScope,
+                            SharingStarted.WhileSubscribed(5000),
+                            emptyList()
+                        ).value
+                    } else {
+                        emptyList()
+                    }
+                    
+                    Clogger.d(TAG, "Found ${userNotifications.size} user notifications")
+                    userNotifications.forEach { notification ->
+                        Clogger.d(TAG, "User notification: ${notification.title} - ${notification.message} (userId: ${notification.userId}, teamId: ${notification.teamId})")
+                    }
+                    
+                    // Debug: Check if we can find the notification directly by ID
+                    if (userNotifications.isEmpty()) {
+                        Clogger.w(TAG, "No user notifications found - checking database directly")
+                        // Try to find any notification with this userId
+                        try {
+                            val directQuery = notificationRepository.getById("a0f4dbf4-45e4-4276-9eca-a44e9367a505") // From the logs
+                            Clogger.d(TAG, "Direct query result: ${directQuery?.title ?: "null"}")
+                        } catch (e: Exception) {
+                            Clogger.e(TAG, "Direct query failed", e)
+                        }
+                    }
+                    
+                    // Merge with existing EventBus notifications to avoid overriding them
+                    val currentNotifications = _notifications.value.toMutableList()
+                    val mergedNotifications = (currentNotifications + userNotifications)
+                        .distinctBy { it.id }
+                        .sortedByDescending { it.createdAt }
+                    
+                    Clogger.d(TAG, "Merged user notifications: ${mergedNotifications.size} total (${currentNotifications.size} existing + ${userNotifications.size} loaded)")
+                    _notifications.value = mergedNotifications
                 }
                 
                 // Sync notifications from server
@@ -307,8 +359,44 @@ class NotificationsViewModel @Inject constructor(
                 unreadNotifications.collect { unreadList ->
                     _unreadCount.value = unreadList.size
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                Clogger.d(TAG, "Unread count observation cancelled (normal lifecycle)")
             } catch (e: Exception) {
                 Clogger.e(TAG, "Failed to get unread count", e)
+            }
+        }
+    }
+    
+    private fun observeNotificationEvents() {
+        // Use a persistent scope that survives ViewModel lifecycle changes
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main).launch {
+            try {
+                Clogger.d(TAG, "Starting to observe notification events")
+                com.ggetters.app.core.services.NotificationEventBus.newNotificationEvents.collect { notification ->
+                    Clogger.d(TAG, "🎉 RECEIVED NEW NOTIFICATION EVENT: ${notification.title}")
+                    Clogger.d(TAG, "Notification details: id=${notification.id}, userId=${notification.userId}, teamId=${notification.teamId}")
+                    
+                    // Add the new notification to the current list, avoiding duplicates
+                    val currentNotifications = _notifications.value.toMutableList()
+                    val existingIndex = currentNotifications.indexOfFirst { it.id == notification.id }
+                    
+                    if (existingIndex >= 0) {
+                        // Update existing notification
+                        currentNotifications[existingIndex] = notification
+                        Clogger.d(TAG, "Updated existing notification: ${notification.title}")
+                    } else {
+                        // Add new notification to beginning
+                        currentNotifications.add(0, notification)
+                        Clogger.d(TAG, "Added new notification: ${notification.title}")
+                    }
+                    
+                    _notifications.value = currentNotifications
+                    Clogger.d(TAG, "Updated notifications list with EventBus notification, total: ${currentNotifications.size}")
+                }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                Clogger.d(TAG, "Notification events observation cancelled")
+            } catch (e: Exception) {
+                Clogger.e(TAG, "Failed to observe notification events", e)
             }
         }
     }
@@ -354,6 +442,8 @@ class NotificationsViewModel @Inject constructor(
                     _notifications.value = currentNotifications.sortedByDescending { it.createdAt }
                     Clogger.d(TAG, "Real-time notification update: ${newNotification.title}")
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                Clogger.d(TAG, "Real-time updates cancelled (normal lifecycle)")
             } catch (e: Exception) {
                 Clogger.e(TAG, "Failed to observe real-time updates", e)
             }

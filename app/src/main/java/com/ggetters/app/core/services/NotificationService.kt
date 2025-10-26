@@ -55,7 +55,10 @@ class NotificationService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
         
-        Clogger.d(TAG, "Received FCM message: ${remoteMessage.messageId}")
+        Clogger.d(TAG, "=== FCM MESSAGE RECEIVED ===")
+        Clogger.d(TAG, "Message ID: ${remoteMessage.messageId}")
+        Clogger.d(TAG, "Data payload: ${remoteMessage.data}")
+        Clogger.d(TAG, "Notification payload: ${remoteMessage.notification}")
         
         // Handle data payload
         remoteMessage.data.let { data ->
@@ -92,11 +95,25 @@ class NotificationService : FirebaseMessagingService() {
                 createdAt = Instant.now()
             )
             
+            Clogger.d(TAG, "=== CREATED NOTIFICATION OBJECT ===")
+            Clogger.d(TAG, "ID: ${notification.id}")
+            Clogger.d(TAG, "Title: ${notification.title}")
+            Clogger.d(TAG, "Message: ${notification.message}")
+            Clogger.d(TAG, "Type: ${notification.type}")
+            Clogger.d(TAG, "UserId: ${notification.userId}")
+            Clogger.d(TAG, "TeamId: ${notification.teamId}")
+            
             // Store notification locally
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     notificationRepository.upsert(notification)
                     Clogger.d(TAG, "Notification stored locally: ${notification.id}")
+                    
+                    // Notify the ViewModel about the new notification
+                    // This will trigger the manual StateFlow update
+                    Clogger.d(TAG, "Notifying NotificationEventBus about new FCM notification: ${notification.title}")
+                    com.ggetters.app.core.services.NotificationEventBus.notifyNewNotificationAsync(notification)
+                    Clogger.d(TAG, "NotificationEventBus notification sent successfully")
                 } catch (e: Exception) {
                     Clogger.e(TAG, "Failed to store notification locally", e)
                 }

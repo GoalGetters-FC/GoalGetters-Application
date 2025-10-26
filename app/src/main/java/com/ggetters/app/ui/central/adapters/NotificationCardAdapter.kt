@@ -3,6 +3,7 @@ package com.ggetters.app.ui.central.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -37,10 +38,17 @@ class NotificationCardAdapter(
     }
 
     fun updateNotifications(newNotifications: List<Notification>) {
+        Clogger.d("NotificationCardAdapter", "updateNotifications called with ${newNotifications.size} notifications")
+        newNotifications.forEach { notification ->
+            Clogger.d("NotificationCardAdapter", "Notification: ${notification.title} - ${notification.message}")
+        }
+        
         val diffCallback = NotificationDiffCallback(notifications, newNotifications)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
         notifications = newNotifications
         diffResult.dispatchUpdatesTo(this)
+        
+        Clogger.d("NotificationCardAdapter", "Adapter updated, itemCount: ${itemCount}")
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -55,38 +63,17 @@ class NotificationCardAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        Clogger.d("NotificationCardAdapter", "onCreateViewHolder called with viewType: $viewType")
         val inflater = LayoutInflater.from(parent.context)
-        return when (viewType) {
-            VIEW_TYPE_REMINDER -> {
-                val view = inflater.inflate(R.layout.item_notification_reminder, parent, false)
-                ReminderViewHolder(view)
-            }
-            VIEW_TYPE_MATCH_RESULT -> {
-                val view = inflater.inflate(R.layout.item_notification_match_result, parent, false)
-                MatchResultViewHolder(view)
-            }
-            VIEW_TYPE_SCHEDULE -> {
-                val view = inflater.inflate(R.layout.item_notification_schedule, parent, false)
-                ScheduleViewHolder(view)
-            }
-            VIEW_TYPE_ANNOUNCEMENT -> {
-                val view = inflater.inflate(R.layout.item_notification_announcement, parent, false)
-                AnnouncementViewHolder(view)
-            }
-            else -> {
-                val view = inflater.inflate(R.layout.item_notification_reminder, parent, false)
-                DefaultViewHolder(view)
-            }
-        }
+        val view = inflater.inflate(R.layout.item_notification, parent, false)
+        Clogger.d("NotificationCardAdapter", "Created DefaultViewHolder")
+        return DefaultViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val notification = notifications[position]
+        Clogger.d("NotificationCardAdapter", "onBindViewHolder called for position $position with notification: ${notification.title}")
         when (holder) {
-            is ReminderViewHolder -> holder.bind(notification)
-            is MatchResultViewHolder -> holder.bind(notification)
-            is ScheduleViewHolder -> holder.bind(notification)
-            is AnnouncementViewHolder -> holder.bind(notification)
             is DefaultViewHolder -> holder.bind(notification)
         }
     }
@@ -95,29 +82,35 @@ class NotificationCardAdapter(
 
     // Base ViewHolder with common functionality
     abstract inner class BaseNotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        protected val unreadIndicator: View = itemView.findViewById(R.id.unreadIndicator)
+        protected val unreadIndicator: FrameLayout = itemView.findViewById(R.id.unreadIndicator)
         protected val notificationIcon: ImageView = itemView.findViewById(R.id.notificationIcon)
         protected val notificationTitle: TextView = itemView.findViewById(R.id.notificationTitle)
-        protected val notificationTime: TextView = itemView.findViewById(R.id.notificationTime)
-        protected val optionsButton: ImageButton = itemView.findViewById(R.id.optionsButton)
+        protected val notificationText: TextView = itemView.findViewById(R.id.notificationText)
+        protected val notificationTimestamp: TextView = itemView.findViewById(R.id.notificationTimestamp)
+        protected val actionMenuButton: ImageView = itemView.findViewById(R.id.actionMenuButton)
+        protected val typeChip: com.google.android.material.card.MaterialCardView = itemView.findViewById(R.id.cv_type_chip)
+        protected val typeChipText: TextView = itemView.findViewById(R.id.tv_type_chip)
 
         protected fun setupCommonElements(notification: Notification) {
             // Set unread indicator visibility
             if (notification.isSeen) {
                 unreadIndicator.visibility = View.GONE
-                unreadIndicator.contentDescription = null
             } else {
                 unreadIndicator.visibility = View.VISIBLE
-                unreadIndicator.contentDescription = "Unread notification"
             }
 
             // Set notification icon based on type
             notificationIcon.setImageResource(getIconForType(notification.type))
             notificationIcon.setColorFilter(itemView.context.getColor(getColorForType(notification.type)))
 
-            // Set title and time
+            // Set title, message and timestamp
             notificationTitle.text = notification.title
-            notificationTime.text = formatTime(notification.createdAt)
+            notificationText.text = notification.message
+            notificationTimestamp.text = formatTime(notification.createdAt)
+
+            // Set notification type chip
+            typeChipText.text = notification.type.name
+            typeChip.visibility = View.VISIBLE
 
             // Setup options menu
             setupOptionsMenu(notification)
@@ -129,7 +122,8 @@ class NotificationCardAdapter(
         }
 
         private fun setupOptionsMenu(notification: Notification) {
-            optionsButton.setOnClickListener { view ->
+            val actionMenuCard = itemView.findViewById<com.google.android.material.card.MaterialCardView>(R.id.cv_action_menu)
+            actionMenuCard.setOnClickListener { view ->
                 val popup = PopupMenu(view.context, view)
                 popup.menuInflater.inflate(R.menu.notification_options, popup.menu)
                 

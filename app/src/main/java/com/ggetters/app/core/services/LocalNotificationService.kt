@@ -98,10 +98,17 @@ class LocalNotificationService @Inject constructor(
             // Emit to flow for real-time updates
             _notifications.emit(notification)
             
+            // Notify the ViewModel about the new notification via EventBus
+            // This ensures local notifications also appear in the notifications fragment
+            Clogger.d(TAG, "Notifying NotificationEventBus about local notification: ${notification.title}")
+            com.ggetters.app.core.services.NotificationEventBus.notifyNewNotificationAsync(notification)
+            Clogger.d(TAG, "NotificationEventBus notification sent successfully")
+            
             // Show system notification
             showSystemNotification(notification)
             
             Clogger.d(TAG, "Local notification created: ${notification.id}")
+            Clogger.d(TAG, "Notification details: title='${notification.title}', message='${notification.message}', userId='${notification.userId}', teamId='${notification.teamId}'")
         } catch (e: Exception) {
             Clogger.e(TAG, "Failed to create local notification", e)
         }

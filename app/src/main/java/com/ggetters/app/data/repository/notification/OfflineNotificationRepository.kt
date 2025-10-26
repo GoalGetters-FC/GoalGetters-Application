@@ -6,6 +6,7 @@ import com.ggetters.app.data.model.Notification
 import com.ggetters.app.data.model.NotificationType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import java.time.Instant
 import javax.inject.Inject
 
@@ -27,7 +28,9 @@ class OfflineNotificationRepository @Inject constructor(
     }
 
     override suspend fun upsert(entity: Notification) {
+        Clogger.d("OfflineNotificationRepo", "Upserting notification: ${entity.id}, userId: ${entity.userId}, title: ${entity.title}")
         dao.insert(entity)
+        Clogger.d("OfflineNotificationRepo", "Notification inserted successfully")
     }
 
     override suspend fun delete(entity: Notification) {
@@ -43,7 +46,18 @@ class OfflineNotificationRepository @Inject constructor(
     }
 
     override fun getAllForUser(userId: String): Flow<List<Notification>> {
-        return dao.getAllForUser(userId)
+        Clogger.d("OfflineNotificationRepo", "Querying notifications for user: $userId")
+        return dao.getAllForUser(userId).map { notifications ->
+            Clogger.d("OfflineNotificationRepo", "DAO returned ${notifications.size} notifications for user $userId")
+            if (notifications.isEmpty()) {
+                Clogger.w("OfflineNotificationRepo", "No notifications found for user $userId - this might indicate a database issue")
+            } else {
+                notifications.forEach { notification ->
+                    Clogger.d("OfflineNotificationRepo", "Found notification: ${notification.id} - ${notification.title} (userId: ${notification.userId})")
+                }
+            }
+            notifications
+        }
     }
 
     override fun getUnreadForUser(userId: String): Flow<List<Notification>> {
