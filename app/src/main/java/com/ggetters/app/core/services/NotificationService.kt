@@ -22,6 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import java.time.Instant
 import java.util.UUID
@@ -42,6 +43,9 @@ class NotificationService : FirebaseMessagingService() {
     
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
+    
+    @Inject
+    lateinit var userRepository: com.ggetters.app.data.repository.user.UserRepository
 
     override fun onCreate() {
         super.onCreate()
@@ -61,6 +65,11 @@ class NotificationService : FirebaseMessagingService() {
             val priority = data["priority"] ?: "NORMAL"
             val linkedEventId = data["linkedEventId"]
             val linkedEventType = data["linkedEventType"]
+            val teamId = data["teamId"] // Add team ID from FCM data
+            
+            // Get current user's team ID if not provided
+            val currentUserId = firebaseAuth.currentUser?.uid ?: ""
+            val userTeamId = teamId ?: runBlocking { getCurrentUserTeamId(currentUserId) }
             
             // Create notification object
             val notification = Notification(
@@ -70,7 +79,8 @@ class NotificationService : FirebaseMessagingService() {
                 message = body,
                 type = NotificationType.valueOf(type),
                 priority = NotificationPriority.valueOf(priority),
-                userId = firebaseAuth.currentUser?.uid ?: "",
+                userId = currentUserId,
+                teamId = userTeamId, // ✅ Add team ID
                 linkedEventId = linkedEventId,
                 linkedEventType = linkedEventType?.let { 
                     try {
@@ -215,6 +225,18 @@ class NotificationService : FirebaseMessagingService() {
         } catch (e: Exception) {
             Clogger.e(TAG, "Failed to save token to Firestore", e)
             throw e
+        }
+    }
+
+    // Add helper method to get current user's team ID
+    private suspend fun getCurrentUserTeamId(userId: String): String? {
+        return try {
+            // Get user's team from local database
+            val user = userRepository.getLocalByAuthId(userId)
+            user?.teamId
+        } catch (e: Exception) {
+            Clogger.e(TAG, "Failed to get user team ID", e)
+            null
         }
     }
 }

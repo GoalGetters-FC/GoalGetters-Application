@@ -94,6 +94,7 @@ class NotificationsViewModel @Inject constructor(
     init {
         loadNotifications()
         observeUnreadCount()
+        observeRealTimeUpdates()
     }
 
     // No need for FCM topic subscription with local notifications
@@ -117,15 +118,32 @@ class NotificationsViewModel @Inject constructor(
                 Clogger.d(TAG, "Loading notifications for team: ${team?.id}")
                 
                 if (team != null) {
-                    // Load notifications for the team directly (get first value only)
+                    // Load notifications for the team
                     val teamNotifications = notificationRepository.getAllForTeam(team.id).stateIn(
                         viewModelScope,
                         SharingStarted.WhileSubscribed(5000),
                         emptyList()
                     ).value
                     
-                    _notifications.value = teamNotifications
-                    Clogger.d(TAG, "Found ${teamNotifications.size} notifications for team ${team.id}")
+                    // Also load user-specific notifications (FCM notifications)
+                    val currentUserId = currentUserId.value
+                    val userNotifications = if (currentUserId != null) {
+                        notificationRepository.getAllForUser(currentUserId).stateIn(
+                            viewModelScope,
+                            SharingStarted.WhileSubscribed(5000),
+                            emptyList()
+                        ).value
+                    } else {
+                        emptyList()
+                    }
+                    
+                    // Combine team and user notifications, remove duplicates
+                    val allNotifications = (teamNotifications + userNotifications)
+                        .distinctBy { it.id }
+                        .sortedByDescending { it.createdAt }
+                    
+                    _notifications.value = allNotifications
+                    Clogger.d(TAG, "Found ${allNotifications.size} notifications (${teamNotifications.size} team + ${userNotifications.size} user)")
                 } else {
                     Clogger.w(TAG, "No active team found")
                     _notifications.value = emptyList()
@@ -311,6 +329,34 @@ class NotificationsViewModel @Inject constructor(
         } catch (e: Exception) {
             Clogger.e(TAG, "Failed to get current team ID", e)
             null
+        }
+    }
+
+    /**
+     * Observe real-time notification updates
+     */
+    private fun observeRealTimeUpdates() {
+        viewModelScope.launch {
+            try {
+                // Observe local notification service updates
+                localNotificationService.notifications.collect { newNotification ->
+                    val currentNotifications = _notifications.value.toMutableList()
+                    val existingIndex = currentNotifications.indexOfFirst { it.id == newNotification.id }
+                    
+                    if (existingIndex >= 0) {
+                        // Update existing notification
+                        currentNotifications[existingIndex] = newNotification
+                    } else {
+                        // Add new notification
+                        currentNotifications.add(0, newNotification) // Add to top
+                    }
+                    
+                    _notifications.value = currentNotifications.sortedByDescending { it.createdAt }
+                    Clogger.d(TAG, "Real-time notification update: ${newNotification.title}")
+                }
+            } catch (e: Exception) {
+                Clogger.e(TAG, "Failed to observe real-time updates", e)
+            }
         }
     }
 }

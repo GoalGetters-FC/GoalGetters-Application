@@ -124,7 +124,7 @@ class NotificationsActivity : AppCompatActivity() {
         
     private fun setupTestButton() {
         val testButton = findViewById<ImageButton>(R.id.testButton)
-        testButton.setOnClickListener {
+        testButton?.setOnClickListener {
             // Create sample notifications for testing
             val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
             if (currentUser != null) {
@@ -132,10 +132,18 @@ class NotificationsActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     try {
                         val teamId = model.getCurrentTeamId() ?: "test-team-id"
-                        comprehensiveTestService.runComprehensiveNotificationTest(currentUser.uid, teamId)
-                        Snackbar.make(findViewById(android.R.id.content), "Test notifications created!", Snackbar.LENGTH_SHORT).show()
+                        
+                        // Test local notification creation
+                        model.sendNotificationToTeam(
+                            teamId = teamId,
+                            title = "Test Local Notification",
+                            message = "This notification should appear immediately in the fragment",
+                            type = com.ggetters.app.data.model.NotificationType.ANNOUNCEMENT
+                        )
+                        
+                        Snackbar.make(findViewById(android.R.id.content), "Test notification created! Check the list above.", Snackbar.LENGTH_SHORT).show()
                     } catch (e: Exception) {
-                        Snackbar.make(findViewById(android.R.id.content), "Failed to create test notifications: ${e.message}", Snackbar.LENGTH_LONG).show()
+                        Snackbar.make(findViewById(android.R.id.content), "Failed to create test notification: ${e.message}", Snackbar.LENGTH_LONG).show()
                     }
                 }
             } else {
