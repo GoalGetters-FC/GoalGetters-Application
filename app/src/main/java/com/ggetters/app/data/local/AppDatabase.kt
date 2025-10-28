@@ -40,6 +40,8 @@ import com.ggetters.app.data.local.migrations.MIGRATION_6_7
 import com.ggetters.app.data.local.migrations.MIGRATION_7_8
 import com.ggetters.app.data.local.migrations.MIGRATION_8_9
 import com.ggetters.app.data.local.migrations.MIGRATION_9_10
+import com.ggetters.app.data.local.migrations.MIGRATION_10_11
+import com.ggetters.app.data.local.migrations.MIGRATION_11_12
 
 /**
  * Fresh baseline schema (v1). No migrations registered.
@@ -58,7 +60,7 @@ import com.ggetters.app.data.local.migrations.MIGRATION_9_10
         MatchEventEntity::class,
         PlayerStatistics::class
     ],
-    version = 10,
+    version = 12,
     exportSchema = true
 )
 @TypeConverters(
@@ -92,7 +94,8 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance =
                     Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, DATABASE_NAME)
                         .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
-                            MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10
+                            MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11,
+                            MIGRATION_11_12
                         )
                         .build()
                 INSTANCE = instance

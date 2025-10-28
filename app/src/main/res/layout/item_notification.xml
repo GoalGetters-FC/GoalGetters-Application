@@ -2,113 +2,111 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:layout_marginBottom="12dp"
+    android:layout_marginBottom="16dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
     android:layout_height="wrap_content"
     android:layout_width="match_parent">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_container"
-        app:cardCornerRadius="24dp"
+        app:cardCornerRadius="16dp"
         app:strokeWidth="0dp"
-        app:cardBackgroundColor="#FFFFFF"
-        app:contentPadding="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/white"
         android:clickable="true"
         android:focusable="true"
-        android:background="?android:attr/selectableItemBackground"
+        android:foreground="?android:attr/selectableItemBackground"
         android:layout_height="wrap_content"
         android:layout_width="match_parent">
 
         <LinearLayout
             android:orientation="horizontal"
-            android:layout_height="match_parent"
+            android:padding="20dp"
+            android:layout_height="wrap_content"
             android:layout_width="match_parent">
 
-            <!-- Notification Icon -->
-            <androidx.coordinatorlayout.widget.CoordinatorLayout
-                android:background="@drawable/circle_background"
-                android:backgroundTint="#F5F6F7"
-                android:layout_height="64dp"
-                android:layout_width="64dp">
-
-                <ImageView
-                    android:id="@+id/notificationIcon"
-                    android:src="@drawable/ic_unicons_bell_24"
-                    android:importantForAccessibility="no"
-                    app:tint="#161620"
-                    android:layout_gravity="center"
-                    android:layout_height="28dp"
-                    android:layout_width="28dp" />
-
-                <!-- Unread Indicator -->
-                <FrameLayout
-                    android:id="@+id/unreadIndicator"
+            <!-- Notification Icon Container -->
+            <FrameLayout
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content">
+                
+                <androidx.coordinatorlayout.widget.CoordinatorLayout
                     android:background="@drawable/circle_background"
-                    android:backgroundTint="@color/white"
-                    android:layout_marginBottom="-1.5dp"
-                    android:layout_marginEnd="-1.5dp"
-                    android:padding="1.5dp"
-                    android:layout_gravity="bottom|end"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:visibility="gone">
+                    android:backgroundTint="@color/primary_light"
+                    android:layout_height="56dp"
+                    android:layout_width="56dp">
 
                     <ImageView
-                        android:id="@+id/iv_unread_dot"
-                        android:src="@drawable/circle_background"
+                        android:id="@+id/notificationIcon"
+                        android:src="@drawable/ic_unicons_bell_24"
                         android:importantForAccessibility="no"
-                        app:tint="#FF9500"
-                        android:background="@drawable/circle_background"
-                        android:backgroundTint="#FFEFD9"
-                        android:padding="4dp"
+                        app:tint="@color/primary"
                         android:layout_gravity="center"
-                        android:layout_height="12dp"
-                        android:layout_width="12dp" />
-                </FrameLayout>
+                        android:layout_height="28dp"
+                        android:layout_width="28dp" />
 
-            </androidx.coordinatorlayout.widget.CoordinatorLayout>
+                </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+                <!-- Unread Indicator (modern pulsing dot) -->
+                <View
+                    android:id="@+id/unreadIndicator"
+                    android:background="@drawable/circle_background"
+                    android:backgroundTint="@color/primary"
+                    android:layout_marginBottom="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_height="12dp"
+                    android:layout_width="12dp"
+                    android:visibility="gone" />
+
+            </FrameLayout>
 
             <Space
                 android:layout_height="0dp"
-                android:layout_width="16dp" />
+                android:layout_width="20dp" />
 
             <!-- Notification Content -->
             <LinearLayout
                 android:orientation="vertical"
-                android:layout_gravity="center"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:layout_width="0dp">
 
+                <!-- Title Row -->
                 <LinearLayout
                     android:orientation="horizontal"
+                    android:layout_marginBottom="6dp"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent">
 
                     <TextView
                         android:id="@+id/notificationTitle"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:text="New Practice Scheduled!"
-                        android:textColor="#161620"
+                        android:textColor="@color/text_primary"
                         android:textSize="16sp"
-                        android:textFontWeight="500"
+                        android:textStyle="bold"
                         android:ellipsize="end"
-                        android:maxLines="1"
+                        android:maxLines="2"
                         android:fontFamily="@font/variable_inter" />
 
                     <Space
                         android:layout_height="0dp"
-                        android:layout_width="8dp" />
+                        android:layout_width="12dp" />
 
                     <!-- Notification Type Chip -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cv_type_chip"
-                        app:cardBackgroundColor="#F2F2F2"
-                        app:cardCornerRadius="8dp"
+                        app:cardBackgroundColor="@color/surface_variant"
+                        app:cardCornerRadius="10dp"
                         app:strokeWidth="0dp"
+                        app:cardElevation="0dp"
                         app:contentPadding="2dp"
-                        app:contentPaddingRight="6dp"
-                        app:contentPaddingLeft="6dp"
+                        app:contentPaddingRight="8dp"
+                        app:contentPaddingLeft="8dp"
                         android:layout_gravity="center_vertical"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content">
@@ -116,41 +114,35 @@
                         <TextView
                             android:id="@+id/tv_type_chip"
                             android:text="PRACTICE"
-                            android:textColor="#4B4D4F"
-                            android:textSize="11sp"
-                            android:textFontWeight="600"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
                             android:fontFamily="@font/variable_inter"
                             android:layout_height="wrap_content"
                             android:layout_width="wrap_content" />
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
 
-                <Space
-                    android:layout_height="4dp"
-                    android:layout_width="0dp" />
-
+                <!-- Message Text -->
                 <TextView
                     android:id="@+id/notificationText"
-                    android:text="Don't forget to pack your shin guards for tomorrow!"
-                    android:textColor="#161620"
+                    android:text="Don't forget to pack your shin guards for tomorrow's session. See you on the field!"
+                    android:textColor="@color/text_secondary"
                     android:textSize="14sp"
-                    android:textFontWeight="400"
+                    android:lineSpacingExtra="2dp"
                     android:fontFamily="@font/variable_inter"
-                    android:maxLines="2"
+                    android:maxLines="5"
                     android:ellipsize="end"
+                    android:layout_marginBottom="8dp"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent" />
 
-                <Space
-                    android:layout_height="4dp"
-                    android:layout_width="0dp" />
-
+                <!-- Timestamp -->
                 <TextView
                     android:id="@+id/notificationTimestamp"
                     android:text="2 days ago"
-                    android:textColor="#999999"
+                    android:textColor="@color/text_tertiary"
                     android:textSize="12sp"
-                    android:textFontWeight="400"
                     android:fontFamily="@font/variable_inter"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content" />
@@ -159,33 +151,32 @@
 
             <Space
                 android:layout_height="0dp"
-                android:layout_width="16dp" />
+                android:layout_width="12dp" />
 
             <!-- Action Menu -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cv_action_menu"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="?android:attr/selectableItemBackground"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="24dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardBackgroundColor="@color/surface_elevated"
+                app:cardCornerRadius="12dp"
                 app:strokeWidth="0dp"
-                android:padding="4dp"
-                app:contentPadding="4dp"
+                app:cardElevation="0dp"
                 android:layout_gravity="center_vertical"
-                android:layout_height="48dp"
-                android:layout_width="48dp">
+                android:layout_height="40dp"
+                android:layout_width="40dp">
 
                 <ImageView
                     android:id="@+id/actionMenuButton"
                     android:src="@drawable/ic_unicons_ellipsis_v"
                     android:importantForAccessibility="no"
-                    app:tint="#161620"
+                    app:tint="@color/text_secondary"
                     android:layout_gravity="center"
-                    android:layout_height="24dp"
-                    android:layout_width="24dp" />
+                    android:layout_height="20dp"
+                    android:layout_width="20dp" />
 
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-</LinearLayout> 
+</LinearLayout>

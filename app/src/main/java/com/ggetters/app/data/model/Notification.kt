@@ -15,14 +15,14 @@ import java.time.Instant
             entity = User::class,
             parentColumns = ["id"],
             childColumns = ["user_id"],
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.NO_ACTION,
             onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = Team::class,
             parentColumns = ["id"],
             childColumns = ["team_id"],
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.NO_ACTION,
             onUpdate = ForeignKey.CASCADE
         )
     ],
@@ -70,7 +70,7 @@ data class Notification(
     val sender: String = "",
 
     @ColumnInfo(name = "user_id")
-    val userId: String,
+    val userId: String? = null,
 
     @ColumnInfo(name = "team_id")
     val teamId: String? = null,

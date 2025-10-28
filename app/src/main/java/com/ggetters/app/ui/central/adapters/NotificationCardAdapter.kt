@@ -82,7 +82,7 @@ class NotificationCardAdapter(
 
     // Base ViewHolder with common functionality
     abstract inner class BaseNotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        protected val unreadIndicator: FrameLayout = itemView.findViewById(R.id.unreadIndicator)
+        protected val unreadIndicator: View = itemView.findViewById(R.id.unreadIndicator)
         protected val notificationIcon: ImageView = itemView.findViewById(R.id.notificationIcon)
         protected val notificationTitle: TextView = itemView.findViewById(R.id.notificationTitle)
         protected val notificationText: TextView = itemView.findViewById(R.id.notificationText)
