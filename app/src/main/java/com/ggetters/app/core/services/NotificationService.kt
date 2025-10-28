@@ -22,6 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import java.time.Instant
 import java.util.UUID
@@ -42,6 +43,9 @@ class NotificationService : FirebaseMessagingService() {
     
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
+    
+    @Inject
+    lateinit var userRepository: com.ggetters.app.data.repository.user.UserRepository
 
     override fun onCreate() {
         super.onCreate()
@@ -51,7 +55,10 @@ class NotificationService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
         
-        Clogger.d(TAG, "Received FCM message: ${remoteMessage.messageId}")
+        Clogger.d(TAG, "=== FCM MESSAGE RECEIVED ===")
+        Clogger.d(TAG, "Message ID: ${remoteMessage.messageId}")
+        Clogger.d(TAG, "Data payload: ${remoteMessage.data}")
+        Clogger.d(TAG, "Notification payload: ${remoteMessage.notification}")
         
         // Handle data payload
         remoteMessage.data.let { data ->
@@ -61,6 +68,11 @@ class NotificationService : FirebaseMessagingService() {
             val priority = data["priority"] ?: "NORMAL"
             val linkedEventId = data["linkedEventId"]
             val linkedEventType = data["linkedEventType"]
+            val teamId = data["teamId"] // Add team ID from FCM data
+            
+            // Get current user's team ID if not provided
+            val currentUserId = firebaseAuth.currentUser?.uid ?: ""
+            val userTeamId = teamId ?: runBlocking { getCurrentUserTeamId(currentUserId) }
             
             // Create notification object
             val notification = Notification(
@@ -70,7 +82,8 @@ class NotificationService : FirebaseMessagingService() {
                 message = body,
                 type = NotificationType.valueOf(type),
                 priority = NotificationPriority.valueOf(priority),
-                userId = firebaseAuth.currentUser?.uid ?: "",
+                userId = currentUserId,
+                teamId = userTeamId, // ✅ Add team ID
                 linkedEventId = linkedEventId,
                 linkedEventType = linkedEventType?.let { 
                     try {
@@ -82,11 +95,25 @@ class NotificationService : FirebaseMessagingService() {
                 createdAt = Instant.now()
             )
             
+            Clogger.d(TAG, "=== CREATED NOTIFICATION OBJECT ===")
+            Clogger.d(TAG, "ID: ${notification.id}")
+            Clogger.d(TAG, "Title: ${notification.title}")
+            Clogger.d(TAG, "Message: ${notification.message}")
+            Clogger.d(TAG, "Type: ${notification.type}")
+            Clogger.d(TAG, "UserId: ${notification.userId}")
+            Clogger.d(TAG, "TeamId: ${notification.teamId}")
+            
             // Store notification locally
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     notificationRepository.upsert(notification)
                     Clogger.d(TAG, "Notification stored locally: ${notification.id}")
+                    
+                    // Notify the ViewModel about the new notification
+                    // This will trigger the manual StateFlow update
+                    Clogger.d(TAG, "Notifying NotificationEventBus about new FCM notification: ${notification.title}")
+                    com.ggetters.app.core.services.NotificationEventBus.notifyNewNotificationAsync(notification)
+                    Clogger.d(TAG, "NotificationEventBus notification sent successfully")
                 } catch (e: Exception) {
                     Clogger.e(TAG, "Failed to store notification locally", e)
                 }
@@ -215,6 +242,18 @@ class NotificationService : FirebaseMessagingService() {
         } catch (e: Exception) {
             Clogger.e(TAG, "Failed to save token to Firestore", e)
             throw e
+        }
+    }
+
+    // Add helper method to get current user's team ID
+    private suspend fun getCurrentUserTeamId(userId: String): String? {
+        return try {
+            // Get user's team from local database
+            val user = userRepository.getLocalByAuthId(userId)
+            user?.teamId
+        } catch (e: Exception) {
+            Clogger.e(TAG, "Failed to get user team ID", e)
+            null
         }
     }
 }

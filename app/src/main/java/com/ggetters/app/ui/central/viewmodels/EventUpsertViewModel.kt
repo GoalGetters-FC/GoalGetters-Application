@@ -118,13 +118,20 @@ class EventUpsertViewModel @Inject constructor(
 
             // 4) Create notification for the new event
             try {
-                val currentUser = userRepo.getLocalByAuthId(com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "")
-                currentUser?.let { user ->
+                val currentUserId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+                Clogger.d("EventUpsertVM", "Creating notification for event: ${event.name}, currentUserId: $currentUserId")
+                
+                val currentUser = userRepo.getLocalByAuthId(currentUserId ?: "")
+                if (currentUser != null) {
+                    Clogger.d("EventUpsertVM", "Found user: ${currentUser.id}, calling createEventCreatedNotification")
                     eventNotificationService.createEventCreatedNotification(
                         event = event,
-                        userId = user.id,
+                        userId = currentUser.id,
                         teamId = team.id
                     )
+                    Clogger.d("EventUpsertVM", "createEventCreatedNotification called successfully")
+                } else {
+                    Clogger.w("EventUpsertVM", "No current user found for userId: $currentUserId")
                 }
             } catch (e: Exception) {
                 Clogger.e("EventUpsertVM", "Failed to create event notification: ${e.message}", e)
