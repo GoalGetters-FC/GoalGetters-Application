@@ -130,6 +130,15 @@ class LineupFragment : Fragment() {
             android.util.Log.d("LineupFragment", "Player dropped listener called: position=$position, dropPoint=(${dropPoint.x}, ${dropPoint.y})")
             handlePlayerDrop(position, dropPoint)
         }
+        // Click interactions
+        pitchView.setOnPlayerClickListener { position, player ->
+            if (player != null) {
+                showPlayerOptionsDialog(position, player)
+            }
+        }
+        pitchView.setOnPositionClickListener { position ->
+            showPlayerSelectionDialog(position)
+        }
         
         android.util.Log.d("LineupFragment", "Pitch interactions setup completed")
     }
@@ -180,6 +189,8 @@ class LineupFragment : Fragment() {
         Clogger.d("LineupFragment", "loadPlayerData: matchId='$matchId'")
         // Load roster data from MatchRosterViewModel - this will get real attendance data
         rosterViewModel.loadRoster(matchId)
+        // Load saved lineup (formation + positioned players)
+        viewModel.loadLineup(matchId)
         
         // Set initial formation on pitch
         updatePitchFormation()
@@ -190,6 +201,8 @@ class LineupFragment : Fragment() {
 
     private fun changeFormation(newFormation: String) {
         currentFormation = newFormation
+        // Persist via ViewModel
+        viewModel.updateFormation(newFormation)
         updatePitchFormation()
         
         // Update available players grid after formation change
@@ -418,6 +431,12 @@ class LineupFragment : Fragment() {
         lifecycleScope.launchWhenStarted {
             viewModel.formation.collectLatest { formation ->
                 currentFormation = formation
+                // reflect spinner if changed externally
+                formations.indexOf(formation).takeIf { it >= 0 }?.let { idx ->
+                    if (formationSpinner.selectedItemPosition != idx) {
+                        formationSpinner.setSelection(idx)
+                    }
+                }
                 updatePitchFormation()
             }
         }
@@ -426,6 +445,8 @@ class LineupFragment : Fragment() {
         lifecycleScope.launchWhenStarted {
             viewModel.positionedPlayers.collectLatest { newPositionedPlayers ->
                 positionedPlayers = newPositionedPlayers.toMutableMap()
+                // push to canvas
+                pitchView.setPlayers(newPositionedPlayers)
                 updateAvailablePlayersGrid()
             }
         }
@@ -543,8 +564,12 @@ class LineupFragment : Fragment() {
                     val playerIn = playersSubstitutedIn.firstOrNull()
                     
                     if (playerIn != null) {
-                        // Auto-position the substitute in the same position
-                        currentPositions[playerOutPosition] = playerIn
+                        // Remove the old player from position (via ViewModel)
+                        viewModel.removePlayerFromPosition(playerOutPosition)
+                        
+                        // Position the substitute in the same position (via ViewModel - this will persist and update UI)
+                        viewModel.positionPlayer(playerIn, playerOutPosition)
+                        
                         Clogger.d("LineupFragment", "Player ${playerIn.playerName} subbed in at position $playerOutPosition")
                         
                         // Show notification
@@ -552,19 +577,31 @@ class LineupFragment : Fragment() {
                             "Substitution: ${playerIn.playerName} ↔ ${playerOut.playerName}", 
                             Snackbar.LENGTH_LONG).show()
                     } else {
-                        // No substitute found, just remove the player from pitch
-                        currentPositions[playerOutPosition] = null
-                        Clogger.d("LineupFragment", "No substitute found, clearing position $playerOutPosition")
-                        
-                        Snackbar.make(requireView(), 
-                            "${playerOut.playerName} substituted out", 
-                            Snackbar.LENGTH_SHORT).show()
+                        // No explicit substitute found from attendance deltas.
+                        // Fallback: choose the first AVAILABLE bench player not on pitch and place into the same position.
+                        val positionedIds = currentPositions.values.filterNotNull().map { it.playerId }.toSet()
+                        val fallbackIn = availablePlayers.firstOrNull { it.status == RSVPStatus.AVAILABLE && it.playerId !in positionedIds }
+
+                        if (fallbackIn != null) {
+                            viewModel.removePlayerFromPosition(playerOutPosition)
+                            viewModel.positionPlayer(fallbackIn, playerOutPosition)
+                            Clogger.d("LineupFragment", "Fallback sub-in ${fallbackIn.playerName} at $playerOutPosition")
+                            Snackbar.make(requireView(),
+                                "Substitution: ${fallbackIn.playerName} ↔ ${playerOut.playerName}",
+                                Snackbar.LENGTH_LONG).show()
+                        } else {
+                            // No substitute found, just remove the player from pitch (via ViewModel)
+                            viewModel.removePlayerFromPosition(playerOutPosition)
+                            Clogger.d("LineupFragment", "No substitute available, clearing position $playerOutPosition")
+                            Snackbar.make(requireView(),
+                                "${playerOut.playerName} substituted out",
+                                Snackbar.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
             
-            // Update the pitch view
-            pitchView.setPlayers(currentPositions)
+            // Don't update pitch view directly - let the ViewModel observer handle it
         }
     }
 
@@ -572,62 +609,47 @@ class LineupFragment : Fragment() {
         // Filter out players who are already positioned on the pitch
         val positionedPlayers = pitchView.getPositionedPlayers().values.filterNotNull()
         val positionedIds = positionedPlayers.map { it.playerId }.toSet()
+        
+        // Filter bench players: exclude those currently on pitch
+        // Also exclude UNAVAILABLE players entirely (substituted players are removed from bench)
         val availableForBench = availablePlayers.filter { player ->
-            !positionedIds.contains(player.playerId)
+            val notOnPitch = !positionedIds.contains(player.playerId)
+            val isAvailable = player.status == RSVPStatus.AVAILABLE
+            notOnPitch && isAvailable
         }
         
-        // Sort players: Available players first, then substituted players (UNAVAILABLE) at the bottom
-        val sortedPlayers = availableForBench.sortedWith(
-            compareBy<RosterPlayer> { it.status == RSVPStatus.UNAVAILABLE }
-                .thenBy { it.playerName }
-        )
+        // Sort players alphabetically (all are AVAILABLE since we filtered UNAVAILABLE out)
+        val sortedPlayers = availableForBench.sortedBy { it.playerName }
         
-        // Update the grid adapter with sorted players (available first, substituted at bottom)
+        // Update the grid adapter with sorted players
         playersAdapter.updatePlayers(sortedPlayers)
         
-        // Update squad count display
+        // Update bench count display
         val activeCount = availablePlayers.count { it.status == RSVPStatus.AVAILABLE }
         val onPitch = positionedPlayers.size
-        val totalSquad = activeCount
-        val substitutedCount = availablePlayers.count { it.status == RSVPStatus.UNAVAILABLE }
+        val availableOnBench = availableForBench.size
         
-        val squadCountText = if (totalSquad == 0 && substitutedCount == 0) {
+        val benchCountText = if (activeCount == 0) {
             "No players marked as Present in Attendance"
-        } else if (substitutedCount > 0) {
-            "Squad (${totalSquad - onPitch}/$totalSquad) • $substitutedCount substituted"
         } else {
-            "Squad (${totalSquad - onPitch}/$totalSquad)"
+            "Bench ($availableOnBench/${activeCount - onPitch})"
         }
         
-        // Update the squad count text in the layout
-        view?.findViewById<TextView>(R.id.squadCountText)?.text = squadCountText
+        // Update the bench count text in the layout
+        view?.findViewById<TextView>(R.id.squadCountText)?.text = benchCountText
     }
 
     private fun positionPlayer(player: RosterPlayer, position: String) {
-        // TODO: Backend - Update player position
-        val currentPositions = pitchView.getPositionedPlayers().toMutableMap()
-        currentPositions[position] = player
-        pitchView.setPlayers(currentPositions)
-        
-        // Update the available players grid to exclude this player
-        updateAvailablePlayersGrid()
-        
-        Snackbar.make(requireView(), 
-            "${player.playerName} positioned at $position", 
+        viewModel.positionPlayer(player, position)
+        Snackbar.make(requireView(),
+            "${player.playerName} positioned at $position",
             Snackbar.LENGTH_SHORT).show()
     }
 
     private fun removePlayerFromPosition(position: String) {
-        // TODO: Backend - Remove player from position
-        val currentPositions = pitchView.getPositionedPlayers().toMutableMap()
-        currentPositions.remove(position)
-        pitchView.setPlayers(currentPositions)
-        
-        // Update the available players grid to include the removed player
-        updateAvailablePlayersGrid()
-        
-        Snackbar.make(requireView(), 
-            "Player removed from $position", 
+        viewModel.removePlayerFromPosition(position)
+        Snackbar.make(requireView(),
+            "Player removed from $position",
             Snackbar.LENGTH_SHORT).show()
     }
 
@@ -696,16 +718,8 @@ class LineupFragment : Fragment() {
             val draggedPlayerPosition = currentPositions.entries.find { it.value?.playerId == draggedPlayer.playerId }?.key
             
             if (draggedPlayerPosition != null) {
-                // Swap the players
-                currentPositions[draggedPlayerPosition] = targetPlayer
-                currentPositions[targetPosition] = draggedPlayer
-                
-                // Update the pitch view
-                pitchView.setPlayers(currentPositions)
-                
-                // Update the available players grid
-                updateAvailablePlayersGrid()
-                
+                // Persist swap
+                viewModel.swapPlayers(draggedPlayerPosition, targetPosition)
                 Snackbar.make(requireView(), 
                     "Players swapped: ${draggedPlayer.playerName} ↔ ${targetPlayer.playerName}", 
                     Snackbar.LENGTH_SHORT).show()
@@ -721,27 +735,17 @@ class LineupFragment : Fragment() {
         val targetPlayer = currentPositions[toPosition]
         
         if (targetPlayer != null) {
-            // Swap players
-            currentPositions[fromPosition] = targetPlayer
-            currentPositions[toPosition] = player
-            pitchView.setPlayers(currentPositions)
-            
+            viewModel.swapPlayers(fromPosition, toPosition)
             Snackbar.make(requireView(), 
                 "Players swapped: ${player.playerName} ↔ ${targetPlayer.playerName}", 
                 Snackbar.LENGTH_SHORT).show()
         } else {
-            // Move player to empty position
-            currentPositions.remove(fromPosition)
-            currentPositions[toPosition] = player
-            pitchView.setPlayers(currentPositions)
-            
+            viewModel.removePlayerFromPosition(fromPosition)
+            viewModel.positionPlayer(player, toPosition)
             Snackbar.make(requireView(), 
                 "${player.playerName} moved to $toPosition", 
                 Snackbar.LENGTH_SHORT).show()
         }
-        
-        // Update the available players grid
-        updateAvailablePlayersGrid()
     }
 
     private fun findClosestPosition(dropPoint: PointF): String? {
