@@ -54,21 +54,37 @@ class JoinTeamBottomSheet(
     /**
      * TODO: Abstract logic to a function with input validation
      */
-    override fun onClick(view: View?) = when (view?.id) {
-        binds.btContinue.id -> {
-            val teamCode = binds.etCodeTeam.text.toString().trim()
-            val userCode = binds.etCodeUser.text.toString().trim()
-            onSubmit(
-                teamCode, userCode
-            )
+    override fun onClick(view: View?) {
+        when (view?.id) {
+            binds.btContinue.id -> {
+                val teamCode = binds.etCodeTeam.text.toString().trim().uppercase()
+                val userCode = binds.etCodeUser.text.toString().trim()
 
-            dismiss()
-        }
+                var hasError = false
+                val codeRegex = Regex("^[A-Z0-9]{6}$")
+                if (!codeRegex.matches(teamCode)) {
+                    binds.etCodeTeam.error = "Enter 6-letter/numeric team code"
+                    hasError = true
+                } else {
+                    binds.etCodeTeam.error = null
+                }
+                if (userCode.isBlank()) {
+                    binds.etCodeUser.error = "Enter your user code"
+                    hasError = true
+                } else {
+                    binds.etCodeUser.error = null
+                }
+                if (hasError) return
 
-        else -> {
-            Clogger.w(
-                TAG, "Unhandled on-click for: ${view?.id}"
-            )
+                onSubmit(teamCode, userCode)
+                dismiss()
+            }
+
+            else -> {
+                Clogger.w(
+                    TAG, "Unhandled on-click for: ${view?.id}"
+                )
+            }
         }
     }
 

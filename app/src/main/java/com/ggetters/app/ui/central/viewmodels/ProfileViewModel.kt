@@ -23,7 +23,8 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val authService: AuthenticationService,
     private val teamRepo: TeamRepository,
-    private val userRepo: UserRepository
+    private val userRepo: UserRepository,
+    private val codeGen: com.ggetters.app.core.utils.CodeGenerationUtils
 ) : ViewModel() {
     companion object {
         private const val TAG = "ProfileViewModel"
@@ -90,6 +91,23 @@ class ProfileViewModel @Inject constructor(
             } catch (e: Exception) {
                 Clogger.e(TAG, "Failed to delete user account: ${e.message}", e)
                 throw e // Re-throw to allow UI to handle the error
+            }
+        }
+    }
+
+    fun ensureTeamCode(teamId: String) {
+        viewModelScope.launch {
+            runCatching {
+                val team = teamRepo.getById(teamId) ?: return@runCatching
+                val code = team.code?.uppercase()
+                val valid = code?.matches(Regex("^[A-Z0-9]{6}$")) == true
+                if (!valid) {
+                    val unique = codeGen.generateCollisionSafeTeamCode()
+                    teamRepo.updateTeamCode(team.id, unique)
+                    teamRepo.sync()
+                }
+            }.onFailure {
+                Clogger.e(TAG, "Failed ensuring team code: ${it.message}", it)
             }
         }
     }
