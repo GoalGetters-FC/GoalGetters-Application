@@ -18,6 +18,7 @@
             android:background="#161620"
             android:elevation="0dp"
             app:navigationIcon="@drawable/ic_unicons_arrow_left"
+            app:navigationIconTint="@color/white"
             app:title="Team Details"
             app:titleTextColor="@color/white"
             app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"
