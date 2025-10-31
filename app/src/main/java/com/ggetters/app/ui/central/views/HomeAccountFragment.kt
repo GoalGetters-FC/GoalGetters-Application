@@ -247,6 +247,14 @@ class HomeAccountFragment : Fragment() {
             shareTeamCode()
         }
     }
+
+    private fun generateTeamCodeLocal(): String {
+        val chars = ("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ").toCharArray()
+        val rnd = java.security.SecureRandom()
+        val sb = StringBuilder()
+        repeat(6) { sb.append(chars[rnd.nextInt(chars.size)]) }
+        return sb.toString()
+    }
     
     private fun shareTeamCode() {
         val teamCode = teamCodeText.text.toString()
@@ -288,10 +296,16 @@ class HomeAccountFragment : Fragment() {
                     if (team != null) {
                         // Update team information section
                         teamNameText.text = team.name
-                        teamCodeText.text = team.code ?: "No code"
+                        val code = team.code?.uppercase()
+                        val valid = code?.matches(Regex("^[A-Z0-9]{6}$")) == true
+                        teamCodeText.text = if (valid) code else "No code"
+                        // If no valid code, trigger persistence generation
+                        if (!valid && team.id.isNotBlank()) {
+                            activeModel.ensureTeamCode(team.id)
+                        }
                         
                         // Show share button if team has a code
-                        if (team.code != null) {
+                        if (valid) {
                             btnShareTeamCode.visibility = View.VISIBLE
                         } else {
                             btnShareTeamCode.visibility = View.GONE

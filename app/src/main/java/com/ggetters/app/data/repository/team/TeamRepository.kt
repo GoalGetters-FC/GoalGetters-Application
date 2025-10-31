@@ -10,6 +10,7 @@ interface TeamRepository : CrudRepository<Team> {
     suspend fun sync()
     suspend fun setActiveTeam(team: Team)
     fun getActiveTeam(): Flow<Team?>
+    fun getByIdFlow(id: String): Flow<Team?>
     suspend fun getByCode(code: String): Team?
     suspend fun joinTeam(teamId: String)
     suspend fun joinOrCreateTeam(code: String): Team
@@ -17,5 +18,7 @@ interface TeamRepository : CrudRepository<Team> {
     suspend fun createTeam(team: Team): Team
 
     fun getTeamsForCurrentUser(): Flow<List<Team>>
+
+    suspend fun updateTeamCode(teamId: String, code: String)
 
 }

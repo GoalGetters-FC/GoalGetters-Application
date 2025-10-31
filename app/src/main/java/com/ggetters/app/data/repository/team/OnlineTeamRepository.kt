@@ -33,6 +33,8 @@ class OnlineTeamRepository @Inject constructor(
 
     override fun getActiveTeam(): Flow<Team?> = flowOf(null)
 
+    override fun getByIdFlow(id: String): Flow<Team?> = flowOf(null)
+
     override suspend fun getByCode(code: String): Team? = fs.getByCode(code)
 
     override suspend fun joinTeam(teamId: String) {
@@ -74,6 +76,12 @@ class OnlineTeamRepository @Inject constructor(
 
     suspend fun leaveOrDelete(teamId: String) {
         fs.leaveOrDelete(teamId)
+    }
+
+    override suspend fun updateTeamCode(teamId: String, code: String) {
+        // Update only the code field remotely; do not alter membership
+        val team = fs.getById(teamId) ?: return
+        fs.save(team.copy(code = code))
     }
 
 }

@@ -87,8 +87,8 @@ class OnboardingActivity : AppCompatActivity(), Clickable {
         model.createTeam(teamName)
     }
 
-    private fun onJoinTeamSheetSubmitted(teamCode: String, userCode: String) {
-        model.joinTeam(teamCode, userCode)
+    private fun onJoinTeamSheetSubmitted(teamCode: String) {
+        model.joinTeam(teamCode)
     }
 
     // --- Event Handlers

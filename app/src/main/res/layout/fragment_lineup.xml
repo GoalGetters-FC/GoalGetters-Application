@@ -6,18 +6,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white"
-    android:padding="12dp">
+    android:padding="8dp">
 
     <!-- Formation Selector and Search Card -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        app:cardCornerRadius="16dp"
+        android:layout_marginBottom="6dp"
+        app:cardCornerRadius="12dp"
         app:strokeWidth="0dp"
         app:cardBackgroundColor="#F8F9FA"
-        app:contentPadding="12dp"
-        app:cardElevation="2dp">
+        app:contentPadding="8dp"
+        app:cardElevation="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,16 +31,16 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="12dp"
+                android:layout_marginEnd="8dp"
                 android:background="@drawable/formation_spinner_background"
-                android:padding="12dp"
+                android:padding="10dp"
                 tools:listitem="@layout/item_formation_spinner" />
 
             <!-- Search Button -->
             <ImageButton
                 android:id="@+id/searchButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:src="@drawable/ic_unicons_search_alt_24"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Search players"
@@ -54,27 +54,27 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3"
-        android:layout_marginBottom="8dp"
+        android:layout_weight="5"
+        android:layout_marginBottom="6dp"
         app:cardCornerRadius="16dp"
         app:strokeWidth="0dp"
         app:cardBackgroundColor="@color/pitch_green_dark"
         app:cardElevation="2dp"
-        app:contentPadding="8dp">
+        app:contentPadding="4dp">
 
         <com.ggetters.app.ui.central.views.components.FormationPitchView
             android:id="@+id/pitchView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="4dp" />
+            android:layout_margin="2dp" />
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Available Players Grid -->
+    <!-- Available Players Grid (Bench) -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2.5"
+        android:layout_weight="2"
         app:cardCornerRadius="16dp"
         app:strokeWidth="0dp"
         app:cardBackgroundColor="#F8F9FA"
@@ -91,12 +91,12 @@
                 android:id="@+id/squadCountText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Squad (0/0)"
-                android:textSize="16sp"
+                android:text="Bench (0/0)"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="#161620"
                 android:fontFamily="@font/variable_inter"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="6dp" />
 
             <!-- ScrollView for Players Grid -->
             <ScrollView

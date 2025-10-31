@@ -90,6 +90,8 @@ class LocalNotificationService @Inject constructor(
             data = JSONObject(data).toString(), // JSON string for storage
             createdAt = Instant.now()
         )
+        
+        Clogger.d(TAG, "📝 Creating notification: id=${notification.id}, title='$title', userId='$userId', teamId='$teamId'")
 
         try {
             // Store in database

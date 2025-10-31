@@ -112,6 +112,11 @@ class EditTeamDialog : DialogFragment() {
         contactCellInput = view.findViewById(R.id.editContactCell)
         contactEmailInput = view.findViewById(R.id.editContactEmail)
         clubAddressInput = view.findViewById(R.id.editClubAddress)
+
+        // Team code is generated, not user-editable
+        codeInput.isEnabled = false
+        codeInput.isFocusable = false
+        codeInput.isClickable = false
     }
 
     private fun setupDropdowns() {
@@ -186,7 +191,8 @@ class EditTeamDialog : DialogFragment() {
         // TODO: Backend - Implement team change audit logging
 
         val teamName = nameInput.text.toString().trim()
-        val teamCode = codeInput.text.toString().trim()
+        // Preserve existing generated code from args (read-only)
+        val teamCode = arguments?.getString("team_code", "")?.trim()?.uppercase() ?: ""
         val teamAlias = aliasInput.text.toString().trim()
         val teamDescription = descriptionInput.text.toString().trim()
         val teamYearFormed = yearFormedInput.text.toString().trim()
@@ -201,11 +207,7 @@ class EditTeamDialog : DialogFragment() {
             return
         }
 
-        if (teamCode.isBlank()) {
-            codeInput.error = "Team code is required"
-            codeInput.requestFocus()
-            return
-        }
+        // If no code yet, allow save; code will be generated elsewhere (e.g., when inviting members)
 
         // Validate email format if provided
         if (teamContactMail.isNotBlank() && !android.util.Patterns.EMAIL_ADDRESS.matcher(teamContactMail).matches()) {

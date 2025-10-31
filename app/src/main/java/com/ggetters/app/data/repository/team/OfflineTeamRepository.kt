@@ -7,6 +7,7 @@ import com.ggetters.app.data.model.TeamDenomination
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
+import java.time.Instant
 
 class OfflineTeamRepository @Inject constructor(
     private val dao: TeamDao
@@ -17,6 +18,9 @@ class OfflineTeamRepository @Inject constructor(
 
     override suspend fun getById(id: String): Team? =
         dao.getById(id).first()                          // take first emission
+
+    override fun getByIdFlow(id: String): Flow<Team?> =
+        dao.getById(id)
 
     override suspend fun upsert(entity: Team) {
         // mark it dirty so sync() will pick it up
@@ -103,4 +107,8 @@ class OfflineTeamRepository @Inject constructor(
 
     /** 5️⃣ upsert a batch of teams */
     suspend fun upsertAllLocal(teams: List<Team>) = dao.upsertAll(teams)
+
+    override suspend fun updateTeamCode(teamId: String, code: String) {
+        dao.updateCode(teamId, code, stainedAt = Instant.now(), updatedAt = Instant.now())
+    }
 }

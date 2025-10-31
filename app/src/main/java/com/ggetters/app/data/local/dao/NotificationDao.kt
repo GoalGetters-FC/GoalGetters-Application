@@ -21,6 +21,9 @@ interface NotificationDao {
     @Query("SELECT * FROM notification WHERE team_id = :teamId ORDER BY created_at DESC")
     fun getAllForTeam(teamId: String): Flow<List<Notification>>
     
+    @Query("SELECT * FROM notification ORDER BY created_at DESC")
+    fun getAll(): Flow<List<Notification>>
+    
     @Query("SELECT * FROM notification WHERE user_id = :userId AND type = :type ORDER BY created_at DESC")
     fun getByTypeForUser(userId: String, type: NotificationType): Flow<List<Notification>>
     

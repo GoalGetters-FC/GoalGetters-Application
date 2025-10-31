@@ -90,6 +90,8 @@ class CombinedTeamRepository @Inject constructor(
 
     override fun getActiveTeam() = offline.getActiveTeam()
 
+    override fun getByIdFlow(id: String): Flow<Team?> = offline.getByIdFlow(id)
+
     override suspend fun getByCode(code: String): Team? {
         val trace = FirebasePerformance.getInstance().newTrace("teamrepo_getByCode")
         trace.start()
@@ -132,4 +134,8 @@ class CombinedTeamRepository @Inject constructor(
     }
 
     override fun getTeamsForCurrentUser() = offline.getTeamsForCurrentUser()
+
+    override suspend fun updateTeamCode(teamId: String, code: String) {
+        offline.updateTeamCode(teamId, code)
+    }
 }

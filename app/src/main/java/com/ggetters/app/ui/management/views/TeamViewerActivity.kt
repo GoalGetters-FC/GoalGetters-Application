@@ -111,8 +111,8 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         model.createTeamFromName(teamName, authId)
     }
 
-    private fun onJoinTeamSheetSubmitted(teamCode: String, userCode: String) {
-        model.joinByCode(teamCode, userCode)
+    private fun onJoinTeamSheetSubmitted(teamCode: String) {
+        model.joinByCode(teamCode)
     }
 
     // --- Touch listeners ---

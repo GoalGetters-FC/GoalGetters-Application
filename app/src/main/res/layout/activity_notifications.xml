@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Topbar -->
+    <!-- Topbar (Dark Header) -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/top_bar"
         android:background="#161620"
@@ -27,21 +27,35 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- UI -->
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/svContainer"
-        android:fillViewport="true"
-        android:background="#FFFFFF"
+    <!-- Main Content -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+        <!-- Empty State -->
+        <include 
+            android:id="@+id/emptyState"
+            layout="@layout/empty_state_notifications" />
+
+        <!-- Notifications List -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/svContainer"
+            android:fillViewport="true"
+            android:background="#FFFFFF"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/notificationsRecyclerView"
-            android:padding="16dp"
-            android:layout_height="match_parent"
+                android:paddingTop="8dp"
+                android:paddingBottom="16dp"
+                android:clipToPadding="false"
+                android:layout_height="wrap_content"
             android:layout_width="match_parent" />
 
     </androidx.core.widget.NestedScrollView>
+
+    </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout> 
