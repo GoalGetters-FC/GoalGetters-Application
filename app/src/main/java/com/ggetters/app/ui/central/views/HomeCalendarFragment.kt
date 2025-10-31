@@ -33,6 +33,7 @@ import com.ggetters.app.ui.shared.models.Clickable
 import com.ggetters.app.ui.shared.viewmodels.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.combine
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
@@ -51,7 +52,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
     private val authViewModel: AuthViewModel by viewModels()
 
     private lateinit var binds: FragmentHomeCalendarBinding
-    private lateinit var adapter: CalendarAdapter
+    private lateinit var calendarAdapter: CalendarAdapter
     private lateinit var eventsAdapter: EventAdapter
 
     private var currentDate = Calendar.getInstance()
@@ -102,9 +103,14 @@ class HomeCalendarFragment : Fragment(), Clickable {
         // collect selected-day events → update bottom list
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                activeModel.dayEvents.collect { dayList ->
-                    val day = selectedDay ?: return@collect
-                    showSelectedDayEvents(day, dayList)
+                combine(
+                    activeModel.selectedDate,
+                    activeModel.dayEvents
+                ) { date, dayEvents ->
+                    date to dayEvents
+                }.collect { (date, dayEvents) ->
+                    val selectedDate = date ?: return@collect
+                    showSelectedDayEvents(selectedDate, dayEvents)
                 }
             }
         }
@@ -172,28 +178,28 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
 
     private fun autoSelectToday() {
-        val today = Calendar.getInstance()
-        val todayEvents = getEventsForDate(today)
-        val todayDayOfMonth = today.get(Calendar.DAY_OF_MONTH)
+        val todayCalendar = Calendar.getInstance()
+        val todayDate = LocalDate.of(
+            todayCalendar.get(Calendar.YEAR),
+            todayCalendar.get(Calendar.MONTH) + 1,
+            todayCalendar.get(Calendar.DAY_OF_MONTH)
+        )
+        val todayEvents = getEventsForDate(todayCalendar)
 
-        if (currentDate.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
-            currentDate.get(Calendar.YEAR) == today.get(Calendar.YEAR)
+        if (currentDate.get(Calendar.MONTH) == todayCalendar.get(Calendar.MONTH) &&
+            currentDate.get(Calendar.YEAR) == todayCalendar.get(Calendar.YEAR)
         ) {
-            selectedDay = todayDayOfMonth
-            showSelectedDayEvents(todayDayOfMonth, todayEvents)
+            showSelectedDayEvents(todayDate, todayEvents)
+            activeModel.select(todayDate)
         }
 
         updateCalendarView()
     }
 
     private fun updateCalendarView() {
+        if (!::calendarAdapter.isInitialized) return
         val calendarDays = generateCalendarDays()
-        adapter = CalendarAdapter(
-            onClick = { day -> onDayClickedCallback(day) },
-            onLongClick = { day -> onDayLongClickedCallback(day) }
-        )
-        binds.rvCalendar.adapter = adapter
-        adapter.update(calendarDays)
+        calendarAdapter.update(calendarDays)
         updateMonthYearDisplay()
     }
 
@@ -228,7 +234,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
                     events = dayEvents,
                     isCurrentMonth = true,
                     isToday = isToday, // Always show today highlighting
-                    isSelected = false // Never highlight selected day
+                    isSelected = isSelected
                 )
             )
         }
@@ -291,11 +297,12 @@ class HomeCalendarFragment : Fragment(), Clickable {
     }
 
 
-    private fun showSelectedDayEvents(dayOfMonth: Int, events: List<Event>) {
-        val calendar = currentDate.clone() as Calendar
-        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        val dateFormat = SimpleDateFormat("d MMMM yyyy", Locale.getDefault())
-        binds.tvSelectedDate.text = dateFormat.format(calendar.time)
+    private fun showSelectedDayEvents(date: LocalDate, events: List<Event>) {
+        selectedDay = date.dayOfMonth
+        selectedDayEvents = events
+
+        val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.getDefault())
+        binds.tvSelectedDate.text = date.format(formatter)
 
         if (events.isEmpty()) {
             binds.rvSelectedDateEvents.visibility = View.GONE
@@ -303,10 +310,11 @@ class HomeCalendarFragment : Fragment(), Clickable {
         } else {
             binds.rvSelectedDateEvents.visibility = View.VISIBLE
             binds.cvSkeleton.visibility = View.GONE
-            eventsAdapter.update(events)
         }
 
+        eventsAdapter.update(events)
         binds.cvSelectedDateEvents.visibility = View.VISIBLE
+        updateCalendarView()
     }
 
 
@@ -382,12 +390,14 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
 
     private fun setupCalendar() {
+        calendarAdapter = CalendarAdapter(
+            onClick = { day -> onDayClickedCallback(day) },
+            onLongClick = { day -> onDayLongClickedCallback(day) }
+        )
+
         binds.rvCalendar.apply {
             layoutManager = GridLayoutManager(context, 7)
-            adapter = CalendarAdapter(
-                onClick = { day -> onDayClickedCallback(day) },
-                onLongClick = { day -> onDayLongClickedCallback(day) }
-            )
+            adapter = calendarAdapter
         }
 
         eventsAdapter = EventAdapter(

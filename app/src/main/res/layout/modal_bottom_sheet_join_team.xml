@@ -60,22 +60,6 @@
             android:layout_height="12dp"
             android:layout_width="0dp" />
 
-    <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Local.Input.Layout"
-            android:hint="@string/modal_sheet_text_input_hint_user_code"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent">
-
-        <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_code_user"
-                style="@style/Widget.Local.Input.Layout.EditText"
-                android:inputType="text"
-                android:maxLines="1"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
     <Space
             android:layout_height="24dp"
             android:layout_width="0dp" />

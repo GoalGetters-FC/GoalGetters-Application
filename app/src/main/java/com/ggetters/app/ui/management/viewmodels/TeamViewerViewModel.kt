@@ -87,7 +87,7 @@ class TeamViewerViewModel @Inject constructor(
     }
 
     // --- Join via code ---
-    fun joinByCode(teamCode: String, userCode: String?) = viewModelScope.launch(Dispatchers.IO) {
+    fun joinByCode(teamCode: String) = viewModelScope.launch(Dispatchers.IO) {
         try {
             _busy.value = true
             val code = teamCode.trim()

@@ -1,9 +1,17 @@
 package com.ggetters.app.ui.central.views
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -11,12 +19,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.adapters.NotificationCardAdapter
 import com.ggetters.app.data.model.Notification
+import com.ggetters.app.ui.central.adapters.NotificationCardAdapter
 import com.ggetters.app.ui.central.viewmodels.NotificationsViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,6 +34,15 @@ class NotificationsActivity : AppCompatActivity() {
 
     private val model: NotificationsViewModel by viewModels()
     private lateinit var notificationAdapter: NotificationCardAdapter
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                model.loadNotifications()
+            } else {
+                showNotificationPermissionDeniedSnackbar(canOpenSettings = true)
+                model.loadNotifications()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,9 +55,8 @@ class NotificationsActivity : AppCompatActivity() {
         setupLayoutUi()
         setupRecyclerView()
         observe()
-        
-        // Load notifications when activity starts
-        model.loadNotifications()
+
+        ensureNotificationPermission()
     }
 
     // --- UI setup ---
@@ -113,6 +128,39 @@ class NotificationsActivity : AppCompatActivity() {
         recyclerView.adapter = notificationAdapter
     }
 
+    private fun ensureNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            model.loadNotifications()
+            return
+        }
+
+        val permissionStatus = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.POST_NOTIFICATIONS
+        )
+
+        when {
+            permissionStatus == PackageManager.PERMISSION_GRANTED -> {
+                model.loadNotifications()
+            }
+
+            shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    R.string.notification_permission_rationale,
+                    Snackbar.LENGTH_LONG
+                ).setAction(R.string.notification_permission_enable_action) {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }.show()
+                model.loadNotifications()
+            }
+
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
     // --- Observe ViewModel ---
     private fun observe() {
         lifecycleScope.launch {
@@ -157,5 +205,28 @@ class NotificationsActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun showNotificationPermissionDeniedSnackbar(canOpenSettings: Boolean) {
+        val snackbar = Snackbar.make(
+            findViewById(android.R.id.content),
+            R.string.notification_permission_denied,
+            Snackbar.LENGTH_LONG
+        )
+
+        if (canOpenSettings && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            snackbar.setAction(R.string.notification_permission_settings_action) {
+                openNotificationSettings()
+            }
+        }
+
+        snackbar.show()
+    }
+
+    private fun openNotificationSettings() {
+        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+            putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        }
+        startActivity(intent)
     }
 } 

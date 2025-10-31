@@ -100,7 +100,7 @@ class OnboardingViewModel @Inject constructor(
      * The provided TeamRepository API does not accept userCode, so we ignore it here.
      * If you later extend the repo, thread userCode through accordingly.
      */
-    fun joinTeam(teamCode: String, userCode: String) = viewModelScope.launch {
+    fun joinTeam(teamCode: String) = viewModelScope.launch {
         val code = teamCode.trim()
         if (code.isBlank()) {
             _events.send(UiEvent.Toast("Team code is required."))

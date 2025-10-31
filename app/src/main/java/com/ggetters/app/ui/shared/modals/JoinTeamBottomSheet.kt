@@ -11,7 +11,7 @@ import com.ggetters.app.ui.shared.models.Clickable
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class JoinTeamBottomSheet(
-    private val onSubmit: (String, String) -> Unit
+    private val onSubmit: (String) -> Unit
 ) : BottomSheetDialogFragment(), Clickable {
     companion object {
         const val TAG = "JoinTeamBottomSheet"
@@ -58,8 +58,6 @@ class JoinTeamBottomSheet(
         when (view?.id) {
             binds.btContinue.id -> {
                 val teamCode = binds.etCodeTeam.text.toString().trim().uppercase()
-                val userCode = binds.etCodeUser.text.toString().trim()
-
                 var hasError = false
                 val codeRegex = Regex("^[A-Z0-9]{6}$")
                 if (!codeRegex.matches(teamCode)) {
@@ -68,15 +66,9 @@ class JoinTeamBottomSheet(
                 } else {
                     binds.etCodeTeam.error = null
                 }
-                if (userCode.isBlank()) {
-                    binds.etCodeUser.error = "Enter your user code"
-                    hasError = true
-                } else {
-                    binds.etCodeUser.error = null
-                }
                 if (hasError) return
 
-                onSubmit(teamCode, userCode)
+                onSubmit(teamCode)
                 dismiss()
             }
 
