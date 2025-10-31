@@ -219,7 +219,7 @@
     <!-- Tab Text Appearance -->
     <style name="TabTextAppearance"
             parent="TextAppearance.MaterialComponents.Button">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">@font/variable_inter</item>
     </style>

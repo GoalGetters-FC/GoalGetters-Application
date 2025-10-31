@@ -1,49 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#161620">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:background="#161620">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_height="match_parent"
         android:layout_width="match_parent">
 
-        <!-- Header Section (matches teams tab) -->
-        <LinearLayout
-            android:orientation="vertical"
-            android:paddingTop="16dp"
-            android:paddingBottom="32dp"
-            android:paddingHorizontal="28dp"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent">
-
-            <TextView
-                android:id="@+id/tv_user_name_header"
-                android:text="User Account"
-                android:textColor="#FFFFFF"
-                android:textSize="24sp"
-                android:textFontWeight="600"
-                android:fontFamily="@font/variable_inter"
+        <com.ggetters.app.ui.shared.components.HomeViewHeaderWidget
+                android:id="@+id/widget_header"
+                tools:widget_heading="User Account"
+                tools:widget_message="User Account"
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent" />
-
-            <Space
-                android:layout_height="8dp"
-                android:layout_width="0dp" />
-
-            <TextView
-                android:id="@+id/tv_user_role_header"
-                android:text="Account Settings"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textFontWeight="500"
-                android:fontFamily="@font/variable_inter"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent" />
-
-        </LinearLayout>
+                android:layout_width="match_parent"/>
 
         <!-- Content Section (matches teams tab) -->
         <com.google.android.material.card.MaterialCardView
@@ -280,14 +253,15 @@
                     android:id="@+id/etDateOfBirth"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="YYYY-MM-DD"
+                    android:hint="DD/MM/YYYY"
                     android:inputType="date"
                     android:fontFamily="@font/variable_inter"
                     android:textColor="#161620"
                     android:textSize="16sp"
                     android:textColorHint="#999999"
                     android:background="@android:color/transparent"
-                    android:enabled="false" />
+                    android:focusable="false"
+                    android:clickable="true" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -305,6 +279,7 @@
 
         <!-- Position -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardPosition"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -551,6 +526,16 @@
                         android:textFontWeight="500"
                         android:fontFamily="@font/variable_inter"
                         android:layout_gravity="center_vertical" />
+
+                    <ImageButton
+                        android:id="@+id/btnShareTeamCode"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginStart="8dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_share"
+                        android:contentDescription="Share team code"
+                        android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

@@ -1,208 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="?attr/selectableItemBackground"
-    android:clickable="true"
-    android:focusable="true">
+    android:layout_marginBottom="16dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
 
-    <!-- Main notification row -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_container"
+        app:cardCornerRadius="16dp"
+        app:strokeWidth="0dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/white"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp">
+        android:layout_width="match_parent">
 
-        <!-- Left Side: Icon Placeholder -->
-        <FrameLayout
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginEnd="12dp">
-
-            <!-- Notification Icon -->
-            <ImageView
-                android:id="@+id/notificationIcon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_unicons_bell_24"
-                app:tint="@color/text_secondary"
-                android:visibility="visible" />
-
-            <!-- Unread Indicator -->
-            <View
-                android:id="@+id/unreadIndicator"
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:layout_gravity="center"
-                android:background="@drawable/unread_indicator"
-                android:visibility="gone" />
-
-        </FrameLayout>
-
-        <!-- Main Content Area -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:orientation="horizontal"
+            android:padding="20dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginEnd="12dp">
+            android:layout_width="match_parent">
 
-            <!-- Main Notification Text -->
-            <TextView
-                android:id="@+id/notificationText"
-                android:layout_width="match_parent"
+            <!-- Notification Icon Container -->
+            <FrameLayout
                 android:layout_height="wrap_content"
-                android:text="Don't forget to pack your shin guards for tomorrow!"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                android:fontFamily="@font/variable_inter"
-                android:lineSpacingExtra="2dp"
-                android:maxLines="3"
-                android:ellipsize="end" />
+                android:layout_width="wrap_content">
+                
+                <androidx.coordinatorlayout.widget.CoordinatorLayout
+                    android:background="@drawable/circle_background"
+                    android:backgroundTint="@color/primary_light"
+                    android:layout_height="56dp"
+                    android:layout_width="56dp">
 
-            <!-- Results Summary (for match results) -->
+                    <ImageView
+                        android:id="@+id/notificationIcon"
+                        android:src="@drawable/ic_unicons_bell_24"
+                        android:importantForAccessibility="no"
+                        app:tint="@color/primary"
+                        android:layout_gravity="center"
+                        android:layout_height="28dp"
+                        android:layout_width="28dp" />
+
+                </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+                <!-- Unread Indicator (modern pulsing dot) -->
+                <View
+                    android:id="@+id/unreadIndicator"
+                    android:background="@drawable/circle_background"
+                    android:backgroundTint="@color/primary"
+                    android:layout_marginBottom="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_height="12dp"
+                    android:layout_width="12dp"
+                    android:visibility="gone" />
+
+            </FrameLayout>
+
+            <Space
+                android:layout_height="0dp"
+                android:layout_width="20dp" />
+
+            <!-- Notification Content -->
             <LinearLayout
-                android:id="@+id/resultsSummary"
-                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp"
-                android:visibility="gone">
+                android:layout_width="0dp">
 
-                <!-- Home Score -->
+                <!-- Title Row -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="6dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:background="@drawable/result_home_background"
-                    android:padding="8dp"
-                    android:layout_marginEnd="4dp">
+                    android:layout_width="match_parent">
 
                     <TextView
-                        android:id="@+id/homeScore"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/notificationTitle"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="15"
-                        android:textColor="@color/black"
+                        android:layout_weight="1"
+                        android:text="New Practice Scheduled!"
+                        android:textColor="@color/text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold"
+                        android:ellipsize="end"
+                        android:maxLines="2"
                         android:fontFamily="@font/variable_inter" />
 
-                    <TextView
-                        android:id="@+id/homeLabel"
-                        android:layout_width="wrap_content"
+                    <Space
+                        android:layout_height="0dp"
+                        android:layout_width="12dp" />
+
+                    <!-- Notification Type Chip -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cv_type_chip"
+                        app:cardBackgroundColor="@color/surface_variant"
+                        app:cardCornerRadius="10dp"
+                        app:strokeWidth="0dp"
+                        app:cardElevation="0dp"
+                        app:contentPadding="2dp"
+                        app:contentPaddingRight="8dp"
+                        app:contentPaddingLeft="8dp"
+                        android:layout_gravity="center_vertical"
                         android:layout_height="wrap_content"
-                        android:text="Home"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/variable_inter" />
+                        android:layout_width="wrap_content">
 
+                        <TextView
+                            android:id="@+id/tv_type_chip"
+                            android:text="PRACTICE"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/variable_inter"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content" />
+                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
 
-                <!-- Away Score -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:background="@drawable/result_away_background"
-                    android:padding="8dp"
-                    android:layout_marginStart="4dp">
-
-                    <TextView
-                        android:id="@+id/awayScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="2"
-                        android:textColor="@color/black"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/variable_inter" />
-
-                    <TextView
-                        android:id="@+id/awayLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Away"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/variable_inter" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <!-- Scheduled Event (for games/practices) -->
-            <LinearLayout
-                android:id="@+id/scheduledEvent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/scheduled_event_background"
-                android:padding="8dp"
-                android:visibility="gone">
-
-                <!-- Event Icon -->
-                <ImageView
-                    android:id="@+id/eventIcon"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_unicons_calendar_24"
-                    app:tint="@color/text_secondary"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="8dp" />
-
-                <!-- Event Date/Time -->
+                <!-- Message Text -->
                 <TextView
-                    android:id="@+id/eventDateTime"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="12/06 21:00"
+                    android:id="@+id/notificationText"
+                    android:text="Don't forget to pack your shin guards for tomorrow's session. See you on the field!"
                     android:textColor="@color/text_secondary"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="2dp"
                     android:fontFamily="@font/variable_inter"
-                    android:layout_gravity="center_vertical" />
+                    android:maxLines="5"
+                    android:ellipsize="end"
+                    android:layout_marginBottom="8dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent" />
+
+                <!-- Timestamp -->
+                <TextView
+                    android:id="@+id/notificationTimestamp"
+                    android:text="2 days ago"
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/variable_inter"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content" />
 
             </LinearLayout>
 
+            <Space
+                android:layout_height="0dp"
+                android:layout_width="12dp" />
 
+            <!-- Action Menu -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cv_action_menu"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardBackgroundColor="@color/surface_elevated"
+                app:cardCornerRadius="12dp"
+                app:strokeWidth="0dp"
+                app:cardElevation="0dp"
+                android:layout_gravity="center_vertical"
+                android:layout_height="40dp"
+                android:layout_width="40dp">
 
-            <!-- Timestamp -->
-            <TextView
-                android:id="@+id/notificationTimestamp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="2 days ago"
-                android:textColor="@color/text_tertiary"
-                android:textSize="12sp"
-                android:fontFamily="@font/variable_inter"
-                android:layout_marginTop="6dp" />
+                <ImageView
+                    android:id="@+id/actionMenuButton"
+                    android:src="@drawable/ic_unicons_ellipsis_v"
+                    android:importantForAccessibility="no"
+                    app:tint="@color/text_secondary"
+                    android:layout_gravity="center"
+                    android:layout_height="20dp"
+                    android:layout_width="20dp" />
 
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
-
-        <!-- Right Side: Action Menu -->
-        <ImageButton
-            android:id="@+id/actionMenuButton"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_unicons_ellipsis_v"
-            app:tint="@color/text_secondary"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="More options" />
-
-    </LinearLayout>
-
-
-
-</LinearLayout> 
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

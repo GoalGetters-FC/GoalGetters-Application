@@ -79,21 +79,48 @@ class LineupPlayerGridAdapter(
             // Player position
             playerPosition.text = player.position
 
-            // Click listener
-            itemView.setOnClickListener {
-                onPlayerClick(player)
-            }
-
-            // Setup drag and drop for available players
-            setupDragAndDrop(player)
-
-            // Styling based on availability (could be used for visual feedback)
+            // Styling based on availability
             when (player.status) {
                 RSVPStatus.AVAILABLE -> {
+                    // Active player - full opacity, normal colors
                     itemView.alpha = 1.0f
+                    playerName.alpha = 1.0f
+                    playerPosition.alpha = 1.0f
+                    jerseyNumber.alpha = 1.0f
+                    playerAvatar.alpha = 1.0f
+                    
+                    // Click listener for available players
+                    itemView.setOnClickListener {
+                        onPlayerClick(player)
+                    }
+                    
+                    // Setup drag and drop for available players
+                    setupDragAndDrop(player)
+                }
+                RSVPStatus.UNAVAILABLE -> {
+                    // Substituted player - greyed out, reduced opacity
+                    itemView.alpha = 0.5f
+                    playerName.alpha = 0.6f
+                    playerPosition.alpha = 0.6f
+                    jerseyNumber.alpha = 0.6f
+                    playerAvatar.alpha = 0.4f
+                    
+                    // Disable click and drag for substituted players
+                    itemView.setOnClickListener(null)
+                    itemView.setOnLongClickListener(null)
                 }
                 else -> {
+                    // Other statuses - slightly dimmed
                     itemView.alpha = 0.7f
+                    playerName.alpha = 0.8f
+                    playerPosition.alpha = 0.8f
+                    jerseyNumber.alpha = 0.8f
+                    playerAvatar.alpha = 0.7f
+                    
+                    // Click listener for other statuses
+                    itemView.setOnClickListener {
+                        onPlayerClick(player)
+                    }
                 }
             }
         }

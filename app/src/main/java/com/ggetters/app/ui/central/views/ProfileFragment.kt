@@ -58,7 +58,6 @@ class ProfileFragment : Fragment() {
     // Settings items
     private lateinit var accountItem: View
     private lateinit var teamProfileItem: View
-    private lateinit var notificationsItem: View
     private lateinit var privacyPolicyItem: View
     private lateinit var contactDevelopersItem: View
     private lateinit var helpFaqItem: View
@@ -94,7 +93,6 @@ class ProfileFragment : Fragment() {
 
         accountItem = view.findViewById(R.id.accountItem)
         teamProfileItem = view.findViewById(R.id.teamProfileItem)
-        notificationsItem = view.findViewById(R.id.notificationsItem)
         privacyPolicyItem = view.findViewById(R.id.privacyPolicyItem)
         contactDevelopersItem = view.findViewById(R.id.contactDevelopersItem)
         helpFaqItem = view.findViewById(R.id.helpFaqItem)
@@ -126,7 +124,6 @@ class ProfileFragment : Fragment() {
 
         accountItem.setOnClickListener { showAccountSettings() }
         teamProfileItem.setOnClickListener { navigateToTeamProfile() }
-        notificationsItem.setOnClickListener { showNotificationSettings() }
         privacyPolicyItem.setOnClickListener { showPrivacyPolicy() }
         contactDevelopersItem.setOnClickListener { showContactDevelopers() }
         helpFaqItem.setOnClickListener { showHelpAndFAQ() }

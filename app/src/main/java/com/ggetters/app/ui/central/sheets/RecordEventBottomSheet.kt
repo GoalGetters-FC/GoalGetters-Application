@@ -260,10 +260,18 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
         }
 
         val details = mutableMapOf<String, Any>()
+        var playerNameOverride: String? = null
         
         when (eventType) {
             "goal" -> {
-                goalTypeSpinner.selectedItem?.toString()?.let { details["goalType"] = it }
+                val goalType = goalTypeSpinner.selectedItem?.toString()
+                details["goalType"] = goalType ?: "Open Play"
+                
+                // Check if it's an opponent goal
+                if (goalType == "Opponent Goal") {
+                    details["isOpponentGoal"] = true
+                    playerNameOverride = "Opponent"
+                }
             }
             "yellow_card", "red_card" -> {
                 cardTypeSpinner.selectedItem?.toString()?.let { details["cardType"] = it }
@@ -279,8 +287,8 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
                     // Store both IDs and names for proper display
                     details["substituteIn"] = subInPlayer.id
                     details["substituteOut"] = subOutPlayer.id
-                    details["playerIn"] = subInPlayer.getFullName()
-                    details["playerOut"] = subOutPlayer.getFullName()
+                    details["playerIn"] = subInPlayer.fullName()
+                    details["playerOut"] = subOutPlayer.fullName()
                 }
             }
         }
@@ -294,8 +302,8 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
             matchId = matchId,
             eventType = eventTypeEnum,
             minute = minute,
-            playerId = playerId,
-            playerName = viewModel.availablePlayers.value?.find { it.id == playerId }?.let { 
+            playerId = if (playerNameOverride == null) playerId else null,
+            playerName = playerNameOverride ?: viewModel.availablePlayers.value?.find { it.id == playerId }?.let { 
                 "${it.name} ${it.surname}" 
             },
             teamId = null, // TODO: Get from current team
@@ -326,10 +334,28 @@ class RecordEventBottomSheet : BottomSheetDialogFragment() {
     }
     
     private fun setupGoalTypeSpinner() {
-        val goalTypes = listOf("Open Play", "Penalty", "Free Kick", "Header", "Own Goal")
+        val goalTypes = listOf("Open Play", "Penalty", "Free Kick", "Header", "Own Goal", "Opponent Goal")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, goalTypes)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         goalTypeSpinner.adapter = adapter
+        
+        // Hide player selection when "Opponent Goal" is selected
+        goalTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedGoalType = goalTypes[position]
+                if (selectedGoalType == "Opponent Goal") {
+                    playerSelectionLayout.visibility = View.GONE
+                    // Clear player selection data when hiding
+                    playerSpinner.setSelection(0)
+                } else {
+                    playerSelectionLayout.visibility = View.VISIBLE
+                }
+            }
+            
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                playerSelectionLayout.visibility = View.VISIBLE
+            }
+        }
     }
     
     private fun setupCardTypeSpinner() {

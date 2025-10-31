@@ -3,6 +3,7 @@ package com.ggetters.app.ui.startup.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ggetters.app.core.utils.Clogger
+import com.ggetters.app.core.utils.CodeGenerationUtils
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.data.repository.team.TeamRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,7 +29,8 @@ import kotlinx.coroutines.launch
  */
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val teamRepository: TeamRepository
+    private val teamRepository: TeamRepository,
+    private val codeGenerationUtils: CodeGenerationUtils
 ) : ViewModel() {
 
     companion object {
@@ -68,7 +70,9 @@ class OnboardingViewModel @Inject constructor(
 
         _state.update { it.copy(isBusy = true, errorMessage = null) }
         runCatching {
-            val toCreate = Team(name = name) // ← ensure your Team has defaults for other fields
+            // Generate collision-safe team code
+            val teamCode = codeGenerationUtils.generateCollisionSafeTeamCode()
+            val toCreate = Team(name = name, code = teamCode)
             val created: Team = teamRepository.createTeam(toCreate)
             teamRepository.setActiveTeam(created)
             teamRepository.sync()
@@ -96,15 +100,15 @@ class OnboardingViewModel @Inject constructor(
      * The provided TeamRepository API does not accept userCode, so we ignore it here.
      * If you later extend the repo, thread userCode through accordingly.
      */
-    fun joinTeam(teamCode: String, userCode: String) = viewModelScope.launch {
+    fun joinTeam(teamCode: String) = viewModelScope.launch {
         val code = teamCode.trim()
         if (code.isBlank()) {
             _events.send(UiEvent.Toast("Team code is required."))
             return@launch
         }
-        // Accept UUID-style and other generated codes: 4-64 chars, alnum, underscore, hyphen
-        if (!code.matches(Regex("^[A-Za-z0-9_-]{4,64}$"))) {
-            _events.send(UiEvent.Toast("Invalid team code format."))
+        // Accept 6-digit alphanumeric codes (0-9, A-Z)
+        if (!code.matches(Regex("^[A-Z0-9]{6}$"))) {
+            _events.send(UiEvent.Toast("Team code must be 6 characters (letters and numbers only)."))
             return@launch
         }
 

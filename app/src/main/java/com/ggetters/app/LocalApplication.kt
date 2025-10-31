@@ -2,6 +2,7 @@ package com.ggetters.app
 
 import android.app.Application
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.ggetters.app.core.services.GlobalAuthenticationListener
@@ -19,50 +20,97 @@ import javax.inject.Inject
 
 @HiltAndroidApp
 class LocalApplication : Application(), Configuration.Provider {
+    companion object {
+        const val TAG = "LocalApplication"
+    }
+
+
+// --- Variables
+
 
     @Inject
     lateinit var devClass: DevClass
+
+
     @Inject
     lateinit var databaseMaintenance: DatabaseMaintenance
+
+
     @Inject
-    lateinit var workerFactory: HiltWorkerFactory
+    lateinit var hiltDiWorkerFactory: HiltWorkerFactory
 
 
     @Inject
     lateinit var authenticationListener: GlobalAuthenticationListener
 
-    // Provide WorkManager's configuration via property (no separate function needed)
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
+            .setWorkerFactory(hiltDiWorkerFactory)
             .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.VERBOSE else Log.INFO)
             .build()
 
+
+// --- Lifecycle
+
+
     override fun onCreate() {
         super.onCreate()
-        Clogger.i("DevClass", "Application started")
+        Clogger.i(
+            tag = TAG, message = """
+            |
+            |    
+            |       ____                   _    ____          _     _                        
+            |      / ___|   ___     __ _  | |  / ___|   ___  | |_  | |_    ___   _ __   ___  
+            |     | |  _   / _ \   / _` | | | | |  _   / _ \ | __| | __|  / _ \ | '__| / __| 
+            |     | |_| | | (_) | | (_| | | | | |_| | |  __/ | |_  | |_  |  __/ | |    \__ \ 
+            |      \____|  \___/   \__,_| |_|  \____|  \___|  \__|  \__|  \___| |_|    |___/
+            |                                                 Brought to you by BankBoosta's
+            |
+            |
+            """.trimIndent()
+        )
 
-        // Initialize Firebase
+        // Initialization
+
+        disableSystemThemeHooks()
+
+        initFirebase()
+        initAuthHook()
+        initDebugApp()
+    }
+
+
+// --- Internals
+
+
+    private fun disableSystemThemeHooks() =
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
+
+    private fun initFirebase() {
         FirebaseApp.initializeApp(this)
-
-        // Enable Firebase Performance Monitoring
         FirebasePerformance.getInstance().isPerformanceCollectionEnabled = !BuildConfig.DEBUG
-        Clogger.i("FirebasePerf", "Performance Monitoring enabled: ${!BuildConfig.DEBUG}")
+        Clogger.i(
+            TAG, "Firebase performance monitoring: ${!BuildConfig.DEBUG}"
+        )
+    }
 
-        authenticationListener.listen()
 
+    private fun initAuthHook() = authenticationListener.listen()
+
+
+    private fun initDebugApp() {
         if (BuildConfig.DEBUG) {
-            // schedule periodic + one-time kick
             SyncScheduler.schedule(this)
-            Clogger.i("DevClass", "SyncScheduler scheduled (DEBUG only)")
-
-            // clean legacy DB (once)
             databaseMaintenance.deleteLegacyDbIfNeeded()
-            Clogger.i("DevClass", "Legacy database deleted if it existed")
+            CoroutineScope(Dispatchers.IO).launch {
+                devClass.init()
+            }
 
-            // dev bootstrap
-            CoroutineScope(Dispatchers.IO).launch { devClass.init() }
-            Clogger.i("DevClass", "Dev data seeded (DEBUG only)")
+            Clogger.w(
+                TAG, "Seeded development data sets for DEBUG build"
+            )
         }
     }
 }

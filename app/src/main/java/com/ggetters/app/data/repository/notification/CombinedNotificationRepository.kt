@@ -15,12 +15,17 @@ class CombinedNotificationRepository @Inject constructor(
     private val offline: OfflineNotificationRepository,
     private val online: OnlineNotificationRepository,
     private val firebaseAuth: FirebaseAuth,
-    private val notificationFirestore: NotificationFirestore
+    private val notificationFirestore: NotificationFirestore,
+    private val userRepository: com.ggetters.app.data.repository.user.UserRepository
 ) : NotificationRepository {
 
     override fun all(): Flow<List<Notification>> {
-        val currentUserId = firebaseAuth.currentUser?.uid ?: return offline.all()
-        return getAllForUser(currentUserId)
+        Clogger.w("CombinedNotificationRepo", "all() not implemented - use getAllForTeam() instead")
+        return offline.all()
+    }
+    
+    override fun getAllForTeam(teamId: String): Flow<List<Notification>> {
+        return offline.getAllForTeam(teamId)
     }
 
     override suspend fun getById(id: String): Notification? {
@@ -58,23 +63,42 @@ class CombinedNotificationRepository @Inject constructor(
         val currentUserId = firebaseAuth.currentUser?.uid ?: return
         
         try {
-            // Pull notifications from online
-            val onlineNotifications = online.getAllForUser(currentUserId).first()
+            // Get current user's team ID
+            val user = userRepository.getLocalByAuthId(currentUserId)
+            val teamId = user?.teamId
             
-            // Store in offline
-            offline.deleteAll()
-            onlineNotifications.forEach { notification ->
+            // Pull notifications from online (both user and team)
+            val userNotifications = online.getAllForUser(currentUserId).first()
+            val teamNotifications = if (teamId != null) {
+                online.getAllForTeam(teamId).first()
+            } else {
+                emptyList()
+            }
+            
+            // Combine and deduplicate
+            val allOnlineNotifications = (userNotifications + teamNotifications)
+                .distinctBy { it.id }
+            
+            // Store in offline (don't delete all, just update)
+            allOnlineNotifications.forEach { notification ->
                 offline.upsert(notification)
             }
             
-            Clogger.d("CombinedNotificationRepo", "Synced ${onlineNotifications.size} notifications")
+            Clogger.d("CombinedNotificationRepo", "Synced ${allOnlineNotifications.size} notifications")
         } catch (e: Exception) {
             Clogger.e("CombinedNotificationRepo", "Failed to sync notifications", e)
         }
     }
 
     override fun getAllForUser(userId: String): Flow<List<Notification>> {
-        return offline.getAllForUser(userId)
+        Clogger.d("CombinedNotificationRepo", "Getting notifications for user: $userId")
+        return offline.getAllForUser(userId).map { notifications ->
+            Clogger.d("CombinedNotificationRepo", "Found ${notifications.size} notifications for user $userId")
+            notifications.forEach { notification ->
+                Clogger.d("CombinedNotificationRepo", "User notification: ${notification.title} - ${notification.message}")
+            }
+            notifications
+        }
     }
 
     override fun getUnreadForUser(userId: String): Flow<List<Notification>> {

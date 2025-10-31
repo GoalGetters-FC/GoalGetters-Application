@@ -7,17 +7,20 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ggetters.app.R
+import com.ggetters.app.core.extensions.kotlin.openBrowserTo
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.databinding.ActivityTeamViewerBinding
 import com.ggetters.app.ui.management.adapters.TeamViewerAccountAdapter
 import com.ggetters.app.ui.management.viewmodels.TeamViewerViewModel
-import com.ggetters.app.ui.shared.modals.CreateTeamBottomSheet
+import com.ggetters.app.ui.shared.modals.FormTeamBottomSheet
 import com.ggetters.app.ui.shared.modals.JoinTeamBottomSheet
 import com.ggetters.app.ui.shared.models.Clickable
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -62,7 +65,9 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         lifecycleScope.launch {
             model.busy.collectLatest { isBusy ->
                 //binds.progress?.visibility = if (isBusy) View.VISIBLE else View.GONE
-                if (isBusy) Toast.makeText(this@TeamViewerActivity, "Syncing...", Toast.LENGTH_SHORT).show()
+                if (isBusy) Toast.makeText(
+                    this@TeamViewerActivity, "Syncing...", Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -89,14 +94,11 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
             return
         }
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Leave ${team.name}?")
+        MaterialAlertDialogBuilder(this).setTitle("Leave ${team.name}?")
             .setMessage("Are you sure you want to leave this team? This may delete the team if you’re the last player or coach.")
-            .setNegativeButton("Cancel", null)
-            .setPositiveButton("Leave") { _, _ ->
+            .setNegativeButton("Cancel", null).setPositiveButton("Leave") { _, _ ->
                 model.leaveTeam(team, currentUserId)
-            }
-            .show()
+            }.show()
     }
 
     // --- Sheet callbacks ---
@@ -109,8 +111,8 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
         model.createTeamFromName(teamName, authId)
     }
 
-    private fun onJoinTeamSheetSubmitted(teamCode: String, userCode: String) {
-        model.joinByCode(teamCode, userCode)
+    private fun onJoinTeamSheetSubmitted(teamCode: String) {
+        model.joinByCode(teamCode)
     }
 
     // --- Touch listeners ---
@@ -125,12 +127,16 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
             Clogger.d(TAG, "Clicked menu-item: ${menuItem.itemId}")
             when (menuItem.itemId) {
                 R.id.nav_item_team_viewer_help -> {
-                    // TODO: Help/FAQ
+                    openBrowserTo("https://help.goalgettersfc.co.za/")
                 }
+
                 R.id.nav_item_team_viewer_code -> {
-                    JoinTeamBottomSheet(this::onJoinTeamSheetSubmitted)
-                        .show(supportFragmentManager, JoinTeamBottomSheet.TAG)
+                    JoinTeamBottomSheet(this::onJoinTeamSheetSubmitted).show(
+                            supportFragmentManager,
+                            JoinTeamBottomSheet.TAG
+                        )
                 }
+
                 else -> Clogger.w(TAG, "Unhandled menu click: ${menuItem.itemId}")
             }
             true
@@ -140,9 +146,12 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
     // --- Click handling ---
     override fun onClick(view: View?) = when (view?.id) {
         binds.fab.id -> {
-            CreateTeamBottomSheet(this::onFormTeamSheetSubmitted)
-                .show(supportFragmentManager, CreateTeamBottomSheet.TAG)
+            FormTeamBottomSheet(this::onFormTeamSheetSubmitted).show(
+                    supportFragmentManager,
+                    FormTeamBottomSheet.TAG
+                )
         }
+
         else -> {
             Clogger.w(TAG, "Unhandled click for: ${view?.id}")
         }
@@ -159,10 +168,13 @@ class TeamViewerActivity : AppCompatActivity(), Clickable {
 
         setSupportActionBar(binds.appBar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
+        binds.root.setBackgroundColor("#161620".toColorInt())
+        WindowCompat.getInsetsController(
+            window, window.decorView
+        ).isAppearanceLightStatusBars = false
         ViewCompat.setOnApplyWindowInsetsListener(binds.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
             insets
         }
     }

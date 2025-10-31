@@ -53,7 +53,7 @@ class OfflineUserRepository @Inject constructor(
     suspend fun getDirtyUsers(teamId: String) = dao.getDirtyUsers(teamId)
     suspend fun markClean(id: String, teamId: String) = dao.markClean(id, teamId)
 
-    override suspend fun getLocalByAuthId(authId: String): User? = null
+    override suspend fun getLocalByAuthId(authId: String): User? = dao.getByAuthId(authId)
     override suspend fun insertLocal(user: User) = dao.upsert(user)
     override suspend fun insertRemote(user: User) { /* no-op */ }
 }

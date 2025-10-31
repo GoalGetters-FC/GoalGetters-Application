@@ -147,7 +147,7 @@
                     android:id="@+id/etDateOfBirth"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Date of Birth (YYYY-MM-DD)"
+                    android:hint="Date of Birth (DD/MM/YYYY)"
                     android:inputType="date"
                     android:fontFamily="@font/variable_inter" />
 

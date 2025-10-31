@@ -17,7 +17,7 @@ class CalendarViewHolder(
 
     companion object {
         private const val TAG = "CalendarViewHolder"
-        private const val DEV_VERBOSE_LOGGER = true
+        private const val DEV_VERBOSE_LOGGER = false
     }
 
     fun bind(item: CalendarDayItem) {
@@ -55,7 +55,7 @@ class CalendarViewHolder(
 
             if (calendarDay.isCurrentMonth) {
                 binding.dayContainer.background = AppCompatResources.getDrawable(
-                    itemView.context, R.drawable.day_ripple_background
+                    itemView.context, R.drawable.calendar_day_ripple_background
                 )
             }
         }
@@ -64,17 +64,17 @@ class CalendarViewHolder(
     private fun renderEventBackground(calendarDay: CalendarDayItem) {
         when {
             calendarDay.isSelected -> {
-                binding.dayContainer.setBackgroundResource(R.drawable.selected_day_background)
-                binding.dayNumber.setTextColor(itemView.context.getColor(R.color.black))
+                binding.dayContainer.setBackgroundResource(R.drawable.calendar_day_selected_background)
+                binding.dayNumber.setTextColor(itemView.context.getColor(R.color.yellow))
                 binding.dayContainer.elevation = 4f
             }
             calendarDay.isToday -> {
-                binding.dayContainer.setBackgroundResource(R.drawable.today_background)
-                binding.dayNumber.setTextColor(itemView.context.getColor(R.color.black))
-                binding.dayContainer.elevation = 2f
+                binding.dayContainer.setBackgroundResource(R.drawable.calendar_day_today_background)
+                binding.dayNumber.setTextColor(itemView.context.getColor(R.color.yellow))
+                binding.dayContainer.elevation = 3f
             }
             calendarDay.isCurrentMonth -> {
-                binding.dayContainer.setBackgroundResource(R.drawable.day_background)
+                binding.dayContainer.setBackgroundResource(R.drawable.calendar_day_background)
                 binding.dayNumber.setTextColor(itemView.context.getColor(R.color.black))
                 binding.dayContainer.elevation = 0f
             }

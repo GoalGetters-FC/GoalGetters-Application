@@ -166,26 +166,37 @@ class MatchDetailsFragment : Fragment() {
     }
 
     private fun renderScore(details: MatchDetails) {
-        when (details.status) {
-            MatchStatus.SCHEDULED -> scoreCard.visibility = View.GONE
-            MatchStatus.IN_PROGRESS, MatchStatus.PAUSED, MatchStatus.HALF_TIME, MatchStatus.FULL_TIME -> {
-                scoreCard.visibility = View.VISIBLE
-                homeScoreText.text = details.homeScore.toString()
-                awayScoreText.text = details.awayScore.toString()
+        // Show score card if there are any goals recorded OR if match is in progress/finished
+        val hasScore = details.homeScore > 0 || details.awayScore > 0
+        val shouldShowScore = hasScore || details.status in listOf(
+            MatchStatus.IN_PROGRESS, 
+            MatchStatus.PAUSED, 
+            MatchStatus.HALF_TIME, 
+            MatchStatus.FULL_TIME
+        )
+        
+        if (shouldShowScore) {
+            scoreCard.visibility = View.VISIBLE
+            homeScoreText.text = details.homeScore.toString()
+            awayScoreText.text = details.awayScore.toString()
 
-                val bgColor = when {
-                    details.status == MatchStatus.FULL_TIME -> when {
-                        details.homeScore > details.awayScore ->
-                            ContextCompat.getColor(requireContext(), R.color.success_light)
-                        details.homeScore < details.awayScore ->
-                            ContextCompat.getColor(requireContext(), R.color.error_light)
-                        else -> ContextCompat.getColor(requireContext(), R.color.surface_container)
-                    }
-                    else -> ContextCompat.getColor(requireContext(), R.color.primary_light)
+            val bgColor = when {
+                details.status == MatchStatus.FULL_TIME -> when {
+                    details.homeScore > details.awayScore ->
+                        ContextCompat.getColor(requireContext(), R.color.success_light)
+                    details.homeScore < details.awayScore ->
+                        ContextCompat.getColor(requireContext(), R.color.error_light)
+                    else -> ContextCompat.getColor(requireContext(), R.color.surface_container)
                 }
-                scoreCard.setCardBackgroundColor(bgColor)
+                hasScore -> ContextCompat.getColor(requireContext(), R.color.primary_light)
+                else -> ContextCompat.getColor(requireContext(), R.color.surface_container)
             }
-            else -> scoreCard.visibility = View.GONE
+            scoreCard.setCardBackgroundColor(bgColor)
+        } else {
+            scoreCard.visibility = View.GONE
+            // Clear sensitive data when hiding
+            homeScoreText.text = ""
+            awayScoreText.text = ""
         }
     }
 

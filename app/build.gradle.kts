@@ -18,8 +18,8 @@ android {
         applicationId = "com.ggetters.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 14
-        versionName = "2025w42c"
+        versionCode = 15
+        versionName = "2025w42d (dev)"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -92,6 +92,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        dataBinding = true
         buildConfig = true
     }
 
@@ -142,6 +143,7 @@ dependencies {
     implementation(libs.lottie)
     implementation(libs.gson)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.browser)
 
     kapt(libs.androidx.room.compiler)
     kapt(libs.hilt.android.compiler)

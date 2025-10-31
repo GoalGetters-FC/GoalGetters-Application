@@ -6,6 +6,7 @@ import com.ggetters.app.data.model.MatchDetails
 import com.ggetters.app.data.model.MatchEvent
 import com.ggetters.app.data.model.RSVPStatus
 import com.ggetters.app.data.repository.match.MatchDetailsRepository
+import com.ggetters.app.core.services.StatisticsService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -23,7 +24,8 @@ import kotlinx.coroutines.launch
  */
 @HiltViewModel
 class MatchDetailsViewModel @Inject constructor(
-    private val matchRepo: MatchDetailsRepository
+    private val matchRepo: MatchDetailsRepository,
+    private val statisticsService: StatisticsService
 ) : ViewModel() {
 
     private val _matchDetails = MutableStateFlow<MatchDetails?>(null)
@@ -88,6 +90,9 @@ class MatchDetailsViewModel @Inject constructor(
                 // Add the event to the timeline
                 // Score will be automatically updated via the repository's matchDetailsFlow
                 matchRepo.addEvent(event)
+                
+                // Update player statistics in real-time
+                statisticsService.updateStatisticsFromMatchEvent(event)
                 
                 // Handle substitutions by updating lineup
                 if (event.eventType == com.ggetters.app.data.model.MatchEventType.SUBSTITUTION) {

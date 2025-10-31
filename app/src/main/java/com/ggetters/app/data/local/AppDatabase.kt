@@ -17,6 +17,7 @@ import com.ggetters.app.data.local.dao.EventDao
 import com.ggetters.app.data.local.dao.LineupDao
 import com.ggetters.app.data.local.dao.MatchEventDao
 import com.ggetters.app.data.local.dao.NotificationDao
+import com.ggetters.app.data.local.dao.PlayerStatisticsDao
 import com.ggetters.app.data.local.dao.TeamDao
 import com.ggetters.app.data.local.dao.UserDao
 import com.ggetters.app.data.model.Attendance
@@ -26,6 +27,7 @@ import com.ggetters.app.data.model.Event
 import com.ggetters.app.data.model.Lineup
 import com.ggetters.app.data.model.Notification
 import com.ggetters.app.data.model.PerformanceLog
+import com.ggetters.app.data.model.PlayerStatistics
 import com.ggetters.app.data.model.Team
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.local.entity.MatchEventEntity
@@ -37,6 +39,9 @@ import com.ggetters.app.data.local.migrations.MIGRATION_5_6
 import com.ggetters.app.data.local.migrations.MIGRATION_6_7
 import com.ggetters.app.data.local.migrations.MIGRATION_7_8
 import com.ggetters.app.data.local.migrations.MIGRATION_8_9
+import com.ggetters.app.data.local.migrations.MIGRATION_9_10
+import com.ggetters.app.data.local.migrations.MIGRATION_10_11
+import com.ggetters.app.data.local.migrations.MIGRATION_11_12
 
 /**
  * Fresh baseline schema (v1). No migrations registered.
@@ -52,9 +57,10 @@ import com.ggetters.app.data.local.migrations.MIGRATION_8_9
         Lineup::class,
         Notification::class,
         PerformanceLog::class,
-        MatchEventEntity::class
+        MatchEventEntity::class,
+        PlayerStatistics::class
     ],
-    version = 9,
+    version = 12,
     exportSchema = true
 )
 @TypeConverters(
@@ -74,6 +80,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun lineupDao(): LineupDao
     abstract fun notificationDao(): NotificationDao
     abstract fun matchEventDao(): MatchEventDao
+    abstract fun playerStatisticsDao(): PlayerStatisticsDao
 
     companion object {
         @Volatile
@@ -87,15 +94,9 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance =
                     Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, DATABASE_NAME)
                         .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
-                            MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9
+                            MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11,
+                            MIGRATION_11_12
                         )
-                        .apply {
-                            if (BuildConfig.DEBUG) {
-                                // Dev safety nets; keep if you like
-                                fallbackToDestructiveMigration(true)
-                                fallbackToDestructiveMigrationOnDowngrade(true)
-                            }
-                        }
                         .build()
                 INSTANCE = instance
                 instance

@@ -146,6 +146,38 @@ class NotificationFirestore @Inject constructor(
 
         awaitClose { listener.remove() }
     }
+    
+    /**
+     * Observe notifications for a specific team
+     */
+    fun observeForTeam(teamId: String): Flow<List<Notification>> = callbackFlow {
+        val listener = firestore.collection(COLLECTION_TEAMS)
+            .document(teamId)
+            .collection(COLLECTION_NOTIFICATIONS)
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Clogger.e(TAG, "Error observing notifications for team $teamId", error)
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val notifications = snapshot.documents.mapNotNull { doc ->
+                        try {
+                            val notification = doc.toObject(Notification::class.java)
+                            notification?.copy(id = doc.id)
+                        } catch (e: Exception) {
+                            Clogger.e(TAG, "Error parsing notification document ${doc.id}", e)
+                            null
+                        }
+                    }
+                    trySend(notifications)
+                }
+            }
+
+        awaitClose { listener.remove() }
+    }
 
     /**
      * Mark notification as seen

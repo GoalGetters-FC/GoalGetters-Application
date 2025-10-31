@@ -16,7 +16,10 @@ object RosterMapper {
     ): List<RosterPlayer> {
         val spots = lineup?.spots ?: emptyList()
 
-        return users.map { user ->
+        // Filter out coaches - only include players
+        val playersOnly = users.filter { it.role != UserRole.COACH }
+
+        return playersOnly.map { user ->
             val rsvp = attendances.find { it.playerId == user.id }
             val spot = spots.find { it.userId == user.id }
             

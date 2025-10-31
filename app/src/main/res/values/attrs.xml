@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="HomeViewHeaderWidget">
+        <attr name="widget_heading"
+                format="string" />
+        <attr name="widget_message"
+                format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="OptionCardWidget">
+        <attr name="widget_text"
+                format="string" />
+        <attr name="widget_icon"
+                format="reference" />
+    </declare-styleable>
+</resources>
