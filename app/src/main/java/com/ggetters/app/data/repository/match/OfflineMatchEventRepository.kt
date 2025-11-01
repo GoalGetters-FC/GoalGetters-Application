@@ -35,6 +35,13 @@ class OfflineMatchEventRepository @Inject constructor(
         matchEventDao.insert(MatchEventEntity.fromDomainModel(event))
     }
     
+    suspend fun replaceEventsForMatch(matchId: String, events: List<MatchEvent>) {
+        matchEventDao.deleteEventsByMatchId(matchId)
+        if (events.isNotEmpty()) {
+            matchEventDao.insertAll(events.map { MatchEventEntity.fromDomainModel(it) })
+        }
+    }
+
     override suspend fun updateEvent(event: MatchEvent) {
         matchEventDao.update(MatchEventEntity.fromDomainModel(event))
     }

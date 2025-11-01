@@ -228,9 +228,6 @@ class LineupFragment : Fragment() {
                 "4-2-3-1" -> setup4231Formation()
                 "5-3-2" -> setup532Formation()
             }
-        } else if (availablePlayers.isEmpty()) {
-            // Clear the pitch if no players are available
-            pitchView.setPlayers(emptyMap())
         }
     }
     

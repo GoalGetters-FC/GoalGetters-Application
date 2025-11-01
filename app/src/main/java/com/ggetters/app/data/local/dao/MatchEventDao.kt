@@ -23,6 +23,9 @@ interface MatchEventDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(event: MatchEventEntity)
     
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(events: List<MatchEventEntity>)
+
     @Update
     suspend fun update(event: MatchEventEntity)
     

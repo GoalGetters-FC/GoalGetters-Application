@@ -26,6 +26,13 @@ class OfflineLineupRepository @Inject constructor(
         dao.delete(entity)
     }
 
+    suspend fun replaceForEvent(eventId: String, lineups: List<Lineup>) {
+        dao.deleteByEventId(eventId)
+        if (lineups.isNotEmpty()) {
+            dao.insertAll(lineups)
+        }
+    }
+
     override suspend fun deleteAll() {
         runBlocking {
             dao.deleteAll()

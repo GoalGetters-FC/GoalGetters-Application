@@ -41,9 +41,8 @@ class OnlineLineupRepository @Inject constructor(
         }
     }
 
-    override fun getByEventId(eventId: String): Flow<List<Lineup>> = flow {
-        emit(firestore.getByEventId(eventId))
-    }
+    override fun getByEventId(eventId: String): Flow<List<Lineup>> =
+        firestore.observeByEventId(eventId)
 
     override fun hydrateForTeam(id: String) {
         TODO("Not yet implemented")

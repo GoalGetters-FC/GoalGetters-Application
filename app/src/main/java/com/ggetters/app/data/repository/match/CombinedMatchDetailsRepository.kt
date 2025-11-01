@@ -238,8 +238,8 @@ class CombinedMatchDetailsRepository @Inject constructor(
         forEach { attendance ->
             when (attendance.status) {
                 0 -> available++
-                1 -> maybe++
-                2 -> unavailable++
+                1 -> unavailable++
+                2 -> maybe++
                 else -> notResponded++
             }
         }

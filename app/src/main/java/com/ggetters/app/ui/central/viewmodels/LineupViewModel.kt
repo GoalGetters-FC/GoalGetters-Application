@@ -12,6 +12,9 @@ import com.ggetters.app.data.repository.lineup.LineupRepository
 import com.ggetters.app.data.repository.user.UserRepository
 import com.ggetters.app.ui.shared.extensions.getFullName
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.Instant
+import java.util.UUID
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,12 +48,18 @@ class LineupViewModel @Inject constructor(
     // Backing caches
     private var cachedEventId: String = ""
     private var cachedTeamUsers = emptyList<com.ggetters.app.data.model.User>()
+    private var cachedAttendanceByPlayer: Map<String, Attendance> = emptyMap()
+    private var cachedLineupId: String? = null
+    private var cachedLineupCreatedAt: Instant? = null
+    private var cachedLineupCreatedBy: String? = null
+    private var lineupJob: Job? = null
 
     fun loadLineup(eventId: String) {
+        cachedEventId = eventId
+        lineupJob?.cancel()
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                cachedEventId = eventId
 
                 // 1) Pull team users
                 cachedTeamUsers = userRepo.all().first()
@@ -58,6 +67,7 @@ class LineupViewModel @Inject constructor(
                 // 2) Pull attendance rows for this event
                 val attendanceRows = attendanceRepo.getByEventId(eventId).first()
                 val byPlayer = attendanceRows.associateBy { it.playerId }
+                cachedAttendanceByPlayer = byPlayer
 
                 // 3) Merge → roster players
                 _players.value = cachedTeamUsers.map { u ->
@@ -73,29 +83,50 @@ class LineupViewModel @Inject constructor(
                     )
                 }
 
-                // Load saved lineup if it exists
-                val savedLineups = lineupRepo.getByEventId(eventId).first()
-                val savedLineup = savedLineups.firstOrNull()
-                if (savedLineup != null) {
-                    _formation.value = savedLineup.formation
-                    _positionedPlayers.value = savedLineup.spots.associate { spot ->
-                        val player = cachedTeamUsers.find { it.id == spot.userId }
-                        if (player != null) {
-                            val rsvp = byPlayer[player.id]
-                            val status = rsvpFromInt(rsvp?.status ?: 3)
-                            val rosterPlayer = RosterPlayer(
-                                playerId = player.id,
-                                playerName = player.getFullName(),
-                                jerseyNumber = spot.number,
-                                position = spot.position,
-                                status = status,
-                                profileImageUrl = null
-                            )
-                            spot.position to rosterPlayer
-                        } else {
-                            spot.position to null
+                lineupJob = viewModelScope.launch {
+                    lineupRepo.getByEventId(eventId).collect { savedLineups ->
+                        val savedLineup = savedLineups.firstOrNull()
+
+                        if (savedLineup == null) {
+                            cachedLineupId = null
+                            cachedLineupCreatedAt = null
+                            cachedLineupCreatedBy = null
+                            return@collect
                         }
-                    }.filterValues { it != null } as Map<String, RosterPlayer>
+
+                        cachedLineupId = savedLineup.id
+                        cachedLineupCreatedAt = savedLineup.createdAt
+                        cachedLineupCreatedBy = savedLineup.createdBy
+
+                        if (_formation.value != savedLineup.formation) {
+                            _formation.value = savedLineup.formation
+                        }
+
+                        val mapped = mutableMapOf<String, RosterPlayer?>()
+                        savedLineup.spots.forEach { spot ->
+                            val player = cachedTeamUsers.find { it.id == spot.userId }
+                            if (player != null) {
+                                val attendance = cachedAttendanceByPlayer[player.id]
+                                val status = rsvpFromInt(attendance?.status ?: 3)
+                                mapped[spot.position] = RosterPlayer(
+                                    playerId = player.id,
+                                    playerName = player.getFullName(),
+                                    jerseyNumber = spot.number,
+                                    position = spot.position,
+                                    status = status,
+                                    profileImageUrl = null,
+                                    lineupRole = spot.role,
+                                    lineupPosition = spot.position
+                                )
+                            } else {
+                                mapped[spot.position] = null
+                            }
+                        }
+
+                        if (_positionedPlayers.value != mapped) {
+                            _positionedPlayers.value = mapped
+                        }
+                    }
                 }
 
             } catch (e: Exception) {
@@ -165,6 +196,7 @@ class LineupViewModel @Inject constructor(
                         recordedBy = "system"
                     )
                     attendanceRepo.upsert(row)
+                    cachedAttendanceByPlayer = cachedAttendanceByPlayer + (pid to row)
                 }
                 // Refresh roster after adding
                 loadLineup(eventId)
@@ -196,15 +228,25 @@ class LineupViewModel @Inject constructor(
                     }
                 }
                 
+                val lineupId = cachedLineupId ?: UUID.randomUUID().toString()
+                val createdAt = cachedLineupCreatedAt ?: Instant.now()
+                val creator = cachedLineupCreatedBy ?: "current_user"
+
                 // Create or update lineup
                 val lineup = com.ggetters.app.data.model.Lineup(
+                    id = lineupId,
+                    createdAt = createdAt,
+                    updatedAt = Instant.now(),
                     eventId = eventId,
+                    createdBy = creator,
                     formation = _formation.value,
-                    spots = spots,
-                    createdBy = "current_user" // TODO: Get from auth
+                    spots = spots
                 )
                 
                 lineupRepo.upsert(lineup)
+                cachedLineupId = lineup.id
+                cachedLineupCreatedAt = lineup.createdAt
+                cachedLineupCreatedBy = lineup.createdBy
             } catch (e: Exception) {
                 _error.value = "Failed to save lineup: ${e.message}"
             } finally {
@@ -230,8 +272,8 @@ class LineupViewModel @Inject constructor(
 
     private fun rsvpFromInt(v: Int): RSVPStatus = when (v) {
         0 -> RSVPStatus.AVAILABLE
-        1 -> RSVPStatus.MAYBE
-        2 -> RSVPStatus.UNAVAILABLE
+        1 -> RSVPStatus.UNAVAILABLE
+        2 -> RSVPStatus.MAYBE
         else -> RSVPStatus.NOT_RESPONDED
     }
 

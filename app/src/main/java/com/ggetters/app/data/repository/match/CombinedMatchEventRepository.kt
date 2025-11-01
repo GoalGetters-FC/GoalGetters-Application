@@ -1,10 +1,12 @@
 package com.ggetters.app.data.repository.match
 
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.MatchEvent
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,45 +20,57 @@ class CombinedMatchEventRepository @Inject constructor(
     private val online: OnlineMatchEventRepository
 ) : MatchEventRepository {
     
-    override fun getEventsByMatchId(matchId: String): Flow<List<MatchEvent>> {
-        return combine(
-            offline.getEventsByMatchId(matchId),
-            online.getEventsByMatchId(matchId)
-        ) { offlineEvents, onlineEvents ->
-            // Merge and deduplicate events by ID, preferring online data for conflicts
-            val offlineMap = offlineEvents.associateBy { it.id }
-            val onlineMap = onlineEvents.associateBy { it.id }
-            
-            // Combine unique events, with online taking precedence
-            val allEvents = (offlineMap + onlineMap).values.toList()
-            
-            // Sort by minute (newest first), then by timestamp
-            allEvents.sortedWith(
-                compareByDescending<MatchEvent> { it.minute }
-                    .thenByDescending { it.timestamp }
-            )
-        }.distinctUntilChanged()
-    }
-    
-    override fun getEventsByMatchIdAndType(matchId: String, eventType: String): Flow<List<MatchEvent>> {
-        return combine(
-            offline.getEventsByMatchIdAndType(matchId, eventType),
-            online.getEventsByMatchIdAndType(matchId, eventType)
-        ) { offlineEvents, onlineEvents ->
-            // Merge and deduplicate events by ID, preferring online data for conflicts
-            val offlineMap = offlineEvents.associateBy { it.id }
-            val onlineMap = onlineEvents.associateBy { it.id }
-            
-            // Combine unique events, with online taking precedence
-            val allEvents = (offlineMap + onlineMap).values.toList()
-            
-            // Sort by minute (newest first), then by timestamp
-            allEvents.sortedWith(
-                compareByDescending<MatchEvent> { it.minute }
-                    .thenByDescending { it.timestamp }
-            )
-        }.distinctUntilChanged()
-    }
+    override fun getEventsByMatchId(matchId: String): Flow<List<MatchEvent>> = channelFlow {
+        val offlineJob = launch {
+            offline.getEventsByMatchId(matchId).collect { events ->
+                send(events)
+            }
+        }
+
+        val remoteJob = launch {
+            online.getEventsByMatchId(matchId).collect { remoteEvents ->
+                runCatching { offline.replaceEventsForMatch(matchId, remoteEvents) }
+                    .onFailure {
+                        Clogger.e(
+                            "CombinedMatchEventRepository",
+                            "Failed to persist remote events for match=$matchId: ${it.message}",
+                            it
+                        )
+                    }
+            }
+        }
+
+        awaitClose {
+            offlineJob.cancel()
+            remoteJob.cancel()
+        }
+    }.distinctUntilChanged()
+
+    override fun getEventsByMatchIdAndType(matchId: String, eventType: String): Flow<List<MatchEvent>> = channelFlow {
+        val offlineJob = launch {
+            offline.getEventsByMatchIdAndType(matchId, eventType).collect { events ->
+                send(events)
+            }
+        }
+
+        val remoteJob = launch {
+            online.getEventsByMatchId(matchId).collect { remoteEvents ->
+                runCatching { offline.replaceEventsForMatch(matchId, remoteEvents) }
+                    .onFailure {
+                        Clogger.e(
+                            "CombinedMatchEventRepository",
+                            "Failed to persist filtered remote events for match=$matchId: ${it.message}",
+                            it
+                        )
+                    }
+            }
+        }
+
+        awaitClose {
+            offlineJob.cancel()
+            remoteJob.cancel()
+        }
+    }.distinctUntilChanged()
     
     override suspend fun getEventById(eventId: String): MatchEvent? {
         // Try offline first for speed, then online

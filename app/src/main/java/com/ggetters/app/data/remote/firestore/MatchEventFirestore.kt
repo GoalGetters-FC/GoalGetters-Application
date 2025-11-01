@@ -4,8 +4,9 @@ import com.ggetters.app.data.model.MatchEvent
 import com.ggetters.app.data.model.MatchEventType
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,48 +22,50 @@ class MatchEventFirestore @Inject constructor(
     
     private val collection = firestore.collection("match_events")
     
-    fun getEventsByMatchId(matchId: String): Flow<List<MatchEvent>> = flow {
-        try {
-            val snapshot = collection
-                .whereEqualTo("matchId", matchId)
-                .orderBy("minute", Query.Direction.DESCENDING)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .get()
-                .await()
-            
-            val events = snapshot.documents.mapNotNull { doc ->
-                try {
-                    doc.toObject(MatchEvent::class.java)?.copy(id = doc.id)
-                } catch (e: Exception) {
-                    null
+    fun getEventsByMatchId(matchId: String): Flow<List<MatchEvent>> = callbackFlow {
+        val listenerRegistration = collection
+            .whereEqualTo("matchId", matchId)
+            .orderBy("minute", Query.Direction.DESCENDING)
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    trySend(emptyList())
+                    return@addSnapshotListener
                 }
+
+                val events = snapshot?.documents.orEmpty().mapNotNull { doc ->
+                    runCatching {
+                        doc.toObject(MatchEvent::class.java)?.copy(id = doc.id)
+                    }.getOrNull()
+                }
+
+                trySend(events)
             }
-            emit(events)
-        } catch (e: Exception) {
-            emit(emptyList())
-        }
+
+        awaitClose { listenerRegistration.remove() }
     }
     
-    fun getEventsByMatchIdAndType(matchId: String, eventType: String): Flow<List<MatchEvent>> = flow {
-        try {
-            val snapshot = collection
-                .whereEqualTo("matchId", matchId)
-                .whereEqualTo("eventType", eventType)
-                .orderBy("minute", Query.Direction.DESCENDING)
-                .get()
-                .await()
-            
-            val events = snapshot.documents.mapNotNull { doc ->
-                try {
-                    doc.toObject(MatchEvent::class.java)?.copy(id = doc.id)
-                } catch (e: Exception) {
-                    null
+    fun getEventsByMatchIdAndType(matchId: String, eventType: String): Flow<List<MatchEvent>> = callbackFlow {
+        val listenerRegistration = collection
+            .whereEqualTo("matchId", matchId)
+            .whereEqualTo("eventType", eventType)
+            .orderBy("minute", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    trySend(emptyList())
+                    return@addSnapshotListener
                 }
+
+                val events = snapshot?.documents.orEmpty().mapNotNull { doc ->
+                    runCatching {
+                        doc.toObject(MatchEvent::class.java)?.copy(id = doc.id)
+                    }.getOrNull()
+                }
+
+                trySend(events)
             }
-            emit(events)
-        } catch (e: Exception) {
-            emit(emptyList())
-        }
+
+        awaitClose { listenerRegistration.remove() }
     }
     
     suspend fun getEventById(eventId: String): MatchEvent? {

@@ -1,8 +1,13 @@
 package com.ggetters.app.data.repository.lineup
 
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.Lineup
 import com.google.firebase.perf.FirebasePerformance
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class CombinedLineupRepository @Inject constructor(
@@ -48,8 +53,31 @@ class CombinedLineupRepository @Inject constructor(
         }
     }
 
-    override fun getByEventId(eventId: String): Flow<List<Lineup>> =
-        offline.getByEventId(eventId)
+    override fun getByEventId(eventId: String): Flow<List<Lineup>> = channelFlow {
+        val offlineJob = launch {
+            offline.getByEventId(eventId).collect { lineups ->
+                send(lineups)
+            }
+        }
+
+        val remoteJob = launch {
+            online.getByEventId(eventId).collect { remoteLineups ->
+                runCatching { offline.replaceForEvent(eventId, remoteLineups) }
+                    .onFailure {
+                        Clogger.e(
+                            "CombinedLineupRepository",
+                            "Failed to persist remote lineup for event=$eventId: ${it.message}",
+                            it
+                        )
+                    }
+            }
+        }
+
+        awaitClose {
+            offlineJob.cancel()
+            remoteJob.cancel()
+        }
+    }.distinctUntilChanged()
 
     override fun hydrateForTeam(id: String) {
         // TODO: implement if you want cross-layer hydration
