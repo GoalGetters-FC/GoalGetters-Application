@@ -11,6 +11,15 @@ class LineupSpotConverter {
         Gson().toJson(spots)
 
     @TypeConverter
-    fun toList(json: String): List<LineupSpot> =
-        Gson().fromJson(json, object : TypeToken<List<LineupSpot>>() {}.type)
+    fun toList(json: String?): List<LineupSpot> {
+        if (json.isNullOrBlank()) {
+            return emptyList()
+        }
+        return try {
+            Gson().fromJson(json, object : TypeToken<List<LineupSpot>>() {}.type)
+                ?: emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 }

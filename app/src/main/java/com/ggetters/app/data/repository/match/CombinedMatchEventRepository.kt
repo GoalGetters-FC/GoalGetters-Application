@@ -6,7 +6,10 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlin.comparisons.compareByDescending
+import kotlin.comparisons.thenByDescending
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,14 +32,73 @@ class CombinedMatchEventRepository @Inject constructor(
 
         val remoteJob = launch {
             online.getEventsByMatchId(matchId).collect { remoteEvents ->
-                runCatching { offline.replaceEventsForMatch(matchId, remoteEvents) }
-                    .onFailure {
-                        Clogger.e(
-                            "CombinedMatchEventRepository",
-                            "Failed to persist remote events for match=$matchId: ${it.message}",
-                            it
-                        )
+                runCatching {
+                    val localEvents = offline.getEventsByMatchId(matchId).first()
+                    
+                    when {
+                        // Remote is empty
+                        remoteEvents.isEmpty() -> {
+                            if (localEvents.isEmpty()) {
+                                // Both are empty, nothing to do
+                                Clogger.d("CombinedMatchEventRepository", "No events for match=$matchId")
+                            } else {
+                                // Remote is empty but local has events - preserve local data
+                                // This happens when local events haven't synced yet or sync failed
+                                Clogger.w(
+                                    "CombinedMatchEventRepository",
+                                    "Remote events empty for match=$matchId; preserving ${localEvents.size} local events (likely unsynced)"
+                                )
+                                // DO NOT delete local events - they may contain unsaved changes
+                            }
+                        }
+                        // Remote has events - merge intelligently instead of blind replacement
+                        else -> {
+                            val normalized = remoteEvents.sortedWith(
+                                compareByDescending<MatchEvent> { it.minute }
+                                    .thenByDescending { it.timestamp }
+                            )
+                            val latestRemote = normalized.firstOrNull()
+                            
+                            // Only replace if:
+                            // 1. Local is empty, OR
+                            // 2. Remote events are newer (based on timestamp)
+                            val shouldReplace = when {
+                                localEvents.isEmpty() -> {
+                                    Clogger.d("CombinedMatchEventRepository", "Local empty, replacing with remote for match=$matchId")
+                                    true
+                                }
+                                latestRemote != null -> {
+                                    val latestLocal = localEvents.maxByOrNull { it.timestamp }
+                                    val remoteIsNewer = latestLocal == null || 
+                                        latestRemote.timestamp > latestLocal.timestamp
+                                    if (remoteIsNewer) {
+                                        Clogger.d("CombinedMatchEventRepository", "Remote events newer, replacing local for match=$matchId")
+                                    } else {
+                                        Clogger.w(
+                                            "CombinedMatchEventRepository",
+                                            "Local events newer than remote for match=$matchId; preserving local to prevent data loss"
+                                        )
+                                    }
+                                    remoteIsNewer
+                                }
+                                else -> false
+                            }
+                            
+                            if (shouldReplace) {
+                                offline.replaceEventsForMatch(matchId, normalized)
+                            } else {
+                                // Keep local events and try to sync them online
+                                Clogger.d("CombinedMatchEventRepository", "Keeping local events for match=$matchId (newer or has unsynced changes)")
+                            }
+                        }
                     }
+                }.onFailure {
+                    Clogger.e(
+                        "CombinedMatchEventRepository",
+                        "Failed to process remote events for match=$matchId: ${it.message}",
+                        it
+                    )
+                }
             }
         }
 
@@ -55,14 +117,73 @@ class CombinedMatchEventRepository @Inject constructor(
 
         val remoteJob = launch {
             online.getEventsByMatchId(matchId).collect { remoteEvents ->
-                runCatching { offline.replaceEventsForMatch(matchId, remoteEvents) }
-                    .onFailure {
-                        Clogger.e(
-                            "CombinedMatchEventRepository",
-                            "Failed to persist filtered remote events for match=$matchId: ${it.message}",
-                            it
-                        )
+                // Filter remote events by type
+                val filteredRemote = remoteEvents.filter { it.eventType.name.equals(eventType, ignoreCase = true) }
+                
+                runCatching {
+                    val localEvents = offline.getEventsByMatchIdAndType(matchId, eventType).first()
+                    
+                    when {
+                        // Remote is empty
+                        filteredRemote.isEmpty() -> {
+                            if (localEvents.isEmpty()) {
+                                Clogger.d("CombinedMatchEventRepository", "No $eventType events for match=$matchId")
+                            } else {
+                                Clogger.w(
+                                    "CombinedMatchEventRepository",
+                                    "Remote $eventType events empty for match=$matchId; preserving ${localEvents.size} local events"
+                                )
+                            }
+                        }
+                        // Remote has events - merge intelligently
+                        else -> {
+                            val normalized = filteredRemote.sortedWith(
+                                compareByDescending<MatchEvent> { it.minute }
+                                    .thenByDescending { it.timestamp }
+                            )
+                            val latestRemote = normalized.firstOrNull()
+                            
+                            val shouldReplace = when {
+                                localEvents.isEmpty() -> {
+                                    Clogger.d("CombinedMatchEventRepository", "Local $eventType empty, replacing with remote for match=$matchId")
+                                    true
+                                }
+                                latestRemote != null -> {
+                                    val latestLocal = localEvents.maxByOrNull { it.timestamp }
+                                    val remoteIsNewer = latestLocal == null || 
+                                        latestRemote.timestamp > latestLocal.timestamp
+                                    if (remoteIsNewer) {
+                                        Clogger.d("CombinedMatchEventRepository", "Remote $eventType events newer, replacing local for match=$matchId")
+                                    } else {
+                                        Clogger.w(
+                                            "CombinedMatchEventRepository",
+                                            "Local $eventType events newer than remote for match=$matchId; preserving local"
+                                        )
+                                    }
+                                    remoteIsNewer
+                                }
+                                else -> false
+                            }
+                            
+                            if (shouldReplace) {
+                                // Replace all events (not just filtered type) to maintain consistency
+                                val allRemoteEvents = remoteEvents.sortedWith(
+                                    compareByDescending<MatchEvent> { it.minute }
+                                        .thenByDescending { it.timestamp }
+                                )
+                                offline.replaceEventsForMatch(matchId, allRemoteEvents)
+                            } else {
+                                Clogger.d("CombinedMatchEventRepository", "Keeping local $eventType events for match=$matchId")
+                            }
+                        }
                     }
+                }.onFailure {
+                    Clogger.e(
+                        "CombinedMatchEventRepository",
+                        "Failed to process filtered remote events for match=$matchId: ${it.message}",
+                        it
+                    )
+                }
             }
         }
 
@@ -78,62 +199,69 @@ class CombinedMatchEventRepository @Inject constructor(
     }
     
     override suspend fun insertEvent(event: MatchEvent) {
-        try {
-            // Insert to both offline and online
-            offline.insertEvent(event)
+        // Always save to offline first for persistence
+        offline.insertEvent(event)
+        
+        // Try to save online, but don't fail if it doesn't work
+        // Offline save already succeeded, so data is persisted
+        runCatching {
             online.insertEvent(event)
-        } catch (e: Exception) {
-            // If online fails, still keep offline copy
-            offline.insertEvent(event)
-            throw Exception("Failed to sync event online: ${e.message}")
+            Clogger.d("CombinedMatchEventRepository", "Match event saved to both offline and online: ${event.id}")
+        }.onFailure { e ->
+            Clogger.w("CombinedMatchEventRepository", "Match event saved offline but online sync failed (will retry on next sync): ${e.message}")
+            // Data is still persisted locally, so this is not a critical failure
         }
     }
     
     override suspend fun updateEvent(event: MatchEvent) {
-        try {
-            // Update both offline and online
-            offline.updateEvent(event)
+        // Always update offline first for persistence
+        offline.updateEvent(event)
+        
+        // Try to update online, but don't fail if it doesn't work
+        runCatching {
             online.updateEvent(event)
-        } catch (e: Exception) {
-            // If online fails, still update offline copy
-            offline.updateEvent(event)
-            throw Exception("Failed to sync event update online: ${e.message}")
+            Clogger.d("CombinedMatchEventRepository", "Match event updated in both offline and online: ${event.id}")
+        }.onFailure { e ->
+            Clogger.w("CombinedMatchEventRepository", "Match event updated offline but online sync failed (will retry on next sync): ${e.message}")
         }
     }
     
     override suspend fun deleteEvent(event: MatchEvent) {
-        try {
-            // Delete from both offline and online
-            offline.deleteEvent(event)
+        // Always delete from offline first for consistency
+        offline.deleteEvent(event)
+        
+        // Try to delete from online, but don't fail if it doesn't work
+        runCatching {
             online.deleteEvent(event)
-        } catch (e: Exception) {
-            // If online fails, still delete offline copy
-            offline.deleteEvent(event)
-            throw Exception("Failed to sync event deletion online: ${e.message}")
+            Clogger.d("CombinedMatchEventRepository", "Match event deleted from both offline and online: ${event.id}")
+        }.onFailure { e ->
+            Clogger.w("CombinedMatchEventRepository", "Match event deleted offline but online sync failed (will retry on next sync): ${e.message}")
         }
     }
     
     override suspend fun deleteEventsByMatchId(matchId: String) {
-        try {
-            // Delete from both offline and online
-            offline.deleteEventsByMatchId(matchId)
+        // Always delete from offline first for consistency
+        offline.deleteEventsByMatchId(matchId)
+        
+        // Try to delete from online, but don't fail if it doesn't work
+        runCatching {
             online.deleteEventsByMatchId(matchId)
-        } catch (e: Exception) {
-            // If online fails, still delete offline copies
-            offline.deleteEventsByMatchId(matchId)
-            throw Exception("Failed to sync event deletions online: ${e.message}")
+            Clogger.d("CombinedMatchEventRepository", "Match events deleted from both offline and online for match: $matchId")
+        }.onFailure { e ->
+            Clogger.w("CombinedMatchEventRepository", "Match events deleted offline but online sync failed (will retry on next sync): ${e.message}")
         }
     }
-    
+
     override suspend fun deleteEventById(eventId: String) {
-        try {
-            // Delete from both offline and online
-            offline.deleteEventById(eventId)
+        // Always delete from offline first for consistency
+        offline.deleteEventById(eventId)
+        
+        // Try to delete from online, but don't fail if it doesn't work
+        runCatching {
             online.deleteEventById(eventId)
-        } catch (e: Exception) {
-            // If online fails, still delete offline copy
-            offline.deleteEventById(eventId)
-            throw Exception("Failed to sync event deletion online: ${e.message}")
+            Clogger.d("CombinedMatchEventRepository", "Match event deleted from both offline and online: $eventId")
+        }.onFailure { e ->
+            Clogger.w("CombinedMatchEventRepository", "Match event deleted offline but online sync failed (will retry on next sync): ${e.message}")
         }
     }
     

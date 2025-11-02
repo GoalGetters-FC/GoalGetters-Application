@@ -38,7 +38,11 @@ class OfflineMatchEventRepository @Inject constructor(
     suspend fun replaceEventsForMatch(matchId: String, events: List<MatchEvent>) {
         matchEventDao.deleteEventsByMatchId(matchId)
         if (events.isNotEmpty()) {
-            matchEventDao.insertAll(events.map { MatchEventEntity.fromDomainModel(it) })
+            val sortedEvents = events.sortedWith(
+                compareByDescending<MatchEvent> { it.minute }
+                    .thenByDescending { it.timestamp }
+            )
+            matchEventDao.insertAll(sortedEvents.map { MatchEventEntity.fromDomainModel(it) })
         }
     }
 
