@@ -56,7 +56,7 @@ import com.ggetters.app.data.local.migrations.MIGRATION_11_12
         Attendance::class,
         Lineup::class,
         Notification::class,
-        PerformanceLog::class,
+        PerformanceLog::class, // deprecated
         MatchEventEntity::class,
         PlayerStatistics::class
     ],
