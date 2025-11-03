@@ -81,6 +81,8 @@ android {
         }
 
         resolvedGoogleServerClientId = googleServerClientId
+        resolvedGoogleServerClientId = googleServerClientId.takeIf { it.isNotBlank() }
+            ?: getLocalSecret("GOOGLE_SERVER_CLIENT_ID")
 
         if (resolvedGoogleServerClientId.isBlank()) {
             println("[GoalGetters] Warning: GOOGLE_SERVER_CLIENT_ID is not configured. Google Sign-In will be disabled.")
@@ -90,6 +92,14 @@ android {
             type = "String",
             name = "GOOGLE_SERVER_CLIENT_ID",
             value = "\"$resolvedGoogleServerClientId\""
+        )
+
+        resValue(
+            type = "string",
+            name = "google_server_client_id",
+            value = resolvedGoogleServerClientId
+        )
+
         )
 
         resValue(
