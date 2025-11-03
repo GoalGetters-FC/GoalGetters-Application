@@ -6,6 +6,8 @@ import com.ggetters.app.data.model.MatchDetails
 import com.ggetters.app.data.model.MatchEvent
 import com.ggetters.app.data.model.RSVPStatus
 import com.ggetters.app.data.repository.match.MatchDetailsRepository
+import com.ggetters.app.data.repository.event.EventRepository
+import com.ggetters.app.data.repository.team.TeamRepository
 import com.ggetters.app.core.services.StatisticsService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -13,6 +15,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
@@ -25,7 +28,9 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class MatchDetailsViewModel @Inject constructor(
     private val matchRepo: MatchDetailsRepository,
-    private val statisticsService: StatisticsService
+    private val statisticsService: StatisticsService,
+    private val eventsRepo: EventRepository,
+    private val teamRepo: TeamRepository
 ) : ViewModel() {
 
     private val _matchDetails = MutableStateFlow<MatchDetails?>(null)
@@ -53,6 +58,16 @@ class MatchDetailsViewModel @Inject constructor(
         @Suppress("UNUSED_PARAMETER") venue: String?,
         @Suppress("UNUSED_PARAMETER") matchDateMillis: Long
     ) {
+        // Ensure local DB is hydrated from remote for the active team so other devices see latest
+        viewModelScope.launch {
+            runCatching {
+                val activeTeam = teamRepo.getActiveTeam().first()
+                val teamId = activeTeam?.id
+                if (teamId != null) {
+                    eventsRepo.hydrateForTeam(teamId)
+                }
+            }
+        }
         observeMatch(matchId)
     }
 
