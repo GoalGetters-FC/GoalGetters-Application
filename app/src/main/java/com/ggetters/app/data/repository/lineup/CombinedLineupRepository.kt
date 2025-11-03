@@ -207,7 +207,10 @@ class CombinedLineupRepository @Inject constructor(
                                                     // Update timestamp to reflect that we're preserving local data
                                                     updatedAt = java.time.Instant.now()
                                                 )
-                                                offline.replaceForEvent(eventId, listOf(mergedLineup))
+                                                val mergedSet = normalized.map { lineup ->
+                                                    if (lineup.id == latestRemote.id) mergedLineup else lineup
+                                                }
+                                                offline.replaceForEvent(eventId, mergedSet)
                                                 // Also try to sync the merged lineup back to remote
                                                 launch {
                                                     runCatching {

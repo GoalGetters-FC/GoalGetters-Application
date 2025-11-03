@@ -41,9 +41,8 @@ class OfflineLineupRepository @Inject constructor(
                 Clogger.d("OfflineLineupRepository", "    Replacement Spot: position=${spot.position}, userId=${spot.userId}, number=${spot.number}")
             }
         }
-        dao.deleteByEventId(eventId)
+        dao.replaceForEventTransactional(eventId, lineups)
         if (lineups.isNotEmpty()) {
-            dao.insertAll(lineups)
             Clogger.d("OfflineLineupRepository", "Replaced lineups for event=$eventId")
         } else {
             Clogger.w("OfflineLineupRepository", "Replaced lineups for event=$eventId with empty list (all lineups deleted)")

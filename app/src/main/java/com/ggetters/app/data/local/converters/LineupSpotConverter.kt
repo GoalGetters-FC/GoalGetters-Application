@@ -15,11 +15,7 @@ class LineupSpotConverter {
         if (json.isNullOrBlank()) {
             return emptyList()
         }
-        return try {
-            Gson().fromJson(json, object : TypeToken<List<LineupSpot>>() {}.type)
-                ?: emptyList()
-        } catch (e: Exception) {
-            emptyList()
-        }
+        return Gson().fromJson(json, object : TypeToken<List<LineupSpot>>() {}.type)
+            ?: emptyList()
     }
 }

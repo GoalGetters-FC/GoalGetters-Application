@@ -40,6 +40,7 @@ class LineupFirestore @Inject constructor(
                         "Listener failed for eventId=$eventId: ${error.message}",
                         error
                     )
+                    close(error)
                     return@addSnapshotListener
                 }
 

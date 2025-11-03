@@ -34,4 +34,12 @@ interface LineupDao {
 
     @Query("DELETE FROM lineup WHERE event_id = :eventId")
     suspend fun deleteByEventId(eventId: String)
+
+    @androidx.room.Transaction
+    suspend fun replaceForEventTransactional(eventId: String, lineups: List<Lineup>) {
+        deleteByEventId(eventId)
+        if (lineups.isNotEmpty()) {
+            insertAll(lineups)
+        }
+    }
 }
