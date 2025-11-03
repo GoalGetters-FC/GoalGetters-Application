@@ -36,6 +36,11 @@ plugins {
     kotlin("kapt")
 }
 
+// Configure Kotlin JVM toolchain (replaces deprecated jvmTarget usage)
+kotlin {
+    jvmToolchain(11)
+}
+
 android {
     namespace = "com.ggetters.app"
     compileSdk = 36
@@ -80,7 +85,6 @@ android {
             return properties.getProperty(property) ?: ""
         }
 
-        resolvedGoogleServerClientId = googleServerClientId
         resolvedGoogleServerClientId = googleServerClientId.takeIf { it.isNotBlank() }
             ?: getLocalSecret("GOOGLE_SERVER_CLIENT_ID")
 
@@ -92,14 +96,6 @@ android {
             type = "String",
             name = "GOOGLE_SERVER_CLIENT_ID",
             value = "\"$resolvedGoogleServerClientId\""
-        )
-
-        resValue(
-            type = "string",
-            name = "google_server_client_id",
-            value = resolvedGoogleServerClientId
-        )
-
         )
 
         resValue(
@@ -148,9 +144,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+    // Kotlin JVM target is configured via the toolchain below.
 }
 
 dependencies {
