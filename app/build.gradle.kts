@@ -185,6 +185,7 @@ dependencies {
 
     kapt(libs.androidx.room.compiler)
     kapt(libs.hilt.android.compiler)
+    kapt(libs.androidx.hilt.compiler)
 
     testImplementation(libs.junit)
 

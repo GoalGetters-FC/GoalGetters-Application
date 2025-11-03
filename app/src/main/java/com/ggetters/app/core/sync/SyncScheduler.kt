@@ -13,7 +13,7 @@ object SyncScheduler {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        val periodic = PeriodicWorkRequestBuilder<SyncWorker>(1, TimeUnit.MINUTES)
+        val periodic = PeriodicWorkRequestBuilder<SyncWorker>(15, TimeUnit.MINUTES)
             .setConstraints(constraints)
             .build()
 
