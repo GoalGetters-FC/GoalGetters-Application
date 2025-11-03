@@ -9,19 +9,19 @@ typealias AsEmailAddress = AsEmailAddressStringValidationLaw
 
 class AsEmailAddressStringValidationLaw : ValidationLaw<String> {
     companion object {
-        // Simple, permissive regex suitable for JVM unit tests when Android Patterns is unavailable
-        private const val EMAIL_ADDRESS_REGEX = "[a-zA-Z0-9+._%\\-+]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+"
+        // Relaxed regex suitable for common email formats and JVM unit tests
+        private const val EMAIL_ADDRESS_REGEX = """^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"""
     }
 
     override fun checkFor(value: String): ValidationError? {
-        val isValid = try {
-            // Patterns.EMAIL_ADDRESS can be null or uninitialized on the JVM
+        val fallbackValid = Pattern.compile(EMAIL_ADDRESS_REGEX).matcher(value).matches()
+        val androidValid = try {
             val pattern = Patterns.EMAIL_ADDRESS
             pattern != null && pattern.matcher(value).matches()
         } catch (_: Throwable) {
-            // Fallback for JVM tests
-            Pattern.compile(EMAIL_ADDRESS_REGEX).matcher(value).matches()
+            false
         }
+        val isValid = androidValid || fallbackValid
 
         return if (!isValid) ValidationError.String.INVALID_EMAIL_ADDRESS else null
     }
