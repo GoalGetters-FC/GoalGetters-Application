@@ -10,7 +10,7 @@ typealias AsEmailAddress = AsEmailAddressStringValidationLaw
 class AsEmailAddressStringValidationLaw : ValidationLaw<String> {
     companion object {
         // Simple, permissive regex suitable for JVM unit tests when Android Patterns is unavailable
-        private const val EMAIL_ADDRESS_REGEX = "[a-zA-Z0-9+._%\-+]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\-]{0,64}(\.[a-zA-Z0-9][a-zA-Z0-9\-]{0,25})+"
+        private const val EMAIL_ADDRESS_REGEX = "[a-zA-Z0-9+._%\\-+]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+"
     }
 
     override fun checkFor(value: String): ValidationError? {

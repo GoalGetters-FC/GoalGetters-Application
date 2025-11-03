@@ -7,7 +7,7 @@ import java.util.regex.Pattern
  * Helper to validate credentials against Firebase Authentication rulesets.
  */
 object CredentialValidator {
-    private const val EMAIL_ADDRESS_REGEX = "[a-zA-Z0-9+._%\-+]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\-]{0,64}(\.[a-zA-Z0-9][a-zA-Z0-9\-]{0,25})+"
+    private const val EMAIL_ADDRESS_REGEX = "[a-zA-Z0-9+._%\\-+]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+"
 
     /**
      * Validates an email address. Uses Android Patterns when available; falls back to regex in JVM tests.
