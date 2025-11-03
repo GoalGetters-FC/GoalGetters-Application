@@ -36,11 +36,6 @@ plugins {
     kotlin("kapt")
 }
 
-// Configure Kotlin JVM toolchain (replaces deprecated jvmTarget usage)
-kotlin {
-    jvmToolchain(11)
-}
-
 android {
     namespace = "com.ggetters.app"
     compileSdk = 36
@@ -85,8 +80,7 @@ android {
             return properties.getProperty(property) ?: ""
         }
 
-        resolvedGoogleServerClientId = googleServerClientId.takeIf { it.isNotBlank() }
-            ?: getLocalSecret("GOOGLE_SERVER_CLIENT_ID")
+        resolvedGoogleServerClientId = googleServerClientId
 
         if (resolvedGoogleServerClientId.isBlank()) {
             println("[GoalGetters] Warning: GOOGLE_SERVER_CLIENT_ID is not configured. Google Sign-In will be disabled.")
@@ -144,7 +138,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    // Kotlin JVM target is configured via the toolchain below.
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
 
 dependencies {
