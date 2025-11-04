@@ -6,3 +6,4 @@ import com.ggetters.app.data.model.User
 fun User.getFullName(): String = "${this.name} ${this.surname}".trim()
 
 
+

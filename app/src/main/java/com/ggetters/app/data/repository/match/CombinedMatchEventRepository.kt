@@ -37,30 +37,30 @@ class CombinedMatchEventRepository @Inject constructor(
                     val editGuardActive = MatchEventLocalEditGuard.wasRecentlyEdited(matchId)
 
                     if (editGuardActive) {
-                        Clogger.w(
-                            "CombinedMatchEventRepository",
+                                Clogger.w(
+                                    "CombinedMatchEventRepository",
                             "Recent local event edit guard active; skipping remote overwrite for match=$matchId"
-                        )
+                                )
                     } else {
-                        val normalized = remoteEvents.sortedWith(
-                            compareByDescending<MatchEvent> { it.minute }
-                                .thenByDescending { it.timestamp }
-                        )
+                            val normalized = remoteEvents.sortedWith(
+                                compareByDescending<MatchEvent> { it.minute }
+                                    .thenByDescending { it.timestamp }
+                            )
 
                         // Never replace local with an empty remote list to avoid visible resets
                         if (normalized.isEmpty()) {
-                            Clogger.w(
-                                "CombinedMatchEventRepository",
+                                        Clogger.w(
+                                            "CombinedMatchEventRepository",
                                 "Remote emitted 0 events; skipping replace to avoid wipe (match=$matchId)"
-                            )
+                                        )
                             return@collect
-                        }
-
+                            }
+                            
                         Clogger.d(
                             "CombinedMatchEventRepository",
                             "Applying ONLINE-preferred ${normalized.size} events to offline for match=$matchId (guard inactive)"
                         )
-                        offline.replaceEventsForMatch(matchId, normalized)
+                                offline.replaceEventsForMatch(matchId, normalized)
                     }
                 }.onFailure {
                     Clogger.e(
@@ -90,30 +90,30 @@ class CombinedMatchEventRepository @Inject constructor(
                 val editGuardActive = MatchEventLocalEditGuard.wasRecentlyEdited(matchId)
                 runCatching {
                     if (editGuardActive) {
-                        Clogger.w(
-                            "CombinedMatchEventRepository",
+                                Clogger.w(
+                                    "CombinedMatchEventRepository",
                             "Recent local event edit guard active; skipping filtered remote overwrite for match=$matchId"
-                        )
+                                )
                     } else {
                         val allRemoteEvents = remoteEvents.sortedWith(
-                            compareByDescending<MatchEvent> { it.minute }
-                                .thenByDescending { it.timestamp }
-                        )
+                                compareByDescending<MatchEvent> { it.minute }
+                                    .thenByDescending { it.timestamp }
+                            )
                         if (allRemoteEvents.isEmpty()) {
                             val localNow = try { offline.getEventsByMatchId(matchId).first() } catch (_: Exception) { emptyList() }
                             if (localNow.isNotEmpty()) {
-                                Clogger.w(
-                                    "CombinedMatchEventRepository",
+                                        Clogger.w(
+                                            "CombinedMatchEventRepository",
                                     "Remote (filtered path) emitted 0 events but local has ${localNow.size}; skipping replace (match=$matchId)"
-                                )
+                                        )
                                 return@collect
                             }
                         }
                         Clogger.d(
                             "CombinedMatchEventRepository",
                             "Applying ONLINE-preferred (filtered path) ${allRemoteEvents.size} events to offline for match=$matchId (guard inactive)"
-                        )
-                        offline.replaceEventsForMatch(matchId, allRemoteEvents)
+                                )
+                                offline.replaceEventsForMatch(matchId, allRemoteEvents)
                     }
                 }.onFailure {
                     Clogger.e(
@@ -143,7 +143,7 @@ class CombinedMatchEventRepository @Inject constructor(
         offline.insertEvent(safe)
         // Mark local edit guard for this match
         MatchEventLocalEditGuard.markEdited(safe.matchId)
-
+        
         // Try to save online, but don't fail if it doesn't work
         // Offline save already succeeded, so data is persisted
         runCatching {
@@ -162,7 +162,7 @@ class CombinedMatchEventRepository @Inject constructor(
         offline.updateEvent(safe)
         // Mark local edit guard for this match
         MatchEventLocalEditGuard.markEdited(safe.matchId)
-
+        
         // Try to update online, but don't fail if it doesn't work
         runCatching {
             online.updateEvent(safe)

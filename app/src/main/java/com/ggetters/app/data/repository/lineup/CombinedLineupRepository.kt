@@ -39,9 +39,6 @@ class CombinedLineupRepository @Inject constructor(
                 Clogger.d("CombinedLineupRepository", "  Spot: position=${spot.position}, userId=${spot.userId}, number=${spot.number}")
             }
             
-            // Mark recent local edit to guard against immediate remote overwrite
-            LineupLocalEditGuard.markEdited(entity.eventId)
-
             // Always save to offline first for persistence
             offline.upsert(entity)
             Clogger.d("CombinedLineupRepository", "Lineup saved to offline: ${entity.id}")
@@ -164,18 +161,8 @@ class CombinedLineupRepository @Inject constructor(
                                         // Don't replace - keep local empty instead of accepting remote's empty spots
                                         // This prevents remote's stale empty lineup from overwriting when user adds players
                                     } else {
-                                        // Guard: if there was a very recent local edit, do not replace yet
-                                        if (LineupLocalEditGuard.wasRecentlyEdited(eventId)) {
-                                            Clogger.w(
-                                                "CombinedLineupRepository",
-                                                "Recent local edit guard active; skipping replace with remote despite local empty for event=$eventId"
-                                            )
-                                            // Try to push local if any (no-op if none)
-                                            launch { runCatching { localLineups.firstOrNull()?.let { online.upsert(it) } } }
-                                        } else {
-                                            Clogger.d("CombinedLineupRepository", "Local empty, replacing with remote (with spots) for event=$eventId")
-                                            offline.replaceForEvent(eventId, normalized)
-                                        }
+                                        Clogger.d("CombinedLineupRepository", "Local empty, replacing with remote (with spots) for event=$eventId")
+                                        offline.replaceForEvent(eventId, normalized)
                                     }
                                 }
                                 else -> {
@@ -206,7 +193,6 @@ class CombinedLineupRepository @Inject constructor(
                                         val localIsRecent = latestLocal?.let {
                                             java.time.Duration.between(it.updatedAt, java.time.Instant.now()).seconds < 300
                                         } ?: false
-                                        val editGuardActive = LineupLocalEditGuard.wasRecentlyEdited(eventId)
                                         
                                         if (remoteIsNewer) {
                                             // Remote is newer - but ALWAYS preserve local spots if they exist and remote has empty spots
@@ -235,12 +221,12 @@ class CombinedLineupRepository @Inject constructor(
                                                         Clogger.e("CombinedLineupRepository", "Failed to sync merged lineup to remote: ${it.message}", it)
                                                     }
                                                 }
-                                            } else if (latestRemote.spots.isEmpty() && latestLocal != null && (localIsRecent || editGuardActive)) {
+                                            } else if (latestRemote.spots.isEmpty() && latestLocal != null && localIsRecent) {
                                                 // Remote has empty spots, local is recent but also has empty spots
                                                 // Don't overwrite recent local save even if both are empty - local might be in the process of being populated
                                                 Clogger.w(
                                                     "CombinedLineupRepository",
-                                                    "Remote lineup newer with empty spots, but local was saved recently or edit guard is active (${ 
+                                                    "Remote lineup newer with empty spots, but local was saved recently (${
                                                         java.time.Duration.between(latestLocal.updatedAt, java.time.Instant.now()).seconds
                                                     }s ago) for event=$eventId; preserving local to prevent data loss during save"
                                                 )
@@ -253,7 +239,7 @@ class CombinedLineupRepository @Inject constructor(
                                                         Clogger.e("CombinedLineupRepository", "Failed to sync local lineup to remote: ${it.message}", it)
                                                     }
                                                 }
-                                            } else if (latestRemote.spots.isEmpty() && latestLocal != null && !editGuardActive) {
+                                            } else if (latestRemote.spots.isEmpty() && latestLocal != null) {
                                                 // Remote has empty spots, local also has empty spots but is not recent
                                                 // Check if remote is MUCH newer (more than 20 minutes) before overwriting
                                                 val remoteIsMuchNewer = latestRemote.updatedAt.isAfter(
@@ -265,7 +251,7 @@ class CombinedLineupRepository @Inject constructor(
                                                 } else {
                                                     Clogger.d("CombinedLineupRepository", "Remote lineup newer with empty spots but not much newer, preserving local for event=$eventId")
                         }
-                                            } else if (!editGuardActive) {
+                    } else {
                                                 // Remote is newer and has spots (or both are empty)
                                                 // Additional guard: if local is recent, prefer preserving local to avoid user-visible resets
                                                 if (localIsRecent) {
@@ -284,11 +270,6 @@ class CombinedLineupRepository @Inject constructor(
                                                     Clogger.d("CombinedLineupRepository", "Remote lineup newer with spots, replacing local for event=$eventId")
                                                     offline.replaceForEvent(eventId, normalized)
                                                 }
-                                            } else {
-                                                Clogger.w(
-                                                    "CombinedLineupRepository",
-                                                    "Edit guard active; skipping remote overwrite despite remote newer for event=$eventId"
-                                                )
                                             }
                                         } else {
                                             // Local is newer - preserve local data

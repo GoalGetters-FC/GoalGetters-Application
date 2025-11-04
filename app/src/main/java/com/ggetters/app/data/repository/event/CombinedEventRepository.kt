@@ -64,9 +64,11 @@ class CombinedEventRepository @Inject constructor(
                 } else true
             }
 
-            // --- Replace local ---
-            offline.upsertAllLocal(validRemote)
-            Clogger.i("EventRepo", "Upserted ${validRemote.size} events into local DB")
+            // --- Guarded upsert: never stomp dirty local changes ---
+            validRemote.forEach { remoteEvent ->
+                offline.upsertFromRemote(remoteEvent)
+            }
+            Clogger.i("EventRepo", "Applied ${validRemote.size} remote events to local DB (guarded)")
 
         } catch (e: Throwable) {
             Clogger.e("EventRepo", "Sync failed: ${e.message}", e)

@@ -15,7 +15,13 @@ class OfflineEventRepository @Inject constructor(
     override suspend fun getById(id: String): Event? = dao.getById(id)
 
     override suspend fun upsert(entity: Event) {
-        entity.stain()
+        // Mark dirty and update timestamp on local edits
+        entity.touch() // Updates updatedAt
+        try {
+            entity.stain() // Marks as dirty (stained)
+        } catch (e: IllegalStateException) {
+            // Already dirty, just touch to update timestamp
+        }
         dao.upsert(entity)
     }
 
@@ -54,4 +60,38 @@ class OfflineEventRepository @Inject constructor(
     suspend fun getDirtyEvents(teamId: String) = dao.getDirtyEvents(teamId)
     suspend fun markClean(id: String) = dao.markClean(id)
     suspend fun upsertAllLocal(events: List<Event>) = dao.upsertAll(events)
+    
+    /**
+     * Guarded upsert from remote: only updates if local is not dirty AND remote is newer.
+     * Never stomps dirty local changes.
+     */
+    suspend fun upsertFromRemote(remote: Event) {
+        val local = dao.getById(remote.id)
+        
+        // Debug logging
+        com.ggetters.app.core.utils.Clogger.d(
+            "OfflineEventRepository",
+            "upsertFromRemote: id=${remote.id}, local=${local?.id}, " +
+                    "localDirty=${local?.isStained()}, " +
+                    "localUpdatedAt=${local?.updatedAt}, " +
+                    "remoteUpdatedAt=${remote.updatedAt}"
+        )
+        
+        // Only upsert if:
+        // 1. Local doesn't exist (new event from remote), OR
+        // 2. Local is clean (not dirty) AND remote is newer
+        if (local == null || (!local.isStained() && remote.updatedAt > local.updatedAt)) {
+            dao.upsert(remote)
+            com.ggetters.app.core.utils.Clogger.d(
+                "OfflineEventRepository",
+                "Applied remote event to Room: id=${remote.id}"
+            )
+        } else {
+            com.ggetters.app.core.utils.Clogger.d(
+                "OfflineEventRepository",
+                "Skipped remote event (guarded): id=${remote.id}, " +
+                        "reason=${if (local == null) "null local" else if (local.isStained()) "local dirty" else "remote not newer"}"
+            )
+        }
+    }
 }
