@@ -10,6 +10,7 @@ import com.ggetters.app.data.model.RosterPlayer
 import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.lineup.LineupRepository
 import com.ggetters.app.data.repository.user.UserRepository
+import com.ggetters.app.data.repository.lineup.LineupLocalEditGuard
 import com.ggetters.app.ui.shared.extensions.getFullName
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -371,6 +372,8 @@ class LineupViewModel @Inject constructor(
                 )
                 
                 Clogger.d("LineupViewModel", "Saving lineup: id=${lineup.id}, eventId=${lineup.eventId}, formation=${lineup.formation}, spots.size=${lineup.spots.size}")
+                // Mark local edit to guard immediate remote overwrites
+                LineupLocalEditGuard.markEdited(eventId)
                 
                 // Save to both offline and online (CombinedLineupRepository handles this)
                 lineupRepo.upsert(lineup)

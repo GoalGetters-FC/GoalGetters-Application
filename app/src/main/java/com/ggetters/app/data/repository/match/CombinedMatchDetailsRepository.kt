@@ -107,6 +107,10 @@ class CombinedMatchDetailsRepository @Inject constructor(
         matchEvents.insertEvent(event)
     }
 
+    override suspend fun refreshEventsForMatch(matchId: String) {
+        matchEvents.refreshFromRemote(matchId)
+    }
+
     /**
      * Parse opponent team name from event title
      */

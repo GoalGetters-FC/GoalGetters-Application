@@ -216,10 +216,17 @@ class LineupFragment : Fragment() {
     private fun updatePitchFormation() {
         // Set formation and update pitch view
         pitchView.setFormation(currentFormation)
-        
-        // Only auto-position players if no players are currently positioned and we have available players
+
+        // Immediately reapply current ViewModel players to avoid transient empty state causing auto-position
+        val vmPlayers = viewModel.positionedPlayers.value
+        if (vmPlayers.isNotEmpty()) {
+            pitchView.setPlayers(vmPlayers)
+        }
+
+        // Only auto-position if BOTH pitch and ViewModel are empty, and we have available players
         val currentPositions = pitchView.getPositionedPlayers()
-        if ((currentPositions.isEmpty() || currentPositions.values.all { it == null }) && availablePlayers.isNotEmpty()) {
+        val vmEmpty = vmPlayers.isEmpty() || vmPlayers.values.all { it == null }
+        if ((currentPositions.isEmpty() || currentPositions.values.all { it == null }) && vmEmpty && availablePlayers.isNotEmpty()) {
             // Auto-position available players based on formation
             when (currentFormation) {
                 "4-3-3" -> setup433Formation()

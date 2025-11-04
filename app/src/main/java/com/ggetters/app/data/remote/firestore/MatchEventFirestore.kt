@@ -80,6 +80,25 @@ class MatchEventFirestore @Inject constructor(
         awaitClose { listenerRegistration.remove() }
     }
     
+    suspend fun fetchEventsByMatchIdOnce(matchId: String): List<MatchEvent> {
+        return try {
+            val snapshot = collection
+                .whereEqualTo("matchId", matchId)
+                .get()
+                .await()
+            snapshot.documents.mapNotNull { doc ->
+                runCatching {
+                    doc.toObject(MatchEvent::class.java)?.copy(id = doc.id)
+                }.getOrNull()
+            }.sortedWith(
+                compareByDescending<MatchEvent> { it.minute }
+                    .thenByDescending { it.timestamp }
+            )
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+    
     suspend fun getEventById(eventId: String): MatchEvent? {
         return try {
             val doc = collection.document(eventId).get().await()

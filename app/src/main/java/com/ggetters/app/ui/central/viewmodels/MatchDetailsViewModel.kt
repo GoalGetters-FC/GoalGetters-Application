@@ -68,6 +68,24 @@ class MatchDetailsViewModel @Inject constructor(
                 if (teamId != null) {
                     eventsRepo.hydrateForTeam(teamId)
                 }
+                // One-shot, remote-first refresh of match events for this match (guarded)
+                android.util.Log.d("MatchDetailsViewModel", "Refreshing events from remote for matchId=$matchId")
+                matchRepo.refreshEventsForMatch(matchId)
+                android.util.Log.d("MatchDetailsViewModel", "Refresh complete (guard may skip) for matchId=$matchId")
+
+                // Ensure the base calendar event exists locally so matchDetailsFlow can emit
+                // This helps second devices that haven't hydrated the team's calendar yet
+                runCatching {
+                    val baseEvent = eventsRepo.getById(matchId)
+                    if (baseEvent != null) {
+                        eventsRepo.upsert(baseEvent)
+                    }
+                }.onFailure { e ->
+                    android.util.Log.w(
+                        "MatchDetailsViewModel",
+                        "Failed to ensure base event locally for matchId=$matchId: ${e.message}"
+                    )
+                }
             }.onFailure { e ->
                 android.util.Log.e("MatchDetailsViewModel", "Hydration failed: ${e.message}", e)
                 _error.value = "Failed to sync latest data: ${e.message}"

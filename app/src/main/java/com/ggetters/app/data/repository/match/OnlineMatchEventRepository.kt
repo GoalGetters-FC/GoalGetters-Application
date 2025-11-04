@@ -51,4 +51,13 @@ class OnlineMatchEventRepository @Inject constructor(
     override suspend fun getEventCountByMatchId(matchId: String): Int {
         return matchEventFirestore.getEventCountByMatchId(matchId)
     }
+
+    override suspend fun refreshFromRemote(matchId: String) {
+        // Online source is authoritative; no local cache to refresh here.
+        // Combined repository will orchestrate the actual offline replacement.
+    }
+
+    suspend fun fetchEventsByMatchIdOnce(matchId: String): List<MatchEvent> {
+        return matchEventFirestore.fetchEventsByMatchIdOnce(matchId)
+    }
 }

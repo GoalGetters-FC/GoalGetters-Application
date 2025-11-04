@@ -70,4 +70,8 @@ class OfflineMatchEventRepository @Inject constructor(
     override suspend fun getEventCountByMatchId(matchId: String): Int {
         return matchEventDao.getEventCountByMatchId(matchId)
     }
+
+    override suspend fun refreshFromRemote(matchId: String) {
+        // No-op: offline repository does not access remote.
+    }
 }
