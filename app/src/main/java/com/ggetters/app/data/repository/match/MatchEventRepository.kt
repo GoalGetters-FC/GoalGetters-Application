@@ -53,4 +53,11 @@ interface MatchEventRepository {
      * Get the count of events for a match
      */
     suspend fun getEventCountByMatchId(matchId: String): Int
+
+    /**
+     * Force-refresh local cache from remote for a specific match's events.
+     * Implementations should respect any local edit guards to avoid overwriting
+     * very recent local edits.
+     */
+    suspend fun refreshFromRemote(matchId: String)
 }

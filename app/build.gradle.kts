@@ -1,6 +1,32 @@
 import java.io.FileInputStream
 import java.util.Properties
 
+var resolvedGoogleServerClientId: String = ""
+
+val googleServerClientId: String by lazy {
+    val gradleProperty = (project.findProperty("GOOGLE_SERVER_CLIENT_ID") as? String)
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+    if (gradleProperty != null) return@lazy gradleProperty
+
+    val environmentValue = System.getenv("GOOGLE_SERVER_CLIENT_ID")
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+    if (environmentValue != null) return@lazy environmentValue
+
+    val properties = Properties()
+    val propertiesFile = rootProject.file("local.properties")
+    if (propertiesFile.exists()) {
+        FileInputStream(propertiesFile).use { properties.load(it) }
+        properties.getProperty("GOOGLE_SERVER_CLIENT_ID")
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?.let { return@lazy it }
+    }
+
+    ""
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -18,8 +44,8 @@ android {
         applicationId = "com.ggetters.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 15
-        versionName = "2025w42d (dev)"
+        versionCode = 16
+        versionName = "2025w45a (release)"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -46,7 +72,7 @@ android {
             val properties = Properties()
             val propertiesFile = rootProject.file(filename)
             if (propertiesFile.exists()) {
-                properties.load(FileInputStream(propertiesFile))
+                FileInputStream(propertiesFile).use { properties.load(it) }
             } else {
                 println("Local property file not found.")
             }
@@ -54,13 +80,25 @@ android {
             return properties.getProperty(property) ?: ""
         }
 
+        resolvedGoogleServerClientId = googleServerClientId
+
+        if (resolvedGoogleServerClientId.isBlank()) {
+            println("[GoalGetters] Warning: GOOGLE_SERVER_CLIENT_ID is not configured. Google Sign-In will be disabled.")
+        }
+
         buildConfigField(
             type = "String",
             name = "GOOGLE_SERVER_CLIENT_ID",
-            value = "\"${
-                getLocalSecret("GOOGLE_SERVER_CLIENT_ID")
-            }\""
+            value = "\"$resolvedGoogleServerClientId\""
         )
+
+        resValue(
+            type = "string",
+            name = "google_server_client_id",
+            value = resolvedGoogleServerClientId
+        )
+
+        manifestPlaceholders["googleServerClientId"] = resolvedGoogleServerClientId
     }
 
     afterEvaluate {
@@ -69,9 +107,8 @@ android {
         }
 
         if (isEnvironmentProduction) {
-            val clientId = (project.findProperty("GOOGLE_SERVER_CLIENT_ID") as? String).orEmpty()
-            if (clientId.isBlank()) throw GradleException(
-                "Essential property is missing from build: (use -P GOOGLE_SERVER_CLIENT_ID=...)"
+            if (resolvedGoogleServerClientId.isBlank()) throw GradleException(
+                "Essential property is missing from build: provide GOOGLE_SERVER_CLIENT_ID via -P flag, environment variable, or local.properties"
             )
         }
     }
@@ -147,6 +184,7 @@ dependencies {
 
     kapt(libs.androidx.room.compiler)
     kapt(libs.hilt.android.compiler)
+    kapt(libs.androidx.hilt.compiler)
 
     testImplementation(libs.junit)
 

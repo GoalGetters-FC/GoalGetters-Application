@@ -10,4 +10,6 @@ interface MatchDetailsRepository {
     fun eventsFlow(matchId: String): Flow<List<MatchEvent>>
     suspend fun setRSVP(matchId: String, playerId: String, status: RSVPStatus)
     suspend fun addEvent(event: MatchEvent)
+    /** Force a one-shot refresh of match events from remote (guarded). */
+    suspend fun refreshEventsForMatch(matchId: String)
 }

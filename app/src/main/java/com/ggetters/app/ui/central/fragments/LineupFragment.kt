@@ -216,10 +216,17 @@ class LineupFragment : Fragment() {
     private fun updatePitchFormation() {
         // Set formation and update pitch view
         pitchView.setFormation(currentFormation)
-        
-        // Only auto-position players if no players are currently positioned and we have available players
+
+        // Immediately reapply current ViewModel players to avoid transient empty state causing auto-position
+        val vmPlayers = viewModel.positionedPlayers.value
+        if (vmPlayers.isNotEmpty()) {
+            pitchView.setPlayers(vmPlayers)
+        }
+
+        // Only auto-position if BOTH pitch and ViewModel are empty, and we have available players
         val currentPositions = pitchView.getPositionedPlayers()
-        if ((currentPositions.isEmpty() || currentPositions.values.all { it == null }) && availablePlayers.isNotEmpty()) {
+        val vmEmpty = vmPlayers.isEmpty() || vmPlayers.values.all { it == null }
+        if ((currentPositions.isEmpty() || currentPositions.values.all { it == null }) && vmEmpty && availablePlayers.isNotEmpty()) {
             // Auto-position available players based on formation
             when (currentFormation) {
                 "4-3-3" -> setup433Formation()
@@ -228,9 +235,6 @@ class LineupFragment : Fragment() {
                 "4-2-3-1" -> setup4231Formation()
                 "5-3-2" -> setup532Formation()
             }
-        } else if (availablePlayers.isEmpty()) {
-            // Clear the pitch if no players are available
-            pitchView.setPlayers(emptyMap())
         }
     }
     
@@ -258,7 +262,10 @@ class LineupFragment : Fragment() {
             "RW" to findPlayerByPosition("RW", "Winger", 1)
         )
         
+        // CRITICAL: Update both pitch view AND ViewModel to ensure persistence
         pitchView.setPlayers(formationPlayers)
+        viewModel.setPositionedPlayers(formationPlayers)
+        Clogger.d("LineupFragment", "Auto-positioned players in 4-3-3: ${formationPlayers.values.count { it != null }} players")
     }
 
     private fun setup442Formation() {
@@ -277,7 +284,10 @@ class LineupFragment : Fragment() {
             "ST2" to (findPlayerByPosition("ST", "Striker", 1) ?: findPlayerByPosition("FW", "Forward"))
         )
         
+        // CRITICAL: Update both pitch view AND ViewModel to ensure persistence
         pitchView.setPlayers(formationPlayers)
+        viewModel.setPositionedPlayers(formationPlayers)
+        Clogger.d("LineupFragment", "Auto-positioned players in 4-4-2: ${formationPlayers.values.count { it != null }} players")
     }
 
     private fun setup352Formation() {
@@ -296,7 +306,10 @@ class LineupFragment : Fragment() {
             "ST2" to (availablePlayers.filter { it.position == "ST" }.getOrNull(1) ?: availablePlayers.find { it.position == "FW" })
         )
         
+        // CRITICAL: Update both pitch view AND ViewModel to ensure persistence
         pitchView.setPlayers(formationPlayers)
+        viewModel.setPositionedPlayers(formationPlayers)
+        Clogger.d("LineupFragment", "Auto-positioned players in 3-5-2: ${formationPlayers.values.count { it != null }} players")
     }
 
     private fun setup4231Formation() {
@@ -315,7 +328,10 @@ class LineupFragment : Fragment() {
             "ST" to availablePlayers.find { it.position == "ST" }
         )
         
+        // CRITICAL: Update both pitch view AND ViewModel to ensure persistence
         pitchView.setPlayers(formationPlayers)
+        viewModel.setPositionedPlayers(formationPlayers)
+        Clogger.d("LineupFragment", "Auto-positioned players in 4-2-3-1: ${formationPlayers.values.count { it != null }} players")
     }
 
     private fun setup532Formation() {
@@ -334,7 +350,10 @@ class LineupFragment : Fragment() {
             "ST2" to (availablePlayers.filter { it.position == "ST" }.getOrNull(1) ?: availablePlayers.find { it.position == "FW" })
         )
         
+        // CRITICAL: Update both pitch view AND ViewModel to ensure persistence
         pitchView.setPlayers(formationPlayers)
+        viewModel.setPositionedPlayers(formationPlayers)
+        Clogger.d("LineupFragment", "Auto-positioned players in 5-3-2: ${formationPlayers.values.count { it != null }} players")
     }
 
     private fun handlePlayerSelection(player: RosterPlayer) {
@@ -685,12 +704,17 @@ class LineupFragment : Fragment() {
                     handlePlayerMovement(position, closestPosition, draggedPlayer)
                 } else {
                     // Player is being dropped from the grid - the FormationPitchView already handled it
+                    // CRITICAL: Sync the pitch view's players back to the ViewModel to ensure persistence
+                    val currentPitchPlayers = pitchView.getPositionedPlayers()
+                    viewModel.setPositionedPlayers(currentPitchPlayers)
+                    
                     // Just update the available players grid
                     updateAvailablePlayersGrid()
                     
                     // Show success message
                     val player = pitchView.getPositionedPlayers()[closestPosition]
                     player?.let {
+                        Clogger.d("LineupFragment", "Player ${it.playerName} dropped at $closestPosition, synced to ViewModel")
                         Snackbar.make(requireView(), 
                             "${it.playerName} positioned at $closestPosition", 
                             Snackbar.LENGTH_SHORT).show()

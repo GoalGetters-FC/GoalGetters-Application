@@ -1,19 +1,26 @@
 package com.ggetters.app.core.utils
 
 import android.util.Patterns
+import java.util.regex.Pattern
 
 /**
  * Helper to validate credentials against Firebase Authentication rulesets.
  */
 object CredentialValidator {
-    
+    private const val EMAIL_ADDRESS_REGEX = """^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"""
+
     /**
-     * Validates an email address using [Patterns.EMAIL_ADDRESS].
-     *
-     * @return [Boolean] indicating its validity.
+     * Validates an email address. Uses Android Patterns when available; falls back to regex in JVM tests.
      */
     fun isValidEAddress(input: String): Boolean {
-        return Patterns.EMAIL_ADDRESS.matcher(input).matches()
+        val fallbackValid = Pattern.compile(EMAIL_ADDRESS_REGEX).matcher(input).matches()
+        val androidValid = try {
+            val pattern = Patterns.EMAIL_ADDRESS
+            pattern != null && pattern.matcher(input).matches()
+        } catch (_: Throwable) {
+            false
+        }
+        return androidValid || fallbackValid
     }
 
     

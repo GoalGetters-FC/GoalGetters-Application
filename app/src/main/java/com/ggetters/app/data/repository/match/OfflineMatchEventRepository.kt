@@ -35,6 +35,22 @@ class OfflineMatchEventRepository @Inject constructor(
         matchEventDao.insert(MatchEventEntity.fromDomainModel(event))
     }
     
+    suspend fun replaceEventsForMatch(matchId: String, events: List<MatchEvent>) {
+        if (events.isEmpty()) {
+            matchEventDao.deleteEventsByMatchId(matchId)
+            return
+        }
+
+        val sortedEvents = events.sortedWith(
+            compareByDescending<MatchEvent> { it.minute }
+                .thenByDescending { it.timestamp }
+        )
+        matchEventDao.replaceEventsForMatchTransactional(
+            matchId,
+            sortedEvents.map { MatchEventEntity.fromDomainModel(it) }
+        )
+    }
+
     override suspend fun updateEvent(event: MatchEvent) {
         matchEventDao.update(MatchEventEntity.fromDomainModel(event))
     }
@@ -53,5 +69,9 @@ class OfflineMatchEventRepository @Inject constructor(
     
     override suspend fun getEventCountByMatchId(matchId: String): Int {
         return matchEventDao.getEventCountByMatchId(matchId)
+    }
+
+    override suspend fun refreshFromRemote(matchId: String) {
+        // No-op: offline repository does not access remote.
     }
 }
