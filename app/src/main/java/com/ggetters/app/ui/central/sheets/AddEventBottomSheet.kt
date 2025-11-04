@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.RadioGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText
@@ -41,6 +42,7 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupDateTimePickers(view)
+        setupEventTypeListener(view)
         setupActionButtons(view)
     }
 
@@ -64,6 +66,27 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
 
         selectedDate?.let { date ->
             dateInput.setText(SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(date))
+        }
+    }
+
+    private fun setupEventTypeListener(view: View) {
+        val eventTypeRadioGroup = view.findViewById<RadioGroup>(R.id.eventTypeRadioGroup)
+        val opponentLayout = view.findViewById<LinearLayout>(R.id.opponentLayout)
+        
+        eventTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.gameRadio -> {
+                    opponentLayout.visibility = View.VISIBLE
+                }
+                else -> {
+                    // Clear opponent text and error when hiding to avoid hidden-data leakage
+                    view.findViewById<TextInputEditText>(R.id.eventOpponentInput)?.apply {
+                        setText("")
+                        error = null
+                    }
+                    opponentLayout.visibility = View.GONE
+                }
+            }
         }
     }
 
@@ -116,12 +139,30 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
         val dateInput = view.findViewById<TextInputEditText>(R.id.eventDateInput)
         val timeInput = view.findViewById<TextInputEditText>(R.id.eventTimeInput)
         val venueInput = view.findViewById<TextInputEditText>(R.id.eventVenueInput)
+        val opponentInput = view.findViewById<TextInputEditText>(R.id.eventOpponentInput)
+        val eventTypeRadioGroup = view.findViewById<RadioGroup>(R.id.eventTypeRadioGroup)
 
         var isValid = true
-        if (titleInput.text.isNullOrBlank()) { titleInput.error = "Title required"; isValid = false }
+        
+        // Clear previous errors
+        titleInput.error = null
+        dateInput.error = null
+        timeInput.error = null
+        venueInput.error = null
+        opponentInput.error = null
+        
+        // Validate required fields
         if (dateInput.text.isNullOrBlank()) { dateInput.error = "Date required"; isValid = false }
         if (timeInput.text.isNullOrBlank()) { timeInput.error = "Time required"; isValid = false }
         if (venueInput.text.isNullOrBlank()) { venueInput.error = "Venue required"; isValid = false }
+        
+        // For games, validate opponent field
+        val isGame = eventTypeRadioGroup.checkedRadioButtonId == R.id.gameRadio
+        if (isGame && opponentInput.text.isNullOrBlank()) {
+            opponentInput.error = "Opponent required for games"
+            isValid = false
+        }
+        
         return isValid
     }
 
@@ -129,6 +170,7 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
         val titleInput = view.findViewById<TextInputEditText>(R.id.eventTitleInput)
         val venueInput = view.findViewById<TextInputEditText>(R.id.eventVenueInput)
         val descriptionInput = view.findViewById<TextInputEditText>(R.id.eventDescriptionInput)
+        val opponentInput = view.findViewById<TextInputEditText>(R.id.eventOpponentInput)
         val eventTypeRadioGroup = view.findViewById<RadioGroup>(R.id.eventTypeRadioGroup)
 
         val category = when (eventTypeRadioGroup.checkedRadioButtonId) {
@@ -136,6 +178,23 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
             R.id.gameRadio -> EventCategory.MATCH
             R.id.otherRadio -> EventCategory.OTHER
             else -> EventCategory.PRACTICE
+        }
+
+        // Create event title based on type and opponent
+        val eventTitle = when (category) {
+            EventCategory.MATCH -> {
+                val opponent = opponentInput.text.toString().trim()
+                if (opponent.isNotEmpty()) {
+                    "vs $opponent"
+                } else {
+                    titleInput.text.toString().ifBlank { "Match" }
+                }
+            }
+            else -> titleInput.text.toString().ifBlank { when (category) {
+                EventCategory.PRACTICE -> "Practice"
+                EventCategory.OTHER -> "Event"
+                else -> "Event"
+            }}
         }
 
         val combinedDateTime = LocalDateTime.ofInstant(
@@ -154,7 +213,7 @@ class AddEventBottomSheet : BottomSheetDialogFragment() {
             stainedAt = null,
             teamId = "teamId_placeholder", // TODO: inject from active team
             creatorId = "userId_placeholder", // TODO: inject from auth
-            name = titleInput.text.toString(),
+            name = eventTitle,
             description = descriptionInput.text?.toString(),
             category = category,
             style = EventStyle.STANDARD,

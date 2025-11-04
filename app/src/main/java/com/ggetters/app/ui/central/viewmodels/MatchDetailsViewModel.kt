@@ -6,6 +6,7 @@ import com.ggetters.app.data.model.MatchDetails
 import com.ggetters.app.data.model.MatchEvent
 import com.ggetters.app.data.model.RSVPStatus
 import com.ggetters.app.data.repository.match.MatchDetailsRepository
+import com.ggetters.app.core.services.StatisticsService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -23,7 +24,8 @@ import kotlinx.coroutines.launch
  */
 @HiltViewModel
 class MatchDetailsViewModel @Inject constructor(
-    private val matchRepo: MatchDetailsRepository
+    private val matchRepo: MatchDetailsRepository,
+    private val statisticsService: StatisticsService
 ) : ViewModel() {
 
     private val _matchDetails = MutableStateFlow<MatchDetails?>(null)
@@ -84,8 +86,44 @@ class MatchDetailsViewModel @Inject constructor(
 
     fun addTimelineEvent(event: MatchEvent) {
         viewModelScope.launch {
-            runCatching { matchRepo.addEvent(event) }
-                .onFailure { _error.value = "Failed to add event: ${it.message}" }
+            try {
+                // Add the event to the timeline
+                // Score will be automatically updated via the repository's matchDetailsFlow
+                matchRepo.addEvent(event)
+                
+                // Update player statistics in real-time
+                statisticsService.updateStatisticsFromMatchEvent(event)
+                
+                // Handle substitutions by updating lineup
+                if (event.eventType == com.ggetters.app.data.model.MatchEventType.SUBSTITUTION) {
+                    // Avoid logging sensitive event payloads
+                    android.util.Log.d("MatchDetailsViewModel", "Processing substitution event")
+                    handleSubstitutionEvent(event)
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to add event: ${e.message}"
+            }
+        }
+    }
+    
+    private suspend fun handleSubstitutionEvent(event: MatchEvent) {
+        try {
+            val playerInId = event.details["substituteIn"] as? String
+            val playerOutId = event.details["substituteOut"] as? String
+            
+            if (playerInId != null && playerOutId != null) {
+                // Update attendance status to reflect substitution
+                // Mark the subbed-out player as unavailable (substituted)
+                matchRepo.setRSVP(event.matchId, playerOutId, com.ggetters.app.data.model.RSVPStatus.UNAVAILABLE)
+                
+                // Ensure the subbed-in player is available
+                matchRepo.setRSVP(event.matchId, playerInId, com.ggetters.app.data.model.RSVPStatus.AVAILABLE)
+                
+                android.util.Log.d("MatchDetailsViewModel", "Substitution processed")
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("MatchDetailsViewModel", "Failed to handle substitution event")
+            _error.value = "Failed to process substitution: ${e.message}"
         }
     }
 

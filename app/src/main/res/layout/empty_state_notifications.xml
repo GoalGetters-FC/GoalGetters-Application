@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/emptyStateContainer"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp"
+    android:visibility="gone"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Empty State Icon -->
+    <ImageView
+        android:src="@drawable/ic_unicons_bell_24"
+        android:importantForAccessibility="no"
+        app:tint="@color/text_tertiary"
+        android:alpha="0.5"
+        android:layout_width="80dp"
+        android:layout_height="80dp" />
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="24dp" />
+
+    <!-- Empty State Title -->
+    <TextView
+        android:text="No Notifications"
+        android:textColor="@color/text_primary"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/variable_inter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="8dp" />
+
+    <!-- Empty State Message -->
+    <TextView
+        android:text="You're all caught up! New notifications will appear here."
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
+        android:textAlignment="center"
+        android:fontFamily="@font/variable_inter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>
+

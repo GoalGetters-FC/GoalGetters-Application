@@ -59,15 +59,29 @@ class HomeProfileViewModel @Inject constructor(
 
     fun updatePlayer(player: User) {
         viewModelScope.launch {
-            userRepository.upsert(player)
-            _player.value = player
+            try {
+                userRepository.upsert(player)
+                // Sync changes to remote
+                userRepository.sync()
+                _player.value = player
+            } catch (e: Exception) {
+                // Handle error - could show error message to user
+                _player.value = null
+            }
         }
     }
 
     fun deletePlayer(player: User) {
         viewModelScope.launch {
-            userRepository.delete(player)
-            _player.value = null
+            try {
+                userRepository.delete(player)
+                // Sync deletion to remote
+                userRepository.sync()
+                _player.value = null
+            } catch (e: Exception) {
+                // Handle error - could show error message to user
+                _player.value = player // Restore player if deletion failed
+            }
         }
     }
 

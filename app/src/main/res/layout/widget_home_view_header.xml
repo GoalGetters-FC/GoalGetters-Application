@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+            tools:background="#161620"
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="32dp"
+            android:paddingHorizontal="28dp"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+
+        <!-- Title -->
+        <!-- 
+            Usage:
+            ______
+            tools:widget_heading=""
+            binding.xx.setHeading()
+        -->
+        <TextView
+                android:id="@+id/tv_head"
+                tools:text="U18 Johannesburg"
+                android:textColor="#FFFFFF"
+                android:textSize="24sp"
+                android:textFontWeight="600"
+                android:fontFamily="@font/variable_inter"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent" />
+
+        <Space
+                android:layout_height="8dp"
+                android:layout_width="0dp" />
+
+        <!-- Subtitle -->
+        <!-- 
+            Usage:
+            ______
+            tools:widget_message=""
+            binding.xx.setMessage()
+        -->
+        <TextView
+                android:id="@+id/tv_text"
+                tools:text="Football (Soccer)"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textFontWeight="500"
+                android:fontFamily="@font/variable_inter"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent" />
+
+    </LinearLayout>
+</merge>

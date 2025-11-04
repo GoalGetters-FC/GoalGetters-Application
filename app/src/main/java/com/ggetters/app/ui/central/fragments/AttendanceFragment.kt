@@ -25,10 +25,13 @@ class AttendanceFragment : Fragment() {
     private val viewModel: AttendanceViewModel by viewModels()
 
     private var matchId: String = ""
-    private lateinit var presentAdapter: AttendancePlayerAdapter
-    private lateinit var absentAdapter: AttendancePlayerAdapter
-    private lateinit var lateAdapter: AttendancePlayerAdapter
-    private lateinit var excusedAdapter: AttendancePlayerAdapter
+    private lateinit var attendanceAdapter: AttendancePlayerAdapter
+    
+    // UI Elements
+    private lateinit var presentCount: TextView
+    private lateinit var absentCount: TextView
+    private lateinit var lateCount: TextView
+    private lateinit var excusedCount: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,32 +49,25 @@ class AttendanceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupRecyclerViews(view)
+        setupViews(view)
+        setupRecyclerView(view)
         observeViewModel()
         viewModel.loadPlayers(matchId)
     }
 
-    private fun setupRecyclerViews(view: View) {
-        presentAdapter = AttendancePlayerAdapter { player, action, clickedView -> handlePlayerAction(player, action, clickedView) }
-        absentAdapter = AttendancePlayerAdapter { player, action, clickedView -> handlePlayerAction(player, action, clickedView) }
-        lateAdapter = AttendancePlayerAdapter { player, action, clickedView -> handlePlayerAction(player, action, clickedView) }
-        excusedAdapter = AttendancePlayerAdapter { player, action, clickedView -> handlePlayerAction(player, action, clickedView) }
+    private fun setupViews(view: View) {
+        presentCount = view.findViewById(R.id.presentCount)
+        absentCount = view.findViewById(R.id.absentCount)
+        lateCount = view.findViewById(R.id.lateCount)
+        excusedCount = view.findViewById(R.id.excusedCount)
+    }
 
-        view.findViewById<RecyclerView>(R.id.presentRecyclerView).apply {
+    private fun setupRecyclerView(view: View) {
+        attendanceAdapter = AttendancePlayerAdapter { player, action, clickedView -> handlePlayerAction(player, action, clickedView) }
+
+        view.findViewById<RecyclerView>(R.id.attendanceRecyclerView).apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = presentAdapter
-        }
-        view.findViewById<RecyclerView>(R.id.absentRecyclerView).apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = absentAdapter
-        }
-        view.findViewById<RecyclerView>(R.id.lateRecyclerView).apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = lateAdapter
-        }
-        view.findViewById<RecyclerView>(R.id.excusedRecyclerView).apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = excusedAdapter
+            adapter = attendanceAdapter
         }
     }
 
@@ -84,10 +80,8 @@ class AttendanceFragment : Fragment() {
                 val late = players.filter { it.attendance.status == 2 }
                 val excused = players.filter { it.attendance.status == 3 }
 
-                presentAdapter.updatePlayers(present)
-                absentAdapter.updatePlayers(absent)
-                lateAdapter.updatePlayers(late)
-                excusedAdapter.updatePlayers(excused)
+                // Update unified adapter with all players
+                attendanceAdapter.updatePlayers(players)
                 
                 updateSectionCounts(present.size, absent.size, late.size, excused.size)
             }
@@ -104,12 +98,10 @@ class AttendanceFragment : Fragment() {
     }
 
     private fun updateSectionCounts(presentCount: Int, absentCount: Int, lateCount: Int, excusedCount: Int) {
-        view?.let { view ->
-            view.findViewById<TextView>(R.id.presentSectionTitle)?.text = "Present ($presentCount)"
-            view.findViewById<TextView>(R.id.absentSectionTitle)?.text = "Absent ($absentCount)"
-            view.findViewById<TextView>(R.id.lateSectionTitle)?.text = "Late ($lateCount)"
-            view.findViewById<TextView>(R.id.excusedSectionTitle)?.text = "Excused ($excusedCount)"
-        }
+        this.presentCount.text = "Present ($presentCount)"
+        this.absentCount.text = "Absent ($absentCount)"
+        this.lateCount.text = "Late ($lateCount)"
+        this.excusedCount.text = "Excused ($excusedCount)"
     }
 
     private fun handlePlayerAction(player: AttendanceWithUser, action: String, clickedView: View?) {

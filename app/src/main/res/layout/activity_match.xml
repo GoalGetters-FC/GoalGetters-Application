@@ -5,75 +5,103 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/surface">
+    android:background="#161620">
 
-    <!-- Header -->
+    <!-- Dark Header Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp"
-        android:background="@color/surface"
-        android:elevation="2dp">
+        android:orientation="vertical"
+        android:background="#161620"
+        android:elevation="4dp">
 
-        <!-- Back Button -->
-        <ImageButton
-            android:id="@+id/backButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_unicons_arrow_left"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
-            app:tint="@color/text_secondary" />
-
-        <!-- Date -->
-        <TextView
-            android:id="@+id/headerDate"
-            android:layout_width="0dp"
+        <!-- Top bar with back button and centered title -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="June 27, 2025"
-            android:textColor="@color/on_surface"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:fontFamily="@font/variable_inter"
-            android:gravity="center"
-            tools:text="June 27, 2025" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="20dp">
 
-        <!-- Options Button -->
-        <ImageButton
-            android:id="@+id/optionsButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_unicons_ellipsis_v"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="More options"
-            app:tint="@color/text_secondary" />
+            <!-- Back Button -->
+            <ImageButton
+                android:id="@+id/backButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_unicons_arrow_left"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                app:tint="#FFFFFF" />
+
+            <!-- Centered Title -->
+            <TextView
+                android:id="@+id/headerDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="June 27, 2025"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textFontWeight="600"
+                android:fontFamily="@font/variable_inter"
+                android:gravity="center"
+                tools:text="June 27, 2025" />
+
+            <!-- Invisible spacer to balance the layout -->
+            <View
+                android:layout_width="48dp"
+                android:layout_height="48dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <!-- Tab Layout -->
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/surface"
-        app:tabMode="fixed"
-        app:tabGravity="fill"
-        app:tabSelectedTextColor="@color/primary"
-        app:tabTextColor="@color/on_surface_variant"
-        app:tabIndicatorColor="@color/primary"
-        app:tabIndicatorHeight="3dp"
-        app:tabTextAppearance="@style/TabTextAppearance"
-        android:elevation="1dp" />
-
-    <!-- ViewPager for fragments -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager"
+    <!-- Content Container with Rounded Top -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        app:cardCornerRadius="40dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/white"
+        app:contentPadding="0dp"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!-- Tab Layout -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="12dp"
+                app:tabMode="fixed"
+                app:tabGravity="fill"
+                app:tabIndicatorColor="@color/primary"
+                app:tabSelectedTextColor="@color/primary"
+                app:tabTextColor="@color/text_secondary"
+                app:tabTextAppearance="@style/TabTextAppearance"
+                app:tabIndicatorHeight="3dp"
+                app:tabIndicatorGravity="bottom"
+                app:tabPaddingTop="12dp"
+                app:tabPaddingBottom="12dp" />
+
+            <!-- ViewPager for fragments -->
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

@@ -164,7 +164,7 @@ class MatchControlActivity : AppCompatActivity() {
     }
 
     private fun showRecordEventDialog() {
-        RecordEventBottomSheet.newInstance(matchDetails.matchId, 0)
+        RecordEventBottomSheet.newInstance(matchDetails.matchId, "goal")
             .show(supportFragmentManager, "record_event")
     }
 

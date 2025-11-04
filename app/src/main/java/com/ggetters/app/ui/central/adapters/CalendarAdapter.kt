@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.ggetters.app.core.utils.Clogger
-import com.ggetters.app.data.model.CalendarDayItem   // ✅ now from data.model
+import com.ggetters.app.data.model.CalendarDayItem
 import com.ggetters.app.databinding.ItemCalendarDayBinding
 import com.ggetters.app.ui.shared.adapters.KeyedDiffCallback
 
@@ -15,7 +15,7 @@ class CalendarAdapter(
 
     companion object {
         private const val TAG = "CalendarAdapter"
-        private const val DEV_VERBOSE_LOGGER = true
+        private const val DEV_VERBOSE_LOGGER = false
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CalendarViewHolder {

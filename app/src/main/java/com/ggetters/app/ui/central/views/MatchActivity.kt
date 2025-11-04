@@ -5,6 +5,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -35,6 +36,9 @@ class MatchActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_match)
+
+        // Setup status bar for dark header
+        setupStatusBar()
 
         overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
 
@@ -74,22 +78,37 @@ class MatchActivity : AppCompatActivity() {
     }
 
 
+    private fun setupStatusBar() {
+        // Enable edge-to-edge display but keep status bar visible
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // Set up window insets controller for dark status bar (since we have dark header)
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = false // Dark status bar icons for dark background
+
+        // Set status bar to match the dark header color
+        window.statusBarColor = android.graphics.Color.parseColor("#161620")
+    }
+
     private fun setupTabs() {
         val adapter = MatchPagerAdapter(this, eventId)
         viewPager.adapter = adapter
+        viewPager.offscreenPageLimit = 2
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = when (position) {
-                0 -> "Details"
-                1 -> "Attendance"
-                2 -> "Lineup"
-                else -> "Tab"
-            }
-            tab.icon = when (position) {
-                0 -> getDrawable(R.drawable.ic_unicons_info_circle_24)
-                1 -> getDrawable(R.drawable.ic_unicons_users_24)
-                2 -> getDrawable(R.drawable.ic_unicons_soccer_24)
-                else -> null
+            when (position) {
+                0 -> { 
+                    tab.text = "Details"
+                    tab.setIcon(R.drawable.ic_details_modern_24)
+                }
+                1 -> { 
+                    tab.text = "Attendance"
+                    tab.setIcon(R.drawable.ic_attendance_modern_24)
+                }
+                2 -> { 
+                    tab.text = "Lineup"
+                    tab.setIcon(R.drawable.ic_lineup_modern_24)
+                }
             }
         }.attach()
         viewPager.setCurrentItem(0, false)

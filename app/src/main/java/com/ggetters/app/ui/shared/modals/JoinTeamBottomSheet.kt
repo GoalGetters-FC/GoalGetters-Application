@@ -4,13 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.ggetters.app.R
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ModalBottomSheetJoinTeamBinding
 import com.ggetters.app.ui.shared.models.Clickable
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class JoinTeamBottomSheet(
-    private val onSubmit: (String, String) -> Unit
+    private val onSubmit: (String) -> Unit
 ) : BottomSheetDialogFragment(), Clickable {
     companion object {
         const val TAG = "JoinTeamBottomSheet"
@@ -21,6 +22,12 @@ class JoinTeamBottomSheet(
 
 
 // --- Lifecycle
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setStyle(STYLE_NORMAL, R.style.Widget_Local_ModalBottomSheet)
+        super.onCreate(savedInstanceState)
+    }
 
 
     override fun onCreateView(
@@ -47,21 +54,29 @@ class JoinTeamBottomSheet(
     /**
      * TODO: Abstract logic to a function with input validation
      */
-    override fun onClick(view: View?) = when (view?.id) {
-        binds.btContinue.id -> {
-            val teamCode = binds.etCodeTeam.text.toString().trim()
-            val userCode = binds.etCodeUser.text.toString().trim()
-            onSubmit(
-                teamCode, userCode
-            )
+    override fun onClick(view: View?) {
+        when (view?.id) {
+            binds.btContinue.id -> {
+                val teamCode = binds.etCodeTeam.text.toString().trim().uppercase()
+                var hasError = false
+                val codeRegex = Regex("^[A-Z0-9]{6}$")
+                if (!codeRegex.matches(teamCode)) {
+                    binds.etCodeTeam.error = "Enter 6-letter/numeric team code"
+                    hasError = true
+                } else {
+                    binds.etCodeTeam.error = null
+                }
+                if (hasError) return
 
-            dismiss()
-        }
+                onSubmit(teamCode)
+                dismiss()
+            }
 
-        else -> {
-            Clogger.w(
-                TAG, "Unhandled on-click for: ${view?.id}"
-            )
+            else -> {
+                Clogger.w(
+                    TAG, "Unhandled on-click for: ${view?.id}"
+                )
+            }
         }
     }
 

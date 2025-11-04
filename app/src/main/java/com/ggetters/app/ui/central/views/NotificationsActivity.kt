@@ -1,47 +1,48 @@
 package com.ggetters.app.ui.central.views
 
-import android.app.AlertDialog
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import android.provider.Settings
+import android.widget.LinearLayout
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ggetters.app.R
-import com.ggetters.app.ui.central.adapters.NotificationAdapter
-import com.ggetters.app.data.model.NotificationItem
-import com.ggetters.app.data.model.NotificationType
-import com.ggetters.app.data.model.RSVPStatus
-import com.ggetters.app.data.model.LinkedEventType
-import com.ggetters.app.data.model.AttendanceCounts
+import com.ggetters.app.data.model.Notification
+import com.ggetters.app.ui.central.adapters.NotificationCardAdapter
 import com.ggetters.app.ui.central.viewmodels.NotificationsViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
-import android.widget.ImageButton
-
-// TODO: Backend - Implement real-time notification delivery using WebSocket or FCM
-// TODO: Backend - Add notification preferences and user settings
-// TODO: Backend - Implement notification analytics and engagement tracking
-// TODO: Backend - Add notification templates and automated notifications
-// TODO: Backend - Implement notification scheduling and delayed delivery
-// TODO: Backend - Add notification grouping and smart categorization
-// TODO: Backend - Implement notification search and filtering
-// TODO: Backend - Add notification export and backup functionality
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class NotificationsActivity : AppCompatActivity() {
 
     private val model: NotificationsViewModel by viewModels()
-    private lateinit var notificationAdapter: NotificationAdapter
-    private var allNotifications: List<NotificationItem> = emptyList()
-    private var filteredNotifications: List<NotificationItem> = emptyList()
+    private lateinit var notificationAdapter: NotificationCardAdapter
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                model.loadNotifications()
+            } else {
+                showNotificationPermissionDeniedSnackbar(canOpenSettings = true)
+                model.loadNotifications()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,362 +52,181 @@ class NotificationsActivity : AppCompatActivity() {
         supportPostponeEnterTransition()
         supportStartPostponedEnterTransition()
 
-        setupWindowInsets()
-        setupHeader()
-        setupNotifications()
-        setupSwipeActions()
+        setupLayoutUi()
+        setupRecyclerView()
+        observe()
+
+        ensureNotificationPermission()
     }
 
-    private fun setupWindowInsets() {
-        // Enable edge-to-edge display but keep status bar visible
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+    // --- UI setup ---
+    private fun setupLayoutUi() {
+        enableEdgeToEdge()
 
-        // Set up window insets controller for light status bar
-        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
-        windowInsetsController.isAppearanceLightStatusBars = true // Light status bar icons
-
-        // Ensure status bar is visible and properly colored
-        window.statusBarColor = getColor(R.color.white)
+        val appBar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.app_bar)
+        setSupportActionBar(appBar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         
-        // Handle window insets for the header
-        val headerLayout = findViewById<android.widget.LinearLayout>(R.id.headerLayout)
-        ViewCompat.setOnApplyWindowInsetsListener(headerLayout) { view, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(
-                view.paddingLeft,
-                insets.top + view.paddingTop,
-                view.paddingRight,
-                view.paddingBottom
-            )
-            windowInsets
-        }
-    }
-
-    private fun setupHeader() {
-        findViewById<ImageButton>(R.id.backButton).setOnClickListener {
+        // Set up back button click listener
+        appBar.setNavigationOnClickListener {
             finish()
-            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+        }
+        
+        val root = findViewById<androidx.coordinatorlayout.widget.CoordinatorLayout>(R.id.main)
+        
+        // Set dark background on root (makes status bar dark via edge-to-edge)
+        root.setBackgroundColor("#161620".toColorInt())
+        
+        // White status bar icons for dark background (matches TeamViewerActivity)
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
+        
+        ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
+            insets
         }
     }
 
-    private fun setupNotifications() {
-        val recyclerView = findViewById<RecyclerView>(R.id.notificationsRecyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
-        // TODO: Backend - Fetch notifications from backend with proper data structure
-        // TODO: Backend - Implement notification pagination for large datasets
-        // TODO: Backend - Add notification caching for offline access
-        // TODO: Backend - Implement notification sync across devices
-        val notifications = listOf(
-            // General Text Notification (matches image)
-            NotificationItem(
-                id = 1,
-                title = "Reminder",
-                subtitle = "Shin guards reminder",
-                message = "Don't forget to pack your shin guards for tomorrow!",
-                isSeen = false,
-                type = NotificationType.ADMIN_MESSAGE,
-                timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
-                sender = "Coach",
-                linkedEventType = LinkedEventType.ANNOUNCEMENT,
-                linkedEventId = "announcement_001"
-            ),
-            
-            // Results Summary Notification (matches image)
-            NotificationItem(
-                id = 2,
-                title = "Match Results",
-                subtitle = "Summary of results",
-                message = "Summary of results.",
-                isSeen = false,
-                type = NotificationType.POST_MATCH_SUMMARY,
-                timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
-                sender = "System",
-                linkedEventType = LinkedEventType.MATCH_RESULTS,
-                linkedEventId = "match_001",
-                data = mapOf(
-                    "homeScore" to "15",
-                    "awayScore" to "2",
-                    "homeTeam" to "Home",
-                    "awayTeam" to "Away"
-                )
-            ),
-            
-            // Scheduled Event Notification (matches image)
-            NotificationItem(
-                id = 3,
-                title = "New Practice",
-                subtitle = "Practice scheduled",
-                message = "New practice scheduled!",
-                isSeen = false,
-                type = NotificationType.PRACTICE_NOTIFICATION,
-                timestamp = System.currentTimeMillis() - 172800000, // 2 days ago
-                sender = "Coach",
-                linkedEventType = LinkedEventType.PRACTICE,
-                linkedEventId = "practice_001",
-                eventDate = System.currentTimeMillis() + 86400000, // Tomorrow
-                attendanceCounts = AttendanceCounts(8, 3, 2, 13)
-            ),
-            
-            // Long Text Notification (matches image)
-            NotificationItem(
-                id = 4,
-                title = "Parent Pickup",
-                subtitle = "Important notice",
-                message = "Parents: remember to pick up your players from the front not the back. Thanks.",
-                isSeen = true,
-                type = NotificationType.ANNOUNCEMENT,
-                timestamp = System.currentTimeMillis() + 86400000, // Future date
-                sender = "Coach",
-                linkedEventType = LinkedEventType.ANNOUNCEMENT,
-                linkedEventId = "announcement_002"
-            ),
-            
-            // Game RSVP Notification with attendance counts
-            NotificationItem(
-                id = 5,
-                title = "Match vs Tigers FC",
-                subtitle = "RSVP Request",
-                message = "Please confirm your availability for the upcoming match.",
-                isSeen = false,
-                type = NotificationType.GAME_NOTIFICATION,
-                timestamp = System.currentTimeMillis() - 7200000, // 2 hours ago
-                sender = "Coach",
-                linkedEventType = LinkedEventType.GAME,
-                linkedEventId = "game_001",
-                venue = "Main Stadium",
-                eventDate = System.currentTimeMillis() + 86400000, // Tomorrow
-                opponent = "Tigers FC",
-
-                attendanceCounts = AttendanceCounts(12, 2, 1, 15)
-            ),
-            
-            // Game Reminder Notification
-            NotificationItem(
-                id = 6,
-                title = "Reminder: Match today",
-                subtitle = "Home match against Greenfield United",
-                message = "Your team has a match this weekend at the home ground. Please arrive 30 minutes early.",
-                isSeen = true,
-                type = NotificationType.GAME_REMINDER,
-                timestamp = System.currentTimeMillis() - 3600000, // 1 hour ago
-                sender = "System",
-                linkedEventType = LinkedEventType.GAME,
-                linkedEventId = "game_002",
-                venue = "Home Ground",
-                eventDate = System.currentTimeMillis() + 7200000, // 2 hours from now
-                opponent = "Greenfield United",
-                countdownTime = System.currentTimeMillis() + 7200000
-            ),
-            
-            // Practice RSVP Notification
-            NotificationItem(
-                id = 7,
-                title = "Training Session Tomorrow",
-                subtitle = "RSVP Request",
-                message = "Team practice scheduled for tomorrow at 3 PM. Focus on passing drills.",
-                isSeen = false,
-                type = NotificationType.PRACTICE_NOTIFICATION,
-                timestamp = System.currentTimeMillis() - 86400000, // 1 day ago
-                sender = "Coach",
-                linkedEventType = LinkedEventType.PRACTICE,
-                linkedEventId = "practice_002",
-                venue = "Field 2",
-                eventDate = System.currentTimeMillis() + 86400000, // Tomorrow
-
-                attendanceCounts = AttendanceCounts(10, 3, 2, 15)
-            ),
-            
-            // Pinned Announcement
-            NotificationItem(
-                id = 8,
-                title = "Team Announcement",
-                subtitle = "Important team meeting",
-                message = "Team meeting this Friday at 6 PM to discuss upcoming tournament strategy.",
-                isSeen = false,
-                type = NotificationType.ANNOUNCEMENT,
-                timestamp = System.currentTimeMillis() - 3600000, // 1 hour ago
-                sender = "Coach",
-                isPinned = true,
-                linkedEventType = LinkedEventType.ANNOUNCEMENT,
-                linkedEventId = "announcement_003"
-            )
-        )
-
-        allNotifications = notifications.sortedByDescending { it.timestamp } // Newest first
-        filteredNotifications = allNotifications
-        
-        notificationAdapter = NotificationAdapter(
-            filteredNotifications.toMutableList(),
-            onActionClick = { notification, action ->
-                when (action) {
-                    "delete" -> {
-                        showDeleteConfirmation(notification)
-                    }
-                    "mark_seen" -> {
-                        handleMarkAsSeen(notification)
-                    }
-                    "pin" -> {
-                        handlePinNotification(notification)
-                    }
-                    "view_event" -> {
-                        handleViewLinkedEvent(notification)
+    private fun setupRecyclerView() {
+        notificationAdapter = NotificationCardAdapter(
+            onNotificationClick = { notification ->
+                // Handle notification click - could navigate to event details
+                // Mark as seen when clicked
+                lifecycleScope.launch {
+                    if (!notification.isSeen) {
+                        model.markAsSeen(notification.id)
                     }
                 }
             },
-            onItemClick = { notification ->
-                // Handle notification item click - opens linked event
-                handleNotificationClick(notification)
-            },
-            onSwipeAction = { notification, action ->
-                when (action) {
-                    "delete" -> showDeleteConfirmation(notification)
-                    "mark_seen" -> handleMarkAsSeen(notification)
+            onMarkAsSeen = { notification ->
+                // Mark as seen
+                lifecycleScope.launch {
+                    model.markAsSeen(notification.id)
+                    Snackbar.make(
+                        findViewById(android.R.id.content),
+                        "Notification marked as ${if (notification.isSeen) "unread" else "read"}",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
                 }
             },
-            onLongPress = { notification ->
-                showLongPressOptions(notification)
+            onDelete = { notification ->
+                // Delete notification with confirmation feedback
+                lifecycleScope.launch {
+                    model.deleteNotification(notification.id)
+                    Snackbar.make(
+                        findViewById(android.R.id.content),
+                        "Notification deleted",
+                        Snackbar.LENGTH_SHORT
+                    ).setAction("UNDO") {
+                        // TODO: Implement undo functionality if needed
+                    }.show()
+                }
             }
         )
-        
+        val recyclerView = findViewById<RecyclerView>(R.id.notificationsRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = notificationAdapter
     }
 
-    private fun setupSwipeActions() {
-        val recyclerView = findViewById<RecyclerView>(R.id.notificationsRecyclerView)
-        
-        // TODO: Backend - Implement swipe actions for mark read/unread and delete
-        val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-                return false
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                val notification = filteredNotifications[position]
-                
-                when (direction) {
-                    ItemTouchHelper.LEFT -> {
-                        // Swipe left - Mark as read/unread
-                        handleMarkAsSeen(notification)
-                    }
-                    ItemTouchHelper.RIGHT -> {
-                        // Swipe right - Delete
-                        showDeleteConfirmation(notification)
-                    }
-                }
-            }
+    private fun ensureNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            model.loadNotifications()
+            return
         }
-        
-        ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerView)
-    }
 
-    private fun handleNotificationClick(notification: NotificationItem) {
-        // TODO: Backend - Navigate to linked event based on notification.linkedEventType and notification.linkedEventId
-        when (notification.linkedEventType) {
-            LinkedEventType.GAME -> {
-                // Navigate to game details
-                Snackbar.make(findViewById(android.R.id.content), "Opening game details...", Snackbar.LENGTH_SHORT).show()
-            }
-            LinkedEventType.PRACTICE -> {
-                // Navigate to practice details
-                Snackbar.make(findViewById(android.R.id.content), "Opening practice details...", Snackbar.LENGTH_SHORT).show()
-            }
-            LinkedEventType.ANNOUNCEMENT -> {
-                // Navigate to announcement details
-                Snackbar.make(findViewById(android.R.id.content), "Opening announcement details...", Snackbar.LENGTH_SHORT).show()
-            }
-            LinkedEventType.MATCH_RESULTS -> {
-                // Navigate to match results
-                Snackbar.make(findViewById(android.R.id.content), "Opening match results...", Snackbar.LENGTH_SHORT).show()
-            }
-            else -> {
-                // Default behavior
-                if (!notification.isSeen) {
-                    handleMarkAsSeen(notification)
-                }
-            }
-        }
-    }
-
-
-
-    private fun handleMarkAsSeen(notification: NotificationItem) {
-        // TODO: Backend - Mark notification as seen/unseen in backend
-        // TODO: Backend - Implement notification read status synchronization
-        // TODO: Backend - Add notification analytics for engagement tracking
-        // TODO: Backend - Implement bulk read/unread operations
-        notification.isSeen = !notification.isSeen
-        notificationAdapter.notifyDataSetChanged()
-        
-        val action = if (notification.isSeen) "marked as read" else "marked as unread"
-        Snackbar.make(
-            findViewById(android.R.id.content), 
-            "Notification $action", 
-            Snackbar.LENGTH_SHORT
-        ).show()
-    }
-
-    private fun handlePinNotification(notification: NotificationItem) {
-        // TODO: Backend - Pin/unpin notification in backend
-        // TODO: Backend - Implement pinned notification persistence
-        // TODO: Backend - Add pinned notification limits and management
-        // TODO: Backend - Implement pinned notification sync across devices
-        notification.isPinned = !notification.isPinned
-        notificationAdapter.notifyDataSetChanged()
-        
-        val action = if (notification.isPinned) "pinned" else "unpinned"
-        Snackbar.make(
-            findViewById(android.R.id.content), 
-            "Notification $action", 
-            Snackbar.LENGTH_SHORT
-        ).show()
-    }
-
-    private fun handleViewLinkedEvent(notification: NotificationItem) {
-        // TODO: Backend - Navigate to linked event
-        handleNotificationClick(notification)
-    }
-
-    private fun showLongPressOptions(notification: NotificationItem) {
-        // TODO: Backend - Show bottom sheet with long press options
-        val options = arrayOf(
-            if (notification.isSeen) "Mark as Unread" else "Mark as Read",
-            if (notification.isPinned) "Unpin" else "Pin",
-            "View Linked Event",
-            "Delete"
+        val permissionStatus = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.POST_NOTIFICATIONS
         )
-        
-        AlertDialog.Builder(this)
-            .setTitle("Notification Options")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> handleMarkAsSeen(notification)
-                    1 -> handlePinNotification(notification)
-                    2 -> handleViewLinkedEvent(notification)
-                    3 -> showDeleteConfirmation(notification)
-                }
+
+        when {
+            permissionStatus == PackageManager.PERMISSION_GRANTED -> {
+                model.loadNotifications()
             }
-            .show()
+
+            shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    R.string.notification_permission_rationale,
+                    Snackbar.LENGTH_LONG
+                ).setAction(R.string.notification_permission_enable_action) {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }.show()
+                model.loadNotifications()
+            }
+
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
     }
 
-    private fun showDeleteConfirmation(notification: NotificationItem) {
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Delete Notification")
-            .setMessage("Are you sure you want to delete this notification?")
-            .setPositiveButton("Delete") { _, _ ->
-                // TODO: Backend - Delete notification from backend
-                // TODO: Backend - Implement soft delete for notification recovery
-                // TODO: Backend - Add notification deletion analytics
-                // TODO: Backend - Implement bulk delete operations
-                allNotifications = allNotifications.filter { it.id != notification.id }
-                filteredNotifications = filteredNotifications.filter { it.id != notification.id }
-                notificationAdapter.updateNotifications(filteredNotifications.toMutableList())
-                Snackbar.make(findViewById(android.R.id.content), "Notification deleted", Snackbar.LENGTH_SHORT).show()
+    // --- Observe ViewModel ---
+    private fun observe() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.notifications.collect { notifications ->
+                    // Debug logging
+                    com.ggetters.app.core.utils.Clogger.d("NotificationsActivity", "Received ${notifications.size} notifications from ViewModel")
+                    
+                    // Update adapter with new notifications
+                    notificationAdapter.updateNotifications(notifications)
+                    
+                    // Show/hide empty state
+                    val emptyState = findViewById<LinearLayout>(R.id.emptyState)
+                    val scrollContainer = findViewById<androidx.core.widget.NestedScrollView>(R.id.svContainer)
+                    
+                    if (notifications.isEmpty()) {
+                        emptyState?.visibility = android.view.View.VISIBLE
+                        scrollContainer?.visibility = android.view.View.GONE
+                    } else {
+                        emptyState?.visibility = android.view.View.GONE
+                        scrollContainer?.visibility = android.view.View.VISIBLE
+                    }
+                }
             }
-            .setNegativeButton("Cancel", null)
-            .create()
-        
-        dialog.show()
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.isLoading.collect { isLoading ->
+                    // TODO: Show/hide loading indicator
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.error.collect { error ->
+                    error?.let {
+                        Snackbar.make(findViewById(android.R.id.content), error, Snackbar.LENGTH_LONG).show()
+                        model.clearError()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showNotificationPermissionDeniedSnackbar(canOpenSettings: Boolean) {
+        val snackbar = Snackbar.make(
+            findViewById(android.R.id.content),
+            R.string.notification_permission_denied,
+            Snackbar.LENGTH_LONG
+        )
+
+        if (canOpenSettings && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            snackbar.setAction(R.string.notification_permission_settings_action) {
+                openNotificationSettings()
+            }
+        }
+
+        snackbar.show()
+    }
+
+    private fun openNotificationSettings() {
+        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+            putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        }
+        startActivity(intent)
     }
 } 

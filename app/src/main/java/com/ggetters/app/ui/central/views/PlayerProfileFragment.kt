@@ -4,27 +4,42 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AutoCompleteTextView
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
+import android.widget.ImageButton
 import com.ggetters.app.R
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.ui.central.viewmodels.HomeProfileViewModel
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import com.ggetters.app.core.utils.DateUtils
+import com.ggetters.app.core.validation.UserValidationUtils
+import com.ggetters.app.core.services.StatisticsService
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class PlayerProfileFragment : Fragment() {
+
+    @Inject
+    lateinit var statisticsService: StatisticsService
+    
+    @Inject
+    lateinit var teamRepository: com.ggetters.app.data.repository.team.TeamRepository
 
     companion object {
         private const val ARG_PLAYER_ID = "player_id" // need to pass the actual id from db
@@ -47,6 +62,8 @@ class PlayerProfileFragment : Fragment() {
     private var currentPlayer: User? = null
 
     // Header
+    private lateinit var backButton: ImageButton
+    private lateinit var statisticsButton: ImageButton
     private lateinit var playerAvatar: ImageView
     private lateinit var playerName: TextView
     private lateinit var playerAge: TextView
@@ -57,8 +74,9 @@ class PlayerProfileFragment : Fragment() {
     private lateinit var playerEmailInput: TextInputEditText
     private lateinit var playerDateOfBirthInput: TextInputEditText
     private lateinit var playerContactInput: TextInputEditText
-    private lateinit var playerStatusDropdown: AutoCompleteTextView
-    private lateinit var playerRoleDropdown: AutoCompleteTextView
+    private lateinit var playerStatusDropdown: TextInputEditText
+    private lateinit var playerRoleDropdown: TextInputEditText
+    private lateinit var cardPlayerNumber: MaterialCardView
 
     // Statistics (placeholders)
     private lateinit var statsGoals: TextView
@@ -68,17 +86,25 @@ class PlayerProfileFragment : Fragment() {
     private lateinit var statsRedCards: TextView
     private lateinit var statsCleanSheets: TextView
 
-    // Action rows & buttons
-    private lateinit var actionsRow: ViewGroup
-    private lateinit var editActionsRow: View
+    // Action buttons
     private lateinit var btnEditProfile: MaterialButton
-    private lateinit var btnSendMessage: MaterialButton
-    private lateinit var btnViewHistory: MaterialButton
     private lateinit var btnCancelEdit: MaterialButton
     private lateinit var btnSaveProfile: MaterialButton
     private lateinit var btnDeleteProfile: MaterialButton
 
     private val userRole = "coach" // TODO: inject/derive real role
+
+    private fun setupStatusBar() {
+        // Hide the system status bar to use our custom header
+        requireActivity().window.statusBarColor = android.graphics.Color.parseColor("#161620")
+        
+        // Set up window insets controller for dark status bar
+        val windowInsetsController = WindowCompat.getInsetsController(requireActivity().window, requireActivity().window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = false // Dark status bar icons for dark background
+        
+        // Use the same keyboard handling as the account tab
+        requireActivity().window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,6 +122,7 @@ class PlayerProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupStatusBar()
         setupViews(view)
         setupRoleVisibility()
         setupActions()
@@ -126,28 +153,32 @@ class PlayerProfileFragment : Fragment() {
         when (userRole) {
             "coach", "assistant" -> {
                 btnEditProfile.visibility = View.VISIBLE
-                btnSendMessage.visibility = View.VISIBLE
-                btnViewHistory.visibility = View.VISIBLE
+                btnDeleteProfile.visibility = View.VISIBLE
             }
             "player" -> {
                 btnEditProfile.visibility = View.VISIBLE
-                btnSendMessage.visibility = View.VISIBLE
-                btnViewHistory.visibility = View.VISIBLE
+                btnDeleteProfile.visibility = View.GONE
+                btnDeleteProfile.contentDescription = null
             }
             "guardian" -> {
                 btnEditProfile.visibility = View.GONE
-                btnSendMessage.visibility = View.VISIBLE
-                btnViewHistory.visibility = View.VISIBLE
+                btnDeleteProfile.visibility = View.GONE
+                btnEditProfile.contentDescription = null
+                btnDeleteProfile.contentDescription = null
             }
             else -> {
                 btnEditProfile.visibility = View.GONE
-                btnSendMessage.visibility = View.GONE
-                btnViewHistory.visibility = View.GONE
+                btnDeleteProfile.visibility = View.GONE
+                btnEditProfile.contentDescription = null
+                btnDeleteProfile.contentDescription = null
             }
         }
     }
 
     private fun setupViews(view: View) {
+        // Header
+        backButton = view.findViewById(R.id.backButton)
+        statisticsButton = view.findViewById(R.id.statisticsButton)
         playerAvatar = view.findViewById(R.id.playerAvatar)
         playerName   = view.findViewById(R.id.playerName)
         playerAge    = view.findViewById(R.id.playerAge)
@@ -159,6 +190,7 @@ class PlayerProfileFragment : Fragment() {
         playerContactInput     = view.findViewById(R.id.playerContactInput)
         playerStatusDropdown   = view.findViewById(R.id.playerStatusDropdown)
         playerRoleDropdown     = view.findViewById(R.id.playerRoleDropdown)
+        cardPlayerNumber       = view.findViewById<MaterialCardView>(R.id.cardPlayerNumber)
 
         statsGoals        = view.findViewById(R.id.statsGoals)
         statsAssists      = view.findViewById(R.id.statsAssists)
@@ -167,26 +199,86 @@ class PlayerProfileFragment : Fragment() {
         statsRedCards     = view.findViewById(R.id.statsRedCards)
         statsCleanSheets  = view.findViewById(R.id.statsCleanSheets)
 
-        actionsRow     = view.findViewById(R.id.actionsRow)
-        editActionsRow = view.findViewById(R.id.editActionsRow)
-
         btnEditProfile   = view.findViewById(R.id.btnEditProfile)
-        btnSendMessage   = view.findViewById(R.id.btnSendMessage)
-        btnViewHistory   = view.findViewById(R.id.btnViewHistory)
         btnCancelEdit    = view.findViewById(R.id.btnCancelEdit)
         btnSaveProfile   = view.findViewById(R.id.btnSaveProfile)
         btnDeleteProfile = view.findViewById(R.id.btnDeleteProfile)
 
-        // Dropdowns
-        val statusOptions = listOf(UserStatus.ACTIVE.name, UserStatus.INJURY.name)
-        val roleOptions   = UserRole.values().map { it.name }
-        playerStatusDropdown.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, statusOptions))
-        playerRoleDropdown.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, roleOptions))
+        // Setup dropdowns with click listeners for selection dialogs
+        setupDropdowns()
 
         setupDatePicker()
+        
+        // Setup focus listeners to scroll to focused fields
+        setupFocusListeners()
+    }
+
+    private fun setupFocusListeners() {
+        // Simple focus handling like the account tab
+        val inputFields = listOf(
+            playerNameInput,
+            playerNumberInput,
+            playerEmailInput,
+            playerDateOfBirthInput,
+            playerContactInput,
+            playerStatusDropdown,
+            playerRoleDropdown
+        )
+        
+        inputFields.forEach { field ->
+            field.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    // Simple scroll to field - let the system handle keyboard management
+                    field.post {
+                        field.requestFocus()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setupDropdowns() {
+        val statusOptions = listOf(UserStatus.ACTIVE.name, UserStatus.INJURY.name)
+        val roleOptions = UserRole.values().map { it.name }
+
+        playerStatusDropdown.setOnClickListener {
+            if (isEditing) {
+                showSelectionDialog("Select Status", statusOptions) { selected ->
+                    playerStatusDropdown.setText(selected)
+                }
+            }
+        }
+
+        playerRoleDropdown.setOnClickListener {
+            if (isEditing) {
+                showSelectionDialog("Select Role", roleOptions) { selected ->
+                    playerRoleDropdown.setText(selected)
+                }
+            }
+        }
+    }
+
+    private fun showSelectionDialog(title: String, options: List<String>, onSelected: (String) -> Unit) {
+        val builder = android.app.AlertDialog.Builder(requireContext())
+        builder.setTitle(title)
+            .setItems(options.toTypedArray()) { _, which ->
+                onSelected(options[which])
+            }
+            .show()
     }
 
     private fun setupActions() {
+        // Back button - use proper fragment navigation
+        backButton.setOnClickListener {
+            // Use the fragment's parent fragment manager to pop back stack
+            if (parentFragmentManager.backStackEntryCount > 0) {
+                parentFragmentManager.popBackStack()
+            } else {
+                // If no back stack, use the activity's back press dispatcher
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+        }
+
         // Edit toggle
         btnEditProfile.setOnClickListener { setEditing(!isEditing) }
 
@@ -199,25 +291,30 @@ class PlayerProfileFragment : Fragment() {
             if (validateInputs()) {
                 currentPlayer?.let { existing ->
                     val updated = buildUserFromInputs(existing)
-                    viewModel.updatePlayer(updated)
-                    Snackbar.make(requireView(), "Profile updated", Snackbar.LENGTH_SHORT).show()
-                    setEditing(false)
+                    lifecycleScope.launch {
+                        try {
+                            viewModel.updatePlayer(updated)
+                            setEditing(false)
+                            Snackbar.make(requireView(), "Player updated successfully", Snackbar.LENGTH_SHORT).show()
+                        } catch (e: Exception) {
+                            Snackbar.make(requireView(), "Failed to update player: ${e.message}", Snackbar.LENGTH_LONG).show()
+                        }
+                    }
                 }
             }
         }
 
         btnDeleteProfile.setOnClickListener {
-            currentPlayer?.let { viewModel.deletePlayer(it) }
-            Snackbar.make(requireView(), "Player deleted", Snackbar.LENGTH_SHORT).show()
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            showDeletePlayerConfirmation()
         }
 
-        btnSendMessage.setOnClickListener {
-            Snackbar.make(requireView(), "Messaging coming soon", Snackbar.LENGTH_SHORT).show()
+        // Statistics button
+        statisticsButton.setOnClickListener {
+            currentPlayer?.let { player ->
+                navigateToStatistics(player.id)
+            }
         }
-        btnViewHistory.setOnClickListener {
-            Snackbar.make(requireView(), "History coming soon", Snackbar.LENGTH_SHORT).show()
-        }
+
     }
 
     private fun displayPlayerInfo(player: User) {
@@ -227,19 +324,17 @@ class PlayerProfileFragment : Fragment() {
         playerNameInput.setText(player.fullName())
         playerNumberInput.setText(player.number?.toString() ?: "")
         playerEmailInput.setText(player.email ?: "")
-        playerDateOfBirthInput.setText(player.dateOfBirth?.format(DateTimeFormatter.ISO_DATE) ?: "")
+        playerDateOfBirthInput.setText(player.dateOfBirth?.let { DateUtils.formatForDisplay(it) } ?: "")
         playerContactInput.setText("") // no contact field in User
 
-        playerStatusDropdown.setText(player.status?.name ?: UserStatus.ACTIVE.name, false)
-        playerRoleDropdown.setText(player.role.name, false)
+        playerStatusDropdown.setText(player.status?.name ?: UserStatus.ACTIVE.name)
+        playerRoleDropdown.setText(player.role.name)
+        
+        // Update UI based on role
+        updateUIForRole(player)
 
-        // Stats placeholders
-        statsGoals.text       = "0"
-        statsAssists.text     = "0"
-        statsMatches.text     = "0"
-        statsYellowCards.text = "0"
-        statsRedCards.text    = "0"
-        statsCleanSheets.text = "0"
+        // Load real-time statistics
+        loadPlayerStatistics(player)
     }
 
     private fun setEditing(enabled: Boolean) {
@@ -261,27 +356,78 @@ class PlayerProfileFragment : Fragment() {
             dd.alpha = if (enabled) 1f else 0.6f
         }
 
-        actionsRow.visibility     = if (enabled) View.GONE else View.VISIBLE
-        editActionsRow.visibility = if (enabled) View.VISIBLE else View.GONE
+        if (enabled) {
+            btnEditProfile.visibility = View.GONE
+            btnSaveProfile.visibility = View.VISIBLE
+            btnCancelEdit.visibility = View.VISIBLE
+            btnEditProfile.contentDescription = null
+        } else {
+            btnEditProfile.visibility = View.VISIBLE
+            btnSaveProfile.visibility = View.GONE
+            btnCancelEdit.visibility = View.GONE
+            btnSaveProfile.contentDescription = null
+            btnCancelEdit.contentDescription = null
+        }
 
         btnEditProfile.text = if (enabled) "Cancel Edit" else "Edit Profile"
 
-        val imm = requireActivity()
-            .getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+        // Simple keyboard handling like the account tab
         if (enabled) {
             playerNameInput.requestFocus()
-            imm.showSoftInput(playerNameInput, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
         } else {
+            val imm = requireActivity()
+                .getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
             imm.hideSoftInputFromWindow(requireView().windowToken, 0)
         }
     }
 
     private fun validateInputs(): Boolean {
-        val name   = playerNameInput.text?.toString()?.trim().orEmpty()
-        val number = playerNumberInput.text?.toString()?.trim().orEmpty()
-        if (name.isEmpty()) { playerNameInput.error = "Name required"; return false }
-        if (number.isEmpty()) { playerNumberInput.error = "Number required"; return false }
+        val fullName = playerNameInput.text?.toString()?.trim().orEmpty()
+        val parts = fullName.split(" ", limit = 2)
+        val firstName = parts.getOrNull(0) ?: ""
+        val lastName = parts.getOrNull(1) ?: ""
+        val email = playerEmailInput.text?.toString()?.trim()
+        val number = playerNumberInput.text?.toString()?.trim()
+        val dateOfBirth = playerDateOfBirthInput.text?.toString()?.trim()
+        val phone = playerContactInput.text?.toString()?.trim()
+        val position = "" // Not implemented in current UI
+        val role = playerRoleDropdown.text?.toString()?.trim() ?: "FULL_TIME_PLAYER"
+        val status = playerStatusDropdown.text?.toString()?.trim() ?: "ACTIVE"
+        
+        val validation = UserValidationUtils.validateUserData(
+            firstName, lastName, email, number, dateOfBirth, phone, position, role, status
+        )
+        
+        if (!validation.isValid) {
+            // Clear previous errors
+            clearFieldErrors()
+            
+            // Show validation errors
+            val errorMessage = UserValidationUtils.getErrorMessage(validation.errors)
+            Snackbar.make(requireView(), errorMessage, Snackbar.LENGTH_LONG).show()
+            
+            // Set specific field errors
+            if (firstName.isBlank()) playerNameInput.error = "Name required"
+            if (email.isNullOrBlank()) playerEmailInput.error = "Email required"
+            if (!number.isNullOrBlank() && !UserValidationUtils.isValidPlayerNumber(number)) {
+                playerNumberInput.error = "Number must be 1-99"
+            }
+            if (!dateOfBirth.isNullOrBlank() && !UserValidationUtils.isValidDateOfBirth(dateOfBirth)) {
+                playerDateOfBirthInput.error = "Invalid date"
+            }
+            
+            return false
+        }
+        
         return true
+    }
+    
+    private fun clearFieldErrors() {
+        playerNameInput.error = null
+        playerEmailInput.error = null
+        playerNumberInput.error = null
+        playerDateOfBirthInput.error = null
+        playerContactInput.error = null
     }
 
     private fun buildUserFromInputs(existing: User): User {
@@ -299,7 +445,7 @@ class PlayerProfileFragment : Fragment() {
         }.getOrDefault(existing.status ?: UserStatus.ACTIVE)
 
         val dob = runCatching {
-            playerDateOfBirthInput.text?.toString()?.takeIf { it.isNotBlank() }?.let { LocalDate.parse(it) }
+            playerDateOfBirthInput.text?.toString()?.takeIf { it.isNotBlank() }?.let { DateUtils.parseDate(it) }
         }.getOrNull()
 
         return existing.copy(
@@ -315,20 +461,142 @@ class PlayerProfileFragment : Fragment() {
 
     private fun setupDatePicker() {
         playerDateOfBirthInput.setOnClickListener {
-            if (isEditing) showDatePicker()
+            showDatePicker()
         }
     }
 
     private fun showDatePicker() {
-        val cal = java.util.Calendar.getInstance()
+        // Try to parse existing date, or use current date as fallback
+        val existingDate = playerDateOfBirthInput.text?.toString()?.let { dateStr ->
+            DateUtils.parseDate(dateStr)
+        } ?: DateUtils.getCurrentDate()
+        
+        val (year, month, day) = DateUtils.getDatePickerValues(existingDate)
+        
         val dialog = android.app.DatePickerDialog(
             requireContext(),
-            { _, y, m, d -> playerDateOfBirthInput.setText(String.format("%04d-%02d-%02d", y, m + 1, d)) },
-            cal.get(java.util.Calendar.YEAR),
-            cal.get(java.util.Calendar.MONTH),
-            cal.get(java.util.Calendar.DAY_OF_MONTH)
+            { _, y, m, d -> 
+                val selectedDate = DateUtils.createDateFromPicker(y, m, d)
+                playerDateOfBirthInput.setText(DateUtils.formatForDisplay(selectedDate))
+            },
+            year,
+            month,
+            day
         )
-        dialog.datePicker.maxDate = System.currentTimeMillis()
+        
+        // Set reasonable date range (5 to 100 years old)
+        val calendar = java.util.Calendar.getInstance()
+        val currentYear = calendar.get(java.util.Calendar.YEAR)
+        val minYear = currentYear - 100
+        val maxYear = currentYear - 5
+        
+        dialog.datePicker.minDate = java.util.Calendar.getInstance().apply {
+            set(minYear, 0, 1)
+        }.timeInMillis
+        
+        dialog.datePicker.maxDate = java.util.Calendar.getInstance().apply {
+            set(maxYear, 11, 31)
+        }.timeInMillis
+        
         dialog.show()
     }
+
+    private fun showDeletePlayerConfirmation() {
+        currentPlayer?.let { player ->
+            android.app.AlertDialog.Builder(requireContext())
+                .setTitle("Delete Player")
+                .setMessage("Are you sure you want to delete ${player.fullName()}? This action cannot be undone and will remove all associated data including attendance records and statistics.")
+                .setPositiveButton("Delete") { _, _ ->
+                    deletePlayer(player)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+    }
+
+    private fun deletePlayer(player: User) {
+        lifecycleScope.launch {
+            try {
+                viewModel.deletePlayer(player)
+                Snackbar.make(requireView(), "Player deleted successfully", Snackbar.LENGTH_SHORT).show()
+                // Navigate back to previous fragment
+                if (parentFragmentManager.backStackEntryCount > 0) {
+                    parentFragmentManager.popBackStack()
+                } else {
+                    parentFragmentManager.beginTransaction().remove(this@PlayerProfileFragment).commit()
+                }
+            } catch (e: Exception) {
+                Snackbar.make(requireView(), "Failed to delete player: ${e.message}", Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
+    
+    private fun updateUIForRole(player: User) {
+        when (player.role) {
+            UserRole.COACH -> {
+                // Hide player-specific fields for coaches and clear data
+                cardPlayerNumber.visibility = View.GONE
+                playerNumberInput.text = null
+            }
+            UserRole.FULL_TIME_PLAYER, UserRole.PART_TIME_PLAYER, UserRole.COACH_PLAYER -> {
+                // Show player-specific fields for players
+                cardPlayerNumber.visibility = View.VISIBLE
+            }
+            else -> {
+                // Default: show all fields
+                cardPlayerNumber.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun navigateToStatistics(playerId: String) {
+        val statisticsFragment = StatisticsFragment.newInstance(playerId)
+        parentFragmentManager.beginTransaction()
+            .replace(android.R.id.content, statisticsFragment)
+            .addToBackStack("statistics")
+            .commit()
+    }
+
+    private fun loadPlayerStatistics(player: User) {
+        // Load real statistics from the database
+        lifecycleScope.launch {
+            try {
+                // Get active team
+                val team = teamRepository.getActiveTeam().first()
+                val teamId = team?.id ?: return@launch
+                
+                // Ensure statistics exist and are up to date
+                statisticsService.ensurePlayerStatistics(player.id, teamId)
+                
+                // Observe real-time statistics updates
+                statisticsService.getPlayerStatisticsFlow(player.id).collect { stats ->
+                    stats?.let {
+                        statsGoals.text = it.goals.toString()
+                        statsAssists.text = it.assists.toString()
+                        statsMatches.text = it.matches.toString()
+                        statsYellowCards.text = it.yellowCards.toString()
+                        statsRedCards.text = it.redCards.toString()
+                        statsCleanSheets.text = it.cleanSheets.toString()
+                    } ?: run {
+                        // Show zeros if no stats available
+                        statsGoals.text = "0"
+                        statsAssists.text = "0"
+                        statsMatches.text = "0"
+                        statsYellowCards.text = "0"
+                        statsRedCards.text = "0"
+                        statsCleanSheets.text = "0"
+                    }
+                }
+            } catch (e: Exception) {
+                // Show zeros on error
+                statsGoals.text = "0"
+                statsAssists.text = "0"
+                statsMatches.text = "0"
+                statsYellowCards.text = "0"
+                statsRedCards.text = "0"
+                statsCleanSheets.text = "0"
+            }
+        }
+    }
 }
+

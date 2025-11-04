@@ -32,7 +32,6 @@ import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
 import com.ggetters.app.ui.management.views.TeamsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -70,6 +69,9 @@ class HomeActivity : AppCompatActivity() {
         setupStatusBar()
         setupViews()
         setupBottomNavigation()
+
+        // Register modern back navigation callback
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
         if (savedInstanceState == null) {
             switchFragmentWithDirection(HomeCalendarFragment(), 0)
@@ -220,7 +222,7 @@ class HomeActivity : AppCompatActivity() {
         bottomNav.setOnItemSelectedListener { menuItem ->
             // Debounce rapid taps to prevent jitter/duplicate transactions
             val now = android.os.SystemClock.elapsedRealtime()
-            if (now - lastBottomNavClickAt < 350L) return@setOnItemSelectedListener false
+            if (now - lastBottomNavClickAt < 200L) return@setOnItemSelectedListener false
             lastBottomNavClickAt = now
 
             val newTabIndex = when (menuItem.itemId) {
@@ -261,10 +263,32 @@ class HomeActivity : AppCompatActivity() {
         // Default fragment is set in onCreate
     }
 
+    // Public helper to navigate to a specific bottom-nav tab programmatically
+    fun navigateToTab(menuItemId: Int) {
+        val bottomNav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNavigationView)
+        val newTabIndex = when (menuItemId) {
+            R.id.nav_calendar -> 0
+            R.id.nav_team_players -> 1
+            R.id.nav_player_profile -> 2
+            R.id.nav_profile -> 3
+            else -> currentTabIndex
+        }
+        val fragment = when (menuItemId) {
+            R.id.nav_calendar -> HomeCalendarFragment()
+            R.id.nav_team_players -> HomeTeamFragment()
+            R.id.nav_player_profile -> profileFragmentForCurrentUser()
+            R.id.nav_profile -> HomeSettingsFragment()
+            else -> null
+        }
+        fragment?.let {
+            switchFragmentWithDirection(it, newTabIndex)
+            bottomNav.selectedItemId = menuItemId
+        }
+    }
+
     private fun profileFragmentForCurrentUser(): Fragment {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        // If uid is null/blank, pass blank – PlayerProfileFragment will call loadCurrentUser()
-        return PlayerProfileFragment.newInstance(uid ?: "", startEditing = false)
+        // Return the new HomeAccountFragment for the current logged-in user
+        return HomeAccountFragment()
     }
 
     private fun setupOptionsLongClick(bottomNav: BottomNavigationView) {
@@ -378,6 +402,11 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun switchFragmentWithDirection(fragment: Fragment, newTabIndex: Int) {
+        // Prevent unnecessary fragment switching
+        if (currentFragment?.javaClass == fragment.javaClass && currentTabIndex == newTabIndex) {
+            return
+        }
+
         val transaction = supportFragmentManager.beginTransaction()
 
         // Determine transition direction based on tab index
@@ -411,6 +440,13 @@ class HomeActivity : AppCompatActivity() {
             )
         }
 
+        // Clear previous fragment reference to prevent memory leaks
+        currentFragment?.let { 
+            if (it.isAdded) {
+                transaction.remove(it)
+            }
+        }
+
         // Replace without pushing to back stack to avoid jitter/stack growth for bottom nav
         transaction.setReorderingAllowed(true)
         transaction.replace(R.id.fragmentContainer, fragment)
@@ -420,23 +456,28 @@ class HomeActivity : AppCompatActivity() {
         currentTabIndex = newTabIndex
     }
 
-    override fun onBackPressed() { // fix this, onBackPressedDispatcher
-        // Handle back navigation
-        if (supportFragmentManager.backStackEntryCount > 1) {
-            // Pop the back stack
-            supportFragmentManager.popBackStack()
+    // Modern back navigation using OnBackPressedDispatcher
+    private val onBackPressedCallback = object : androidx.activity.OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            // Handle back navigation
+            if (supportFragmentManager.backStackEntryCount > 0) {
+                // Pop the back stack if there are fragments to pop
+                supportFragmentManager.popBackStack()
 
-            // Update current tab index based on the fragment that's now visible
-            val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-            currentTabIndex = when (currentFragment) {
-                is HomeCalendarFragment -> 0
-                is HomeTeamFragment -> 1
-                is PlayerProfileFragment -> 2
-                is HomeSettingsFragment -> 3
-                else -> currentTabIndex
+                // Update current tab index based on the fragment that's now visible
+                val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+                currentTabIndex = when (currentFragment) {
+                    is HomeCalendarFragment -> 0
+                    is HomeTeamFragment -> 1
+                    is PlayerProfileFragment -> 2
+                    is HomeSettingsFragment -> 3
+                    else -> currentTabIndex
+                }
+            } else {
+                // At root fragment - minimize app instead of closing it
+                // This is standard Android behavior - back from home screen minimizes the app
+                moveTaskToBack(true)
             }
-        } else {
-            super.onBackPressed()
         }
     }
 

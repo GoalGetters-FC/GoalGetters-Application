@@ -169,6 +169,7 @@ class PracticeEventFragment : Fragment() {
             title = title,
             description = description,
             location = location,
+            opponent = null,
             date = date,
             start = start,
             end = end,

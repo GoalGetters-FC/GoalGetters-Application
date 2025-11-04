@@ -7,7 +7,14 @@ import com.ggetters.app.data.model.MatchEventType
 fun MatchEvent.getFormattedTime(): String = "${minute}'"
 
 fun MatchEvent.getEventDescription(): String = when (eventType) {
-    MatchEventType.GOAL -> "Goal by ${playerName ?: "Unknown"}"
+    MatchEventType.GOAL -> {
+        val isOpponentGoal = details["isOpponentGoal"] as? Boolean ?: false
+        if (isOpponentGoal) {
+            "Goal by Opponent"
+        } else {
+            "Goal by ${playerName ?: "Unknown"}"
+        }
+    }
     MatchEventType.YELLOW_CARD -> "Yellow card for ${playerName ?: "Unknown"}"
     MatchEventType.RED_CARD -> "Red card for ${playerName ?: "Unknown"}"
     MatchEventType.SUBSTITUTION -> {
@@ -23,4 +30,6 @@ fun MatchEvent.getEventDescription(): String = when (eventType) {
         val away = details["awayScore"] as? Int ?: 0
         "Score updated: $home - $away"
     }
+    MatchEventType.INJURY -> "Injury: ${playerName ?: "Unknown"}"
+    MatchEventType.OTHER -> details["notes"] as? String ?: "Other event"
 }

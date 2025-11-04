@@ -34,8 +34,16 @@ class PlayerDetailsViewModel @Inject constructor(
 
     fun deletePlayer(user: User) {
         viewModelScope.launch {
-            userRepo.delete(user)
-            _player.value = null
+            try {
+                userRepo.delete(user)
+                // Sync deletion to remote
+                userRepo.sync()
+                _player.value = null
+            } catch (e: Exception) {
+                // Handle error - could show error message to user
+                _player.value = user // Restore player if deletion failed
+                throw e // Re-throw to allow UI to handle the error
+            }
         }
     }
 }

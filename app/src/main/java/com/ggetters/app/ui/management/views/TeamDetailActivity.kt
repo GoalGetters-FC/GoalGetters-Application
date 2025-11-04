@@ -52,6 +52,15 @@ class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogLis
             binds.root.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        // Style toolbar similar to TeamViewerActivity (dark header aesthetics)
+        setSupportActionBar(binds.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binds.toolbar.setBackgroundColor(android.graphics.Color.parseColor("#161620"))
+        binds.toolbar.setTitleTextColor(android.graphics.Color.WHITE)
+        // Ensure status bar icons are light on dark background
+        androidx.core.view.WindowCompat.getInsetsController(window, window.decorView)
+            .isAppearanceLightStatusBars = false
     }
 
     private fun setupViews() {
@@ -119,10 +128,10 @@ class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogLis
         // TODO: Backend - Implement team stats export and sharing
         // TODO: Backend - Add team stats analytics and tracking
 
-        binds.memberCountText.text = "15"
-        binds.coachCountText.text = "2"
-        binds.playerCountText.text = "12"
-        binds.guardianCountText.text = "1"
+        // Real-time stats pending: hide placeholders to avoid seeded data
+        binds.memberCountText.text = "—"
+        binds.coachCountText.text = "—"
+        binds.playerCountText.text = "—"
     }
 
     private fun setupTeamActionsSection() {
@@ -141,14 +150,10 @@ class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogLis
             navigateToEditTeam()
         }
 
-        binds.viewStatsButton.setOnClickListener {
-            // TODO: Navigate to team statistics
-            Clogger.d(TAG, "View stats clicked")
-        }
+        // Removed View Statistics button
 
         binds.inviteMembersButton.setOnClickListener {
-            // TODO: Show invite members dialog
-            Clogger.d(TAG, "Invite members clicked")
+            showInviteMembersDialog()
         }
     }
 
@@ -162,6 +167,8 @@ class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogLis
             // TODO: Backend - Add team data analytics and usage tracking
 
             Clogger.d(TAG, "Loading team data for team ID: $teamId")
+            // Ensure persistent code exists
+            model.ensureTeamCode(teamId)
         }
     }
 
@@ -183,9 +190,78 @@ class TeamDetailActivity : AppCompatActivity(), EditTeamDialog.EditTeamDialogLis
                 }
             }
         }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.memberCount.collectLatest { count ->
+                    binds.memberCountText.text = count.toString()
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.coachCount.collectLatest { count ->
+                    binds.coachCountText.text = count.toString()
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.playerCount.collectLatest { count ->
+                    binds.playerCountText.text = count.toString()
+                }
+            }
+        }
     }
 
 
+
+    private fun showInviteMembersDialog() {
+        val t = model.team.value
+        if (t == null) {
+            Toast.makeText(this, "Team still loading…", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val code = (t.code ?: "").uppercase()
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_invite_code, null)
+        val codeInput = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.codeEditText)
+        codeInput.setText(code)
+
+        val dlg = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("Invite Members")
+            .setMessage("Share this team code so members can join.")
+            .setView(dialogView)
+            .setNegativeButton("Close", null)
+            .setPositiveButton("Share") { _, _ ->
+                val shareText = "Join our team on GoalGetters FC!\n\nTeam Code: ${codeInput.text?.toString()?.uppercase()}\n\nOpen the app and enter this code to join."
+                val shareIntent = android.content.Intent().apply {
+                    action = android.content.Intent.ACTION_SEND
+                    type = "text/plain"
+                    putExtra(android.content.Intent.EXTRA_TEXT, shareText)
+                    putExtra(android.content.Intent.EXTRA_SUBJECT, "Join our team")
+                }
+                startActivity(android.content.Intent.createChooser(shareIntent, "Share team code"))
+            }
+            .setNeutralButton("Copy") { _, _ ->
+                val text = codeInput.text?.toString()?.uppercase() ?: ""
+                val cm = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                cm.setPrimaryClip(android.content.ClipData.newPlainText("Team Code", text))
+                Toast.makeText(this, "Copied", Toast.LENGTH_SHORT).show()
+            }
+            .create()
+        dlg.show()
+    }
+
+    private fun generateTeamCodeLocal(): String {
+        val chars = ("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ").toCharArray()
+        val rnd = java.security.SecureRandom()
+        val sb = StringBuilder()
+        repeat(6) { sb.append(chars[rnd.nextInt(chars.size)]) }
+        return sb.toString()
+    }
 
     private fun navigateToEditTeam() {
         val t = model.team.value

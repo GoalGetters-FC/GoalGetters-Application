@@ -15,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.ggetters.app.R
 import com.ggetters.app.core.extensions.android.onTextUpdated
 import com.ggetters.app.core.extensions.android.setLayoutError
+import com.ggetters.app.core.extensions.kotlin.openBrowserTo
 import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.databinding.ActivitySignUpBinding
 import com.ggetters.app.ui.shared.models.Clickable
@@ -116,28 +117,49 @@ class SignUpActivity : AppCompatActivity(), Clickable {
     override fun setupTouchListeners() {
         binds.tvSignIn.setOnClickListener(this)
         binds.btSignUp.setOnClickListener(this)
+        binds.tvFaq.setOnClickListener(this)
     }
 
 
-    override fun onClick(view: View?) = when (view?.id) {
-        binds.tvSignIn.id -> {
-            startActivity(Intent(this, SignInActivity::class.java))
-            overridePendingTransition(R.anim.slide_in_left, R.anim.fade_out)
-            finish()
-        }
+    override fun onClick(view: View?) {
+        when (view?.id) {
+            binds.tvFaq.id -> {
+                openBrowserTo("https://help.goalgettersfc.co.za/policy")
+            }
+            
+            binds.tvSignIn.id -> {
+                startActivity(Intent(this, SignInActivity::class.java))
+                overridePendingTransition(R.anim.slide_in_left, R.anim.fade_out)
+                finish()
+            }
 
-        binds.btSignUp.id -> {
-            AgeVerificationBottomSheet().show(
-                supportFragmentManager, "AgeVerificationBottomSheet"
-            )
+            binds.btSignUp.id -> {
+                // First validate form
+                model.form.validateForm()
+                
+                // Check if form is valid before proceeding
+                if (!model.form.isFormValid.value) {
+                    Toast.makeText(this, "Please fill in all required fields correctly", Toast.LENGTH_SHORT).show()
+                    return
+                }
+                
+                // Show age verification dialog
+                val ageVerificationDialog = AgeVerificationBottomSheet().apply {
+                    onAgeVerified = { isVerified ->
+                        if (isVerified) {
+                            // Only proceed with sign-up after age verification
+                            model.signUp()
+                        }
+                    }
+                }
+                ageVerificationDialog.show(supportFragmentManager, "AgeVerificationBottomSheet")
+            }
 
-            model.signUp()
-        }
-
-        else -> {
-            Clogger.w(
-                TAG, "Unhandled on-click for: ${view?.id}"
-            )
+            else -> {
+                Clogger.w(
+                    TAG, "Unhandled on-click for: ${view?.id}"
+                )
+            }
         }
     }
 
@@ -158,13 +180,23 @@ class SignUpActivity : AppCompatActivity(), Clickable {
             model.form.onPasswordConfirmChanged(text)
         }
 
-        // Error UI
+        // Error UI and Button State
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.form.formState.collect { state ->
                     binds.etIdentity.setLayoutError(state.identity.error?.toString())
                     binds.etPasswordDefault.setLayoutError(state.passwordDefault.error?.toString())
                     binds.etPasswordConfirm.setLayoutError(state.passwordConfirm.error?.toString())
+                }
+            }
+        }
+        
+        // Button state management
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.form.isFormValid.collect { isValid ->
+                    binds.btSignUp.isEnabled = isValid
+                    binds.btSignUp.alpha = if (isValid) 1.0f else 0.6f
                 }
             }
         }

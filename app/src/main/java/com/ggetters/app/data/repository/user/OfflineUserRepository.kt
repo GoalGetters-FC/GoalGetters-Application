@@ -36,7 +36,12 @@ class OfflineUserRepository @Inject constructor(
         dao.upsert(entity)
     }
 
-    override suspend fun delete(entity: User) = dao.deleteByIdInTeam(entity.id, entity.teamId)
+    override suspend fun delete(entity: User) = entity.teamId?.let { teamId ->
+        dao.deleteByIdInTeam(entity.id, teamId)
+    } ?: run {
+        // If no teamId, just delete by ID
+        dao.deleteById(entity.id)
+    }
 
     override suspend fun deleteAll() { /* optional global wipe */ }
 
@@ -48,7 +53,7 @@ class OfflineUserRepository @Inject constructor(
     suspend fun getDirtyUsers(teamId: String) = dao.getDirtyUsers(teamId)
     suspend fun markClean(id: String, teamId: String) = dao.markClean(id, teamId)
 
-    override suspend fun getLocalByAuthId(authId: String): User? = null
+    override suspend fun getLocalByAuthId(authId: String): User? = dao.getByAuthId(authId)
     override suspend fun insertLocal(user: User) = dao.upsert(user)
     override suspend fun insertRemote(user: User) { /* no-op */ }
 }

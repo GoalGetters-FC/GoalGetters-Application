@@ -61,4 +61,7 @@ interface TeamDao {
         clearActive()
         setActiveTeam(teamId)
     }
+
+    @Query("UPDATE team SET code = :code, stained_at = :stainedAt, updated_at = :updatedAt WHERE id = :teamId")
+    suspend fun updateCode(teamId: String, code: String, stainedAt: java.time.Instant?, updatedAt: java.time.Instant)
 }

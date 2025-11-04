@@ -17,13 +17,19 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.ggetters.app.R
+import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.User
 import com.ggetters.app.data.model.UserRole
 import com.ggetters.app.data.model.UserStatus
 import com.ggetters.app.ui.central.models.AppbarTheme
 import com.ggetters.app.ui.central.models.HomeUiConfiguration
 import com.ggetters.app.ui.central.models.UserAccount
+import com.ggetters.app.ui.central.sheets.AccountEditBottomSheet
 import com.ggetters.app.ui.central.sheets.AccountSwitcherBottomSheet
+import com.ggetters.app.ui.central.sheets.ContactDevelopersBottomSheet
+import com.ggetters.app.ui.central.sheets.HelpAndFAQBottomSheet
+import com.ggetters.app.ui.central.sheets.NotificationSettingsBottomSheet
+import com.ggetters.app.ui.central.sheets.TeamProfileBottomSheet
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.central.viewmodels.ProfileViewModel
 import com.ggetters.app.ui.management.sheets.TeamSwitcherBottomSheet
@@ -37,6 +43,9 @@ import java.time.LocalDate
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
+    companion object {
+        private const val TAG = "ProfileFragment"
+    }
 
     private val activeModel: ProfileViewModel by viewModels()
     private val sharedModel: HomeViewModel by activityViewModels()
@@ -49,7 +58,6 @@ class ProfileFragment : Fragment() {
     // Settings items
     private lateinit var accountItem: View
     private lateinit var teamProfileItem: View
-    private lateinit var notificationsItem: View
     private lateinit var privacyPolicyItem: View
     private lateinit var contactDevelopersItem: View
     private lateinit var helpFaqItem: View
@@ -85,11 +93,20 @@ class ProfileFragment : Fragment() {
 
         accountItem = view.findViewById(R.id.accountItem)
         teamProfileItem = view.findViewById(R.id.teamProfileItem)
-        notificationsItem = view.findViewById(R.id.notificationsItem)
         privacyPolicyItem = view.findViewById(R.id.privacyPolicyItem)
         contactDevelopersItem = view.findViewById(R.id.contactDevelopersItem)
         helpFaqItem = view.findViewById(R.id.helpFaqItem)
         logoutButton = view.findViewById(R.id.logoutButton)
+        
+        // Set up account-specific UI elements
+        setupAccountSpecificViews(view)
+    }
+    
+    private fun setupAccountSpecificViews(view: View) {
+        // Set up profile avatar with account-specific styling
+        profileAvatar.setOnClickListener {
+            showAccountEditDialog()
+        }
     }
 
     private fun setupClickListeners() {
@@ -107,11 +124,11 @@ class ProfileFragment : Fragment() {
 
         accountItem.setOnClickListener { showAccountSettings() }
         teamProfileItem.setOnClickListener { navigateToTeamProfile() }
-        notificationsItem.setOnClickListener { showNotificationSettings() }
         privacyPolicyItem.setOnClickListener { showPrivacyPolicy() }
-        contactDevelopersItem.setOnClickListener { contactDevelopers() }
-        helpFaqItem.setOnClickListener { showHelpFaq() }
+        contactDevelopersItem.setOnClickListener { showContactDevelopers() }
+        helpFaqItem.setOnClickListener { showHelpAndFAQ() }
         logoutButton.setOnClickListener { showLogoutConfirmation() }
+        // Navigation handled by existing helpers; avoid dangling container IDs
     }
 
     /** Keep the team name in the header in sync with the active team. */
@@ -128,30 +145,95 @@ class ProfileFragment : Fragment() {
     }
 
     private fun loadUserProfile() {
-        // TODO: Replace sample with real user from repo/auth profile
-        val sampleUser = User(
-            id = "1",
-            authId = "auth123",
-            teamId = "team1",
-            name = "Matthew",
-            surname = "Pieterse",
-            alias = "matthew_pieterse",
-            email = "ST10257002@domain.com",
-            dateOfBirth = LocalDate.of(1990, 5, 15),
+        // Load the actual logged-in user from the repository
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                try {
+                    activeModel.currentUser.collect { user ->
+                        Clogger.d(TAG, "User data received: ${user?.let { "User: ${it.fullName()}, Email: ${it.email}" } ?: "null"}")
+                        if (user != null) {
+                            displayUserInfo(user)
+                        } else {
+                            Clogger.w(TAG, "No user found, showing placeholder")
+                            // Show placeholder if no user found
+                            displayUserInfo(getPlaceholderUser())
+                        }
+                    }
+                } catch (e: Exception) {
+                    Clogger.e(TAG, "Error loading user profile: ${e.message}", e)
+                    displayUserInfo(getPlaceholderUser())
+                }
+            }
+        }
+    }
+    
+    private fun getPlaceholderUser(): User {
+        return User(
+            id = "placeholder",
+            authId = "placeholder",
+            teamId = null,
+            name = "User",
+            surname = "",
+            alias = "user",
+            email = "user@example.com",
             role = UserRole.FULL_TIME_PLAYER,
             status = UserStatus.ACTIVE,
             createdAt = Instant.now(),
             updatedAt = Instant.now()
         )
-        displayUserInfo(sampleUser)
     }
 
     private fun displayUserInfo(user: User) {
-        val name = user.fullName().ifBlank { user.alias.ifBlank { "Player" } }
-        userNameText.text = name
-        userHandleText.text = user.email.orEmpty()
+        // Display user's full name or fallback to alias/email
+        val displayName = when {
+            user.fullName().isNotBlank() -> user.fullName()
+            user.alias.isNotBlank() -> user.alias
+            !user.email.isNullOrBlank() -> user.email!!.split("@").first()
+            else -> "User"
+        }
+        userNameText.text = displayName
+        
+        // Display email or fallback
+        userHandleText.text = user.email?.ifBlank { "No email set" } ?: "No email set"
+        
         // teamNameText is driven by observeActiveTeam()
         // TODO: Load avatar with Coil/Glide when you have user.avatarUrl
+    }
+
+    private fun showAccountEditDialog() {
+        val currentUser = activeModel.currentUser.value
+        if (currentUser != null) {
+            AccountEditBottomSheet.newInstance(currentUser.id) { updatedUser ->
+                activeModel.updateUserProfile(updatedUser)
+                Snackbar.make(requireView(), "Account updated successfully", Snackbar.LENGTH_SHORT).show()
+            }.show(parentFragmentManager, "AccountEditBottomSheet")
+        }
+    }
+    
+    private fun showTeamProfileDialog() {
+        val currentTeam = activeModel.activeTeam.value
+        if (currentTeam != null) {
+            TeamProfileBottomSheet.newInstance(currentTeam.id).show(parentFragmentManager, "TeamProfileBottomSheet")
+        } else {
+            Snackbar.make(requireView(), "No active team found", Snackbar.LENGTH_SHORT).show()
+        }
+    }
+    
+    private fun showNotificationSettings() {
+        NotificationSettingsBottomSheet().show(parentFragmentManager, "NotificationSettingsBottomSheet")
+    }
+    
+    private fun showPrivacyPolicy() {
+        // TODO: Open privacy policy web page or dialog
+        Snackbar.make(requireView(), "Privacy Policy - Coming Soon", Snackbar.LENGTH_SHORT).show()
+    }
+    
+    private fun showContactDevelopers() {
+        ContactDevelopersBottomSheet().show(parentFragmentManager, "ContactDevelopersBottomSheet")
+    }
+    
+    private fun showHelpAndFAQ() {
+        HelpAndFAQBottomSheet().show(parentFragmentManager, "HelpAndFAQBottomSheet")
     }
 
     fun showAccountSwitcher() {
@@ -200,21 +282,6 @@ class ProfileFragment : Fragment() {
         Snackbar.make(requireView(), "Team management coming soon", Snackbar.LENGTH_SHORT).show()
     }
 
-    private fun showNotificationSettings() {
-        Snackbar.make(requireView(), "Notification settings coming soon", Snackbar.LENGTH_SHORT).show()
-    }
-
-    private fun showPrivacyPolicy() {
-        Snackbar.make(requireView(), "Privacy policy coming soon", Snackbar.LENGTH_SHORT).show()
-    }
-
-    private fun contactDevelopers() {
-        Snackbar.make(requireView(), "Contact developers coming soon", Snackbar.LENGTH_SHORT).show()
-    }
-
-    private fun showHelpFaq() {
-        Snackbar.make(requireView(), "Help & FAQ coming soon", Snackbar.LENGTH_SHORT).show()
-    }
 
     private fun showLogoutConfirmation() {
         AlertDialog.Builder(requireContext(), R.style.Theme_GoalGetters_Dialog)
@@ -234,6 +301,4 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    /** Local helper in case your data model doesn’t implement this. */
-    private fun User.fullName(): String = "$name $surname".trim()
 }

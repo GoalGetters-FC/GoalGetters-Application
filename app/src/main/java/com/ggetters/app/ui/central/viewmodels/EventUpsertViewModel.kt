@@ -12,6 +12,7 @@ import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.event.EventRepository
 import com.ggetters.app.data.repository.team.TeamRepository
 import com.ggetters.app.data.repository.user.UserRepository
+import com.ggetters.app.core.services.EventNotificationService
 import com.ggetters.app.ui.central.models.UpsertState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +31,7 @@ class EventUpsertViewModel @Inject constructor(
     private val teamRepo: TeamRepository,
     private val userRepo: UserRepository,
     private val attendanceRepo: AttendanceRepository,
+    private val eventNotificationService: EventNotificationService
     // OPTIONAL: inject an auth provider to get the current UID
     // private val authRepo: AuthRepository
 ) : ViewModel() {
@@ -44,7 +46,8 @@ class EventUpsertViewModel @Inject constructor(
         description: String?,
         startAt: Instant?,
         endAt: Instant?,
-        meetingAt: Instant? = null // NOTE: currently unused by Event model
+        meetingAt: Instant? = null, // NOTE: currently unused by Event model
+        opponent: String? = null
     ) = viewModelScope.launch {
         val team = teamRepo.getActiveTeam().first()
         if (team == null) {
@@ -62,11 +65,35 @@ class EventUpsertViewModel @Inject constructor(
 
         _state.value = UpsertState.Saving
 
+        // Derive opponent if the title starts with "vs ", and build "Home vs Opponent"
+        val normalizedTitle = title.trim()
+        val explicitOpponent = opponent?.trim().orEmpty()
+        val opponentFromTitle = if (category == EventCategory.MATCH && normalizedTitle.lowercase().startsWith("vs ")) {
+            normalizedTitle.removePrefix("vs ").trim()
+        } else null
+
+        val finalName = if (category == EventCategory.MATCH) {
+            val opponentName = when {
+                explicitOpponent.isNotBlank() -> explicitOpponent
+                opponentFromTitle?.isNotBlank() == true -> opponentFromTitle
+                else -> normalizedTitle
+            }
+            val homeName = team.name.ifBlank { "Home" }
+            if (opponentName.isBlank() || opponentName.equals("match", ignoreCase = true) || opponentName.equals("league", ignoreCase = true)) {
+                // No opponent provided – fall back to generic name
+                "Match"
+            } else {
+                "$homeName vs $opponentName"
+            }
+        } else {
+            normalizedTitle.ifBlank { defaultTitle(category) }
+        }
+
         // Build event
         val event = Event(
             id = UUID.randomUUID().toString(),
             teamId = team.id,
-            name = title.ifBlank { defaultTitle(category) },
+            name = finalName,
             category = category,
             location = location,
             description = description,
@@ -87,6 +114,28 @@ class EventUpsertViewModel @Inject constructor(
 
                 // 3) Pull fresh attendance locally (optional but keeps things consistent)
                 attendanceRepo.sync()
+            }
+
+            // 4) Create notification for the new event
+            try {
+                val currentUserId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+                Clogger.d("EventUpsertVM", "Creating notification for event: ${event.name}, currentUserId: $currentUserId")
+                
+                val currentUser = userRepo.getLocalByAuthId(currentUserId ?: "")
+                if (currentUser != null) {
+                    Clogger.d("EventUpsertVM", "Found user: ${currentUser.id}, calling createEventCreatedNotification")
+                    eventNotificationService.createEventCreatedNotification(
+                        event = event,
+                        userId = currentUser.id,
+                        teamId = team.id
+                    )
+                    Clogger.d("EventUpsertVM", "createEventCreatedNotification called successfully")
+                } else {
+                    Clogger.w("EventUpsertVM", "No current user found for userId: $currentUserId")
+                }
+            } catch (e: Exception) {
+                Clogger.e("EventUpsertVM", "Failed to create event notification: ${e.message}", e)
+                // Don't fail the entire operation if notification creation fails
             }
 
             _state.value = UpsertState.Saved(event.id)

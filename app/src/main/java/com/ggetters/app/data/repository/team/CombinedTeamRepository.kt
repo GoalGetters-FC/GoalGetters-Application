@@ -67,10 +67,8 @@ class CombinedTeamRepository @Inject constructor(
             Clogger.i("Sync", "Pulled ${remote.size} remote teams")
             trace.putMetric("teams_pulled", remote.size.toLong())
 
-            val toDelete = offline.getAllLocal()
-                .filter { it.id !in remoteIds && !it.isStained() && it.id !in pushedIds }
-            toDelete.forEach { offline.deleteByIdLocal(it.id) }
-            trace.putMetric("teams_deleted_local", toDelete.size.toLong())
+            // Be conservative: skip local deletion to avoid accidental disappearance
+            trace.putMetric("teams_deleted_local", 0)
 
             val merged = remote.map { r ->
                 localSnapshot[r.id]?.let { r.copy(isActive = it.isActive) } ?: r
@@ -91,6 +89,8 @@ class CombinedTeamRepository @Inject constructor(
     override suspend fun setActiveTeam(team: Team) = offline.setActiveTeam(team)
 
     override fun getActiveTeam() = offline.getActiveTeam()
+
+    override fun getByIdFlow(id: String): Flow<Team?> = offline.getByIdFlow(id)
 
     override suspend fun getByCode(code: String): Team? {
         val trace = FirebasePerformance.getInstance().newTrace("teamrepo_getByCode")
@@ -134,4 +134,8 @@ class CombinedTeamRepository @Inject constructor(
     }
 
     override fun getTeamsForCurrentUser() = offline.getTeamsForCurrentUser()
+
+    override suspend fun updateTeamCode(teamId: String, code: String) {
+        offline.updateTeamCode(teamId, code)
+    }
 }

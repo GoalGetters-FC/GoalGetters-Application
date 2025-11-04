@@ -20,27 +20,27 @@ import com.ggetters.app.core.utils.Clogger
 import com.ggetters.app.data.model.CalendarDayItem
 import com.ggetters.app.data.model.Event
 import com.ggetters.app.data.model.EventCategory
-import com.ggetters.app.databinding.FragmentCalendarBinding
+import com.ggetters.app.databinding.FragmentHomeCalendarBinding
 import com.ggetters.app.ui.central.adapters.CalendarAdapter
 import com.ggetters.app.ui.central.adapters.EventAdapter
 import com.ggetters.app.ui.central.models.AppbarTheme
 import com.ggetters.app.ui.central.models.HomeUiConfiguration
 import com.ggetters.app.ui.central.sheets.EventDetailsBottomSheet
-import com.ggetters.app.ui.central.sheets.EventListBottomSheet
 import com.ggetters.app.ui.central.viewmodels.HomeCalendarViewModel
+import com.ggetters.app.ui.central.viewmodels.HomeTeamViewModel
 import com.ggetters.app.ui.central.viewmodels.HomeViewModel
 import com.ggetters.app.ui.shared.models.Clickable
+import com.ggetters.app.ui.shared.viewmodels.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.combine
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 import kotlin.math.abs
-import com.ggetters.app.ui.central.viewmodels.HomeTeamViewModel
-import com.google.android.material.snackbar.Snackbar
-import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
 class HomeCalendarFragment : Fragment(), Clickable {
@@ -49,10 +49,10 @@ class HomeCalendarFragment : Fragment(), Clickable {
         private const val REQUEST_ADD_EVENT = 1001
     }
 
+    private val authViewModel: AuthViewModel by viewModels()
 
-
-    private lateinit var binds: FragmentCalendarBinding
-    private lateinit var adapter: CalendarAdapter
+    private lateinit var binds: FragmentHomeCalendarBinding
+    private lateinit var calendarAdapter: CalendarAdapter
     private lateinit var eventsAdapter: EventAdapter
 
     private var currentDate = Calendar.getInstance()
@@ -103,9 +103,14 @@ class HomeCalendarFragment : Fragment(), Clickable {
         // collect selected-day events → update bottom list
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                activeModel.dayEvents.collect { dayList ->
-                    val day = selectedDay ?: return@collect
-                    showSelectedDayEvents(day, dayList)
+                combine(
+                    activeModel.selectedDate,
+                    activeModel.dayEvents
+                ) { date, dayEvents ->
+                    date to dayEvents
+                }.collect { (date, dayEvents) ->
+                    val selectedDate = date ?: return@collect
+                    showSelectedDayEvents(selectedDate, dayEvents)
                 }
             }
         }
@@ -113,7 +118,6 @@ class HomeCalendarFragment : Fragment(), Clickable {
         // optional: hook “due soon” to a small list/badge if you have one
         // viewLifecycleOwner.lifecycleScope.launch { … activeModel.dueSoon.collect { … } }
 
-        // kick a background sync
         activeModel.refresh()
     }
 
@@ -174,28 +178,28 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
 
     private fun autoSelectToday() {
-        val today = Calendar.getInstance()
-        val todayEvents = getEventsForDate(today)
-        val todayDayOfMonth = today.get(Calendar.DAY_OF_MONTH)
+        val todayCalendar = Calendar.getInstance()
+        val todayDate = LocalDate.of(
+            todayCalendar.get(Calendar.YEAR),
+            todayCalendar.get(Calendar.MONTH) + 1,
+            todayCalendar.get(Calendar.DAY_OF_MONTH)
+        )
+        val todayEvents = getEventsForDate(todayCalendar)
 
-        if (currentDate.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
-            currentDate.get(Calendar.YEAR) == today.get(Calendar.YEAR)
+        if (currentDate.get(Calendar.MONTH) == todayCalendar.get(Calendar.MONTH) &&
+            currentDate.get(Calendar.YEAR) == todayCalendar.get(Calendar.YEAR)
         ) {
-            selectedDay = todayDayOfMonth
-            showSelectedDayEvents(todayDayOfMonth, todayEvents)
+            showSelectedDayEvents(todayDate, todayEvents)
+            activeModel.select(todayDate)
         }
 
         updateCalendarView()
     }
 
     private fun updateCalendarView() {
+        if (!::calendarAdapter.isInitialized) return
         val calendarDays = generateCalendarDays()
-        adapter = CalendarAdapter(
-            onClick = { day -> onDayClickedCallback(day) },
-            onLongClick = { day -> onDayLongClickedCallback(day) }
-        )
-        binds.rvCalendar.adapter = adapter
-        adapter.update(calendarDays)
+        calendarAdapter.update(calendarDays)
         updateMonthYearDisplay()
     }
 
@@ -229,7 +233,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
                     dayNumber = day,
                     events = dayEvents,
                     isCurrentMonth = true,
-                    isToday = isToday,
+                    isToday = isToday, // Always show today highlighting
                     isSelected = isSelected
                 )
             )
@@ -278,11 +282,13 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
         val cal = currentDate.clone() as Calendar
         cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        activeModel.select(LocalDate.of(
-            cal.get(Calendar.YEAR),
-            cal.get(Calendar.MONTH) + 1,
-            cal.get(Calendar.DAY_OF_MONTH)
-        ))
+        activeModel.select(
+            LocalDate.of(
+                cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH) + 1,
+                cal.get(Calendar.DAY_OF_MONTH)
+            )
+        )
     }
 
 
@@ -291,28 +297,30 @@ class HomeCalendarFragment : Fragment(), Clickable {
     }
 
 
-    private fun showSelectedDayEvents(dayOfMonth: Int, events: List<Event>) {
-        val calendar = currentDate.clone() as Calendar
-        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
-        binds.selectedDateText.text = dateFormat.format(calendar.time)
+    private fun showSelectedDayEvents(date: LocalDate, events: List<Event>) {
+        selectedDay = date.dayOfMonth
+        selectedDayEvents = events
+
+        val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.getDefault())
+        binds.tvSelectedDate.text = date.format(formatter)
 
         if (events.isEmpty()) {
-            binds.rvSelectedDayEvents.visibility = View.GONE
-            binds.noEventsLayout.visibility = View.VISIBLE
+            binds.rvSelectedDateEvents.visibility = View.GONE
+            binds.cvSkeleton.visibility = View.VISIBLE
         } else {
-            binds.rvSelectedDayEvents.visibility = View.VISIBLE
-            binds.noEventsLayout.visibility = View.GONE
-            eventsAdapter.update(events)
+            binds.rvSelectedDateEvents.visibility = View.VISIBLE
+            binds.cvSkeleton.visibility = View.GONE
         }
 
-        binds.selectedDayEventsSection.visibility = View.VISIBLE
+        eventsAdapter.update(events)
+        binds.cvSelectedDateEvents.visibility = View.VISIBLE
+        updateCalendarView()
     }
 
 
     private fun hideSelectedDayEvents() {
-        binds.rvSelectedDayEvents.visibility = View.GONE
-        binds.noEventsLayout.visibility = View.GONE
+        binds.rvSelectedDateEvents.visibility = View.GONE
+        binds.cvSkeleton.visibility = View.GONE
     }
 
     private fun showEventDetails(event: Event) {
@@ -322,10 +330,15 @@ class HomeCalendarFragment : Fragment(), Clickable {
                 putExtra("event_title", event.name)
                 putExtra("event_venue", event.location ?: "TBD")
                 putExtra("event_opponent", event.description ?: "Opponent")
-                putExtra("event_date", event.startAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
-                putExtra("event_time", DateTimeFormatter.ofPattern("HH:mm")
-                    .withZone(ZoneId.systemDefault())
-                    .format(event.startAt.atZone(ZoneId.systemDefault())))
+                putExtra(
+                    "event_date",
+                    event.startAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                )
+                putExtra(
+                    "event_time", DateTimeFormatter.ofPattern("HH:mm")
+                        .withZone(ZoneId.systemDefault())
+                        .format(event.startAt.atZone(ZoneId.systemDefault()))
+                )
             }
             startActivity(intent)
             requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
@@ -340,32 +353,10 @@ class HomeCalendarFragment : Fragment(), Clickable {
         showEventDetails(event)
     }
 
-//    private fun getEventsForDate(calendar: Calendar): List<Event> {
-//        val d = LocalDate.of(
-//            calendar.get(Calendar.YEAR),
-//            calendar.get(Calendar.MONTH) + 1,
-//            calendar.get(Calendar.DAY_OF_MONTH)
-//        )
-//        return monthEvents
-//            .filter { it.startAt.atZone(ZoneId.systemDefault()).toLocalDate() == d }
-//            .sortedBy { it.startAt }
-//    }
-
-
-
-    private fun showEventsForDay(day: Int, events: List<Event>) {
-        val eventListBottomSheet = EventListBottomSheet.newInstance(day, events)
-        eventListBottomSheet.show(childFragmentManager, "EventListBottomSheet")
-    }
-
 
     private fun showAddEventBottomSheet(selectedDay: Int? = null) {
         val intent = Intent(requireContext(), AddEventActivity::class.java)
 
-        // ❌ Don’t block navigation if activeTeam is null
-        // EventUpsertViewModel will handle "no active team" case gracefully
-
-        // ✅ Pass selected date if user tapped a day
         if (selectedDay != null) {
             val calendar = currentDate.clone() as Calendar
             calendar.set(Calendar.DAY_OF_MONTH, selectedDay)
@@ -375,8 +366,6 @@ class HomeCalendarFragment : Fragment(), Clickable {
         startActivityForResult(intent, REQUEST_ADD_EVENT)
         requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out)
     }
-
-
 
 
 // --- Event Handlers
@@ -401,19 +390,22 @@ class HomeCalendarFragment : Fragment(), Clickable {
 
 
     private fun setupCalendar() {
+        calendarAdapter = CalendarAdapter(
+            onClick = { day -> onDayClickedCallback(day) },
+            onLongClick = { day -> onDayLongClickedCallback(day) }
+        )
+
         binds.rvCalendar.apply {
             layoutManager = GridLayoutManager(context, 7)
-            adapter = CalendarAdapter(
-                onClick = { day -> onDayClickedCallback(day) },
-                onLongClick = { day -> onDayLongClickedCallback(day) }
-            )
+            adapter = calendarAdapter
         }
 
         eventsAdapter = EventAdapter(
             onClick = { event -> showEventDetails(event) },
             onLongClick = { event -> editEvent(event) }
         )
-        binds.rvSelectedDayEvents.apply {
+
+        binds.rvSelectedDateEvents.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = eventsAdapter
         }
@@ -470,7 +462,7 @@ class HomeCalendarFragment : Fragment(), Clickable {
     private fun createBindings(
         inflater: LayoutInflater, container: ViewGroup?
     ): View {
-        binds = FragmentCalendarBinding.inflate(inflater, container, false)
+        binds = FragmentHomeCalendarBinding.inflate(inflater, container, false)
         return binds.root
     }
 
@@ -489,12 +481,12 @@ class HomeCalendarFragment : Fragment(), Clickable {
         updateCalendarView()
     }
 
-    
+
     private fun updateMonthYearDisplay() {
         val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
         sharedModel.useViewConfiguration(
             HomeUiConfiguration(
-                appBarColor = AppbarTheme.WHITE,
+                appBarColor = AppbarTheme.NIGHT,
                 appBarTitle = dateFormat.format(currentDate.time),
                 appBarShown = true,
             )

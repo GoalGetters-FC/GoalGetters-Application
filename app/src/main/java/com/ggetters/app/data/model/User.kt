@@ -21,8 +21,9 @@ import java.time.LocalDate
             onUpdate = ForeignKey.CASCADE
         )
     ],
+    // Allow team_id to be null during sign-up (before team assignment)
     indices = [
-        Index(value = ["auth_id", "team_id"], unique = true), // membership constraint
+        Index(value = ["auth_id"], unique = true),           // unique auth constraint
         Index(value = ["team_id"]),                          // team roster lookups
         Index(value = ["role"]),                             // filtering by role
         Index(value = ["status"]),                           // filtering by active/inactive
@@ -51,7 +52,7 @@ data class User(
     val authId: String,                 // duplicate of id for clarity/queries
 
     @ColumnInfo(name = "team_id")
-    val teamId: String,
+    val teamId: String? = null, // Allow null during sign-up, will be set during onboarding
 
     @ColumnInfo(name = "joined_at")
     var joinedAt: Instant? = null,
