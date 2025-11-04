@@ -110,7 +110,8 @@ class CombinedLineupRepository @Inject constructor(
                                 // This happens when local changes haven't synced yet or sync failed
                                 val latestLocal = localLineups.maxByOrNull { it.updatedAt }
                                 val isRecent = latestLocal?.let { 
-                                    java.time.Duration.between(it.updatedAt, java.time.Instant.now()).seconds < 300 // 5 minutes
+                                    // Consider local recent within 10 minutes to avoid premature overwrite by empty remote
+                                    java.time.Duration.between(it.updatedAt, java.time.Instant.now()).seconds < 600
                                 } ?: false
                                 
                                 if (isRecent) {
@@ -188,9 +189,9 @@ class CombinedLineupRepository @Inject constructor(
                                         }
                                         // Don't replace - local data is the source of truth when it has spots
                                     } else {
-                                        // Check if local was saved recently (within last 2 minutes) - protect it from being overwritten
+                                        // Check if local was saved recently (within last 5 minutes) - protect it from being overwritten
                                         val localIsRecent = latestLocal?.let {
-                                            java.time.Duration.between(it.updatedAt, java.time.Instant.now()).seconds < 120 // 2 minutes
+                                            java.time.Duration.between(it.updatedAt, java.time.Instant.now()).seconds < 300
                                         } ?: false
                                         
                                         if (remoteIsNewer) {
@@ -240,9 +241,9 @@ class CombinedLineupRepository @Inject constructor(
                                                 }
                                             } else if (latestRemote.spots.isEmpty() && latestLocal != null) {
                                                 // Remote has empty spots, local also has empty spots but is not recent
-                                                // Check if remote is MUCH newer (more than 10 minutes) before overwriting
+                                                // Check if remote is MUCH newer (more than 20 minutes) before overwriting
                                                 val remoteIsMuchNewer = latestRemote.updatedAt.isAfter(
-                                                    latestLocal.updatedAt.plusSeconds(600) // 10 minutes
+                                                    latestLocal.updatedAt.plusSeconds(1200)
                                                 )
                                                 if (remoteIsMuchNewer) {
                                                     Clogger.d("CombinedLineupRepository", "Remote lineup much newer (10+ min) with empty spots, local also empty, replacing for event=$eventId")
@@ -251,9 +252,24 @@ class CombinedLineupRepository @Inject constructor(
                                                     Clogger.d("CombinedLineupRepository", "Remote lineup newer with empty spots but not much newer, preserving local for event=$eventId")
                         }
                     } else {
-                                                // Remote is newer and has spots (or both are empty) - use remote
-                                                Clogger.d("CombinedLineupRepository", "Remote lineup newer with spots, replacing local for event=$eventId")
-                        offline.replaceForEvent(eventId, normalized)
+                                                // Remote is newer and has spots (or both are empty)
+                                                // Additional guard: if local is recent, prefer preserving local to avoid user-visible resets
+                                                if (localIsRecent) {
+                                                    Clogger.w(
+                                                        "CombinedLineupRepository",
+                                                        "Remote newer with spots but local is recent; preserving local and attempting remote sync for event=$eventId"
+                                                    )
+                                                    launch {
+                                                        runCatching {
+                                                            latestLocal?.let { online.upsert(it) }
+                                                        }.onFailure {
+                                                            Clogger.e("CombinedLineupRepository", "Failed to sync recent local lineup to remote: ${it.message}", it)
+                                                        }
+                                                    }
+                                                } else {
+                                                    Clogger.d("CombinedLineupRepository", "Remote lineup newer with spots, replacing local for event=$eventId")
+                                                    offline.replaceForEvent(eventId, normalized)
+                                                }
                                             }
                                         } else {
                                             // Local is newer - preserve local data
