@@ -80,8 +80,7 @@ android {
             return properties.getProperty(property) ?: ""
         }
 
-        resolvedGoogleServerClientId = googleServerClientId.takeIf { it.isNotBlank() }
-            ?: getLocalSecret("GOOGLE_SERVER_CLIENT_ID")
+        resolvedGoogleServerClientId = googleServerClientId
 
         if (resolvedGoogleServerClientId.isBlank()) {
             println("[GoalGetters] Warning: GOOGLE_SERVER_CLIENT_ID is not configured. Google Sign-In will be disabled.")
@@ -185,6 +184,7 @@ dependencies {
 
     kapt(libs.androidx.room.compiler)
     kapt(libs.hilt.android.compiler)
+    kapt(libs.androidx.hilt.compiler)
 
     testImplementation(libs.junit)
 

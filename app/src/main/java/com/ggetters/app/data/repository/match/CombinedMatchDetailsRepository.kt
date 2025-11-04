@@ -107,6 +107,10 @@ class CombinedMatchDetailsRepository @Inject constructor(
         matchEvents.insertEvent(event)
     }
 
+    override suspend fun refreshEventsForMatch(matchId: String) {
+        matchEvents.refreshFromRemote(matchId)
+    }
+
     /**
      * Parse opponent team name from event title
      */
@@ -238,8 +242,8 @@ class CombinedMatchDetailsRepository @Inject constructor(
         forEach { attendance ->
             when (attendance.status) {
                 0 -> available++
-                1 -> maybe++
-                2 -> unavailable++
+                1 -> unavailable++
+                2 -> maybe++
                 else -> notResponded++
             }
         }

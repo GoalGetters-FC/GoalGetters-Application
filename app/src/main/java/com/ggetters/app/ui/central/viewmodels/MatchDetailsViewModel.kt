@@ -6,6 +6,8 @@ import com.ggetters.app.data.model.MatchDetails
 import com.ggetters.app.data.model.MatchEvent
 import com.ggetters.app.data.model.RSVPStatus
 import com.ggetters.app.data.repository.match.MatchDetailsRepository
+import com.ggetters.app.data.repository.event.EventRepository
+import com.ggetters.app.data.repository.team.TeamRepository
 import com.ggetters.app.core.services.StatisticsService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -13,6 +15,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
@@ -25,7 +28,9 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class MatchDetailsViewModel @Inject constructor(
     private val matchRepo: MatchDetailsRepository,
-    private val statisticsService: StatisticsService
+    private val statisticsService: StatisticsService,
+    private val eventsRepo: EventRepository,
+    private val teamRepo: TeamRepository
 ) : ViewModel() {
 
     private val _matchDetails = MutableStateFlow<MatchDetails?>(null)
@@ -53,7 +58,41 @@ class MatchDetailsViewModel @Inject constructor(
         @Suppress("UNUSED_PARAMETER") venue: String?,
         @Suppress("UNUSED_PARAMETER") matchDateMillis: Long
     ) {
-        observeMatch(matchId)
+        // Start observing first to avoid transient resets, then hydrate/refresh
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            // Begin observing immediately
+            observeMatch(matchId)
+            runCatching {
+                val activeTeam = teamRepo.getActiveTeam().first()
+                val teamId = activeTeam?.id
+                if (teamId != null) {
+                    eventsRepo.hydrateForTeam(teamId)
+                }
+                // One-shot, remote-first refresh of match events for this match (guarded)
+                android.util.Log.d("MatchDetailsViewModel", "Refreshing events from remote for matchId=$matchId")
+                matchRepo.refreshEventsForMatch(matchId)
+                android.util.Log.d("MatchDetailsViewModel", "Refresh complete (guard may skip) for matchId=$matchId")
+
+                // Ensure the base calendar event exists locally so matchDetailsFlow can emit
+                // This helps second devices that haven't hydrated the team's calendar yet
+                runCatching {
+                    val baseEvent = eventsRepo.getById(matchId)
+                    if (baseEvent != null) {
+                        eventsRepo.upsert(baseEvent)
+                    }
+                }.onFailure { e ->
+                    android.util.Log.w(
+                        "MatchDetailsViewModel",
+                        "Failed to ensure base event locally for matchId=$matchId: ${e.message}"
+                    )
+                }
+            }.onFailure { e ->
+                android.util.Log.e("MatchDetailsViewModel", "Hydration failed: ${e.message}", e)
+                _error.value = "Failed to sync latest data: ${e.message}"
+            }
+        }
     }
 
     private fun observeMatch(matchId: String) {

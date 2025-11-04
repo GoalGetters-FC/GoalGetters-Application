@@ -33,9 +33,23 @@ class EventFirestore @Inject constructor(
     /** Observe all events for a given team in real-time. */
     fun observeByTeamId(teamId: String): Flow<List<Event>> = callbackFlow {
         val col = paths.eventsCollection(teamId)
-        val sub = col.addSnapshotListener { snap, err ->
+        val sub = col.addSnapshotListener(
+            com.google.firebase.firestore.MetadataChanges.INCLUDE
+        ) { snap, err ->
             if (err != null) { close(err); return@addSnapshotListener }
-            val events = snap?.documents.orEmpty().mapNotNull { it.toEvent(teamId) }
+            if (snap == null) return@addSnapshotListener
+            
+            // Ignore cached and pending snapshots to avoid stale data
+            val md = snap.metadata
+            if (md.isFromCache || md.hasPendingWrites()) {
+                com.ggetters.app.core.utils.Clogger.d(
+                    "EventFirestore",
+                    "Ignoring snapshot: isFromCache=${md.isFromCache}, hasPendingWrites=${md.hasPendingWrites()}"
+                )
+                return@addSnapshotListener
+            }
+            
+            val events = snap.documents.mapNotNull { it.toEvent(teamId) }
             trySend(events).isSuccess
         }
         awaitClose { sub.remove() }

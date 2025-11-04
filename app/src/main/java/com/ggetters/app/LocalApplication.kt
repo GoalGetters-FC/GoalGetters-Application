@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import androidx.work.WorkManager
 import com.ggetters.app.core.services.GlobalAuthenticationListener
 import com.ggetters.app.core.sync.SyncScheduler
 import com.ggetters.app.core.utils.Clogger
@@ -76,6 +77,8 @@ class LocalApplication : Application(), Configuration.Provider {
         disableSystemThemeHooks()
 
         initFirebase()
+        // Ensure WorkManager uses our HiltWorkerFactory before any enqueues
+        WorkManager.initialize(this, workManagerConfiguration)
         initAuthHook()
         initDebugApp()
     }

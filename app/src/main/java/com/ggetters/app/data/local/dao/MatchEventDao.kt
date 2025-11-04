@@ -23,6 +23,9 @@ interface MatchEventDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(event: MatchEventEntity)
     
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(events: List<MatchEventEntity>)
+
     @Update
     suspend fun update(event: MatchEventEntity)
     
@@ -37,4 +40,12 @@ interface MatchEventDao {
     
     @Query("SELECT COUNT(*) FROM match_events WHERE matchId = :matchId")
     suspend fun getEventCountByMatchId(matchId: String): Int
+
+    @Transaction
+    suspend fun replaceEventsForMatchTransactional(matchId: String, events: List<MatchEventEntity>) {
+        deleteEventsByMatchId(matchId)
+        if (events.isNotEmpty()) {
+            insertAll(events)
+        }
+    }
 }

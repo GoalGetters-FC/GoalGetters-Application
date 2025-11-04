@@ -23,9 +23,23 @@ interface LineupDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun save(lineup: Lineup)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(lineups: List<Lineup>)
+
     @Delete
     suspend fun delete(lineup: Lineup)
 
     @Query("DELETE FROM lineup")
     suspend fun deleteAll()
+
+    @Query("DELETE FROM lineup WHERE event_id = :eventId")
+    suspend fun deleteByEventId(eventId: String)
+
+    @androidx.room.Transaction
+    suspend fun replaceForEventTransactional(eventId: String, lineups: List<Lineup>) {
+        deleteByEventId(eventId)
+        if (lineups.isNotEmpty()) {
+            insertAll(lineups)
+        }
+    }
 }

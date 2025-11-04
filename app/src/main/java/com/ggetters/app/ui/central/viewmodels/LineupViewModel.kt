@@ -10,8 +10,13 @@ import com.ggetters.app.data.model.RosterPlayer
 import com.ggetters.app.data.repository.attendance.AttendanceRepository
 import com.ggetters.app.data.repository.lineup.LineupRepository
 import com.ggetters.app.data.repository.user.UserRepository
+import com.ggetters.app.data.repository.lineup.LineupLocalEditGuard
 import com.ggetters.app.ui.shared.extensions.getFullName
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.Instant
+import java.util.UUID
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,8 +28,9 @@ import javax.inject.Inject
 class LineupViewModel @Inject constructor(
     private val attendanceRepo: AttendanceRepository,
     private val userRepo: UserRepository,
-    // Optional right now — wire when you’re ready to persist formations/spots
-    private val lineupRepo: LineupRepository
+    // Optional right now — wire when you're ready to persist formations/spots
+    private val lineupRepo: LineupRepository,
+    private val eventRepo: com.ggetters.app.data.repository.event.EventRepository
 ) : ViewModel() {
 
     private val _players = MutableStateFlow<List<RosterPlayer>>(emptyList())
@@ -45,12 +51,18 @@ class LineupViewModel @Inject constructor(
     // Backing caches
     private var cachedEventId: String = ""
     private var cachedTeamUsers = emptyList<com.ggetters.app.data.model.User>()
+    private var cachedAttendanceByPlayer: Map<String, Attendance> = emptyMap()
+    private var cachedLineupId: String? = null
+    private var cachedLineupCreatedAt: Instant? = null
+    private var cachedLineupCreatedBy: String? = null
+    private var lineupJob: Job? = null
 
     fun loadLineup(eventId: String) {
+        cachedEventId = eventId
+        lineupJob?.cancel()
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                cachedEventId = eventId
 
                 // 1) Pull team users
                 cachedTeamUsers = userRepo.all().first()
@@ -58,6 +70,7 @@ class LineupViewModel @Inject constructor(
                 // 2) Pull attendance rows for this event
                 val attendanceRows = attendanceRepo.getByEventId(eventId).first()
                 val byPlayer = attendanceRows.associateBy { it.playerId }
+                cachedAttendanceByPlayer = byPlayer
 
                 // 3) Merge → roster players
                 _players.value = cachedTeamUsers.map { u ->
@@ -73,29 +86,113 @@ class LineupViewModel @Inject constructor(
                     )
                 }
 
-                // Load saved lineup if it exists
-                val savedLineups = lineupRepo.getByEventId(eventId).first()
-                val savedLineup = savedLineups.firstOrNull()
-                if (savedLineup != null) {
-                    _formation.value = savedLineup.formation
-                    _positionedPlayers.value = savedLineup.spots.associate { spot ->
-                        val player = cachedTeamUsers.find { it.id == spot.userId }
-                        if (player != null) {
-                            val rsvp = byPlayer[player.id]
-                            val status = rsvpFromInt(rsvp?.status ?: 3)
-                            val rosterPlayer = RosterPlayer(
-                                playerId = player.id,
-                                playerName = player.getFullName(),
-                                jerseyNumber = spot.number,
-                                position = spot.position,
-                                status = status,
-                                profileImageUrl = null
-                            )
-                            spot.position to rosterPlayer
-                        } else {
-                            spot.position to null
+                lineupJob = viewModelScope.launch {
+                    lineupRepo.getByEventId(eventId).collect { savedLineups ->
+                        Clogger.d("LineupViewModel", "Received lineup Flow emission: savedLineups.size=${savedLineups.size} for event=$eventId")
+                        savedLineups.forEachIndexed { index, lineup ->
+                            Clogger.d("LineupViewModel", "  Lineup[$index]: id=${lineup.id}, formation=${lineup.formation}, spots.size=${lineup.spots.size}, updatedAt=${lineup.updatedAt}")
+                            lineup.spots.forEach { spot ->
+                                Clogger.d("LineupViewModel", "    Spot: position=${spot.position}, userId=${spot.userId}, number=${spot.number}")
+                            }
                         }
-                    }.filterValues { it != null } as Map<String, RosterPlayer>
+                        
+                        val savedLineup = savedLineups.firstOrNull()
+
+                        if (savedLineup == null) {
+                            // No saved lineup found - initialize empty positions for current formation
+                            // This ensures the UI has the correct structure even when no saved lineup exists
+                            // Only initialize if _positionedPlayers is completely empty (first load scenario)
+                            if (_positionedPlayers.value.isEmpty()) {
+                                val requiredPositions = requiredPositionsFor(_formation.value).toSet()
+                                val emptyPositionsMap = requiredPositions.associateWith { null as RosterPlayer? }
+                                Clogger.d("LineupViewModel", "No saved lineup found for event=$eventId, initializing empty positions for formation=${_formation.value}")
+                                _positionedPlayers.value = emptyPositionsMap
+                            } else {
+                                Clogger.d("LineupViewModel", "No saved lineup found for event=$eventId, preserving current UI state (current positionedPlayers.size=${_positionedPlayers.value.size}, formation=${_formation.value})")
+                            }
+                            cachedLineupId = null
+                            cachedLineupCreatedAt = null
+                            cachedLineupCreatedBy = null
+                            return@collect
+                        }
+
+                        Clogger.d("LineupViewModel", "Processing saved lineup: id=${savedLineup.id}, formation=${savedLineup.formation}, spots.size=${savedLineup.spots.size}")
+                        Clogger.d("LineupViewModel", "cachedTeamUsers.size=${cachedTeamUsers.size}, cachedAttendanceByPlayer.size=${cachedAttendanceByPlayer.size}")
+
+                        cachedLineupId = savedLineup.id
+                        cachedLineupCreatedAt = savedLineup.createdAt
+                        cachedLineupCreatedBy = savedLineup.createdBy
+
+                        // ALWAYS update formation from saved lineup to prevent reset issues
+                        // This ensures formation persistence even if ViewModel was recreated
+                        if (_formation.value != savedLineup.formation) {
+                            Clogger.d("LineupViewModel", "Updating formation from ${_formation.value} to ${savedLineup.formation}")
+                            _formation.value = savedLineup.formation
+                        } else {
+                            Clogger.d("LineupViewModel", "Formation matches saved lineup: ${savedLineup.formation}")
+                        }
+
+                        val mapped = mutableMapOf<String, RosterPlayer?>()
+                        var matchedCount = 0
+                        var notFoundCount = 0
+                        
+                        savedLineup.spots.forEach { spot ->
+                            val player = cachedTeamUsers.find { it.id == spot.userId }
+                            if (player != null) {
+                                matchedCount++
+                                val attendance = cachedAttendanceByPlayer[player.id]
+                                val status = rsvpFromInt(attendance?.status ?: 3)
+                                mapped[spot.position] = RosterPlayer(
+                                    playerId = player.id,
+                                    playerName = player.getFullName(),
+                                    jerseyNumber = spot.number,
+                                    position = spot.position,
+                                    status = status,
+                                    profileImageUrl = null,
+                                    lineupRole = spot.role,
+                                    lineupPosition = spot.position
+                                )
+                                Clogger.d("LineupViewModel", "Mapped spot: position=${spot.position}, player=${player.getFullName()}")
+                            } else {
+                                notFoundCount++
+                                mapped[spot.position] = null
+                                Clogger.w("LineupViewModel", "Could not find player for spot: position=${spot.position}, userId=${spot.userId} (cachedTeamUsers.size=${cachedTeamUsers.size})")
+                            }
+                        }
+
+                        // Also initialize empty positions for the formation to ensure all required positions are in the map
+                        val requiredPositions = requiredPositionsFor(savedLineup.formation).toSet()
+                        requiredPositions.forEach { position ->
+                            if (!mapped.containsKey(position)) {
+                                mapped[position] = null
+                            }
+                        }
+                        
+                        Clogger.d("LineupViewModel", "Built mapped players: matched=$matchedCount, notFound=$notFoundCount, mapped.size=${mapped.size}")
+                        Clogger.d("LineupViewModel", "Current _positionedPlayers.size=${_positionedPlayers.value.size}, new mapped.size=${mapped.size}")
+                        Clogger.d("LineupViewModel", "Current _positionedPlayers keys: ${_positionedPlayers.value.keys.sorted().joinToString()}")
+                        Clogger.d("LineupViewModel", "New mapped keys: ${mapped.keys.sorted().joinToString()}")
+
+                        // Always update _positionedPlayers when we have a saved lineup with spots
+                        // This ensures the UI reflects the saved state, especially after fragment/activity recreation
+                        // CRITICAL: Always apply saved lineup data, even if maps appear equal, to prevent data loss
+                        if (savedLineup.spots.isNotEmpty()) {
+                            Clogger.d("LineupViewModel", "Saved lineup has ${savedLineup.spots.size} spots - always applying to ensure persistence")
+                            _positionedPlayers.value = mapped
+                        } else {
+                            // Even if saved lineup has no spots, we should still update to clear any stale UI state
+                            // This handles the case where lineup was cleared/saved empty
+                            val mapsEqual = _positionedPlayers.value.size == mapped.size && 
+                                           _positionedPlayers.value.keys.all { mapped[it]?.playerId == _positionedPlayers.value[it]?.playerId }
+                            
+                            if (!mapsEqual) {
+                                Clogger.d("LineupViewModel", "Updating _positionedPlayers with ${mapped.size} players (maps not equal, saved lineup has no spots)")
+                                _positionedPlayers.value = mapped
+                            } else {
+                                Clogger.d("LineupViewModel", "_positionedPlayers unchanged (maps are equal and saved lineup has no spots)")
+                            }
+                        }
+                    }
                 }
 
             } catch (e: Exception) {
@@ -110,9 +207,14 @@ class LineupViewModel @Inject constructor(
     fun updateFormation(newFormation: String) {
         if (newFormation == _formation.value) return
         _formation.value = newFormation
-        // reset in-formation placements for now
-        _positionedPlayers.value = emptyMap()
-        // Persist formation change
+        // Do NOT clear positioned players - preserve lineup data when formation changes
+        // Only filter out positions that don't exist in the new formation
+        val validPositions = requiredPositionsFor(newFormation).toSet()
+        val filteredPositions = _positionedPlayers.value.filterKeys { validPositions.contains(it) }
+        if (filteredPositions.size != _positionedPlayers.value.size) {
+            _positionedPlayers.value = filteredPositions
+        }
+        // Persist formation change with preserved players
         saveCurrentLineup()
     }
 
@@ -150,6 +252,16 @@ class LineupViewModel @Inject constructor(
     }
 
     /**
+     * Bulk update all positioned players at once
+     * This is used when auto-positioning players to avoid multiple saves
+     */
+    fun setPositionedPlayers(players: Map<String, RosterPlayer?>) {
+        _positionedPlayers.value = players.toMap()
+        // Persist the bulk update
+        saveCurrentLineup()
+    }
+
+    /**
      * Add players to THIS EVENT’s roster by creating attendance rows with NOT_RESPONDED(3).
      */
     fun addPlayersToEvent(userIds: List<String>) {
@@ -165,6 +277,7 @@ class LineupViewModel @Inject constructor(
                         recordedBy = "system"
                     )
                     attendanceRepo.upsert(row)
+                    cachedAttendanceByPlayer = cachedAttendanceByPlayer + (pid to row)
                 }
                 // Refresh roster after adding
                 loadLineup(eventId)
@@ -184,8 +297,51 @@ class LineupViewModel @Inject constructor(
             try {
                 _isLoading.value = true
                 
+                // Validate eventId is not blank
+                if (eventId.isBlank()) {
+                    _error.value = "Cannot save lineup: event ID is missing"
+                    Clogger.e("LineupViewModel", "Attempted to save lineup with blank eventId")
+                    return@launch
+                }
+                
+                // Validate that the event exists in the database
+                val event = eventRepo.getById(eventId)
+                if (event == null) {
+                    _error.value = "Cannot save lineup: event not found"
+                    Clogger.e("LineupViewModel", "Attempted to save lineup for non-existent event=$eventId")
+                    return@launch
+                }
+                
+                // Get the current user ID from Firebase Auth
+                val currentUserId: String? = runCatching {
+                    val authUid = FirebaseAuth.getInstance().currentUser?.uid
+                    if (authUid != null) {
+                        // Try to get the user from the database using authId
+                        // First try getLocalByAuthId (most reliable)
+                        val user = runCatching { userRepo.getLocalByAuthId(authUid) }.getOrNull()
+                            ?: runCatching { userRepo.getById(authUid) }.getOrNull()
+                        user?.id
+                    } else null
+                }.getOrNull()
+                
+                // Use cached creator if available, otherwise use current user ID, otherwise null
+                // Null is valid because the foreign key constraint allows null for createdBy
+                val creator = cachedLineupCreatedBy ?: currentUserId
+                
                 // Build lineup spots from positioned players
-                val spots = _positionedPlayers.value.mapNotNull { (position, player) ->
+                val positionedPlayersMap = _positionedPlayers.value
+                
+                // Detailed logging to diagnose why spots might be empty
+                Clogger.d("LineupViewModel", "Building lineup: positionedPlayersMap.size=${positionedPlayersMap.size}, formation=${_formation.value}")
+                positionedPlayersMap.forEach { (position, player) ->
+                    if (player != null) {
+                        Clogger.d("LineupViewModel", "  Position $position: player=${player.playerName} (id=${player.playerId}, jersey=${player.jerseyNumber})")
+                    } else {
+                        Clogger.d("LineupViewModel", "  Position $position: null (empty)")
+                    }
+                }
+                
+                val spots = positionedPlayersMap.mapNotNull { (position, player) ->
                     player?.let { p ->
                         com.ggetters.app.data.model.LineupSpot(
                             userId = p.playerId,
@@ -196,17 +352,41 @@ class LineupViewModel @Inject constructor(
                     }
                 }
                 
-                // Create or update lineup
+                Clogger.d("LineupViewModel", "Converted to spots: spots.size=${spots.size} (from ${positionedPlayersMap.values.count { it != null }} non-null players)")
+                spots.forEach { spot ->
+                    Clogger.d("LineupViewModel", "  Spot: position=${spot.position}, userId=${spot.userId}, number=${spot.number}")
+                }
+                
+                val lineupId = cachedLineupId ?: UUID.randomUUID().toString()
+                val createdAt = cachedLineupCreatedAt ?: Instant.now()
+
+                // Create or update lineup with current timestamp
                 val lineup = com.ggetters.app.data.model.Lineup(
+                    id = lineupId,
+                    createdAt = createdAt,
+                    updatedAt = Instant.now(), // Always use current time for updates
                     eventId = eventId,
+                    createdBy = creator, // Can be null if no user found (foreign key allows null)
                     formation = _formation.value,
-                    spots = spots,
-                    createdBy = "current_user" // TODO: Get from auth
+                    spots = spots
                 )
                 
+                Clogger.d("LineupViewModel", "Saving lineup: id=${lineup.id}, eventId=${lineup.eventId}, formation=${lineup.formation}, spots.size=${lineup.spots.size}")
+                // Mark local edit to guard immediate remote overwrites
+                LineupLocalEditGuard.markEdited(eventId)
+                
+                // Save to both offline and online (CombinedLineupRepository handles this)
                 lineupRepo.upsert(lineup)
+                
+                // Update cache after successful save
+                cachedLineupId = lineup.id
+                cachedLineupCreatedAt = lineup.createdAt
+                cachedLineupCreatedBy = lineup.createdBy
+                
+                Clogger.d("LineupViewModel", "Lineup saved successfully for event=$eventId: ${spots.size} spots, formation=${_formation.value}, createdBy=${creator ?: "null"}")
             } catch (e: Exception) {
                 _error.value = "Failed to save lineup: ${e.message}"
+                Clogger.e("LineupViewModel", "Failed to save lineup for event=$eventId: ${e.message}", e)
             } finally {
                 _isLoading.value = false
             }
@@ -230,8 +410,8 @@ class LineupViewModel @Inject constructor(
 
     private fun rsvpFromInt(v: Int): RSVPStatus = when (v) {
         0 -> RSVPStatus.AVAILABLE
-        1 -> RSVPStatus.MAYBE
-        2 -> RSVPStatus.UNAVAILABLE
+        1 -> RSVPStatus.UNAVAILABLE
+        2 -> RSVPStatus.MAYBE
         else -> RSVPStatus.NOT_RESPONDED
     }
 
@@ -239,10 +419,15 @@ class LineupViewModel @Inject constructor(
     
     /**
      * Helper method to save the current lineup with the cached event ID
+     * Validates that eventId is set before saving
      */
     private fun saveCurrentLineup() {
         if (cachedEventId.isNotBlank()) {
+            Clogger.d("LineupViewModel", "saveCurrentLineup called: eventId=$cachedEventId, formation=${_formation.value}, positionedPlayers.size=${_positionedPlayers.value.size}")
             saveLineup(cachedEventId)
+        } else {
+            Clogger.w("LineupViewModel", "Cannot save lineup: cachedEventId is blank. Call loadLineup() first.")
+            _error.value = "Cannot save lineup: match not loaded"
         }
     }
     
