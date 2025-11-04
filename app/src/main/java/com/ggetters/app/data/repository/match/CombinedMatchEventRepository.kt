@@ -12,6 +12,7 @@ import kotlin.comparisons.compareByDescending
 import kotlin.comparisons.thenByDescending
 import javax.inject.Inject
 import javax.inject.Singleton
+import java.util.UUID
 
 /**
  * Combined implementation of MatchEventRepository.
@@ -46,16 +47,13 @@ class CombinedMatchEventRepository @Inject constructor(
                                 .thenByDescending { it.timestamp }
                         )
 
-                        // Guard: if remote is empty but we currently have local events, don't wipe them
+                        // Never replace local with an empty remote list to avoid visible resets
                         if (normalized.isEmpty()) {
-                            val localNow = try { offline.getEventsByMatchId(matchId).first() } catch (_: Exception) { emptyList() }
-                            if (localNow.isNotEmpty()) {
-                                Clogger.w(
-                                    "CombinedMatchEventRepository",
-                                    "Remote emitted 0 events but local has ${localNow.size}; skipping replace to avoid wipe (match=$matchId)"
-                                )
-                                return@collect
-                            }
+                            Clogger.w(
+                                "CombinedMatchEventRepository",
+                                "Remote emitted 0 events; skipping replace to avoid wipe (match=$matchId)"
+                            )
+                            return@collect
                         }
 
                         Clogger.d(
@@ -139,16 +137,18 @@ class CombinedMatchEventRepository @Inject constructor(
     }
     
     override suspend fun insertEvent(event: MatchEvent) {
+        // Ensure a stable ID so Firestore writes do not fail silently
+        val safe = if (event.id.isNullOrBlank()) event.copy(id = UUID.randomUUID().toString()) else event
         // Always save to offline first for persistence
-        offline.insertEvent(event)
+        offline.insertEvent(safe)
         // Mark local edit guard for this match
-        MatchEventLocalEditGuard.markEdited(event.matchId)
-        
+        MatchEventLocalEditGuard.markEdited(safe.matchId)
+
         // Try to save online, but don't fail if it doesn't work
         // Offline save already succeeded, so data is persisted
         runCatching {
-            online.insertEvent(event)
-            Clogger.d("CombinedMatchEventRepository", "Match event saved to both offline and online: ${event.id}")
+            online.insertEvent(safe)
+            Clogger.d("CombinedMatchEventRepository", "Match event saved to both offline and online: ${safe.id}")
         }.onFailure { e ->
             Clogger.w("CombinedMatchEventRepository", "Match event saved offline but online sync failed (will retry on next sync): ${e.message}")
             // Data is still persisted locally, so this is not a critical failure
@@ -156,15 +156,17 @@ class CombinedMatchEventRepository @Inject constructor(
     }
     
     override suspend fun updateEvent(event: MatchEvent) {
+        // Ensure a stable ID on updates as well
+        val safe = if (event.id.isNullOrBlank()) event.copy(id = UUID.randomUUID().toString()) else event
         // Always update offline first for persistence
-        offline.updateEvent(event)
+        offline.updateEvent(safe)
         // Mark local edit guard for this match
-        MatchEventLocalEditGuard.markEdited(event.matchId)
-        
+        MatchEventLocalEditGuard.markEdited(safe.matchId)
+
         // Try to update online, but don't fail if it doesn't work
         runCatching {
-            online.updateEvent(event)
-            Clogger.d("CombinedMatchEventRepository", "Match event updated in both offline and online: ${event.id}")
+            online.updateEvent(safe)
+            Clogger.d("CombinedMatchEventRepository", "Match event updated in both offline and online: ${safe.id}")
         }.onFailure { e ->
             Clogger.w("CombinedMatchEventRepository", "Match event updated offline but online sync failed (will retry on next sync): ${e.message}")
         }
@@ -232,14 +234,11 @@ class CombinedMatchEventRepository @Inject constructor(
         runCatching {
             val remote = online.fetchEventsByMatchIdOnce(matchId)
             if (remote.isEmpty()) {
-                val localNow = try { offline.getEventsByMatchId(matchId).first() } catch (_: Exception) { emptyList() }
-                if (localNow.isNotEmpty()) {
-                    Clogger.w(
-                        "CombinedMatchEventRepository",
-                        "Manual refresh found 0 remote events but local has ${localNow.size}; skipping replace (match=$matchId)"
-                    )
-                    return
-                }
+                Clogger.w(
+                    "CombinedMatchEventRepository",
+                    "Manual refresh found 0 remote events; skipping replace (match=$matchId)"
+                )
+                return
             }
             Clogger.d(
                 "CombinedMatchEventRepository",

@@ -58,10 +58,12 @@ class MatchDetailsViewModel @Inject constructor(
         @Suppress("UNUSED_PARAMETER") venue: String?,
         @Suppress("UNUSED_PARAMETER") matchDateMillis: Long
     ) {
-        // Hydrate local DB from remote for the active team before observing match data
+        // Start observing first to avoid transient resets, then hydrate/refresh
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
+            // Begin observing immediately
+            observeMatch(matchId)
             runCatching {
                 val activeTeam = teamRepo.getActiveTeam().first()
                 val teamId = activeTeam?.id
@@ -90,7 +92,6 @@ class MatchDetailsViewModel @Inject constructor(
                 android.util.Log.e("MatchDetailsViewModel", "Hydration failed: ${e.message}", e)
                 _error.value = "Failed to sync latest data: ${e.message}"
             }
-            observeMatch(matchId)
         }
     }
 
